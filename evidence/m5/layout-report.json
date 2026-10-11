@@ -1,0 +1,23 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "fixedPrimary": true,
+      "storyNoFalseClose": true,
+      "choicesWithinViewport": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "fixedPrimary": true,
+      "storyNoFalseClose": true,
+      "choicesWithinViewport": true
+    }
+  ],
+  "errors": []
+}

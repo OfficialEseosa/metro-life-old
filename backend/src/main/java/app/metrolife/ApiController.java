@@ -30,6 +30,8 @@ public class ApiController {
     @GetMapping("/sim") ObjectNode sim(@CookieValue(name="ml_session",required=false)String token){return game.getSim(token);}
     @PostMapping("/sim/setup") ObjectNode setup(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.setup(token,body);}
     @PostMapping("/act") ObjectNode act(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.act(token,body);}
+    @PostMapping("/aspiration") ObjectNode aspiration(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.setAspiration(token,body);}
+    @PostMapping("/story/choose") ObjectNode choose(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.chooseStory(token,body);}
     @GetMapping("/jobs") ObjectNode jobs(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="atl")String city){return game.jobs(token,city);}
     @PostMapping("/jobs/apply") ObjectNode apply(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.applyJob(token,body);}
     @PostMapping("/jobs/quit") ObjectNode quit(@CookieValue(name="ml_session",required=false)String token){return game.quitJob(token);}

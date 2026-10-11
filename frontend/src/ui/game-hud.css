@@ -11,3 +11,7 @@
 .world-activity .thought-bubble{left:0;width:38px;height:38px;padding:7px;display:grid;place-items:center}.world-activity .thought-bubble svg{width:20px;height:20px;transform:none;fill:none;stroke:currentColor;stroke-width:2.5}
 @media(max-width:700px){.sheet-wrap .sheet[data-extent=full]{max-height:calc(100dvh - 140px)}.sheet-heading{padding-top:4px}.landing-card~.overview-button{display:none}}
 @media(prefers-reduced-motion:reduce){.metro-hud *,.metro-hud *::before,.metro-hud *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.metro-hud button:active:not(:disabled){transform:none}}
+
+.promotion-progress{margin:16px 0}.requirement{display:flex;align-items:center;gap:10px;margin:12px 0;text-transform:capitalize}.requirement svg{width:20px;flex:none;color:var(--green,#24664d)}.milestone-list{padding-left:24px;margin:18px 0}.milestone-list li{padding:7px 0;color:#635f55}.milestone-list .current{font-weight:800;color:#243c32}.milestone-list .complete{list-style:none;position:relative}.milestone-list .complete svg{position:absolute;left:-22px;top:10px}.dream-card select{width:100%;min-height:48px;margin:8px 0 12px}.dream-card>small{display:block;line-height:1.45}
+
+.story-outcome{background:#dfebd4;color:#294132;padding:14px 16px;border-radius:14px;line-height:1.5;font-size:16px;font-weight:600}

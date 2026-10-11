@@ -57,7 +57,7 @@ public class Content {
             ObjectNode aspiration=aspirations.addObject().put("id",ASPIRATIONS[i]).put("label",ASPIRATION_NAMES[i]).put("icon",new String[]{"rocket","mic-vocal","landmark","utensils","trophy","palette","house"}[i]).put("blurb","Build your own path, one good day at a time.");
             ArrayNode milestones=aspiration.putArray("milestones");
             for(int step=0;step<6;step++) {
-                ObjectNode m=milestones.addObject().put("id",ASPIRATIONS[i]+"-"+step).put("text",new String[]{"Explore three places","Complete five activities","Build a skill to level 2","Earn your first promotion","Save $5,000","Make your mark on the city"}[step]);
+                ObjectNode m=milestones.addObject().put("id",ASPIRATIONS[i]+"-"+step).put("text",Progression.TEXTS[i][step]);
                 m.putObject("reward").put("cash",150*(step+1)).put("xp",50*(step+1));
             }
         }
