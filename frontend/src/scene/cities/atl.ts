@@ -1,0 +1,23 @@
+export type Site = { x: number; z: number; size: number; height: number; angle?: number }
+export const atlSites: Record<string, Site> = {
+  benz: { x: -29, z: 27, size: 24, height: 7 },
+  arena: { x: -29, z: 10, size: 14, height: 4 },
+  aquarium: { x: -29, z: -6, size: 15, height: 5 },
+  centennial: { x: -12, z: 8, size: 14, height: 1 },
+  piedmont: { x: 20, z: -35, size: 24, height: 3 },
+  beltline: { x: 39, z: -9, size: 20, height: 3 },
+  ponce: { x: 27, z: -17, size: 17, height: 8 },
+  krog: { x: 35, z: 13, size: 12, height: 3 },
+  fox: { x: 0, z: -17, size: 12, height: 9 },
+  high: { x: 0, z: -37, size: 12, height: 7 },
+  gatech: { x: -24, z: -26, size: 12, height: 10 },
+  gsu: { x: 8, z: 24, size: 12, height: 9 },
+  techVillage: { x: 4, z: -62, size: 12, height: 7 },
+  lenox: { x: 23, z: -62, size: 16, height: 4 },
+  capitol: { x: 3, z: 43, size: 18, height: 13 },
+  mlk: { x: 26, z: 33, size: 15, height: 5 },
+  l5p: { x: 53, z: 8, size: 12, height: 4 },
+  truist: { x: -48, z: -53, size: 21, height: 6 },
+  grady: { x: 21, z: 47, size: 12, height: 13 },
+  atlAirport: { x: -16, z: 76, size: 42, height: 8 },
+}

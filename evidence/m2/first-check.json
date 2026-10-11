@@ -1,0 +1,10 @@
+{
+  "metrics": {
+    "calls": 32,
+    "triangles": 161574,
+    "fps": 56.284604325323826,
+    "p95Ms": 18.199999999254942,
+    "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "errors": []
+}

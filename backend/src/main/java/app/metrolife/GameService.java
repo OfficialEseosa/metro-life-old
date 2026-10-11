@@ -53,7 +53,7 @@ public class GameService {
     synchronized AuthResult guest(String token,JsonNode body) {
         ObjectNode old=session(token,false);
         if(old!=null) return new AuthResult(token,publicUser(user(old)));
-        String name=body.path("username").asText("").trim(); if(name.isEmpty()) name="Neighbor "+id().substring(0,8);
+        String name=body.path("username").asText("").trim(); if(name.isEmpty()) name=friendlyName();
         name=username(name);unique(name,"");String uid=id();
         ObjectNode u=table("users").putObject(uid).put("id",uid).put("username",name).put("guest",true).put("createdAt",now());u.set("look",look(body.get("look")));
         String issued=issueSession(null,u,"public");store.save();return new AuthResult(issued,publicUser(u));
@@ -125,7 +125,12 @@ public class GameService {
         require(w!=null&&belongs(w,session.path("userId").asText()),403,"Join this world with its private code first");select(session,w);store.save();
         ObjectNode out=object();out.set("world",worldInfo(w));ObjectNode s=(ObjectNode)table("sims").get(simKey(session));if(s==null)out.putNull("sim");else {decay(s,w);out.set("sim",publicSim(s));store.save();}return out;
     }
-    ObjectNode publicSim(ObjectNode s) {ObjectNode copy=s.deepCopy();copy.remove(List.of("updatedAt","lastDay","actionsCount"));return copy;}
+    ObjectNode publicSim(ObjectNode s) {ObjectNode copy=s.deepCopy();copy.remove(List.of("updatedAt","lastDay","actionsCount"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
+    String friendlyName(){
+        String[] first={"Avery","Riley","Jordan","Casey","Morgan","Taylor","Alex","Jamie","Quinn","Rowan","Sage","Skyler","Reese","Parker","Cameron","Blair"};
+        String[] last={"Brooks","Vale","Reed","Lane","Park","Ellis","Hayes","Quill","Blake","Bell","Stone","Wells","Banks","Hill","West","Hart"};
+        for(int attempt=0;;attempt++){String name=first[random.nextInt(first.length)]+" "+last[random.nextInt(last.length)]+(attempt>50?" "+random.nextInt(1000):"");boolean used=false;for(JsonNode u:table("users"))if(u.path("username").asText().equalsIgnoreCase(name))used=true;if(!used)return name;}
+    }
     synchronized ObjectNode setup(String token,JsonNode body) {
         ObjectNode session=session(token,true),u=user(session);String city=body.path("city").asText(),nh=body.path("neighborhood").asText(),aid=body.path("aspiration").asText();
         content.city(city);ObjectNode neighborhood=content.neighborhood(city,nh),aspiration=content.aspiration(aid);
@@ -190,11 +195,19 @@ public class GameService {
         ArrayNode completed=mapper.createArrayNode();
         for(JsonNode node:s.path("daily")){ObjectNode g=(ObjectNode)node;if(g.path("done").asBoolean())continue;String gid=g.path("id").asText();boolean progress=gid.equals("explore")&&firstVisit||gid.equals("work")&&a.path("pay").asInt()>0||gid.equals("cook")&&loc.equals("home")&&action.equals("cook");if(progress){int p=g.path("progress").asInt()+1;g.put("progress",p);if(p>=g.path("target").asInt()){g.put("done",true);s.put("cash",s.path("cash").asDouble()+g.path("reward").path("cash").asDouble());s.put("xp",s.path("xp").asInt()+g.path("reward").path("xp").asInt());completed.add(g.path("text").asText());}}}
         updateMood(s);updateLevel(s);store.save();
-        ObjectNode out=object(),result=object().put("text",a.path("label").asText()+". "+(cashDelta>0?"You earned $"+(int)cashDelta+".":"A little progress, a better day.")).put("busyUntil",busyUntil).put("leveledUp",s.path("level").asInt()>oldLevel).putNull("promoted").putNull("beat");
+        ObjectNode out=object(),result=object().put("text",outcomeText(a,loc,action,cashDelta,needDeltas,skillDeltas,completed.size())).put("busyUntil",busyUntil).put("leveledUp",s.path("level").asInt()>oldLevel).putNull("promoted").putNull("beat");
         ObjectNode deltas=result.putObject("deltas").put("cash",s.path("cash").asDouble()-cashBefore).put("xp",s.path("xp").asInt()-xpBefore);deltas.set("needs",needDeltas);deltas.set("skills",skillDeltas);result.set("goalsCompleted",completed);out.set("sim",publicSim(s));out.set("result",result);return out;
     }
     void addSkill(ObjectNode skill,int gain){int level=skill.path("level").asInt(),xp=skill.path("xp").asInt()+gain;while(level<10&&xp>=100*(level+1)){xp-=100*(level+1);level++;}skill.put("level",level).put("xp",level==10?0:xp).put("next",100*(level+1));}
     void updateLevel(ObjectNode s){int level=1,xp=s.path("xp").asInt();while(level<100&&xp>=100*level*(level+1)/2)level++;s.put("level",level).put("xpNext",100*level*(level+1)/2);}
+    String outcomeText(ObjectNode a,String loc,String action,double cash,ObjectNode needs,ObjectNode skills,int goals){
+        String opening=loc.equals("home")?switch(action){case "sleep"->"You wake up with a clearer head.";case "cook"->"Dinner is on the table.";case "shower"->"Freshened up and ready to go.";case "invite"->"Good company makes home feel brighter.";default->a.path("label").asText()+".";}:a.path("label").asText()+".";
+        List<String> changes=new ArrayList<>();if(cash>0)changes.add("Earned $"+(int)cash);else if(cash<0)changes.add("Spent $"+(int)-cash);
+        needs.fields().forEachRemaining(e->{long change=Math.round(e.getValue().asDouble());if(change!=0)changes.add(Content.title(e.getKey())+" "+(change>0?"+":"")+change);});
+        skills.fields().forEachRemaining(e->{if(e.getValue().asInt()>0)changes.add(Content.title(e.getKey())+" +"+e.getValue().asInt()+" XP");});
+        if(changes.isEmpty())changes.add("You are already feeling refreshed");if(goals>0)changes.add(goals+" daily goal"+(goals>1?"s":"")+" completed");
+        return opening+" "+String.join(" · ",changes)+".";
+    }
     synchronized ObjectNode stats(){store.data.put("visits",store.data.path("visits").asLong()+1);store.save();return object().put("online",0).put("visits",store.data.path("visits").asLong());}
     synchronized ObjectNode daily(String token,String city){content.city(city);ObjectNode c=clock(world(session(token,false)));return object().put("date","Day "+c.path("day").asInt()).put("weekday",c.path("weekday").asText()).put("weather",city.equals("bay")?"Coastal haze":city.equals("nyc")?"Clear and crisp":"Warm and sunny").put("headline","A new day, a city of possibilities").put("tip","Keep your needs up. Home is always open.");}
     static boolean containsEmoji(String s){return s.codePoints().anyMatch(cp->cp>=0x1F000||cp>=0x2600&&cp<=0x27BF||cp==0xFE0F||cp==0x200D);}

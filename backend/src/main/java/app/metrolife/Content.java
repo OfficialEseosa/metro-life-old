@@ -32,7 +32,7 @@ public class Content {
             ArrayNode home=city.putArray("homeActions");
             home.add(action("sleep","Get some sleep","rest","moon",60,0,0,Map.of("energy",48,"hunger",-5),Map.of()));
             home.add(action("cook","Cook a fresh meal","food","cooking-pot",30,12,0,Map.of("hunger",38,"fun",5),Map.of("cooking",24)));
-            home.add(action("shower","Take a shower","rest","droplets",15,0,0,Map.of("energy",12,"fun",8),Map.of()));
+            home.add(action("shower","Take a shower","rest","droplets",15,0,0,Map.of("energy",18,"fun",12),Map.of()));
             home.add(action("invite","Invite a friend over","social","users",30,0,0,Map.of("social",35,"fun",10),Map.of("charisma",18)));
         }
         ArrayNode skills=world.putArray("skills"); String[] icons={"dumbbell","cooking-pot","music","cpu","messages-square","palette","chart-no-axes-combined"};

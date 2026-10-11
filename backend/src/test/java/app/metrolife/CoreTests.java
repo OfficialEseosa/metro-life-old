@@ -69,4 +69,12 @@ class CoreTests {
         for(JsonNode career:content.world.path("careers"))for(JsonNode level:career.path("levels"))assertNotNull(content.landmark(level.path("city").asText(),level.path("loc").asText()));
         for(JsonNode city:content.world.path("cities")){assertEquals(4,city.path("homeActions").size());for(JsonNode loc:city.path("landmarks"))for(JsonNode action:loc.path("actions")){assertTrue(action.has("durationMin"));assertTrue(action.path("needs").isObject());assertFalse(action.path("id").asText().isEmpty());}for(JsonNode n:city.path("neighborhoods"))assertTrue(n.path("rent").asInt()>0);}
     }
+    @Test void auditNeedsNamesAndShowerFeedback()throws Exception{
+        var anonymous=game.guest(null,json("{}"));assertTrue(anonymous.user().path("username").asText().matches("[A-Za-z]+ [A-Za-z]+(?: [0-9]+)?"));
+        worldAndSim();ObjectNode sim=game.sim(game.session(token,true));sim.withObject("needs").put("energy",50).put("fun",50);
+        JsonNode result=game.act(token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"shower\"}"));
+        assertEquals(68,result.path("sim").path("needs").path("energy").asDouble(),.01);assertEquals(62,result.path("sim").path("needs").path("fun").asDouble(),.01);
+        assertTrue(result.path("result").path("text").asText().contains("Energy +18"));assertTrue(result.path("result").path("text").asText().contains("Fun +12"));
+        now+=12345;JsonNode rounded=game.getSim(token).path("sim").path("needs");for(String need:Content.NEEDS)assertEquals(Math.round(rounded.path(need).asDouble()*10),rounded.path(need).asDouble()*10,.00001);
+    }
 }

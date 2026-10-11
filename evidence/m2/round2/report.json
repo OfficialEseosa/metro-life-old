@@ -1,0 +1,67 @@
+{
+  "measurements": [
+    {
+      "width": 1280,
+      "theme": "day",
+      "calls": 31,
+      "triangles": 158694,
+      "fps": 60.01080194437681,
+      "p95Ms": 18,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "width": 1280,
+      "theme": "night",
+      "calls": 31,
+      "triangles": 158694,
+      "fps": 60.10096962900359,
+      "p95Ms": 17.699999999254942,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "width": 375,
+      "theme": "day",
+      "calls": 31,
+      "triangles": 158694,
+      "fps": 59.98320470270112,
+      "p95Ms": 18.299999997019768,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "width": 375,
+      "theme": "night",
+      "calls": 31,
+      "triangles": 158694,
+      "fps": 60.00120002397366,
+      "p95Ms": 17.799999997019768,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ],
+  "errors": [],
+  "checks": {
+    "dropdown": true,
+    "pinClick": true
+  },
+  "geometry": {
+    "benz": 648,
+    "arena": 500,
+    "aquarium": 676,
+    "centennial": 1356,
+    "piedmont": 1060,
+    "beltline": 484,
+    "ponce": 3120,
+    "krog": 380,
+    "fox": 3700,
+    "high": 1108,
+    "gatech": 1072,
+    "gsu": 1544,
+    "techVillage": 1308,
+    "lenox": 692,
+    "capitol": 2928,
+    "mlk": 1540,
+    "l5p": 1176,
+    "truist": 1496,
+    "grady": 348,
+    "atlAirport": 1160
+  }
+}

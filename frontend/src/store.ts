@@ -50,6 +50,8 @@ type State = {
   connected: boolean
   // the city map being looked at (may differ from sim.city)
   city: CityId
+  sceneTheme: 'auto' | 'day' | 'night'
+  setSceneTheme: (theme: 'auto' | 'day' | 'night') => void
   // per viewed city
   daily: Daily | null
   mayor: MayorState | null
@@ -84,6 +86,7 @@ type State = {
 
 const safe = <T,>(p: Promise<T>) => p.catch(() => null)
 let socket: ReturnType<typeof connectSocket> | null = null
+const realtimeEnabled = false
 
 export const useStore = create<State>((set, get) => {
   const onEvent = (e: ServerEvent) => {
@@ -122,6 +125,8 @@ export const useStore = create<State>((set, get) => {
     stats: null,
     connected: false,
     city: 'atl',
+    sceneTheme: 'auto',
+    setSceneTheme: (sceneTheme) => set({ sceneTheme }),
     daily: null,
     mayor: null,
     plots: null,
@@ -145,15 +150,16 @@ export const useStore = create<State>((set, get) => {
       const me = await safe(api.me())
       const city = me?.sim?.city ?? get().city
       set({ user: me?.user ?? null, worldInfo: me?.world ?? null, sim: me?.sim ?? null, clock: me?.clock ?? null, city })
-      reconnect()
-      await get().refresh('daily', 'mayor', 'plots', 'billboards', 'homes', 'players', 'chat')
+      // Civic and live resources become available in M6/M7; do not poll absent routes.
+      if (realtimeEnabled) reconnect()
+      await get().refresh('daily')
     },
 
     setCity: async (city) => {
       if (city === get().city) return
       set({ city, daily: null, mayor: null, plots: null, billboards: null, homes: null, players: [], chat: [], selectedLoc: null, selectedSlot: null })
       socket?.send({ type: 'view', city })
-      await get().refresh('daily', 'mayor', 'plots', 'billboards', 'homes', 'players', 'chat')
+      await get().refresh('daily')
     },
 
     refresh: async (...what) => {

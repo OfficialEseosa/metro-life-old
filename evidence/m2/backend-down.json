@@ -1,0 +1,45 @@
+{
+  "errors": [],
+  "failedRequests": [
+    {
+      "url": "http://127.0.0.1:5173/api/world",
+      "status": 502
+    },
+    {
+      "url": "http://127.0.0.1:5173/api/stats",
+      "status": 502
+    },
+    {
+      "url": "http://127.0.0.1:5173/api/world",
+      "status": 502
+    },
+    {
+      "url": "http://127.0.0.1:5173/api/stats",
+      "status": 502
+    },
+    {
+      "url": "http://127.0.0.1:5173/api/auth/me",
+      "status": 502
+    },
+    {
+      "url": "http://127.0.0.1:5173/api/auth/me",
+      "status": 502
+    },
+    {
+      "url": "http://127.0.0.1:5173/api/daily?city=atl",
+      "status": 502
+    },
+    {
+      "url": "http://127.0.0.1:5173/api/daily?city=atl",
+      "status": 502
+    }
+  ],
+  "landmarks": 20,
+  "metrics": {
+    "calls": 32,
+    "triangles": 158694,
+    "fps": 60.892660490910494,
+    "p95Ms": 18.699999999254942,
+    "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  }
+}
