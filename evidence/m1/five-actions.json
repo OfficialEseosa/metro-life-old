@@ -1,0 +1,756 @@
+[
+  {
+    "sim": {
+      "userId": "e15d19b7-52b2-4f21-8741-7be6599b3543",
+      "worldId": "49acc952-a7fc-45f7-9b11-6c1da921a02d",
+      "username": "Smoke 233130",
+      "city": "atl",
+      "loc": "home",
+      "cash": 2500.0,
+      "xp": 15,
+      "level": 1,
+      "xpNext": 100,
+      "mood": "great",
+      "setupDone": true,
+      "look": {
+        "body": "f",
+        "skin": "#b47752",
+        "hair": "short",
+        "hairColor": "#302820",
+        "top": "#326957",
+        "bottom": "#313c4b",
+        "style": "casual",
+        "shoeColor": "#f4eddf"
+      },
+      "home": {
+        "city": "atl",
+        "neighborhood": "midtown",
+        "rent": 65
+      },
+      "needs": {
+        "energy": 100.0,
+        "hunger": 79.99606666666666,
+        "fun": 84.99705,
+        "social": 84.99803333333334
+      },
+      "skills": {
+        "fitness": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "cooking": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "music": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "tech": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "charisma": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "creativity": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "business": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        }
+      },
+      "job": null,
+      "busyUntil": 1791689494337,
+      "busyLabel": "Get some sleep",
+      "pendingBeat": null,
+      "visited": [
+        "home"
+      ],
+      "aspiration": {
+        "id": "founder",
+        "label": "Startup Founder",
+        "step": 0,
+        "total": 6,
+        "current": {
+          "id": "founder-0",
+          "text": "Explore three places",
+          "reward": {
+            "cash": 150,
+            "xp": 50
+          }
+        }
+      },
+      "daily": [
+        {
+          "id": "explore",
+          "text": "Visit three places",
+          "icon": "map-pin",
+          "progress": 0,
+          "target": 3,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "work",
+          "text": "Earn money from an activity",
+          "icon": "briefcase",
+          "progress": 0,
+          "target": 1,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "cook",
+          "text": "Cook a meal at home",
+          "icon": "cooking-pot",
+          "progress": 0,
+          "target": 1,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        }
+      ]
+    },
+    "result": {
+      "text": "Get some sleep. A little progress, a better day.",
+      "busyUntil": 1791689494337,
+      "leveledUp": false,
+      "promoted": null,
+      "beat": null,
+      "deltas": {
+        "cash": 0.0,
+        "xp": 15,
+        "needs": {
+          "hunger": -5.0,
+          "energy": 15.002949999999998
+        },
+        "skills": {}
+      },
+      "goalsCompleted": []
+    }
+  },
+  {
+    "sim": {
+      "userId": "e15d19b7-52b2-4f21-8741-7be6599b3543",
+      "worldId": "49acc952-a7fc-45f7-9b11-6c1da921a02d",
+      "username": "Smoke 233130",
+      "city": "atl",
+      "loc": "home",
+      "cash": 2533.0,
+      "xp": 55,
+      "level": 1,
+      "xpNext": 100,
+      "mood": "great",
+      "setupDone": true,
+      "look": {
+        "body": "f",
+        "skin": "#b47752",
+        "hair": "short",
+        "hairColor": "#302820",
+        "top": "#326957",
+        "bottom": "#313c4b",
+        "style": "casual",
+        "shoeColor": "#f4eddf"
+      },
+      "home": {
+        "city": "atl",
+        "neighborhood": "midtown",
+        "rent": 65
+      },
+      "needs": {
+        "energy": 99.8096,
+        "hunger": 100.0,
+        "fun": 89.80665,
+        "social": 84.87110000000001
+      },
+      "skills": {
+        "fitness": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "cooking": {
+          "level": 0,
+          "xp": 24,
+          "next": 100
+        },
+        "music": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "tech": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "charisma": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "creativity": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "business": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        }
+      },
+      "job": null,
+      "busyUntil": 1791689496544,
+      "busyLabel": "Cook a fresh meal",
+      "pendingBeat": null,
+      "visited": [
+        "home"
+      ],
+      "aspiration": {
+        "id": "founder",
+        "label": "Startup Founder",
+        "step": 0,
+        "total": 6,
+        "current": {
+          "id": "founder-0",
+          "text": "Explore three places",
+          "reward": {
+            "cash": 150,
+            "xp": 50
+          }
+        }
+      },
+      "daily": [
+        {
+          "id": "explore",
+          "text": "Visit three places",
+          "icon": "map-pin",
+          "progress": 0,
+          "target": 3,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "work",
+          "text": "Earn money from an activity",
+          "icon": "briefcase",
+          "progress": 0,
+          "target": 1,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "cook",
+          "text": "Cook a meal at home",
+          "icon": "cooking-pot",
+          "progress": 1,
+          "target": 1,
+          "done": true,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        }
+      ]
+    },
+    "result": {
+      "text": "Cook a fresh meal. A little progress, a better day.",
+      "busyUntil": 1791689496544,
+      "leveledUp": false,
+      "promoted": null,
+      "beat": null,
+      "deltas": {
+        "cash": 33.0,
+        "xp": 40,
+        "needs": {
+          "hunger": 20.257800000000003,
+          "fun": 5.0
+        },
+        "skills": {
+          "cooking": 24
+        }
+      },
+      "goalsCompleted": [
+        "Cook a meal at home"
+      ]
+    }
+  },
+  {
+    "sim": {
+      "userId": "e15d19b7-52b2-4f21-8741-7be6599b3543",
+      "worldId": "49acc952-a7fc-45f7-9b11-6c1da921a02d",
+      "username": "Smoke 233130",
+      "city": "atl",
+      "loc": "home",
+      "cash": 2533.0,
+      "xp": 70,
+      "level": 1,
+      "xpNext": 100,
+      "mood": "great",
+      "setupDone": true,
+      "look": {
+        "body": "f",
+        "skin": "#b47752",
+        "hair": "short",
+        "hairColor": "#302820",
+        "top": "#326957",
+        "bottom": "#313c4b",
+        "style": "casual",
+        "shoeColor": "#f4eddf"
+      },
+      "home": {
+        "city": "atl",
+        "neighborhood": "midtown",
+        "rent": 65
+      },
+      "needs": {
+        "energy": 99.7003,
+        "hunger": 99.85426666666666,
+        "fun": 99.69735,
+        "social": 100.0
+      },
+      "skills": {
+        "fitness": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "cooking": {
+          "level": 0,
+          "xp": 24,
+          "next": 100
+        },
+        "music": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "tech": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "charisma": {
+          "level": 0,
+          "xp": 18,
+          "next": 100
+        },
+        "creativity": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "business": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        }
+      },
+      "job": null,
+      "busyUntil": 1791689498730,
+      "busyLabel": "Invite a friend over",
+      "pendingBeat": null,
+      "visited": [
+        "home"
+      ],
+      "aspiration": {
+        "id": "founder",
+        "label": "Startup Founder",
+        "step": 0,
+        "total": 6,
+        "current": {
+          "id": "founder-0",
+          "text": "Explore three places",
+          "reward": {
+            "cash": 150,
+            "xp": 50
+          }
+        }
+      },
+      "daily": [
+        {
+          "id": "explore",
+          "text": "Visit three places",
+          "icon": "map-pin",
+          "progress": 0,
+          "target": 3,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "work",
+          "text": "Earn money from an activity",
+          "icon": "briefcase",
+          "progress": 0,
+          "target": 1,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "cook",
+          "text": "Cook a meal at home",
+          "icon": "cooking-pot",
+          "progress": 1,
+          "target": 1,
+          "done": true,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        }
+      ]
+    },
+    "result": {
+      "text": "Invite a friend over. A little progress, a better day.",
+      "busyUntil": 1791689498730,
+      "leveledUp": false,
+      "promoted": null,
+      "beat": null,
+      "deltas": {
+        "cash": 0.0,
+        "xp": 15,
+        "needs": {
+          "fun": 10.0,
+          "social": 15.201766666666657
+        },
+        "skills": {
+          "charisma": 18
+        }
+      },
+      "goalsCompleted": []
+    }
+  },
+  {
+    "sim": {
+      "userId": "e15d19b7-52b2-4f21-8741-7be6599b3543",
+      "worldId": "49acc952-a7fc-45f7-9b11-6c1da921a02d",
+      "username": "Smoke 233130",
+      "city": "atl",
+      "loc": "home",
+      "cash": 2533.0,
+      "xp": 85,
+      "level": 1,
+      "xpNext": 100,
+      "mood": "great",
+      "setupDone": true,
+      "look": {
+        "body": "f",
+        "skin": "#b47752",
+        "hair": "short",
+        "hairColor": "#302820",
+        "top": "#326957",
+        "bottom": "#313c4b",
+        "style": "casual",
+        "shoeColor": "#f4eddf"
+      },
+      "home": {
+        "city": "atl",
+        "neighborhood": "midtown",
+        "rent": 65
+      },
+      "needs": {
+        "energy": 100.0,
+        "hunger": 99.70813333333332,
+        "fun": 100.0,
+        "social": 99.92693333333334
+      },
+      "skills": {
+        "fitness": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "cooking": {
+          "level": 0,
+          "xp": 24,
+          "next": 100
+        },
+        "music": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "tech": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "charisma": {
+          "level": 0,
+          "xp": 18,
+          "next": 100
+        },
+        "creativity": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "business": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        }
+      },
+      "job": null,
+      "busyUntil": 1791689500923,
+      "busyLabel": "Take a shower",
+      "pendingBeat": null,
+      "visited": [
+        "home"
+      ],
+      "aspiration": {
+        "id": "founder",
+        "label": "Startup Founder",
+        "step": 0,
+        "total": 6,
+        "current": {
+          "id": "founder-0",
+          "text": "Explore three places",
+          "reward": {
+            "cash": 150,
+            "xp": 50
+          }
+        }
+      },
+      "daily": [
+        {
+          "id": "explore",
+          "text": "Visit three places",
+          "icon": "map-pin",
+          "progress": 0,
+          "target": 3,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "work",
+          "text": "Earn money from an activity",
+          "icon": "briefcase",
+          "progress": 0,
+          "target": 1,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "cook",
+          "text": "Cook a meal at home",
+          "icon": "cooking-pot",
+          "progress": 1,
+          "target": 1,
+          "done": true,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        }
+      ]
+    },
+    "result": {
+      "text": "Take a shower. A little progress, a better day.",
+      "busyUntil": 1791689500923,
+      "leveledUp": false,
+      "promoted": null,
+      "beat": null,
+      "deltas": {
+        "cash": 0.0,
+        "xp": 15,
+        "needs": {
+          "fun": 0.4122500000000002,
+          "energy": 0.4093000000000018
+        },
+        "skills": {}
+      },
+      "goalsCompleted": []
+    }
+  },
+  {
+    "sim": {
+      "userId": "e15d19b7-52b2-4f21-8741-7be6599b3543",
+      "worldId": "49acc952-a7fc-45f7-9b11-6c1da921a02d",
+      "username": "Smoke 233130",
+      "city": "atl",
+      "loc": "krog",
+      "cash": 2515.0,
+      "xp": 100,
+      "level": 2,
+      "xpNext": 300,
+      "mood": "great",
+      "setupDone": true,
+      "look": {
+        "body": "f",
+        "skin": "#b47752",
+        "hair": "short",
+        "hairColor": "#302820",
+        "top": "#326957",
+        "bottom": "#313c4b",
+        "style": "casual",
+        "shoeColor": "#f4eddf"
+      },
+      "home": {
+        "city": "atl",
+        "neighborhood": "midtown",
+        "rent": 65
+      },
+      "needs": {
+        "energy": 99.8892,
+        "hunger": 100.0,
+        "fun": 100.0,
+        "social": 99.85306666666668
+      },
+      "skills": {
+        "fitness": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "cooking": {
+          "level": 0,
+          "xp": 44,
+          "next": 100
+        },
+        "music": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "tech": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "charisma": {
+          "level": 0,
+          "xp": 18,
+          "next": 100
+        },
+        "creativity": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        },
+        "business": {
+          "level": 0,
+          "xp": 0,
+          "next": 100
+        }
+      },
+      "job": null,
+      "busyUntil": 1791689503138,
+      "busyLabel": "Grab dumplings",
+      "pendingBeat": null,
+      "visited": [
+        "home",
+        "krog"
+      ],
+      "aspiration": {
+        "id": "founder",
+        "label": "Startup Founder",
+        "step": 0,
+        "total": 6,
+        "current": {
+          "id": "founder-0",
+          "text": "Explore three places",
+          "reward": {
+            "cash": 150,
+            "xp": 50
+          }
+        }
+      },
+      "daily": [
+        {
+          "id": "explore",
+          "text": "Visit three places",
+          "icon": "map-pin",
+          "progress": 1,
+          "target": 3,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "work",
+          "text": "Earn money from an activity",
+          "icon": "briefcase",
+          "progress": 0,
+          "target": 1,
+          "done": false,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        },
+        {
+          "id": "cook",
+          "text": "Cook a meal at home",
+          "icon": "cooking-pot",
+          "progress": 1,
+          "target": 1,
+          "done": true,
+          "reward": {
+            "cash": 45,
+            "xp": 25
+          }
+        }
+      ]
+    },
+    "result": {
+      "text": "Grab dumplings. A little progress, a better day.",
+      "busyUntil": 1791689503138,
+      "leveledUp": true,
+      "promoted": null,
+      "beat": null,
+      "deltas": {
+        "cash": -18.0,
+        "xp": 15,
+        "needs": {
+          "hunger": 0.43960000000001287,
+          "fun": 0.11079999999999757
+        },
+        "skills": {
+          "cooking": 20
+        }
+      },
+      "goalsCompleted": []
+    }
+  }
+]

@@ -1,0 +1,201 @@
+package app.metrolife;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.*;
+import org.springframework.stereotype.Service;
+import java.security.SecureRandom;
+import java.util.*;
+import java.util.function.LongSupplier;
+
+/** A single monitor is the transaction boundary for the small local simulation. */
+@Service
+public class GameService {
+    final JsonStore store;
+    final Content content;
+    final ObjectMapper mapper;
+    LongSupplier time = System::currentTimeMillis;
+    private final SecureRandom random = new SecureRandom();
+    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.content=content;this.mapper=mapper; }
+    long now() { return time.getAsLong(); }
+    ObjectNode object() { return mapper.createObjectNode(); }
+    ObjectNode table(String name) { return (ObjectNode)store.data.get(name); }
+    String id() { return UUID.randomUUID().toString(); }
+    static void require(boolean valid,int status,String message) { if(!valid) throw new ApiException(status,message); }
+    ObjectNode session(String token,boolean required) {
+        JsonNode s=token==null?null:table("sessions").get(token);
+        if(s!=null && s.path("expiresAt").asLong()>now()) return (ObjectNode)s;
+        if(required) throw new ApiException(401,"Please log in");return null;
+    }
+    ObjectNode user(ObjectNode session) { return (ObjectNode)table("users").get(session.path("userId").asText()); }
+    ObjectNode publicUser(ObjectNode user) { ObjectNode copy=user.deepCopy();copy.remove(List.of("passwordHash","lastWorld"));return copy; }
+    ObjectNode world(ObjectNode session) {return (ObjectNode)table("worlds").get(session==null?"public":session.path("worldId").asText("public"));}
+    String simKey(ObjectNode session) {return session.path("userId").asText()+":"+world(session).path("id").asText();}
+    ObjectNode sim(ObjectNode session) {ObjectNode s=(ObjectNode)table("sims").get(simKey(session));require(s!=null,409,"Choose your city and make yourself at home first");return s;}
+    ObjectNode look(JsonNode custom) {
+        ObjectNode look=object().put("body","f").put("skin","#b47752").put("hair","short").put("hairColor","#302820").put("top","#326957").put("bottom","#313c4b").put("style","casual").put("shoeColor","#f4eddf");
+        if(custom!=null && custom.isObject()) {
+            for(String field:new String[]{"skin","hairColor","top","bottom","shoeColor"}) if(custom.path(field).asText().matches("#[0-9a-fA-F]{6}")) look.put(field,custom.path(field).asText());
+            if(Set.of("f","m").contains(custom.path("body").asText())) look.put("body",custom.path("body").asText());
+            if(Set.of("short","long","curly","bald").contains(custom.path("hair").asText())) look.put("hair",custom.path("hair").asText());
+            if(Set.of("casual","smart","street","work","party").contains(custom.path("style").asText())) look.put("style",custom.path("style").asText());
+        }
+        return look;
+    }
+    private String username(String name) {require(name.matches("[A-Za-z0-9][A-Za-z0-9 _-]{2,23}"),400,"Use 3–24 letters, numbers, spaces, underscores or hyphens");return name.trim();}
+    private void unique(String name,String except) {for(JsonNode u:table("users")) require(u.path("id").asText().equals(except)||!u.path("username").asText().equalsIgnoreCase(name),409,"That name is already taken");}
+    private String issueSession(String old,ObjectNode u,String selected) {
+        if(old!=null) table("sessions").remove(old);
+        byte[] bytes=new byte[32];random.nextBytes(bytes);String token=Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        table("sessions").putObject(token).put("userId",u.path("id").asText()).put("worldId",selected).put("expiresAt",now()+30L*86400000);
+        return token;
+    }
+    public record AuthResult(String token,ObjectNode user) {}
+    synchronized AuthResult guest(String token,JsonNode body) {
+        ObjectNode old=session(token,false);
+        if(old!=null) return new AuthResult(token,publicUser(user(old)));
+        String name=body.path("username").asText("").trim(); if(name.isEmpty()) name="Neighbor "+id().substring(0,8);
+        name=username(name);unique(name,"");String uid=id();
+        ObjectNode u=table("users").putObject(uid).put("id",uid).put("username",name).put("guest",true).put("createdAt",now());u.set("look",look(body.get("look")));
+        String issued=issueSession(null,u,"public");store.save();return new AuthResult(issued,publicUser(u));
+    }
+    synchronized AuthResult signup(String token,JsonNode body) {
+        String name=username(body.path("username").asText().trim()),password=body.path("password").asText();
+        require(password.length()>=8 && password.length()<=128,400,"Use a password between 8 and 128 characters");
+        ObjectNode old=session(token,false);if(old!=null) require(user(old).path("guest").asBoolean(),409,"You already have an account");
+        String uid=old==null?id():user(old).path("id").asText();unique(name,uid);
+        ObjectNode u=old==null?table("users").putObject(uid).put("id",uid).put("createdAt",now()):user(old);
+        u.put("username",name).put("guest",false).put("passwordHash",Passwords.hash(password));
+        if(!u.has("look")||body.has("look")) u.set("look",look(body.get("look")));
+        for(JsonNode s:table("sims")) if(s.path("userId").asText().equals(uid)) {((ObjectNode)s).put("username",name).set("look",u.get("look").deepCopy());}
+        String issued=issueSession(token,u,old==null?"public":old.path("worldId").asText());store.save();return new AuthResult(issued,publicUser(u));
+    }
+    synchronized AuthResult login(String token,JsonNode body) {
+        String name=body.path("username").asText();String password=body.path("password").asText();require(password.length()<=128,400,"Password is too long");
+        for(JsonNode node:table("users")) {
+            ObjectNode u=(ObjectNode)node;
+            if(u.path("username").asText().equalsIgnoreCase(name)&&Passwords.verify(password,u.path("passwordHash").asText())) {
+                String selected=u.path("lastWorld").asText("public");String issued=issueSession(token,u,selected);store.save();return new AuthResult(issued,publicUser(u));
+            }
+        }
+        throw new ApiException(401,"Name or password did not match");
+    }
+    synchronized ObjectNode logout(String token) {if(token!=null) table("sessions").remove(token);store.save();return object().put("ok",true);}
+    ObjectNode clock(ObjectNode world) {
+        long minutes=Math.max(0,(now()-world.path("startedAt").asLong())/1000)+9*60;
+        int day=(int)(minutes/1440)+1;return object().put("day",day).put("hour",minutes%1440/60).put("minute",minutes%60).put("weekday",new String[]{"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"}[(day-1)%7]).put("msPerMinute",1000).put("at",now());
+    }
+    ObjectNode worldInfo(ObjectNode w) {
+        ObjectNode result=w.deepCopy();result.remove(List.of("members","startedAt"));int count=0;
+        for(JsonNode s:table("sims")) if(s.path("worldId").equals(w.get("id"))) count++;
+        return result.put("players",count).put("online",0);
+    }
+    synchronized ObjectNode me(String token) {
+        ObjectNode session=session(token,false),w=world(session),out=object().put("now",now());out.set("clock",clock(w));
+        if(session==null) {out.putNull("user").putNull("world").putNull("sim");return out;}
+        out.set("user",publicUser(user(session)));out.set("world",worldInfo(w));ObjectNode s=(ObjectNode)table("sims").get(simKey(session));
+        if(s!=null) {decay(s,w);out.set("sim",publicSim(s));store.save();} else out.putNull("sim");return out;
+    }
+    boolean belongs(ObjectNode w,String uid) {if(w.path("mode").asText().equals("public")) return true;for(JsonNode member:w.path("members")) if(member.asText().equals(uid)) return true;return false;}
+    synchronized ObjectNode worlds(String token) {
+        ObjectNode session=session(token,true),out=object();ArrayNode worlds=out.putArray("worlds");String uid=user(session).path("id").asText();
+        for(JsonNode w:table("worlds")) if(belongs((ObjectNode)w,uid)) worlds.add(worldInfo((ObjectNode)w));return out.put("current",session.path("worldId").asText());
+    }
+    private void select(ObjectNode session,ObjectNode w) {session.put("worldId",w.path("id").asText());user(session).put("lastWorld",w.path("id").asText());}
+    synchronized ObjectNode createWorld(String token,JsonNode body) {
+        ObjectNode session=session(token,true);String mode=body.path("mode").asText();require(Set.of("solo","private").contains(mode),400,"Choose solo or private");
+        String name=body.path("name").asText("").strip();require(name.length()>=1&&name.length()<=40&&!containsEmoji(name),400,"Give your world a name of 1–40 characters");
+        String wid=id(),uid=session.path("userId").asText();ObjectNode w=table("worlds").putObject(wid).put("id",wid).put("name",name).put("mode",mode).put("ownerId",uid).put("startedAt",now());
+        if(mode.equals("private")) {String code;do {code=id().replace("-","").substring(0,8).toUpperCase(Locale.ROOT);} while(codeExists(code));w.put("code",code);} else w.putNull("code");
+        w.putArray("members").add(uid);select(session,w);store.save();ObjectNode out=object();out.set("world",worldInfo(w));return out;
+    }
+    boolean codeExists(String code) {for(JsonNode w:table("worlds")) if(w.path("code").asText().equals(code)) return true;return false;}
+    synchronized ObjectNode joinWorld(String token,JsonNode body) {
+        ObjectNode session=session(token,true);String code=body.path("code").asText().strip().toUpperCase(Locale.ROOT);require(code.matches("[A-F0-9]{8}"),404,"That private world code was not found");
+        for(JsonNode node:table("worlds")) {
+            ObjectNode w=(ObjectNode)node;
+            if(w.path("mode").asText().equals("private")&&w.path("code").asText().equals(code)) {
+                if(!belongs(w,session.path("userId").asText())) w.withArray("members").add(session.path("userId").asText());
+                select(session,w);store.save();ObjectNode out=object();out.set("world",worldInfo(w));return out;
+            }
+        }
+        throw new ApiException(404,"That private world code was not found");
+    }
+    synchronized ObjectNode selectWorld(String token,JsonNode body) {
+        ObjectNode session=session(token,true),w=(ObjectNode)table("worlds").get(body.path("worldId").asText());
+        require(w!=null&&belongs(w,session.path("userId").asText()),403,"Join this world with its private code first");select(session,w);store.save();
+        ObjectNode out=object();out.set("world",worldInfo(w));ObjectNode s=(ObjectNode)table("sims").get(simKey(session));if(s==null)out.putNull("sim");else {decay(s,w);out.set("sim",publicSim(s));store.save();}return out;
+    }
+    ObjectNode publicSim(ObjectNode s) {ObjectNode copy=s.deepCopy();copy.remove(List.of("updatedAt","lastDay","actionsCount"));return copy;}
+    synchronized ObjectNode setup(String token,JsonNode body) {
+        ObjectNode session=session(token,true),u=user(session);String city=body.path("city").asText(),nh=body.path("neighborhood").asText(),aid=body.path("aspiration").asText();
+        content.city(city);ObjectNode neighborhood=content.neighborhood(city,nh),aspiration=content.aspiration(aid);
+        ObjectNode existing=(ObjectNode)table("sims").get(simKey(session));
+        // Onboarding is one-time. Repeating it must never mint money or teleport a resident.
+        if(existing!=null) throw new ApiException(409,"Your life is already set up. Use your home or aspiration panel to make changes");
+        if(body.has("look")) u.set("look",look(body.get("look")));
+        ObjectNode s=table("sims").putObject(simKey(session)).put("userId",u.path("id").asText()).put("worldId",world(session).path("id").asText()).put("username",u.path("username").asText()).put("city",city).put("loc","home").put("cash",content.world.path("startingCash").asDouble()).put("xp",0).put("level",1).put("xpNext",100).put("mood","great").put("setupDone",true).put("updatedAt",now()).put("lastDay",clock(world(session)).path("day").asInt()).put("actionsCount",0);
+        s.set("look",u.get("look").deepCopy());s.putObject("home").put("city",city).put("neighborhood",nh).put("rent",neighborhood.path("rent").asInt());
+        ObjectNode needs=s.putObject("needs");for(String need:Content.NEEDS) needs.put(need,85);
+        ObjectNode skills=s.putObject("skills");for(String skill:Content.SKILLS) skills.putObject(skill).put("level",0).put("xp",0).put("next",100);
+        s.putNull("job").putNull("busyUntil").putNull("busyLabel").putNull("pendingBeat");s.putArray("visited").add("home");
+        ObjectNode a=s.putObject("aspiration").put("id",aid).put("label",aspiration.path("label").asText()).put("step",0).put("total",aspiration.path("milestones").size());a.set("current",aspiration.path("milestones").get(0).deepCopy());
+        resetDaily(s);store.save();return simResponse(s,world(session));
+    }
+    void resetDaily(ObjectNode s) {
+        ArrayNode goals=s.putArray("daily");String[] ids={"explore","work","cook"},texts={"Visit three places","Earn money from an activity","Cook a meal at home"},icons={"map-pin","briefcase","cooking-pot"};
+        for(int i=0;i<3;i++){ObjectNode g=goals.addObject().put("id",ids[i]).put("text",texts[i]).put("icon",icons[i]).put("progress",0).put("target",i==0?3:1).put("done",false);g.putObject("reward").put("cash",45).put("xp",25);}
+    }
+    ObjectNode simResponse(ObjectNode s,ObjectNode w) {ObjectNode out=object();out.set("sim",publicSim(s));out.set("clock",clock(w));return out;}
+    synchronized ObjectNode getSim(String token) {ObjectNode session=session(token,true),s=sim(session),w=world(session);decay(s,w);store.save();return simResponse(s,w);}
+    void decay(ObjectNode s,ObjectNode w) {
+        double hours=Math.min(6,Math.max(0,now()-s.path("updatedAt").asLong())/60000.0);ObjectNode needs=(ObjectNode)s.get("needs");int[] rates={3,4,3,2};
+        for(int i=0;i<Content.NEEDS.length;i++){String key=Content.NEEDS[i];needs.put(key,Math.max(0,needs.path(key).asDouble()-rates[i]*hours));}
+        s.put("updatedAt",now());if(!s.path("busyUntil").isNull()&&s.path("busyUntil").asLong()<=now())s.putNull("busyUntil").putNull("busyLabel");
+        int day=clock(w).path("day").asInt();if(day>s.path("lastDay").asInt()){resetDaily(s);s.put("lastDay",day);}updateMood(s);
+    }
+    void updateMood(ObjectNode s) {double min=100,sum=0;for(String n:Content.NEEDS){double v=s.path("needs").path(n).asDouble();min=Math.min(min,v);sum+=v;}s.put("mood",min<=5?"rough":min<20?"low":sum/4<45?"okay":sum/4<75?"good":"great");}
+    void requirements(ObjectNode s,JsonNode requires) {
+        require(s.path("cash").asDouble()>=requires.path("cash").asDouble(),402,"You need more cash for this");
+        require(s.path("level").asInt()>=requires.path("level").asInt(),403,"Build your level before trying this");
+        requires.path("skills").fields().forEachRemaining(e->require(s.path("skills").path(e.getKey()).path("level").asInt()>=e.getValue().asInt(),403,"You need "+Content.title(e.getKey())+" "+e.getValue().asInt()));
+        if(requires.has("job")) require(s.path("job").path("track").asText().equals(requires.path("job").asText()),403,"Apply for this job before working a shift");
+    }
+    synchronized ObjectNode act(String token,JsonNode body) {
+        ObjectNode session=session(token,true),s=sim(session),w=world(session);decay(s,w);
+        String city=body.path("city").asText(),loc=body.path("loc").asText(),action=body.path("action").asText();content.city(city);
+        require(s.path("city").asText().equals(city),403,"Fly to this city before doing an activity here");
+        require(s.path("busyUntil").isNull(),409,"Finish your current activity first");
+        require(s.path("pendingBeat").isNull(),409,"Choose what happens in your story first");
+        JsonNode actions;
+        if(loc.equals("home")){require(s.path("home").path("city").asText().equals(city),403,"Your home is in another city");actions=content.city(city).path("homeActions");}
+        else {
+            ObjectNode landmark=content.landmark(city,loc);int hour=clock(w).path("hour").asInt(),open=landmark.path("open").get(0).asInt(),close=landmark.path("open").get(1).asInt();
+            require(open<close?hour>=open&&hour<close:hour>=open||hour<close,409,"This place is closed. Try home or an open place");actions=landmark.path("actions");
+        }
+        ObjectNode a=null;for(JsonNode option:actions)if(option.path("id").asText().equals(action))a=(ObjectNode)option;
+        require(a!=null,400,"Choose an activity offered at this place");requirements(s,a.path("requires"));
+        require(s.path("cash").asDouble()>=a.path("cost").asDouble(),402,"You do not have enough cash for this activity");
+        if(a.path("kind").asText().equals("work"))for(String need:Content.NEEDS)require(s.path("needs").path(need).asDouble()>0,409,"Take care of your needs before working");
+        if(a.path("requires").has("job"))require(s.path("job").path("city").asText().equals(city)&&s.path("job").path("loc").asText().equals(loc),403,"Work at your own workplace");
+        double cashBefore=s.path("cash").asDouble();int xpBefore=s.path("xp").asInt();
+        boolean low=Set.of("rough","low").contains(s.path("mood").asText());double cashDelta=Math.floor(a.path("pay").asDouble()*(low?.7:1))-a.path("cost").asDouble();
+        s.put("cash",s.path("cash").asDouble()+cashDelta);int xp=a.path("xp").asInt();s.put("xp",s.path("xp").asInt()+xp);int oldLevel=s.path("level").asInt();updateLevel(s);
+        ObjectNode needDeltas=object(),skillDeltas=object();
+        a.path("needs").fields().forEachRemaining(e->{ObjectNode needs=(ObjectNode)s.get("needs");double before=needs.path(e.getKey()).asDouble(),after=Math.clamp(before+e.getValue().asDouble(),0,100);needs.put(e.getKey(),after);needDeltas.put(e.getKey(),after-before);});
+        a.path("skills").fields().forEachRemaining(e->{ObjectNode skill=(ObjectNode)s.path("skills").get(e.getKey());int gain=(int)Math.floor(e.getValue().asInt()*(low?.7:1));addSkill(skill,gain);skillDeltas.put(e.getKey(),gain);});
+        boolean firstVisit=true;for(JsonNode visited:s.path("visited"))if(visited.asText().equals(loc))firstVisit=false;
+        if(firstVisit)s.withArray("visited").add(loc);s.put("loc",loc).put("actionsCount",s.path("actionsCount").asInt()+1);
+        if(a.has("to")) s.put("city",a.path("to").asText()).putNull("loc");
+        long busyUntil=now()+Math.clamp(a.path("durationMin").asLong()*60,2000,6000);s.put("busyUntil",busyUntil).put("busyLabel",a.path("label").asText());
+        ArrayNode completed=mapper.createArrayNode();
+        for(JsonNode node:s.path("daily")){ObjectNode g=(ObjectNode)node;if(g.path("done").asBoolean())continue;String gid=g.path("id").asText();boolean progress=gid.equals("explore")&&firstVisit||gid.equals("work")&&a.path("pay").asInt()>0||gid.equals("cook")&&loc.equals("home")&&action.equals("cook");if(progress){int p=g.path("progress").asInt()+1;g.put("progress",p);if(p>=g.path("target").asInt()){g.put("done",true);s.put("cash",s.path("cash").asDouble()+g.path("reward").path("cash").asDouble());s.put("xp",s.path("xp").asInt()+g.path("reward").path("xp").asInt());completed.add(g.path("text").asText());}}}
+        updateMood(s);updateLevel(s);store.save();
+        ObjectNode out=object(),result=object().put("text",a.path("label").asText()+". "+(cashDelta>0?"You earned $"+(int)cashDelta+".":"A little progress, a better day.")).put("busyUntil",busyUntil).put("leveledUp",s.path("level").asInt()>oldLevel).putNull("promoted").putNull("beat");
+        ObjectNode deltas=result.putObject("deltas").put("cash",s.path("cash").asDouble()-cashBefore).put("xp",s.path("xp").asInt()-xpBefore);deltas.set("needs",needDeltas);deltas.set("skills",skillDeltas);result.set("goalsCompleted",completed);out.set("sim",publicSim(s));out.set("result",result);return out;
+    }
+    void addSkill(ObjectNode skill,int gain){int level=skill.path("level").asInt(),xp=skill.path("xp").asInt()+gain;while(level<10&&xp>=100*(level+1)){xp-=100*(level+1);level++;}skill.put("level",level).put("xp",level==10?0:xp).put("next",100*(level+1));}
+    void updateLevel(ObjectNode s){int level=1,xp=s.path("xp").asInt();while(level<100&&xp>=100*level*(level+1)/2)level++;s.put("level",level).put("xpNext",100*level*(level+1)/2);}
+    synchronized ObjectNode stats(){store.data.put("visits",store.data.path("visits").asLong()+1);store.save();return object().put("online",0).put("visits",store.data.path("visits").asLong());}
+    synchronized ObjectNode daily(String token,String city){content.city(city);ObjectNode c=clock(world(session(token,false)));return object().put("date","Day "+c.path("day").asInt()).put("weekday",c.path("weekday").asText()).put("weather",city.equals("bay")?"Coastal haze":city.equals("nyc")?"Clear and crisp":"Warm and sunny").put("headline","A new day, a city of possibilities").put("tip","Keep your needs up. Home is always open.");}
+    static boolean containsEmoji(String s){return s.codePoints().anyMatch(cp->cp>=0x1F000||cp>=0x2600&&cp<=0x27BF||cp==0xFE0F||cp==0x200D);}
+}
