@@ -230,7 +230,12 @@ export const useStore = create<State>((set, get) => {
       }else set({lastResult,rewardAnchor:null})
     },
     openPanel: (panel) => {if(panel)rememberTrigger();set(panel?{panel,searchOpen:false}:{panel})},
-    selectLocation: (id) => {if(id)rememberTrigger();set({ selectedLoc: id, panel: id ? 'location' : null,searchOpen:false })},
+    selectLocation: (id) => {
+      if(id)rememberTrigger()
+      const targetCity=id==='home'?get().sim?.home.city:get().world?.cities.find(c=>c.landmarks.some(l=>l.id===id))?.id
+      if(targetCity&&targetCity!==get().city)void get().setCity(targetCity)
+      set({ selectedLoc: id, panel: id ? 'location' : null,searchOpen:false })
+    },
     selectSlot: (slot) => set({ selectedSlot: slot, panel: slot === null ? null : 'billboard' }),
     setFocus: (focus) => set({ focus }),
   }

@@ -226,3 +226,65 @@ Reviewed official Hawks/arena parking aerial, renovation contractor roof aerial,
 
 State Farm Arena revised self-review: Yes in the Atlanta map — the shallow barrel roof, tall gridded glass front and giant ATLANTA structural letters distinguish it from the stadium. 1,248 triangles / one batch. Integrated day/night captures at 1280×800, 375×812 and 667×375 are in evidence/art-rebuild/cities-integrated. Moved west/north to keep its frontage clear of the stadium during focus. Roof equipment and adjoining development remain simplified; independent recognition has not been tested.
 
+## M4 integrated city recognition review
+
+Reviewed every close view and skyline in evidence/m4/{nyc,bay}/round3, by day/night at1280x800 and375x812. These are candid self-judgments, not an independent stranger test or owner acceptance. The earlier procedural rounds and failed/HMR captures do not establish recognition. Blender hero photo/render comparisons remain in evidence/art-rebuild/photo-comparisons.
+
+All twelve new-city heroes are recognizable in context and under12k/one material batch. Nonheroes are under3k. The final bounded city round includes focused rework to Times Square, NYC City Hall, DUMBO, Chase Center, filler clearance and camera approaches. The No rows below remain explicit exceptions: no fourth full city art round is claimed. Generic district/synthetic destinations cannot imply an exact real facade. Remaining architecture and night window-light polish stay visible in the weakness list; map completion does not mean every real place has passed recognition.
+
+### New York
+
+| ID | One-second judgment | Triangles | Reason / remaining limit |
+|---|---|---:|---|
+| timesSquare | Yes in NYC context | 1,140 | The narrow wedge, stacked coloured screens and pedestrian plaza distinguish the scene; advertisements are original abstract panels. |
+| centralPark | No | 1,392 | The rectangular lawn and two water basins read as a park, but the compressed proportions and straight paths do not establish Central Park immediately. |
+| empire | Yes | 9,084 | Limestone ribs, successive Art Deco setbacks and the silver mooring mast give the unmistakable silhouette. |
+| grandCentral | Yes | 3,385 | Three huge arched windows, paired columns, green roof and sculptural clock crown remain visible after front-clearance correction. |
+| msg | Yes in NYC context | 1,120 | The squat silver cylinder, horizontal bands and radial roof identify the Garden beside the Midtown skyline. |
+| broadway | No | 1,572 | Three marquee fronts read as a theater district, but no individual real theater was specified; the ensemble alone cannot establish Broadway in one second. |
+| met | Yes | 3,397 | The projecting three-arch central pavilion, broad stairs, paired columns and long lower limestone wings distinguish the museum. |
+| apollo | Yes with its place-name sign | 852 | The narrow brick theater, red APOLLO blade and projecting marquee supply the identity; the exact ornamental facade is simplified. |
+| columbia | Yes in NYC context | 1,068 | Low Library dome and classical portico identify the campus; surrounding academic wings are compressed. |
+| highLine | Yes in NYC context | 644 | A thin planted walkway on exposed steel legs, with rails and seating bays, reads as the elevated former railway. |
+| wallStreet | No | 1,028 | The classical exchange and small bronze bull suggest finance, but the street canyon is too abbreviated for immediate Wall Street recognition. |
+| oneWtc | Yes | 4,978 | The eight triangular glass planes, rotated-square top, long mast and memorial pools distinguish One WTC. |
+| brooklynBridge | Yes | 8,768 | Paired open Gothic stone portals, suspended cables, diagonal stays and the raised pedestrian deck identify the bridge. |
+| dumbo | No at every size | 720 | The bridge portal is clear in the phone frontal view, but the desktop composition still reads primarily as two warehouses; recognition depends on approach. |
+| williamsburgVenue | No exact real venue | 804 | Canonical Williamsburg Music Hall is an interpreted venue, not a specified real facade; its blade and marquee identify a music hall only. |
+| chinatown | No exact NYC identity | 1,368 | Low shops, lanterns and a green gateway suggest Chinatown generally. The gateway interpretation is too generic and does not faithfully establish Manhattan Chinatown. |
+| fifthAve | No | 636 | A stone retail frontage with large windows and awnings is not enough to name this long avenue without its map label. |
+| cityHall | No | 1,052 | The revised clock cupola and classical wings are clearer, but the simplified pavilion is still generic civic architecture. |
+| liberty | Yes | 3,296 | The seven-ray crown, raised torch, tablet, asymmetric robe, tall pedestal and star fort make the figure immediate. |
+| yankee | Yes in NYC context | 1,692 | Pale outer arcade/frieze, blue stands and open baseball field give the stadium identity; the bowl is compressed. |
+| coney | Yes in NYC context | 1,108 | Beach, boardwalk, upright wheel and wooden coaster trestle give the combined Coney Island identity. |
+| presbyterian | No exact real building | 288 | Canonical City General Hospital is synthetic; clinical wings and the medical cross communicate its role, not a named real hospital. |
+| nycAirport | No exact airport | 808 | Runways, aircraft, concourses and a TWA-inspired terminal communicate JFK in map context, but the simplified roof is not enough to name it alone. |
+
+### Bay Area
+
+| ID | One-second judgment | Triangles | Reason / remaining limit |
+|---|---|---:|---|
+| goldenGate | Yes | 5,956 | International-orange ribbed portal towers, sagging cables, slender truss deck and Marin headland identify the bridge. |
+| ferryBuilding | Yes | 9,138 | The long arched waterfront hall, slender clock campanile, open belfry and cap are distinctive. |
+| salesforce | Yes | 8,588 | Rounded tapered glass shaft, dense silver sunshade bands and soft crown identify Salesforce Tower; the elevated park supplements it. |
+| pier39 | Yes in Bay context | 1,488 | Timber shop piers and the adjacent sea-lion docks give the combined identity; the carousel is abbreviated. |
+| alcatraz | Yes in Bay context | 2,056 | The irregular cliff island, broad cream cellhouse, white lighthouse, rust tank and shore dock distinguish Alcatraz. |
+| ggPark | No | 2,032 | The Conservatory-like white dome, pagoda and lawn suggest Golden Gate Park, but its enormous linear landscape has been compressed too far for immediate naming. |
+| dolores | No | 2,128 | Palms, courts and paths identify a neighbourhood park, but the weak slope and missing Mission context do not establish Dolores Park alone. |
+| missionEats | No unique real facade | 264 | Mission Taquerias is a district ensemble rather than a named building. Coloured storefronts and red awnings communicate food, not an independently nameable landmark. |
+| paintedLadies | Yes | 4,420 | Six pastel Victorian fronts, gables, polygonal bays, white trim, porches and the sloping street are distinctive. |
+| chaseCenter | No | 1,008 | Reworked oval ribbons and glass entry improve the arena silhouette, but its compressed mass remains too generic to name immediately. |
+| oraclePark | Yes in Bay context | 2,304 | Brick waterfront arcade, open baseball field/stands and cove-side placement give the stadium identity. |
+| sfChinatown | Yes in SF context | 1,368 | Green tiled gateway, red pillars, lanterns and narrow shops supply Dragon Gate/Chinatown cues. |
+| sfCityHall | Yes | 8,542 | The huge ribbed slate dome with gold ribs, columned drum, pale symmetric wings, pediment and stairs identify City Hall. |
+| fillmore | No | 1,146 | The sign, marquee and central arch name a concert hall, but the generic brick body does not match the Fillmore closely enough. |
+| berkeleyCampus | Yes in Bay context | 648 | The slender square Sather campanile and classical court distinguish Berkeley; belfry detail is symbolic. |
+| lakeMerritt | No | 1,816 | Water, lawn, path loop and pergola suggest the lake, but the abbreviated shoreline lacks its distinctive three-arm geography. |
+| oaklandFox | Yes with its place-name sign | 1,452 | Twin domed towers, central arch and FOX blade distinguish the Oakland theater in context; ornament is abbreviated. |
+| stanford | Yes in Bay context | 728 | Sandstone arcades, red-tiled quad, church gable and Hoover-style tower give the campus identity. |
+| sandHill | No unique property | 420 | Wooded low offices with pitched tile roofs communicate Sand Hill Road activity, but no specific building was named in canonical content. |
+| techCampus | Yes as the real-world inspiration | 1,968 | The continuous circular glass office ring, open green court and roof solar strips evoke Apple Park; canonical Silicon Valley Campus remains generic. |
+| ucsf | No exact real building | 816 | Canonical Bay Medical Center is synthetic; terraced clinical blocks and a cross communicate hospital use only. |
+| bayAirport | No exact airport | 640 | The oval terminal, control tower, fingers and water-edge runways read as SFO in map context; alone they remain a generic airport. |
+
+The compact layouts deliberately enlarge heroes and compress distance. Brooklyn and East Bay still have overly uniform street spacing and empty lots. Real OSM bearings are used near successful extracts, not a complete surveyed street reconstruction. Night terrain and architecture are readable, but warm window/light detail is weaker than Atlanta and remains a polish item.

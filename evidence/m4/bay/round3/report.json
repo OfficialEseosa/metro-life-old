@@ -1,0 +1,106 @@
+{
+  "city": "bay",
+  "geometry": {
+    "goldenGate": 5956,
+    "ferryBuilding": 9138,
+    "salesforce": 8588,
+    "pier39": 1488,
+    "alcatraz": 2056,
+    "ggPark": 2032,
+    "dolores": 2128,
+    "missionEats": 264,
+    "paintedLadies": 4420,
+    "chaseCenter": 1008,
+    "oraclePark": 2304,
+    "sfChinatown": 1368,
+    "sfCityHall": 8542,
+    "fillmore": 1146,
+    "berkeleyCampus": 648,
+    "lakeMerritt": 1816,
+    "oaklandFox": 1452,
+    "stanford": 728,
+    "sandHill": 420,
+    "techCampus": 1968,
+    "ucsf": 816,
+    "bayAirport": 640
+  },
+  "measurements": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "theme": "day",
+      "shadowRefreshPeak": {
+        "calls": 60,
+        "triangles": 236356,
+        "fps": 57.88823711015262,
+        "p95Ms": 18.19999999552965,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "calls": 37,
+      "triangles": 173358,
+      "fps": 60.01200240048009,
+      "p95Ms": 17.700000002980232,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "theme": "night",
+      "shadowRefreshPeak": {
+        "calls": 60,
+        "triangles": 236356,
+        "fps": 60.02521058837557,
+        "p95Ms": 18,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "calls": 37,
+      "triangles": 173358,
+      "fps": 59.99520038398716,
+      "p95Ms": 18,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "theme": "day",
+      "shadowRefreshPeak": {
+        "calls": 60,
+        "triangles": 236356,
+        "fps": 60.00240009595019,
+        "p95Ms": 17.19999999552965,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "calls": 37,
+      "triangles": 173358,
+      "fps": 60.01200240048009,
+      "p95Ms": 18.100000001490116,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "theme": "night",
+      "shadowRefreshPeak": {
+        "calls": 60,
+        "triangles": 236356,
+        "fps": 59.99999999999999,
+        "p95Ms": 17.899999998509884,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "calls": 37,
+      "triangles": 173358,
+      "fps": 59.99280086387846,
+      "p95Ms": 18,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ],
+  "errors": []
+}
