@@ -1,5 +1,5 @@
 /* oxlint-disable react/immutability -- Three.js objects and shader uniforms are imperative renderer resources. */
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import type { OrbitControls as Controls } from 'three-stdlib'
@@ -17,10 +17,22 @@ import { useNightLighting } from '../lighting'
 import { Pins } from './pins'
 
 declare global {
-  interface Window { __metroScene?: { status:()=>{kits:{count:number;visible:boolean;parentVisible:boolean}[];terrain:{visible:boolean;color:string;emissive:string}|null;frameloop:string}; refreshShadows:()=>void; focus: (id: string | null) => void; theme: (value: 'day' | 'night') => void; metrics: () => { calls: number; triangles: number; fps: number; p95Ms: number; renderer: string }; hidePins: (hidden: boolean) => void; project: (id: string) => { x: number; y: number }; geometry: () => Record<string, number> } }
+  interface Window { __metroScene?: { status:()=>{kits:{count:number;visible:boolean;parentVisible:boolean}[];terrain:{visible:boolean;color:string;emissive:string}|null;frameloop:string;frame:number}; refreshShadows:()=>void; focus: (id: string | null) => void; theme: (value: 'day' | 'night') => void; metrics: () => { calls: number; triangles: number; fps: number; p95Ms: number; renderer: string }; hidePins: (hidden: boolean) => void; project: (id: string) => { x: number; y: number }; geometry: () => Record<string, number> } }
 }
 const noPick = () => {}
 const worldTarget = new THREE.Vector3(0, 0, 5)
+// Own the ambient clock outside asset Suspense so loading never depends on input.
+function AmbientTicker(){
+  const invalidate=useThree(s=>s.invalidate),setFrameloop=useThree(s=>s.setFrameloop)
+  useLayoutEffect(()=>{
+    let frame=0
+    const tick=()=>{if(document.hidden)return;invalidate();frame=requestAnimationFrame(tick)}
+    const visibility=()=>{cancelAnimationFrame(frame);setFrameloop(document.hidden?'never':'demand');if(!document.hidden)tick()}
+    visibility();document.addEventListener('visibilitychange',visibility)
+    return()=>{cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visibility)}
+  },[invalidate,setFrameloop])
+  return null
+}
 function Terrain({night}:{night:boolean}){const geometry=useMemo(()=>{const g=new THREE.PlaneGeometry(1200,1200,64,64),p=g.getAttribute('position');for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.hypot(x,z),rise=THREE.MathUtils.smoothstep(r,100,210)*(Math.sin(x*.022)*Math.cos(z*.019)*7+8);p.setZ(i,rise)}g.computeVertexNormals();return g},[]);return <mesh name="terrain" geometry={geometry} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><meshStandardMaterial color={night?'#598065':'#8ebd75'} emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh>}
 
 function Sky({ night }: { night: boolean }) {
@@ -86,7 +98,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
         else obstacles.push(bounds.clone().applyMatrix4(object.matrixWorld))
       })
       let bestScore=Infinity
-      const angles=id==='benz'?[-Math.PI/2,-1.2,-.61,.61,0,1.2,Math.PI/2,Math.PI]:id==='piedmont'?[Math.PI/2,1.2,.61,0,-.61,-1.2,-Math.PI/2,Math.PI]:[.61,0,-.61,1.2,-1.2,Math.PI/2,-Math.PI/2,Math.PI]
+      const angles=id==='arena'?[0,-.61,.61]:id==='benz'?[-Math.PI/2,-1.2,-.61,.61,0,1.2,Math.PI/2,Math.PI]:id==='piedmont'?[Math.PI/2,1.2,.61,0,-.61,-1.2,-Math.PI/2,Math.PI]:[.61,0,-.61,1.2,-1.2,Math.PI/2,-Math.PI/2,Math.PI]
       for(const angle of angles){
         const eye=new THREE.Vector3(site.x+Math.sin(angle)*distance*1.22,site.height*.5+distance*.75,site.z+Math.cos(angle)*distance*1.22)
         let score=0
@@ -109,7 +121,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   })
   useEffect(()=>{
     if(!import.meta.env.DEV)return
-    window.__metroScene={status:()=>{const kits:{count:number;visible:boolean;parentVisible:boolean}[]=[];scene.traverse(o=>{if(o instanceof THREE.InstancedMesh)kits.push({count:o.count,visible:o.visible,parentVisible:o.parent?.visible??true})});const ground=scene.getObjectByName('terrain') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>|undefined;return{kits,terrain:ground?{visible:ground.visible,color:ground.material.color.getHexString(),emissive:ground.material.emissive.getHexString()}:null,frameloop}},refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id);let count=0;m?.traverse(o=>{if(o instanceof THREE.Mesh)count+=(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3});return[id,count]})),metrics:()=>{
+    window.__metroScene={status:()=>{const kits:{count:number;visible:boolean;parentVisible:boolean}[]=[];scene.traverse(o=>{if(o instanceof THREE.InstancedMesh)kits.push({count:o.count,visible:o.visible,parentVisible:o.parent?.visible??true})});const ground=scene.getObjectByName('terrain') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>|undefined;return{kits,terrain:ground?{visible:ground.visible,color:ground.material.color.getHexString(),emissive:ground.material.emissive.getHexString()}:null,frameloop,frame:gl.info.render.frame}},refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id);let count=0;m?.traverse(o=>{if(o instanceof THREE.Mesh)count+=(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3});return[id,count]})),metrics:()=>{
       const times=[...timings.current].sort((a,b)=>a-b),context=gl.getContext(),debug=context.getExtension('WEBGL_debug_renderer_info')
       return{calls:gl.info.render.calls,triangles:gl.info.render.triangles,fps:times.length?1000/(times.reduce((a,b)=>a+b,0)/times.length):0,p95Ms:times[Math.floor(times.length*.95)]??0,renderer:debug?context.getParameter(debug.UNMASKED_RENDERER_WEBGL):'unknown'}
     }}
@@ -125,5 +137,5 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
 }
 export default function CityScene() {
   const [hover,setHover]=useState<{name:string;x:number;y:number}|null>(null)
-  return <div className="city-canvas"><Canvas frameloop="always" shadows="soft" dpr={[1,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Canvas>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
+  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[1,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><AmbientTicker/><Suspense fallback={null}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Suspense></Canvas>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
 }

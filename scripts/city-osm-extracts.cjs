@@ -1,0 +1,4 @@
+const fs=require('fs');
+// Small public map extracts, no login/key. Saved as evidence; no Google map services.
+const boxes={nycPark:'-73.978,40.776,-73.964,40.787',nycDowntown:'-74.018,40.708,-74.008,40.716',bayFerry:'-122.397,37.791,-122.390,37.798',bayAlcatraz:'-122.427,37.823,-122.419,37.829'};
+(async()=>{const report=[];for(const[id,bbox]of Object.entries(boxes)){const url='https://api.openstreetmap.org/api/0.6/map?bbox='+bbox;try{const r=await fetch(url,{signal:AbortSignal.timeout(30000)}),row={id,url,status:r.status};if(r.ok){const text=await r.text();fs.writeFileSync(`evidence/art-rebuild/${id}-osm.xml`,text);row.bytes=Buffer.byteLength(text)}report.push(row)}catch(e){report.push({id,url,error:String(e)})}}fs.writeFileSync('evidence/art-rebuild/city-osm-results.json',JSON.stringify(report,null,2));console.log(report)})();

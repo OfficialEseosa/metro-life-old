@@ -1,0 +1,32 @@
+{
+  "empire": {
+    "triangles": 9084,
+    "materialBatches": 1,
+    "glbBytes": 709688
+  },
+  "oneWtc": {
+    "triangles": 4978,
+    "materialBatches": 1,
+    "glbBytes": 389824
+  },
+  "brooklynBridge": {
+    "triangles": 8768,
+    "materialBatches": 1,
+    "glbBytes": 691184
+  },
+  "liberty": {
+    "triangles": 3296,
+    "materialBatches": 1,
+    "glbBytes": 261492
+  },
+  "grandCentral": {
+    "triangles": 3385,
+    "materialBatches": 1,
+    "glbBytes": 269288
+  },
+  "met": {
+    "triangles": 3397,
+    "materialBatches": 1,
+    "glbBytes": 275980
+  }
+}

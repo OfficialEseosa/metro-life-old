@@ -1,0 +1,270 @@
+{
+  "errors": [],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:5173/models/world/suburban/building-type-a.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_B_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_C_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_D_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_A_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_E_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/commercial/building-skyscraper-a.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_F_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/commercial/building-skyscraper-b.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/commercial/building-skyscraper-c.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/suburban/tree-large.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/streetlight.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/suburban/tree-small.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/car_sedan.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/road_straight.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/car_hatchback.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/road_junction.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/benz.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/aquarium.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/arena.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/centennial.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/piedmont.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/ponce.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/fox.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/capitol.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/high.glb",
+      "status": 200
+    }
+  ],
+  "cities": [
+    {
+      "city": "atl",
+      "geometry": {
+        "benz": 2856,
+        "arena": 1248,
+        "aquarium": 1553,
+        "centennial": 3609,
+        "piedmont": 10383,
+        "beltline": 484,
+        "ponce": 4360,
+        "krog": 380,
+        "fox": 2788,
+        "high": 4198,
+        "gatech": 1516,
+        "gsu": 1544,
+        "techVillage": 1308,
+        "lenox": 692,
+        "capitol": 4266,
+        "mlk": 1540,
+        "l5p": 1176,
+        "truist": 1259,
+        "grady": 348,
+        "atlAirport": 1160
+      },
+      "views": [
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 800
+          },
+          "theme": "day",
+          "metrics": {
+            "calls": 43,
+            "triangles": 177774,
+            "fps": 60.08411776487082,
+            "p95Ms": 18.30000000447035,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          },
+          "shadowPeak": {
+            "calls": 71,
+            "triangles": 256184,
+            "fps": 60.099765610878244,
+            "p95Ms": 18.399999998509884,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 800
+          },
+          "theme": "night",
+          "metrics": {
+            "calls": 43,
+            "triangles": 177774,
+            "fps": 59.80026710782422,
+            "p95Ms": 18.19999999552965,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          },
+          "shadowPeak": {
+            "calls": 71,
+            "triangles": 256184,
+            "fps": 59.783583428061675,
+            "p95Ms": 18.19999999552965,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        },
+        {
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "theme": "day",
+          "metrics": {
+            "calls": 43,
+            "triangles": 177774,
+            "fps": 59.99280086387846,
+            "p95Ms": 17.80000000447035,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          },
+          "shadowPeak": {
+            "calls": 71,
+            "triangles": 256184,
+            "fps": 59.99999999999999,
+            "p95Ms": 17.80000000447035,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        },
+        {
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "theme": "night",
+          "metrics": {
+            "calls": 43,
+            "triangles": 177774,
+            "fps": 59.79311581930085,
+            "p95Ms": 17.80000000447035,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          },
+          "shadowPeak": {
+            "calls": 71,
+            "triangles": 256184,
+            "fps": 59.79549939215013,
+            "p95Ms": 18,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        },
+        {
+          "viewport": {
+            "width": 667,
+            "height": 375
+          },
+          "theme": "day",
+          "metrics": {
+            "calls": 43,
+            "triangles": 177774,
+            "fps": 60.00120002401836,
+            "p95Ms": 17.399999998509884,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          },
+          "shadowPeak": {
+            "calls": 71,
+            "triangles": 256184,
+            "fps": 60.00120002392895,
+            "p95Ms": 17.399999998509884,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        },
+        {
+          "viewport": {
+            "width": 667,
+            "height": 375
+          },
+          "theme": "night",
+          "metrics": {
+            "calls": 43,
+            "triangles": 177774,
+            "fps": 59.997600095960394,
+            "p95Ms": 17.299999997019768,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          },
+          "shadowPeak": {
+            "calls": 71,
+            "triangles": 256184,
+            "fps": 59.99520038398716,
+            "p95Ms": 17.299999997019768,
+            "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        }
+      ]
+    }
+  ],
+  "visibility": {
+    "frozenFrame": 329,
+    "frozenLaterFrame": 329,
+    "resumedFrame": 362,
+    "method": "visibilitychange with test-controlled document.hidden"
+  }
+}

@@ -1,1 +1,1 @@
-export const blenderHeroes=new Set(['benz','centennial','piedmont','capitol','fox','ponce','high','aquarium'])
+export const blenderHeroes=new Set(['benz','centennial','piedmont','capitol','fox','ponce','high','aquarium','arena','empire','oneWtc','brooklynBridge','liberty','grandCentral','met','goldenGate','ferryBuilding','salesforce','alcatraz','paintedLadies','sfCityHall'])

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "met-front",
+    "url": "https://cdn.sanity.io/images/cctd4ker/production/a70c08e24ff7cc7eebd2eecadd8fa86b4eac9ec5-1920x983.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/met-front.jpg"
+  },
+  {
+    "id": "grandCentral-street",
+    "url": "https://images.squarespace-cdn.com/content/v1/563a5fb2e4b0710808c31f27/1512590692048-T0A78HOSMZ3ONOIORW6I/%D1%86%D0%B5%D0%BD%D1%82%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%2B%D0%B2%D0%BE%D0%BA%D0%B7%D0%B0%D0%BB.jpg?format=1500w",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/grandCentral-street.jpg"
+  },
+  {
+    "id": "paintedLadies-aerial",
+    "url": "https://s.hdnux.com/photos/01/66/35/56/31054762/3/ratio3x2_720.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/paintedLadies-aerial.jpg"
+  },
+  {
+    "id": "oneWtc-street",
+    "url": "https://www.som.com/wp-content/uploads/2021/08/205221_000_N263_large-scaled.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/oneWtc-street.jpg"
+  },
+  {
+    "id": "oneWtc-plaza",
+    "url": "https://www.som.com/wp-content/uploads/fly-images/33854/205221_000_N210_large-scaled-1366x910-c.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/oneWtc-plaza.jpg"
+  },
+  {
+    "id": "brooklynBridge-aerial",
+    "url": "https://www.richardsilverphoto.com/cdn/shop/products/Brooklyn_Bridge_by_Helicopter.jpg?v=1771305165",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/brooklynBridge-aerial.jpg"
+  },
+  {
+    "id": "liberty-front",
+    "url": "https://www.nps.gov/stli/learn/images/Statue-of-Liberty1_1.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/liberty-front.jpg"
+  },
+  {
+    "id": "liberty-torch",
+    "url": "https://www.nps.gov/stli/learn/images/Statue-of-Liberty_6.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/liberty-torch.jpg"
+  },
+  {
+    "id": "liberty-aerial",
+    "url": "https://meadowlandsmedia.com/wp-content/uploads/2023/09/Statue_of_Liberty_36491259596.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/liberty-aerial.jpg"
+  },
+  {
+    "id": "grandCentral-aerial",
+    "url": "https://cdn.prod.website-files.com/64619e077da47160c6ce7d11/648351b3a73b6c12ae755b8b_grand_central_lighting_featured.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/grandCentral-aerial.jpg"
+  },
+  {
+    "id": "grandCentral-front",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/7/71/Image-Grand_central_Station_Outside_Night_2.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/grandCentral-front.jpg"
+  },
+  {
+    "id": "met-aerial",
+    "url": "https://cdn.sanity.io/images/cctd4ker/production/12501886e914eb64fdcf9d1bba0f12bcd6d14183-720x572.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/met-aerial.jpg"
+  },
+  {
+    "id": "met-plaza",
+    "url": "https://cdn.sanity.io/images/cctd4ker/production/9ea99ed87c43b8b36ec7bfe2d9aa556335466b70-760x542.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/met-plaza.jpg"
+  },
+  {
+    "id": "goldenGate-tower",
+    "url": "https://www.goldengate.org/assets/1/6/art-deco-design.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/goldenGate-tower.jpg"
+  },
+  {
+    "id": "goldenGate-aerial",
+    "url": "https://prodmediawebuildvalue.alkemy.digital/wp-content/uploads/2025/09/GOLDENGATE_05.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/goldenGate-aerial.jpg"
+  },
+  {
+    "id": "goldenGate-wide",
+    "url": "https://www.goldengate.org/assets/1/6/page-top-bridge.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/goldenGate-wide.jpg"
+  },
+  {
+    "id": "salesforce-aerial",
+    "url": "https://pcparch.com/media/pages/work/salesforce-tower/c500c8ebba-1737998015/salesforce-tower-sunrise-960x-q80.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/salesforce-aerial.jpg"
+  },
+  {
+    "id": "salesforce-street",
+    "url": "https://pcparch.com/media/pages/work/salesforce-tower/7d9f045e61-1737998015/salesforce-tower-street-view-exterior-960x-q80.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/salesforce-street.jpg"
+  },
+  {
+    "id": "ferryBuilding-water",
+    "url": "https://www.ferrybuildingmarketplace.com/wp-content/uploads/fb-about-main.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/ferryBuilding-water.jpg"
+  },
+  {
+    "id": "ferryBuilding-front",
+    "url": "https://www.ferrybuildingmarketplace.com/wp-content/uploads/Ferry-Building-IG-03.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/ferryBuilding-front.jpg"
+  },
+  {
+    "id": "alcatraz-aerial",
+    "url": "https://www.nps.gov/common/uploads/banner_image/pwr/homepage/9A38B580-BF6D-14C4-9F5C262C4836E906.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/alcatraz-aerial.jpg"
+  },
+  {
+    "id": "alcatraz-ground",
+    "url": "https://www.nps.gov/common/uploads/structured_data/2514A14F-D5E3-BB31-4A0C4175BF61216A.jpg?maxWidth=1200&maxHeight=800&quality=90",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/alcatraz-ground.jpg"
+  },
+  {
+    "id": "sfCityHall-aerial",
+    "url": "https://www.terragalleria.com/images/us-ca/usca64631.jpeg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/sfCityHall-aerial.jpg"
+  },
+  {
+    "id": "sfCityHall-street",
+    "url": "https://media.api.sf.gov/original_images/pink_over_city_hall_sergio_ruiz_ZC6fLrx.jpg",
+    "status": 200,
+    "file": "evidence/art-rebuild/references-cities/sfCityHall-street.jpg"
+  }
+]

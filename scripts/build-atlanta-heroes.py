@@ -157,4 +157,4 @@ def aquarium():
  for x in [-8,-4,4,8]:tree(b,x,-8,1.4)
  text(b,'GEORGIA AQUARIUM',-1,-6.3,2.1,.5,WHITE)
  b.finish('aquarium-blue-sails')
-export_models([('capitol',capitol),('fox',fox),('ponce',ponce),('high',high),('aquarium',aquarium)],'atl-heroes-report.json')
+if __name__=='__main__':export_models([('capitol',capitol),('fox',fox),('ponce',ponce),('high',high),('aquarium',aquarium)],'atl-heroes-report.json')

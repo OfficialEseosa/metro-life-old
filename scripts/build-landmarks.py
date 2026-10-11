@@ -201,11 +201,12 @@ def piedmont():
    b.line((x+dx,y+dy,z+.3),(x-dx*.5,y-dy*.5,z+2.4),.04,c,4)
   b.line((x,y,z+3),(x,y,z+3.5),.05,c,5)
  b.finish('piedmont-landscape');water.finish('piedmont-lake')
-def render(id,eye,target,filename):
+def render(id,eye,target,filename,scale=None):
  scene=bpy.context.scene;scene.render.engine='CYCLES';scene.cycles.samples=24;scene.render.resolution_x=1000;scene.render.resolution_y=700;scene.render.resolution_percentage=100
  scene.world.use_nodes=True;scene.world.node_tree.nodes['Background'].inputs['Color'].default_value=(.6,.72,.85,1);scene.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.5;scene.view_settings.view_transform='Standard'
  bpy.ops.object.light_add(type='AREA',location=(-20,-25,40));bpy.context.object.data.energy=18000;bpy.context.object.data.shape='DISK';bpy.context.object.data.size=25
  bpy.ops.object.camera_add(location=eye);cam=bpy.context.object;cam.rotation_euler=(Vector(target)-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.type='ORTHO';cam.data.ortho_scale=58 if id=='piedmont' else 38
+ if scale:cam.data.ortho_scale=scale
  if filename.endswith('lake-side.png'):cam.data.ortho_scale=26
  if filename.endswith('street.png') or filename.endswith('lake-side.png'):cam.data.type='PERSP';cam.data.lens=32
  scene.camera=cam
@@ -222,6 +223,12 @@ def export_models(specs,report_name='report.json'):
   bpy.ops.export_scene.gltf(filepath=os.path.join(OUT,id+'.glb'),export_format='GLB',use_selection=True,export_yup=True,export_apply=True,export_cameras=False,export_lights=False)
   # Render the exported file, not authoring objects, to catch coordinate/material mistakes.
   clear();bpy.ops.import_scene.gltf(filepath=os.path.join(OUT,id+'.glb'))
+  if id not in ['benz','centennial','piedmont','capitol','fox','ponce','high','aquarium']:
+   vs=[o.matrix_world@v.co for o in bpy.context.scene.objects if o.type=='MESH' for v in o.data.vertices];h=max(v.z for v in vs);w=max(v.x for v in vs)-min(v.x for v in vs);d=max(v.y for v in vs)-min(v.y for v in vs);span=max(h,w,d);target=(0,0,h*.45)
+   render(id,(span*.9,-span*1.15,h*.45+span*.7),target,id+'-aerial.png',span*(1.7 if id=='liberty' else 1.45))
+   render(id,(span*.45,-span*1.8,h*.25),target,id+'-street.png',span*1.45)
+   report[id]={'triangles':tri,'materialBatches':len(objs),'glbBytes':os.path.getsize(os.path.join(OUT,id+'.glb'))}
+   continue
   render(id,(-24,-30,30) if id=='benz' else (25,-34,36) if id=='centennial' else (29,-27,24),(0,0,2),id+'-aerial.png')
   if id=='benz':render(id,(-35,-19,7),(0,0,3),id+'-street.png')
   elif id=='piedmont':render(id,(9,-11,3),(-6,-5,4),id+'-lake-side.png')

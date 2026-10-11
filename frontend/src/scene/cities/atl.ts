@@ -1,7 +1,7 @@
 export type Site = { x: number; z: number; size: number; height: number; angle?: number }
 export const atlSites: Record<string, Site> = {
   benz: { x: -32, z: 34, size: 28, height: 7.1 },
-  arena: { x: -32, z: 13, size: 14, height: 4 },
+  arena: { x: -39, z: 8, size: 18, height: 4.9 },
   aquarium: { x: -25, z: -14, size: 21, height: 5.7 },
   centennial: { x: -12, z: 4, size: 32, height: 7 },
   piedmont: { x: 22, z: -38, size: 36, height: 3 },
