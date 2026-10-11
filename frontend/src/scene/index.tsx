@@ -67,7 +67,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   const destination = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)
   const [pinsHidden, setPinsHidden] = useState(false)
   const timings = useRef<number[]>([]), lastFrame = useRef(0)
-  useEffect(()=>{const perspective=camera as THREE.PerspectiveCamera;perspective.setViewOffset(size.width,size.height,(insets.right-insets.left)/2,(insets.bottom-insets.top)/2,size.width,size.height);perspective.updateProjectionMatrix()},[camera,size.width,size.height,insets])
+  useEffect(()=>{const perspective=camera as THREE.PerspectiveCamera;perspective.setViewOffset(size.width,size.height,(insets.right-insets.left)/2,(insets.bottom-insets.top)/2,size.width,size.height);perspective.updateProjectionMatrix();invalidate()},[camera,size.width,size.height,insets,invalidate])
   const overview = useCallback(() => {
     const preview=(camera as THREE.PerspectiveCamera).clone(),target=worldTarget.clone();let factor=1
     for(let attempt=0;attempt<30;attempt++){
@@ -79,7 +79,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   }, [camera,atlSites,insets,size.width,size.height])
   const view = useCallback((id: string | null, immediate = false, welcome = false) => {
     const site = id==='home'?homeSite(city,home):id ? atlSites[id] : null
-    const distance = site ? Math.max(12, site.size * .95, site.height*1.1) * 1.3 * Math.max(1, .85 / (Math.max(120,size.width-insets.left-insets.right) / Math.max(160,size.height-insets.top-insets.bottom))) * size.height/Math.max(size.height*.35,size.height-insets.top-insets.bottom) : 0
+    const distance = site ? Math.max(22, site.size * 1.18, site.height*1.1) * 1.3 * Math.max(1, .85 / (Math.max(120,size.width-insets.left-insets.right) / Math.max(160,size.height-insets.top-insets.bottom))) * size.height/Math.max(size.height*.35,size.height-insets.top-insets.bottom) : 0
     const next = site ? { target: new THREE.Vector3(site.x, site.height * .5, site.z), eye: new THREE.Vector3(site.x + distance * .7, site.height * .5 + distance * .75, site.z + distance) } : overview()
     // A first phone view favours readable neighbourhoods; the overview button still fits every stop.
     if(!site&&welcome&&playing&&size.width<600)next.eye.lerp(next.target,.3)

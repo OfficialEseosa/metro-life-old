@@ -6,7 +6,7 @@ import { KitInstances } from './kit-models'
 import osm from './atl-osm.json'
 
 const noPick = () => {}
-export type Placement = { x: number; y: number; z: number; sx: number; sy: number; sz: number; angle: number; color: string }
+export type Placement = { x: number; y: number; z: number; sx: number; sy: number; sz: number; angle: number; color: string; pitch?:number }
 
 export function Instances({ geometry, placements, emissive = false, night }: { geometry: THREE.BufferGeometry; placements: Placement[]; emissive?: boolean; night: boolean }) {
   const ref = useRef<THREE.InstancedMesh>(null)

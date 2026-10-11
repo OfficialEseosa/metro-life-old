@@ -15,3 +15,5 @@
 .promotion-progress{margin:16px 0}.requirement{display:flex;align-items:center;gap:10px;margin:12px 0;text-transform:capitalize}.requirement svg{width:20px;flex:none;color:var(--green,#24664d)}.milestone-list{padding-left:24px;margin:18px 0}.milestone-list li{padding:7px 0;color:#635f55}.milestone-list .current{font-weight:800;color:#243c32}.milestone-list .complete{list-style:none;position:relative}.milestone-list .complete svg{position:absolute;left:-22px;top:10px}.dream-card select{width:100%;min-height:48px;margin:8px 0 12px}.dream-card>small{display:block;line-height:1.45}
 
 .story-outcome{background:#dfebd4;color:#294132;padding:14px 16px;border-radius:14px;line-height:1.5;font-size:16px;font-weight:600}
+
+.metro-hud .sheet-handle:focus-visible{outline:none}.sheet-handle:focus-visible>span{outline:3px solid #236ab8;outline-offset:6px;background:#236ab8}.city-controls button[aria-pressed=true]{border-color:#236ab8!important;box-shadow:0 4px 0 #4b6e8e}
