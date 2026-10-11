@@ -15,6 +15,7 @@ import { BlenderLandmark, KitInstances } from './kit-models'
 import { blenderHeroes } from './hero-ids'
 import { useNightLighting } from '../lighting'
 import { Pins } from './pins'
+import { WorldActivity, PlayerMarker } from './activity'
 
 declare global {
   interface Window { __metroScene?: { status:()=>{kits:{count:number;visible:boolean;parentVisible:boolean}[];terrain:{visible:boolean;color:string;emissive:string}|null;frameloop:string;frame:number}; refreshShadows:()=>void; focus: (id: string | null) => void; theme: (value: 'day' | 'night') => void; metrics: () => { calls: number; triangles: number; fps: number; p95Ms: number; renderer: string }; hidePins: (hidden: boolean) => void; project: (id: string) => { x: number; y: number }; geometry: () => Record<string, number> } }
@@ -61,24 +62,24 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   const { camera, gl, invalidate, size, scene, setDpr, frameloop } = useThree()
   const controls = useRef<Controls>(null)
   const city=useStore(s=>s.city),homeCity=useStore(s=>s.sim?.home.city),homeNeighborhood=useStore(s=>s.sim?.home.neighborhood),home=useMemo(()=>homeCity&&homeNeighborhood?{city:homeCity,neighborhood:homeNeighborhood,rent:0}:undefined,[homeCity,homeNeighborhood]),atlSites=sitesFor(city)
-  const playing=useStore(s=>!!s.sim)
+  const playing=useStore(s=>!!s.sim),insets=useStore(s=>s.hudInsets),panel=useStore(s=>s.panel),beat=useStore(s=>!!s.sim?.pendingBeat)
   const focus = useStore(s => s.focus), night = useNightLighting()
   const destination = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)
   const [pinsHidden, setPinsHidden] = useState(false)
   const timings = useRef<number[]>([]), lastFrame = useRef(0)
-  useEffect(()=>{const perspective=camera as THREE.PerspectiveCamera;perspective.setViewOffset(size.width,size.height,0,size.width<600?size.height*(playing?-.05:.12):0,size.width,size.height);perspective.updateProjectionMatrix()},[camera,size.width,size.height,playing])
+  useEffect(()=>{const perspective=camera as THREE.PerspectiveCamera;perspective.setViewOffset(size.width,size.height,(insets.right-insets.left)/2,(insets.bottom-insets.top)/2,size.width,size.height);perspective.updateProjectionMatrix()},[camera,size.width,size.height,insets])
   const overview = useCallback(() => {
     const preview=(camera as THREE.PerspectiveCamera).clone(),target=worldTarget.clone();let factor=1
     for(let attempt=0;attempt<30;attempt++){
       preview.position.set(95*factor,108*factor,130*factor);preview.lookAt(target);preview.updateMatrixWorld(true)
-      const fits=Object.values(atlSites).every(s=>[-1,1].every(x=>[-1,1].every(z=>{const p=new THREE.Vector3(s.x+x*s.size*.5,s.height,s.z+z*s.size*.5).project(preview);return Math.abs(p.x)<.88&&Math.abs(p.y)<.77})))
+      const fits=Object.values(atlSites).every(s=>[-1,1].every(x=>[-1,1].every(z=>{const p=new THREE.Vector3(s.x+x*s.size*.5,s.height,s.z+z*s.size*.5).project(preview);const screenX=(p.x+1)*size.width/2,screenY=(1-p.y)*size.height/2;return screenX>insets.left+12&&screenX<size.width-insets.right-12&&screenY>Math.min(insets.top+8,size.height*.25)&&screenY<size.height-Math.min(insets.bottom+8,size.height*.7)})))
       if(fits)break;factor*=1.06
     }
     return {eye:preview.position.clone(),target}
-  }, [camera,atlSites])
+  }, [camera,atlSites,insets,size.width,size.height])
   const view = useCallback((id: string | null, immediate = false, welcome = false) => {
     const site = id==='home'?homeSite(city,home):id ? atlSites[id] : null
-    const distance = site ? Math.max(12, site.size * .95, site.height*1.1) * 1.3 * Math.max(1, .85 / (size.width / size.height)) : 0
+    const distance = site ? Math.max(12, site.size * .95, site.height*1.1) * 1.3 * Math.max(1, .85 / (Math.max(120,size.width-insets.left-insets.right) / Math.max(160,size.height-insets.top-insets.bottom))) * size.height/Math.max(size.height*.35,size.height-insets.top-insets.bottom) : 0
     const next = site ? { target: new THREE.Vector3(site.x, site.height * .5, site.z), eye: new THREE.Vector3(site.x + distance * .7, site.height * .5 + distance * .75, site.z + distance) } : overview()
     // A first phone view favours readable neighbourhoods; the overview button still fits every stop.
     if(!site&&welcome&&playing&&size.width<600)next.eye.lerp(next.target,.3)
@@ -107,9 +108,9 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
       }
     }
     destination.current=null
-    if(immediate) {camera.position.copy(next.eye);controls.current?.target.copy(next.target);controls.current?.update();invalidate()} else {destination.current=next;invalidate()}
-  }, [camera,invalidate,overview,scene,size.width,size.height,atlSites,city,home,playing])
-  useEffect(() => {view(null,true,true)}, [view])
+    if(immediate||matchMedia('(prefers-reduced-motion: reduce)').matches) {camera.position.copy(next.eye);controls.current?.target.copy(next.target);controls.current?.update();useStore.getState().setCameraMoving(false);invalidate()} else {destination.current=next;useStore.getState().setCameraMoving(true);invalidate()}
+  }, [camera,invalidate,overview,scene,size.width,size.height,atlSites,city,home,playing,insets])
+  useEffect(() => {const s=useStore.getState();view(s.panel==='location'?s.selectedLoc:null,!s.sim,true)}, [view])
   useEffect(() => {if(focus){view(focus);useStore.getState().setFocus(null)}}, [focus,view])
   useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=new THREE.Fog(night?'#223752':'#d7e0dd',500,1100);invalidate()}, [gl,scene,night,city,invalidate])
   useEffect(() => {const wake=()=>{lastFrame.current=0;invalidate()};document.addEventListener('visibilitychange',wake);return()=>document.removeEventListener('visibilitychange',wake)},[invalidate])
@@ -117,25 +118,25 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
     const time=performance.now();if(lastFrame.current&&time-lastFrame.current<250){timings.current.push(time-lastFrame.current);if(timings.current.length>300)timings.current.shift()}lastFrame.current=time
     if(timings.current.length===300&&gl.getPixelRatio()>1&&timings.current.reduce((a,b)=>a+b,0)/300>18.5){setDpr(1);timings.current=[]}
     const d=destination.current,c=controls.current
-    if(d&&c){const t=1-Math.exp(-dt*7);camera.position.lerp(d.eye,t);c.target.lerp(d.target,t);c.update();if(camera.position.distanceTo(d.eye)<.03)destination.current=null;invalidate()}
+    if(d&&c){const t=1-Math.exp(-dt*7);camera.position.lerp(d.eye,t);c.target.lerp(d.target,t);c.update();if(camera.position.distanceTo(d.eye)<.03){destination.current=null;useStore.getState().setCameraMoving(false)}invalidate()}
   })
   useEffect(()=>{
     if(!import.meta.env.DEV)return
-    window.__metroScene={status:()=>{const kits:{count:number;visible:boolean;parentVisible:boolean}[]=[];scene.traverse(o=>{if(o instanceof THREE.InstancedMesh)kits.push({count:o.count,visible:o.visible,parentVisible:o.parent?.visible??true})});const ground=scene.getObjectByName('terrain') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>|undefined;return{kits,terrain:ground?{visible:ground.visible,color:ground.material.color.getHexString(),emissive:ground.material.emissive.getHexString()}:null,frameloop,frame:gl.info.render.frame}},refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id);let count=0;m?.traverse(o=>{if(o instanceof THREE.Mesh)count+=(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3});return[id,count]})),metrics:()=>{
+    window.__metroScene={status:()=>{const kits:{count:number;visible:boolean;parentVisible:boolean}[]=[];scene.traverse(o=>{if(o instanceof THREE.InstancedMesh)kits.push({count:o.count,visible:o.visible,parentVisible:o.parent?.visible??true})});const ground=scene.getObjectByName('terrain') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>|undefined;return{kits,terrain:ground?{visible:ground.visible,color:ground.material.color.getHexString(),emissive:ground.material.emissive.getHexString()}:null,camera:{eye:camera.position.toArray(),target:controls.current?.target.toArray(),offset:(camera as THREE.PerspectiveCamera).view},insets,frameloop,frame:gl.info.render.frame}},refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id);let count=0;m?.traverse(o=>{if(o instanceof THREE.Mesh)count+=(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3});return[id,count]})),metrics:()=>{
       const times=[...timings.current].sort((a,b)=>a-b),context=gl.getContext(),debug=context.getExtension('WEBGL_debug_renderer_info')
       return{calls:gl.info.render.calls,triangles:gl.info.render.triangles,fps:times.length?1000/(times.reduce((a,b)=>a+b,0)/times.length):0,p95Ms:times[Math.floor(times.length*.95)]??0,renderer:debug?context.getParameter(debug.UNMASKED_RENDERER_WEBGL):'unknown'}
     }}
     return()=>{delete window.__metroScene}
-  },[camera,gl,scene,size.width,size.height,view,invalidate,atlSites,frameloop])
+  },[camera,gl,scene,size.width,size.height,view,invalidate,atlSites,frameloop,insets])
   return <>
     <Sky night={night}/><hemisphereLight args={[night?'#9bb0d1':'#d6e6ef',night?'#3a4d63':'#afc8dc',1.7]}/>
     <directionalLight position={[-55,90,45]} intensity={night?.65:2.1} color={night?'#8aa7df':'#ffffff'} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-100} shadow-camera-right={100} shadow-camera-top={100} shadow-camera-bottom={-100} shadow-camera-near={1} shadow-camera-far={230} shadow-bias={-.0003} shadow-normalBias={.12}/>
     {city==='atl'?<><mesh name="ground" position={[0,-.05,0]} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><planeGeometry args={[2000,2000]}/><meshStandardMaterial color={night?'#598065':'#8ebd75'} emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><Terrain night={night}/><Fabric night={night}/></>:<MetropolitanFabric city={city} night={night}/>}
     <Architecture key={`architecture-${city}`} city={city}/><Home city={city}/><Lake night={night} city={city}/>{!pinsHidden&&<Pins key={`pins-${city}`} onHover={onHover}/>}
-    <OrbitControls ref={controls} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null}} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
+    <WorldActivity/><OrbitControls ref={controls} enabled={!beat&&!['play','setup','signup','login','worlds'].includes(panel??'')} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null;useStore.getState().setCameraMoving(true)}} onEnd={()=>useStore.getState().setCameraMoving(false)} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
   </>
 }
 export default function CityScene() {
   const [hover,setHover]=useState<{name:string;x:number;y:number}|null>(null)
-  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[1,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><AmbientTicker/><Suspense fallback={null}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Suspense></Canvas>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
+  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[1,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><AmbientTicker/><Suspense fallback={null}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Suspense></Canvas><PlayerMarker/>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
 }

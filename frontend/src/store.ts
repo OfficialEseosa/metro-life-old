@@ -53,6 +53,18 @@ type State = {
   // the city map being looked at (may differ from sim.city)
   city: CityId
   sceneTheme: 'auto' | 'day' | 'night'
+  mapLens: 'all' | 'eat' | 'earn' | 'fun' | 'affordable'
+  searchOpen: boolean
+  setSearchOpen: (open:boolean) => void
+  needWarningDismissed: string
+  dismissNeedWarning: (need:string) => void
+  setMapLens: (lens: State['mapLens']) => void
+  hudInsets: {top:number;right:number;bottom:number;left:number}
+  setHudInsets: (insets: State['hudInsets']) => void
+  cameraMoving: boolean
+  setCameraMoving: (moving:boolean) => void
+  rewardAnchor: {x:number;y:number}|null
+  setRewardAnchor: (anchor: State['rewardAnchor']) => void
   setSceneTheme: (theme: 'auto' | 'day' | 'night') => void
   // per viewed city
   daily: Daily | null
@@ -90,6 +102,9 @@ const safe = <T,>(p: Promise<T>) => p.catch(() => null)
 let socket: ReturnType<typeof connectSocket> | null = null
 let loading: Promise<void> | null = null
 let resultTimer:ReturnType<typeof setTimeout>|null=null
+let panelTrigger:HTMLElement|null=null
+export const getPanelTrigger=()=>panelTrigger
+function rememberTrigger(){const active=document.activeElement;if(active instanceof HTMLElement&&active.matches('button')&&!active.closest('.sheet'))panelTrigger=active}
 const realtimeEnabled = false
 
 export const useStore = create<State>((set, get) => {
@@ -132,6 +147,12 @@ export const useStore = create<State>((set, get) => {
     connected: false,
     city: 'atl',
     sceneTheme: 'auto',
+    mapLens: 'all',setMapLens:mapLens=>set({mapLens}),
+    searchOpen:false,setSearchOpen:searchOpen=>set(searchOpen?{searchOpen,panel:null}:{searchOpen}),
+    needWarningDismissed:'',dismissNeedWarning:needWarningDismissed=>set({needWarningDismissed}),
+    hudInsets:{top:0,right:0,bottom:0,left:0},setHudInsets:hudInsets=>set({hudInsets}),
+    cameraMoving:false,setCameraMoving:cameraMoving=>set({cameraMoving}),
+    rewardAnchor:null,setRewardAnchor:rewardAnchor=>set({rewardAnchor}),
     setSceneTheme: (sceneTheme) => set({ sceneTheme }),
     daily: null,
     mayor: null,
@@ -193,9 +214,23 @@ export const useStore = create<State>((set, get) => {
     setSim: (sim) => set({ sim }),
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
-    setLastResult: (lastResult) => {if(resultTimer)clearTimeout(resultTimer);resultTimer=null;const wait=(lastResult?.busyUntil??0)-Date.now(),worldId=get().sim?.worldId;if(lastResult&&wait>0){set({lastResult:null});resultTimer=setTimeout(()=>{if(get().sim?.worldId===worldId)set({lastResult});resultTimer=null},wait)}else set({ lastResult })},
-    openPanel: (panel) => set({ panel }),
-    selectLocation: (id) => set({ selectedLoc: id, panel: id ? 'location' : null }),
+    setLastResult: (lastResult) => {
+      if(resultTimer)clearTimeout(resultTimer);resultTimer=null
+      const wait=(lastResult?.busyUntil??0)-Date.now(),worldId=get().sim?.worldId,sourceCity=get().sim?.city
+      if(lastResult&&wait>0){
+        set({lastResult:null,rewardAnchor:null})
+        const complete=async()=>{if(get().sim?.worldId!==worldId)return;try{
+          const r=await api.sim();if(get().sim?.worldId!==worldId)return
+          if(r.sim.busyUntil&&r.sim.busyUntil>Date.now()){resultTimer=setTimeout(()=>void complete(),150);return}
+          set({sim:r.sim,clock:r.clock,lastResult,rewardAnchor:null})
+          if(r.sim.city!==sourceCity){await get().setCity(r.sim.city);get().selectLocation(r.sim.loc);get().setFocus(r.sim.loc)}
+          resultTimer=null
+        }catch{if(get().sim?.worldId===worldId)resultTimer=setTimeout(()=>void complete(),1000)}}
+        resultTimer=setTimeout(()=>void complete(),wait+40)
+      }else set({lastResult,rewardAnchor:null})
+    },
+    openPanel: (panel) => {if(panel)rememberTrigger();set(panel?{panel,searchOpen:false}:{panel})},
+    selectLocation: (id) => {if(id)rememberTrigger();set({ selectedLoc: id, panel: id ? 'location' : null,searchOpen:false })},
     selectSlot: (slot) => set({ selectedSlot: slot, panel: slot === null ? null : 'billboard' }),
     setFocus: (focus) => set({ focus }),
   }

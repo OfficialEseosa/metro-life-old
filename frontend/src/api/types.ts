@@ -169,6 +169,7 @@ export type Sim = {
   loc: string | null
   home: { city: CityId; neighborhood: string; rent: number }
   cash: number
+  moneyToday?: { income: number; spent: number }
   xp: number
   level: number
   /** xp needed for the next level */
@@ -181,6 +182,8 @@ export type Sim = {
   daily: Goal[]
   /** epoch ms until which the sim is busy with an action, or null */
   busyUntil: number | null
+  /** Server start time for stable progress across refresh/reconnect. */
+  busyStartedAt?: number | null
   busyLabel: string | null
   /** a story beat waiting for a choice */
   pendingBeat: StoryBeat | null

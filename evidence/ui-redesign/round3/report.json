@@ -1,0 +1,92 @@
+{
+  "runs": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "secondsToPay": 15.296,
+      "coverage": 0.06112713623046875,
+      "cashBefore": 2500,
+      "cashDuring": 2500,
+      "cashAfter": 2665,
+      "completion": 1791705576968,
+      "reloadEnergy": 99.8,
+      "metrics": {
+        "calls": 45,
+        "triangles": 178948,
+        "fps": 59.9964002159334,
+        "p95Ms": 17.600000001490116,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "overflow": {
+        "body": false,
+        "panels": [
+          {
+            "left": 20,
+            "right": 253.4375,
+            "top": 16,
+            "bottom": 101
+          },
+          {
+            "left": 1048,
+            "right": 1260,
+            "top": 20,
+            "bottom": 68
+          },
+          {
+            "left": 880,
+            "right": 1260,
+            "top": 112,
+            "bottom": 776
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "secondsToPay": 16.525,
+      "coverage": 0.1601237684729064,
+      "cashBefore": 2500,
+      "cashDuring": 2500,
+      "cashAfter": 2665,
+      "completion": 1791705610737,
+      "reloadEnergy": 99.8,
+      "metrics": {
+        "calls": 45,
+        "triangles": 178948,
+        "fps": 60.00720086403215,
+        "p95Ms": 17.899999998509884,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "overflow": {
+        "body": false,
+        "panels": [
+          {
+            "left": 12,
+            "right": 186.6875,
+            "top": 12,
+            "bottom": 93
+          },
+          {
+            "left": 267,
+            "right": 363,
+            "top": 20,
+            "bottom": 64
+          },
+          {
+            "left": 0,
+            "right": 375,
+            "top": 406,
+            "bottom": 812
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "expectedErrors": []
+}

@@ -73,7 +73,9 @@ class CoreTests {
         var anonymous=game.guest(null,json("{}"));assertTrue(anonymous.user().path("username").asText().matches("[A-Za-z]+ [A-Za-z]+(?: [0-9]+)?"));
         worldAndSim();ObjectNode sim=game.sim(game.session(token,true));sim.withObject("needs").put("energy",50).put("fun",50);
         JsonNode result=game.act(token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"shower\"}"));
-        assertEquals(68,result.path("sim").path("needs").path("energy").asDouble(),.01);assertEquals(62,result.path("sim").path("needs").path("fun").asDouble(),.01);
+        assertEquals(50,result.path("sim").path("needs").path("energy").asDouble(),.01);
+        now=result.path("sim").path("busyUntil").asLong();JsonNode completed=game.getSim(token).path("sim");
+        assertEquals(68,completed.path("needs").path("energy").asDouble(),.2);assertEquals(62,completed.path("needs").path("fun").asDouble(),.2);
         assertTrue(result.path("result").path("text").asText().contains("Energy +18"));assertTrue(result.path("result").path("text").asText().contains("Fun +12"));
         now+=12345;JsonNode rounded=game.getSim(token).path("sim").path("needs");for(String need:Content.NEEDS)assertEquals(Math.round(rounded.path(need).asDouble()*10),rounded.path(need).asDouble()*10,.00001);
     }
@@ -81,11 +83,12 @@ class CoreTests {
         worldAndSim();JsonNode before=game.getSim(token).path("sim");
         assertEquals(403,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"nyc\",\"loc\":\"nycAirport\",\"action\":\"a0\"}"))).status);
         JsonNode flight=game.act(token,json("{\"city\":\"atl\",\"loc\":\"atlAirport\",\"action\":\"a0\"}"));
+        assertEquals("atl",flight.path("sim").path("city").asText());assertEquals(2500,flight.path("sim").path("cash").asInt());
+        assertEquals(409,assertThrows(ApiException.class,()->game.applyJob(token,json("{\"jobId\":\"nyc-tech-1\"}"))).status);now+=7000;flight=game.getSim(token);
         assertEquals("nyc",flight.path("sim").path("city").asText());assertEquals("nycAirport",flight.path("sim").path("loc").asText());assertEquals(2320,flight.path("sim").path("cash").asInt());assertEquals(before.path("home"),flight.path("sim").path("home"));assertEquals(before.path("worldId"),flight.path("sim").path("worldId"));
-        assertEquals(409,assertThrows(ApiException.class,()->game.applyJob(token,json("{\"jobId\":\"nyc-tech-1\"}"))).status);now+=7000;
         assertEquals(403,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"nyc\",\"loc\":\"home\",\"action\":\"sleep\"}"))).status);
         assertEquals(40,game.jobs(token,"nyc").path("jobs").size());assertEquals("dumbo",game.applyJob(token,json("{\"jobId\":\"nyc-tech-1\"}")).path("sim").path("job").path("loc").asText());game.quitJob(token);
-        JsonNode second=game.act(token,json("{\"city\":\"nyc\",\"loc\":\"nycAirport\",\"action\":\"a1\"}"));assertEquals("bayAirport",second.path("sim").path("loc").asText());now+=7000;
+        game.act(token,json("{\"city\":\"nyc\",\"loc\":\"nycAirport\",\"action\":\"a1\"}"));now+=7000;assertEquals("bayAirport",game.getSim(token).path("sim").path("loc").asText());
         game.sim(game.session(token,true)).put("cash",0);assertEquals(402,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"bay\",\"loc\":\"bayAirport\",\"action\":\"a0\"}"))).status);
         for(String city:new String[]{"atl","nyc","bay"})for(String track:Content.TRACKS)assertNotNull(content.landmark(city,Content.workplace(city,track)));
     }
@@ -95,9 +98,36 @@ class CoreTests {
         assertEquals(403,assertThrows(ApiException.class,()->game.applyJob(token,json("{\"jobId\":\"tech-5\"}"))).status);
         assertEquals(404,assertThrows(ApiException.class,()->game.applyJob(token,json("{\"jobId\":\"forged\"}"))).status);
         JsonNode hired=game.applyJob(token,json("{\"jobId\":\"tech-1\"}"));assertTrue(hired.path("hired").asBoolean());assertEquals("techVillage",hired.path("sim").path("loc").asText());
-        JsonNode shift=game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"));assertEquals(2665,shift.path("sim").path("cash").asInt());assertEquals(1,shift.path("sim").path("job").path("shifts").asInt());
-        assertEquals(409,assertThrows(ApiException.class,()->game.quitJob(token)).status);now+=7000;assertTrue(game.quitJob(token).path("sim").path("job").isNull());
+        JsonNode shift=game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"));assertEquals(2500,shift.path("sim").path("cash").asInt());assertEquals(0,shift.path("sim").path("job").path("shifts").asInt());
+        assertEquals(409,assertThrows(ApiException.class,()->game.quitJob(token)).status);now+=7000;JsonNode paid=game.getSim(token).path("sim");assertEquals(2665,paid.path("cash").asInt());assertEquals(1,paid.path("job").path("shifts").asInt());assertTrue(game.quitJob(token).path("sim").path("job").isNull());
         long healthShifts=java.util.stream.StreamSupport.stream(content.landmark("atl","grady").path("actions").spliterator(),false).filter(a->a.path("label").asText().equals("Work a shift")).count();assertEquals(1,healthShifts);
         game.applyJob(token,json("{\"jobId\":\"health-1\"}"));JsonNode care=game.act(token,json("{\"city\":\"atl\",\"loc\":\"grady\",\"action\":\"a2\"}"));assertEquals(120,care.path("result").path("deltas").path("cash").asInt());
+    }
+    @Test void acceptedActivitySettlesOnceAtDeadlineAndSurvivesRestart()throws Exception{
+        worldAndSim();game.applyJob(token,json("{\"jobId\":\"tech-1\"}"));
+        JsonNode started=game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\",\"pay\":999999}"));
+        long end=started.path("sim").path("busyUntil").asLong();assertFalse(started.path("sim").has("_pendingAction"));
+        now=end-1;assertEquals(2500,game.getSim(token).path("sim").path("cash").asInt());
+        JsonStore reopened=new JsonStore(mapper,directory.resolve("save.json").toString());GameService restarted=new GameService(reopened,content,mapper);restarted.time=()->now;
+        assertEquals(2500,restarted.getSim(token).path("sim").path("cash").asInt());now=end;
+        JsonNode completed=restarted.getSim(token).path("sim");assertEquals(2665,completed.path("cash").asInt());assertTrue(completed.path("busyUntil").isNull());assertEquals(1,completed.path("job").path("shifts").asInt());
+        assertEquals(2665,restarted.getSim(token).path("sim").path("cash").asInt());
+        assertFalse(restarted.sim(restarted.session(token,true)).has("_pendingAction"));
+        assertEquals(165,completed.path("moneyToday").path("income").asInt());assertEquals(0,completed.path("moneyToday").path("spent").asInt());
+        JsonNode cooking=restarted.act(token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"cook\"}"));now=cooking.path("sim").path("busyUntil").asLong();
+        JsonNode meal=restarted.getSim(token).path("sim");assertEquals(210,meal.path("moneyToday").path("income").asInt());assertEquals(12,meal.path("moneyToday").path("spent").asInt());
+        now+=24*60000;JsonNode nextDay=restarted.getSim(token).path("sim");assertEquals(0,nextDay.path("moneyToday").path("income").asInt());assertEquals(0,nextDay.path("moneyToday").path("spent").asInt());
+    }
+    @Test void criticalNeedsBlockWorkAndLowMoodPayStillSettlesAtCompletion()throws Exception{
+        worldAndSim();game.applyJob(token,json("{\"jobId\":\"tech-1\"}"));ObjectNode s=game.sim(game.session(token,true));s.withObject("needs").put("energy",0);
+        assertEquals(409,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"))).status);
+        s.withObject("needs").put("energy",10);JsonNode started=game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"));
+        assertEquals(2500,started.path("sim").path("cash").asInt());assertEquals(129,started.path("result").path("deltas").path("cash").asInt());now=started.path("sim").path("busyUntil").asLong();assertEquals(2629,game.getSim(token).path("sim").path("cash").asInt());
+    }
+    @Test void actionAcrossMidnightPaysTodaysLedgerWithoutRestoringOldDailyGoals()throws Exception{
+        worldAndSim();now+=15*60000-1000;JsonNode started=game.act(token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"cook\"}"));long end=started.path("sim").path("busyUntil").asLong();
+        now+=1200;JsonNode midnight=game.getSim(token).path("sim");assertEquals(2500,midnight.path("cash").asInt());
+        now=end;JsonNode paid=game.getSim(token).path("sim");assertEquals(2533,paid.path("cash").asInt());assertEquals(45,paid.path("moneyToday").path("income").asInt());assertEquals(12,paid.path("moneyToday").path("spent").asInt());
+        for(JsonNode goal:paid.path("daily"))assertFalse(goal.path("done").asBoolean());
     }
 }

@@ -56,8 +56,13 @@ plots grid `cols x rows` cells with origin top-left, x right, y down).
 - **Skills** (level 0..10 with xp): `fitness, cooking, music, tech, charisma, creativity, business`.
 - **Actions**: every landmark exposes structured actions. An action has `id, label, kind (work|fun|food|learn|social|civic|travel|rest),
   durationMin (game minutes), cost, pay, needs deltas, skill gains, requires {skill levels, job track, level, cash}`.
-  `POST /api/act` validates (open hours, busy, requirements, cash), applies effects, sets `busyUntil`
-  (real time: 2–6 s, proportional to duration) and returns the result text. The labels in `shared/world.json`
+  `POST /api/act` validates (open hours, busy, requirements, cash), persists an accepted activity and sets
+  `busyStartedAt` and `busyUntil` (real time: 2–6 s, proportional to duration). Cash, needs, XP, skills,
+  shifts, goals, story triggers and travel settle once at completion, before the next sim response. The
+  pending activity survives a server restart and is never exposed to the client. Its `ActResult` describes
+  the promised outcome; the returned `sim` still has the pre-completion balance and needs. A completion
+  read returns the authoritative payoff. This timing follows the owner's HUD direction of October 11.
+  The labels in `shared/world.json`
   are the starting point; the backend expands each into a structured action and may add more.
   A pseudo-landmark `home` exists in every city (sleep, cook, shower, invite a friend).
 - **Careers**: tracks `tech, music, sports, food, finance, arts, civic, health`, 5 levels each, each level tied
@@ -72,6 +77,8 @@ plots grid `cols x rows` cells with origin top-left, x right, y down).
   (open-mic night at the Apollo, demo day on Sand Hill Road, a campaign rally at the Capitol...).
 - **Money**: starting cash from `shared/world.json`. Income: shifts, gigs, story wins, plots resale later.
   Sinks: food, fun, rent (per neighborhood, daily), flights between cities (airport action), plots, billboards.
+  `moneyToday: { income, spent }` records settled action income (including goal rewards) and costs for the
+  current game day, excluding starting cash. It resets with daily goals; future money routes must update it.
 - **Travel**: flying is an action at the airport landmark of the current city; it costs cash and moves the sim.
   Viewing another city's map is free; acting there requires being there.
 - **Mayor**: one per city per world, elected by term (3 game days). Vote, run (needs Charisma 2), campaign

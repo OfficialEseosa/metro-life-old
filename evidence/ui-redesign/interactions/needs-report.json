@@ -1,0 +1,8 @@
+{
+  "fixture": "Intercepted GET sim responses with energy=0, hunger=20, mood=rough. Server needs remain unchanged.",
+  "errors": [],
+  "warningAndThoughtBubble": true,
+  "zeroNeedBlocksShiftInUI": true,
+  "fixOpensHome": true,
+  "serverUnmodified": true
+}

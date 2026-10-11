@@ -1,5 +1,5 @@
 /* oxlint-disable react/immutability -- Point attributes and shader uniforms are Three.js renderer resources. */
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { ThreeEvent } from '@react-three/fiber'
@@ -8,10 +8,11 @@ import canonical from '../../../shared/world.json'
 import { sitesFor,homeSite } from './cities'
 import type { Site } from './cities/atl'
 import { ICONS } from './icons'
+import { matchesLens } from '../ui/action-rules'
 import type { IconName, IconShape } from './icons'
 
 const aliases: Record<string, IconName> = { 'trophy': 'ball', 'drama': 'music', 'palette': 'bulb', 'cpu': 'bulb', 'graduation-cap': 'school', 'book-open': 'book', 'shopping-bag': 'bag', 'landmark': 'building', 'flame': 'heart', 'disc-3': 'disc', 'heart-pulse': 'cross', 'soup': 'utensils', 'house':'home' }
-const categories = [...Object.keys(canonical.categories),'home']
+const categories = [...Object.keys(canonical.categories),'home',...Array.from({length:31},(_,i)=>String(i+2))]
 const catInfo:Record<string, { icon: string; color: string }> = {...canonical.categories,home:{icon:'house',color:'#2c7150'}}
 
 function iconTexture() {
@@ -19,8 +20,8 @@ function iconTexture() {
   const ctx = canvas.getContext('2d')!
   categories.forEach((category, i) => {
     ctx.save(); ctx.translate(i * 64, 0); ctx.fillStyle = '#fffaf0'; ctx.beginPath(); ctx.arc(32, 32, 28, 0, Math.PI * 2); ctx.fill()
-    ctx.strokeStyle = '#345b4c'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = catInfo[category].color; ctx.beginPath(); ctx.arc(49, 49, 6, 0, Math.PI * 2); ctx.fill()
-    ctx.translate(17, 17); ctx.scale(1.25, 1.25); ctx.strokeStyle = '#244c3e'; ctx.lineWidth = 1.7; ctx.lineCap = 'round'; ctx.lineJoin = 'round'
+    ctx.strokeStyle = '#345b4c'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = catInfo[category]?.color??'#216546';ctx.beginPath();ctx.arc(32,32,24,0,Math.PI*2);ctx.fill();if(!catInfo[category]){ctx.fillStyle='#fff7ea';ctx.font='bold 28px sans-serif';ctx.textAlign='center';ctx.fillText(category,32,42);ctx.restore();return}
+    ctx.translate(17, 17); ctx.scale(1.25, 1.25); ctx.strokeStyle = '#fff7ea'; ctx.lineWidth = 1.7; ctx.lineCap = 'round'; ctx.lineJoin = 'round'
     const name = catInfo[category].icon; const shapes: IconShape[] = ICONS[(aliases[name] ?? name) as IconName] ?? ICONS.pin
     shapes.forEach(s => {
       ctx.beginPath()
@@ -40,22 +41,24 @@ export function Pins({ onHover }: { onHover: (name: string | null, x?: number, y
   const locations=useMemo(()=>[...canonical.cities.find(c=>c.id===city)!.landmarks,...(hasHome?[{id:'home',name:'Your home',category:'home'}]:[])],[city,hasHome])
   const atlSites=useMemo<Record<string,Site>>(()=>{const site=homeSite(city,homeCity&&homeNeighborhood?{city:homeCity,neighborhood:homeNeighborhood,rent:0}:undefined);return {...sitesFor(city),...(site?{home:site}:{})}},[city,homeCity,homeNeighborhood])
   const {camera,size,gl}=useThree(),lastCamera=useRef(new THREE.Matrix4()),selected=useStore(s=>s.selectedLoc)
-  const lastHover=useRef(0)
+  const lastHover=useRef(0),clusters=useRef<number[]>([]),lens=useStore(s=>s.mapLens),sim=useStore(s=>s.sim),world=useStore(s=>s.world)
   const points=useRef<THREE.Points>(null)
   const data = useMemo(() => {
     const geometry = new THREE.BufferGeometry(), positions: number[] = [], icons: number[] = []
     locations.forEach(loc => { const site = atlSites[loc.id]; positions.push(site.x, site.height + 2, site.z); icons.push(categories.indexOf(loc.category)) })
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); geometry.setAttribute('iconIndex', new THREE.Float32BufferAttribute(icons, 1))
+    geometry.setAttribute('pinMatch',new THREE.Float32BufferAttribute(locations.map(()=>1),1))
     geometry.setAttribute('pinVisible',new THREE.Float32BufferAttribute(locations.map(()=>1),1))
     const material = new THREE.ShaderMaterial({ uniforms: { atlas: { value: iconTexture() }, count: { value: categories.length }, size: { value: 34 * Math.min(devicePixelRatio, 1.5) } }, transparent: true, depthTest: false, depthWrite: false,
-      vertexShader: 'attribute float iconIndex; attribute float pinVisible; varying float vVisible; varying float vIcon; uniform float size; void main(){vIcon=iconIndex;vVisible=pinVisible;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=size;}',
-      fragmentShader: 'uniform sampler2D atlas; uniform float count; varying float vIcon;varying float vVisible; void main(){if(vVisible<.5)discard;vec4 c=texture2D(atlas,vec2((vIcon+gl_PointCoord.x)/count,1.-gl_PointCoord.y));if(c.a<.2)discard;gl_FragColor=c;}' })
+      vertexShader: 'attribute float iconIndex; attribute float pinVisible;attribute float pinMatch;varying float vMatch; varying float vVisible; varying float vIcon; uniform float size; void main(){vIcon=iconIndex;vVisible=pinVisible;vMatch=pinMatch;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=size;}',
+      fragmentShader: 'uniform sampler2D atlas; uniform float count; varying float vIcon;varying float vVisible;varying float vMatch; void main(){if(vVisible<.5)discard;vec4 c=texture2D(atlas,vec2((vIcon+gl_PointCoord.x)/count,1.-gl_PointCoord.y));if(c.a<.2)discard;gl_FragColor=vec4(c.rgb,c.a*vMatch);}' })
     return { geometry, material }
   }, [locations,atlSites])
+  useEffect(()=>()=>{data.geometry.dispose();data.material.uniforms.atlas.value.dispose();data.material.dispose()},[data])
   const version=useRef('')
-  useFrame(()=>{data.material.uniforms.size.value=(size.width<600?30:34)*gl.getPixelRatio();const key=`${selected}:${size.width}:${size.height}`;if(lastCamera.current.equals(camera.matrixWorld)&&version.current===key)return;lastCamera.current.copy(camera.matrixWorld);version.current=key;const accepted:{x:number;y:number}[]=[],visible=data.geometry.getAttribute('pinVisible');const order=locations.map((l,i)=>({l,i})).sort((a,b)=>Number(b.l.id===selected)-Number(a.l.id===selected));for(const{l,i}of order){const s=atlSites[l.id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera),x=(v.x+1)*size.width/2,y=(1-v.y)*size.height/2;const show=v.z<1&&x>19&&x<size.width-19&&y>19&&y<size.height-19&&!accepted.some(p=>Math.hypot(x-p.x,y-p.y)<(size.width<600?35:37));visible.setX(i,show?1:0);if(show)accepted.push({x,y})}visible.needsUpdate=true})
-  const pick = (e: ThreeEvent<PointerEvent>) => {if(performance.now()-lastHover.current<50)return;lastHover.current=performance.now();const index=e.index??-1,loc = locations[index]; if(loc&&data.geometry.getAttribute('pinVisible').getX(index)>.5) {e.stopPropagation();onHover(loc.name,e.clientX,e.clientY)} }
-  return <points ref={points} geometry={data.geometry} material={data.material} renderOrder={20} raycast={(ray,results)=>{const start=results.length;THREE.Points.prototype.raycast.call(points.current!,ray,results);for(let i=results.length-1;i>=start;i--)if(data.geometry.getAttribute('pinVisible').getX(results[i].index??-1)<.5)results.splice(i,1)}}
+  useFrame(()=>{data.material.uniforms.size.value=36*gl.getPixelRatio();const key=`${selected}:${size.width}:${size.height}:${lens}:${sim?.cash}:${sim?.job?.track}:${!!world}`;if(lastCamera.current.equals(camera.matrixWorld)&&version.current===key)return;lastCamera.current.copy(camera.matrixWorld);version.current=key;const accepted:{x:number;y:number;i:number;count:number}[]=[],visible=data.geometry.getAttribute('pinVisible'),icons=data.geometry.getAttribute('iconIndex'),match=data.geometry.getAttribute('pinMatch');const order=locations.map((l,i)=>({l,i})).sort((a,b)=>Number(b.l.id===selected)-Number(a.l.id===selected));clusters.current=locations.map(()=>1);for(const{l,i}of order){const site=atlSites[l.id],v=new THREE.Vector3(site.x,site.height+2,site.z).project(camera),x=(v.x+1)*size.width/2,y=(1-v.y)*size.height/2;const nearby=accepted.find(p=>Math.hypot(x-p.x,y-p.y)<48),show=v.z<1&&x>18&&x<size.width-18&&y>18&&y<size.height-18;visible.setX(i,show&&!nearby?1:0);icons.setX(i,categories.indexOf(l.category));const landmark=world?.cities.find(c=>c.id===city)?.landmarks.find(p=>p.id===l.id);match.setX(i,!landmark||matchesLens(landmark,lens,sim)?1:.28);if(show&&nearby){nearby.count++;clusters.current[nearby.i]=nearby.count;icons.setX(nearby.i,categories.indexOf(String(Math.min(32,nearby.count))));match.setX(nearby.i,Math.max(match.getX(nearby.i),match.getX(i)))}else if(show)accepted.push({x,y,i,count:1})}visible.needsUpdate=true;icons.needsUpdate=true;match.needsUpdate=true})
+  const pick = (e: ThreeEvent<PointerEvent>) => {if(performance.now()-lastHover.current<50)return;lastHover.current=performance.now();const index=e.index??-1,loc = locations[index]; if(loc&&data.geometry.getAttribute('pinVisible').getX(index)>.5) {e.stopPropagation();onHover(clusters.current[index]>1?`${clusters.current[index]} places · tap to explore`:loc.name,e.clientX,e.clientY)} }
+  return <points ref={points} geometry={data.geometry} material={data.material} renderOrder={20} raycast={(ray,results)=>{const pointer=ray.ray.at(1,new THREE.Vector3()).project(camera),px=(pointer.x+1)*size.width/2,py=(1-pointer.y)*size.height/2;locations.forEach((loc,index)=>{if(data.geometry.getAttribute('pinVisible').getX(index)<.5)return;const site=atlSites[loc.id],point=new THREE.Vector3(site.x,site.height+2,site.z),p=point.clone().project(camera);if(Math.hypot((p.x+1)*size.width/2-px,(1-p.y)*size.height/2-py)<24)results.push({distance:camera.position.distanceTo(point),point,index,object:points.current!})})}}
     onPointerMove={pick} onPointerOut={() => onHover(null)}
-    onClick={e => {const index=e.index??-1,loc=locations[index];if(loc&&data.geometry.getAttribute('pinVisible').getX(index)>.5){e.stopPropagation();useStore.getState().selectLocation(loc.id);useStore.getState().setFocus(loc.id)}}} />
+    onClick={e => {const index=e.index??-1,loc=locations[index];if(loc&&data.geometry.getAttribute('pinVisible').getX(index)>.5){e.stopPropagation();if(clusters.current[index]>1){useStore.getState().setFocus(loc.id)}else{useStore.getState().selectLocation(loc.id);useStore.getState().setFocus(loc.id)}}}} />
 }
