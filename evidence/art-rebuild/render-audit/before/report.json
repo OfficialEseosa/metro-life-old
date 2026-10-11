@@ -1,0 +1,1859 @@
+{
+  "errors": [],
+  "views": [
+    {
+      "viewport": {
+        "width": 1638,
+        "height": 863
+      },
+      "seconds": 6,
+      "hook": true,
+      "metrics": {
+        "calls": 44,
+        "triangles": 177556,
+        "fps": 56.98784539674062,
+        "p95Ms": 19.100000001490116,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1638,
+        "height": 863
+      },
+      "seconds": 10,
+      "hook": true,
+      "metrics": {
+        "calls": 44,
+        "triangles": 177556,
+        "fps": 60.00120002392895,
+        "p95Ms": 17,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1638,
+        "height": 863
+      },
+      "seconds": 15,
+      "hook": true,
+      "metrics": {
+        "calls": 44,
+        "triangles": 177556,
+        "fps": 59.99999999999999,
+        "p95Ms": 17.100000001490116,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1638,
+        "height": 863
+      },
+      "snapshot": {
+        "entries": [
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              100.7,
+              114.48,
+              137.8
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "HemisphereLight",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              1,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ]
+          },
+          {
+            "name": "",
+            "type": "DirectionalLight",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -55,
+              90,
+              45
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ]
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "8ebd75",
+            "rotation": [
+              -1.5707963267948966,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "8ebd75",
+            "rotation": [
+              -1.5707963267948966,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 10
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 19
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 18
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 9
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 8
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 7
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 7
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 163
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 163
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 32
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 8
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 8
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 244
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 32
+          },
+          {
+            "name": "benz-halo",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "benz-shell",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "aquarium-blue-sails",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "centennial-jets",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "centennial-landscape",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "piedmont-lake",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "piedmont-landscape",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "ponce-brick-industrial-court",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "fox-moorish-palace",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "high-meier-piano-campus",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "capitol-stone-gold",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "arena",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -32,
+              0,
+              13
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "beltline",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              39,
+              0,
+              -9
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "krog",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              35,
+              0,
+              13
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "gatech",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -24,
+              0,
+              -26
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "gsu",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              8,
+              0,
+              24
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "techVillage",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              4,
+              0,
+              -62
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "lenox",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              23,
+              0,
+              -62
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "mlk",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              26,
+              0,
+              33
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "l5p",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              53,
+              0,
+              8
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "truist",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -48,
+              0,
+              -53
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "grady",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              21,
+              0,
+              47
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "atlAirport",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -16,
+              0,
+              76
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          }
+        ],
+        "camera": [
+          100.7,
+          114.48,
+          137.8
+        ],
+        "frameloop": "demand",
+        "active": true,
+        "frames": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1638,
+        "height": 863
+      },
+      "previewLabel": "Follow game clock",
+      "metrics": {
+        "calls": 44,
+        "triangles": 177556,
+        "fps": 59.99880002398164,
+        "p95Ms": 17,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "seconds": 6,
+      "hook": true,
+      "metrics": {
+        "calls": 44,
+        "triangles": 177556,
+        "fps": 58.820069407716275,
+        "p95Ms": 17.30000000447035,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "seconds": 10,
+      "hook": true,
+      "metrics": {
+        "calls": 44,
+        "triangles": 177556,
+        "fps": 60.0024000960396,
+        "p95Ms": 17.299999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "seconds": 15,
+      "hook": true,
+      "metrics": {
+        "calls": 44,
+        "triangles": 177556,
+        "fps": 60.0024000960396,
+        "p95Ms": 17.299999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "snapshot": {
+        "entries": [
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              322.95854205183383,
+              367.1528688589269,
+              441.94326807093057
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "HemisphereLight",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              1,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ]
+          },
+          {
+            "name": "",
+            "type": "DirectionalLight",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -55,
+              90,
+              45
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ]
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "8ebd75",
+            "rotation": [
+              -1.5707963267948966,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "8ebd75",
+            "rotation": [
+              -1.5707963267948966,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 10
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 19
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 18
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 9
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 8
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 7
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 7
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 163
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 163
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 32
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 8
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 8
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 244
+          },
+          {
+            "name": "",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 32
+          },
+          {
+            "name": "benz-halo",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "benz-shell",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "aquarium-blue-sails",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "centennial-jets",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "centennial-landscape",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "piedmont-lake",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "piedmont-landscape",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "ponce-brick-industrial-court",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "fox-moorish-palace",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "high-meier-piano-campus",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "capitol-stone-gold",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "arena",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -32,
+              0,
+              13
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "beltline",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              39,
+              0,
+              -9
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "krog",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              35,
+              0,
+              13
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "gatech",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -24,
+              0,
+              -26
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "gsu",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              8,
+              0,
+              24
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "techVillage",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              4,
+              0,
+              -62
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "lenox",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              23,
+              0,
+              -62
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "mlk",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              26,
+              0,
+              33
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "l5p",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              53,
+              0,
+              8
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "truist",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -48,
+              0,
+              -53
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "grady",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              21,
+              0,
+              47
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          },
+          {
+            "name": "atlAirport",
+            "type": "Mesh",
+            "visible": true,
+            "parentVisible": true,
+            "position": [
+              -16,
+              0,
+              76
+            ],
+            "color": "ffffff",
+            "rotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "count": 1
+          }
+        ],
+        "camera": [
+          322.95854205183383,
+          367.1528688589269,
+          441.94326807093057
+        ],
+        "frameloop": "demand",
+        "active": true,
+        "frames": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "previewLabel": "Follow game clock",
+      "metrics": {
+        "calls": 44,
+        "triangles": 177556,
+        "fps": 59.99880002398164,
+        "p95Ms": 17.399999998509884,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    }
+  ]
+}

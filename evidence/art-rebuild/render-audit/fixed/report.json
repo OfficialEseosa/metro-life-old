@@ -1,0 +1,3452 @@
+{
+  "errors": [],
+  "runs": [
+    {
+      "viewport": {
+        "width": 1638,
+        "height": 863
+      },
+      "city": "atl",
+      "first": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "598065",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 57.98670171638967,
+          "p95Ms": 18.200000002980232,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "8ebd75",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 60.80752391760771,
+          "p95Ms": 17.900000005960464,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "groundPixel": [
+        36,
+        73,
+        70
+      ],
+      "dayPixel": [
+        148,
+        180,
+        136
+      ],
+      "restored": [
+        36,
+        73,
+        70
+      ],
+      "shadowPeak": {
+        "calls": 74,
+        "triangles": 256274,
+        "fps": 60.8062914242493,
+        "p95Ms": 18.200000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "598065",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 60.70048358055579,
+          "p95Ms": 18.19999999552965,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 16.466
+    },
+    {
+      "viewport": {
+        "width": 1638,
+        "height": 863
+      },
+      "city": "nyc",
+      "first": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 60.119035690739324,
+          "p95Ms": 17.600000001490116,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 60.58892434464804,
+          "p95Ms": 17.80000000447035,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "groundPixel": [
+        20,
+        51,
+        66
+      ],
+      "dayPixel": [
+        119,
+        165,
+        177
+      ],
+      "restored": [
+        20,
+        51,
+        65
+      ],
+      "shadowPeak": {
+        "calls": 74,
+        "triangles": 178143,
+        "fps": 60.403495348912735,
+        "p95Ms": 18.200000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 59.774054075612,
+          "p95Ms": 18.5,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 17.87
+    },
+    {
+      "viewport": {
+        "width": 1638,
+        "height": 863
+      },
+      "city": "bay",
+      "first": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.08411776487082,
+          "p95Ms": 17.899999998509884,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.599939400060606,
+          "p95Ms": 17.899999998509884,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "groundPixel": [
+        25,
+        55,
+        68
+      ],
+      "dayPixel": [
+        123,
+        166,
+        175
+      ],
+      "restored": [
+        25,
+        55,
+        68
+      ],
+      "shadowPeak": {
+        "calls": 68,
+        "triangles": 261452,
+        "fps": 60.90875867951654,
+        "p95Ms": 17.69999999552965,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.29665956507815,
+          "p95Ms": 17.799999997019768,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 17.586
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "atl",
+      "first": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "598065",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 60.49240820271602,
+          "p95Ms": 18.5,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "8ebd75",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 60.597491263825205,
+          "p95Ms": 17.899999998509884,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "groundPixel": [
+        39,
+        75,
+        73
+      ],
+      "dayPixel": [
+        154,
+        184,
+        142
+      ],
+      "restored": [
+        39,
+        75,
+        73
+      ],
+      "shadowPeak": {
+        "calls": 74,
+        "triangles": 256274,
+        "fps": 60.608509434761125,
+        "p95Ms": 17.700000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "598065",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 60.785346679112244,
+          "p95Ms": 17.700000002980232,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 15.708
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "nyc",
+      "first": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 59.695552681325246,
+          "p95Ms": 18.899999998509884,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 59.99520038398716,
+          "p95Ms": 18.5,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "groundPixel": [
+        32,
+        60,
+        73
+      ],
+      "dayPixel": [
+        125,
+        164,
+        173
+      ],
+      "restored": [
+        32,
+        60,
+        73
+      ],
+      "shadowPeak": {
+        "calls": 74,
+        "triangles": 178143,
+        "fps": 60.89763108209565,
+        "p95Ms": 18.299999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 60.62320656345424,
+          "p95Ms": 18.299999997019768,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 15.84
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "bay",
+      "first": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.29665956507815,
+          "p95Ms": 18.80000000447035,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.90133982947624,
+          "p95Ms": 18.200000002980232,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "groundPixel": [
+        37,
+        65,
+        76
+      ],
+      "dayPixel": [
+        130,
+        165,
+        170
+      ],
+      "restored": [
+        37,
+        65,
+        76
+      ],
+      "shadowPeak": {
+        "calls": 68,
+        "triangles": 261452,
+        "fps": 61.11099794257785,
+        "p95Ms": 17.899999998509884,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.79273729435462,
+          "p95Ms": 18,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 15.961
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "city": "atl",
+      "first": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "598065",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 60.43269811849238,
+          "p95Ms": 18.5,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "8ebd75",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 61.10601894286588,
+          "p95Ms": 18.099999994039536,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "groundPixel": [
+        43,
+        78,
+        74
+      ],
+      "dayPixel": [
+        149,
+        180,
+        135
+      ],
+      "restored": [
+        43,
+        78,
+        74
+      ],
+      "shadowPeak": {
+        "calls": 74,
+        "triangles": 256274,
+        "fps": 60.70416835289357,
+        "p95Ms": 17.80000000447035,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 10,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 19,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 18,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 7,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 163,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 8,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 244,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 32,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "598065",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 45,
+          "triangles": 178730,
+          "fps": 61.004127945954046,
+          "p95Ms": 18.399999998509884,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "benz": 2856,
+          "arena": 500,
+          "aquarium": 1553,
+          "centennial": 3609,
+          "piedmont": 10383,
+          "beltline": 484,
+          "ponce": 4360,
+          "krog": 380,
+          "fox": 2788,
+          "high": 4198,
+          "gatech": 1516,
+          "gsu": 1544,
+          "techVillage": 1308,
+          "lenox": 692,
+          "capitol": 4266,
+          "mlk": 1540,
+          "l5p": 1176,
+          "truist": 1259,
+          "grady": 348,
+          "atlAirport": 1160
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 15.811
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "city": "nyc",
+      "first": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 60.00360021606661,
+          "p95Ms": 18.399999998509884,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 60.903812578612154,
+          "p95Ms": 18.299999997019768,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "groundPixel": [
+        20,
+        51,
+        65
+      ],
+      "dayPixel": [
+        117,
+        164,
+        176
+      ],
+      "restored": [
+        20,
+        51,
+        65
+      ],
+      "shadowPeak": {
+        "calls": 74,
+        "triangles": 178143,
+        "fps": 60.702940045711244,
+        "p95Ms": 18.299999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 23,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 9,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 270,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 39,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 43,
+          "triangles": 113911,
+          "fps": 60.79889751336181,
+          "p95Ms": 18,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "timesSquare": 94,
+          "centralPark": 1392,
+          "empire": 732,
+          "grandCentral": 1116,
+          "msg": 1120,
+          "broadway": 1572,
+          "met": 936,
+          "apollo": 852,
+          "columbia": 1068,
+          "highLine": 644,
+          "wallStreet": 1028,
+          "oneWtc": 112,
+          "brooklynBridge": 4280,
+          "dumbo": 684,
+          "williamsburgVenue": 804,
+          "chinatown": 1368,
+          "fifthAve": 636,
+          "cityHall": 1008,
+          "liberty": 1044,
+          "yankee": 1692,
+          "coney": 1108,
+          "presbyterian": 288,
+          "nycAirport": 808
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 15.784
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "city": "bay",
+      "first": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.29665956507815,
+          "p95Ms": 18.899999998509884,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "day": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "000000"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.599939400060606,
+          "p95Ms": 18.100000001490116,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "groundPixel": [
+        25,
+        55,
+        67
+      ],
+      "dayPixel": [
+        121,
+        165,
+        175
+      ],
+      "restored": [
+        25,
+        55,
+        67
+      ],
+      "shadowPeak": {
+        "calls": 68,
+        "triangles": 261452,
+        "fps": 61.00412794604647,
+        "p95Ms": 18.200000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "reload": {
+        "kits": [
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 16,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 28,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 12,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 119,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 15,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 349,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 50,
+            "visible": true,
+            "parentVisible": true
+          },
+          {
+            "count": 1,
+            "visible": true,
+            "parentVisible": true
+          }
+        ],
+        "terrain": {
+          "visible": true,
+          "color": "ffffff",
+          "emissive": "365238"
+        },
+        "frameloop": "always",
+        "metrics": {
+          "calls": 40,
+          "triangles": 188572,
+          "fps": 60.499727751188765,
+          "p95Ms": 17.799999997019768,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "geometry": {
+          "goldenGate": 4312,
+          "ferryBuilding": 828,
+          "salesforce": 5772,
+          "pier39": 1488,
+          "alcatraz": 1688,
+          "ggPark": 2032,
+          "dolores": 2128,
+          "missionEats": 264,
+          "paintedLadies": 1344,
+          "chaseCenter": 624,
+          "oraclePark": 2304,
+          "sfChinatown": 1368,
+          "sfCityHall": 2180,
+          "fillmore": 1146,
+          "berkeleyCampus": 648,
+          "lakeMerritt": 1816,
+          "oaklandFox": 1452,
+          "stanford": 728,
+          "sandHill": 420,
+          "techCampus": 1968,
+          "ucsf": 816,
+          "bayAirport": 640
+        }
+      },
+      "waitBeforeFirstCaptureSeconds": 6,
+      "runDurationSeconds": 15.891
+    }
+  ]
+}

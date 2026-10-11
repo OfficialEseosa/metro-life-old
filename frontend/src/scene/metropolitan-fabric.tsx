@@ -1,4 +1,5 @@
-import { Suspense, useMemo } from 'react'
+import { Suspense, useLayoutEffect, useMemo } from 'react'
+import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { Builder } from './geometry'
 import { KitInstances } from './kit-models'
@@ -48,5 +49,6 @@ export function MetropolitanFabric({city,night}:{city:'nyc'|'bay';night:boolean}
   data.roads.forEach((p,i)=>{add('kaykit/road_straight.gltf',p);if(i%7===0)add('kaykit/streetlight.gltf',{...p,x:p.x+1.5,sx:.8,sy:2.5,sz:.25})})
   return result
  },[data,city])
- return <group><mesh geometry={data.land} matrixAutoUpdate={false} receiveShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={1}/></mesh><mesh geometry={data.streets} matrixAutoUpdate={false} receiveShadow castShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={.85}/></mesh><Suspense fallback={null}>{Object.entries(groups).map(([url,placements])=><KitInstances key={url} url={'/models/'+url} placements={placements} night={night} shadow={!/road_|tree-|car_|building_[ABC]_|building-type/.test(url)}/>)}</Suspense></group>
+ useLayoutEffect(()=>{Object.keys(groups).forEach(url=>useGLTF.preload(`/models/${url}`))},[groups])
+ return <group><mesh name="terrain" geometry={data.land} matrixAutoUpdate={false} receiveShadow raycast={noPick}><meshStandardMaterial vertexColors emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><mesh geometry={data.streets} matrixAutoUpdate={false} receiveShadow castShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={.85}/></mesh>{Object.entries(groups).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={'/models/'+url} placements={placements} night={night} shadow={!/road_|tree-|car_|building_[ABC]_|building-type/.test(url)}/></Suspense>)}</group>
 }

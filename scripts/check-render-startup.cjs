@@ -1,0 +1,25 @@
+// Cold first screens are captured before ANY map input, focus hook, resize or preview.
+const fs=require('fs'),path=require('path'),assert=require('assert/strict');
+const deps='C:/Users/rapha/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules', {chromium}=require(deps+'/playwright'),sharp=require(deps+'/sharp'),world=require('../shared/world.json');
+const out=path.resolve('evidence/art-rebuild/render-audit/fixed');fs.mkdirSync(out,{recursive:true});
+async function pixels(p){const masks=await p.locator('.map-header,.quick-explore,.life-prompt,.bottom-dock,.landing-card,.map-footer').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}})),{data,info}=await sharp(await p.screenshot()).removeAlpha().raw().toBuffer({resolveWithObject:true}),sum=[0,0,0];let count=0;for(let y=0;y<info.height;y+=4)for(let x=0;x<info.width;x+=4){if(masks.some(r=>x>=r.x-2&&x<=r.x+r.w+2&&y>=r.y-2&&y<=r.y+r.h+2))continue;const i=(y*info.width+x)*3;for(let c=0;c<3;c++)sum[c]+=data[i+c];count++}return sum.map(n=>Math.round(n/count))}
+async function snapshot(p){return p.evaluate(()=>{const hook=window.__metroScene;return hook?{...hook.status(),metrics:hook.metrics(),geometry:hook.geometry()}:{hookPending:true}})}
+(async()=>{const browser=await chromium.launch({headless:process.argv[2]!=='headed',executablePath:'C:/Users/rapha/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe',args:['--use-angle=d3d11']});const report={errors:[],runs:[]};try{
+ for(const viewport of[{width:1638,height:863},{width:375,height:812},{width:667,height:375}])for(const city of['atl','nyc','bay']){
+  const ctx=await browser.newContext({viewport}),p=await ctx.newPage(),base='http://localhost:5173',label=`${city}-${viewport.width}`;p.on('pageerror',e=>report.errors.push(e.message));p.on('console',m=>{if(m.type()==='error')report.errors.push(m.text())});
+  for(const [url,body]of[['/api/auth/guest',{}],['/api/worlds',{name:'Render check',mode:'solo'}],['/api/sim/setup',{city,neighborhood:world.cities.find(c=>c.id===city).neighborhoods[0].id,aspiration:'founder'}]]){const r=await ctx.request.post(base+url,{data:body});assert(r.ok(),await r.text())}
+  // Stable night regardless of live server time; actual UI remains responsible for preview changes.
+  await p.route(/\/api\/(auth\/me|sim)$/,async route=>{const response=await route.fetch(),data=await response.json();data.clock={day:5,hour:2,minute:30,weekday:'Friday',msPerMinute:1000000,at:Date.now()};await route.fulfill({response,json:data})});
+  // Delay model delivery to exercise asynchronous reveal. Does not affect the cached reload below.
+  await p.route('**/models/**',async route=>{await new Promise(resolve=>setTimeout(resolve,650));await route.continue()});
+  const start=Date.now();await p.goto(base,{waitUntil:'domcontentloaded'});await p.waitForTimeout(6000);await p.screenshot({path:path.join(out,`${label}-first-6s-night.png`)});const first=await snapshot(p);assert(first.kits.length>=10&&first.kits.every(k=>k.visible&&k.parentVisible),'Kit fabric visible without input');assert(first.terrain?.visible,'Terrain visible without input');assert.equal(first.frameloop,'always');if(city==='atl')assert(Object.values(first.geometry).every(n=>n>0));
+  const groundPixel=await pixels(p);
+  await p.getByRole('button',{name:'Preview daytime lighting',exact:true}).click();await p.waitForTimeout(700);await p.screenshot({path:path.join(out,`${label}-preview-day.png`)});const dayPixel=await pixels(p);assert(dayPixel.reduce((a,b)=>a+b,0)>groundPixel.reduce((a,b)=>a+b,0)+30,'Preview visibly brightens the scene');
+  const day=await snapshot(p);await p.getByRole('button',{name:'Follow game clock',exact:true}).click();await p.waitForTimeout(700);await p.screenshot({path:path.join(out,`${label}-clock-night.png`)});const restored=await pixels(p);assert(restored.every((v,i)=>Math.abs(v-groundPixel[i])<7),'Clock restores nighttime lighting');
+  if(city==='atl')assert(groundPixel[1]>groundPixel[2],'Night ground remains green rather than sky blue');
+  const peak=await p.evaluate(async()=>{window.__metroScene.refreshShadows();let peak={triangles:0};for(let i=0;i<35;i++){await new Promise(requestAnimationFrame);const m=window.__metroScene.metrics();if(m.triangles>peak.triangles)peak=m}return peak});assert(peak.calls<150&&peak.triangles<300000);
+  await p.unroute('**/models/**');await p.reload();await p.waitForTimeout(6000);const reload=await snapshot(p);assert(reload.kits?.length>=10&&reload.terrain.visible);await p.screenshot({path:path.join(out,`${label}-reload-night.png`)});
+  report.runs.push({viewport,city,waitBeforeFirstCaptureSeconds:6,runDurationSeconds:(Date.now()-start)/1000,first,day,groundPixel,dayPixel,restored,shadowPeak:peak,reload});await ctx.close();console.log(`${label} first load / preview / night terrain / reload PASS`);
+ }
+ assert.deepEqual(report.errors,[]);
+}finally{fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});
