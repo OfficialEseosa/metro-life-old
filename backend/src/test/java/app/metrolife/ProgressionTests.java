@@ -16,6 +16,7 @@ class ProgressionTests {
         content=new Content(mapper);store=new JsonStore(mapper,dir.resolve("save.json").toString());game=new GameService(store,content,mapper);game.time=()->now;
         token=game.guest(null,json("{}")).token();game.createWorld(token,json("{\"name\":\"Progression\",\"mode\":\"solo\"}"));game.setup(token,json("{\"city\":\"atl\",\"neighborhood\":\"midtown\",\"aspiration\":\"founder\"}"));
     }
+    JsonNode hire(JsonNode body){String track=body.path("jobId").asText().split("-")[0];sim().put("loc",Content.workplace(sim().path("city").asText(),track));game.world(game.session(token,true)).put("startedAt",now-4*60000);return game.applyJob(token,body);}
     void refresh(){for(String n:Content.NEEDS)sim().withObject("needs").put(n,100);sim().put("updatedAt",now);}
     JsonNode shift(String track)throws Exception{
         refresh();String city=sim().path("city").asText(),loc=sim().path("job").path("loc").asText();
@@ -25,7 +26,7 @@ class ProgressionTests {
     }
     @Test void everyTrackEarnsAllFiveLevelsOnlyAtCompletion()throws Exception{
         for(String track:Content.TRACKS){
-            game.applyJob(token,json("{\"jobId\":\""+track+"-1\"}"));
+            hire(json("{\"jobId\":\""+track+"-1\"}"));
             for(int level=1;level<5;level++){
                 sim().withObject("job").put("shifts",3+level-1);
                 for(String skill:Content.SKILLS)sim().withObject("skills").withObject(skill).put("level",10);
@@ -37,7 +38,7 @@ class ProgressionTests {
         }
     }
     @Test void ShiftsAloneCannotPromoteAndRestartSettlesOnce()throws Exception{
-        game.applyJob(token,json("{\"jobId\":\"tech-1\"}"));sim().withObject("job").put("shifts",10);
+        hire(json("{\"jobId\":\"tech-1\"}"));sim().withObject("job").put("shifts",10);
         JsonNode accepted=shift("tech");now=accepted.path("sim").path("busyUntil").asLong();assertEquals(1,game.getSim(token).path("sim").path("job").path("level").asInt());
         sim().withObject("skills").withObject("tech").put("level",2);accepted=shift("tech");now=accepted.path("sim").path("busyUntil").asLong();
         GameService restarted=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),content,mapper);restarted.time=()->now;
@@ -82,7 +83,7 @@ class ProgressionTests {
         JsonNode early=restarted.getSim(token).path("sim").path("aspiration").path("milestones").get(5);assertEquals("ready",early.path("status").asText());assertEquals(900,early.path("reward").path("cash").asInt());
     }
     @Test void firstPromotionTakesFourHealthyShifts()throws Exception{
-        game.applyJob(token,json("{\"jobId\":\"tech-1\"}"));for(int i=1;i<=4;i++){JsonNode accepted=shift("tech");now=accepted.path("sim").path("busyUntil").asLong();assertEquals(i<4?1:2,game.getSim(token).path("sim").path("job").path("level").asInt());}
+        hire(json("{\"jobId\":\"tech-1\"}"));for(int i=1;i<=4;i++){JsonNode accepted=shift("tech");now=accepted.path("sim").path("busyUntil").asLong();assertEquals(i<4?1:2,game.getSim(token).path("sim").path("job").path("level").asInt());}
         game.quitJob(token);assertEquals("ready",game.getSim(token).path("sim").path("aspiration").path("milestones").get(2).path("status").asText());assertFalse(game.getSim(token).path("sim").has("_readyClaims"));
     }
 }

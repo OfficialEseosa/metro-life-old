@@ -1,0 +1,16 @@
+const fs=require('fs'),path=require('path'),assert=require('assert/strict');
+const {chromium}=require('C:/Users/rapha/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const out=path.resolve('evidence/final-review/c'),url='http://127.0.0.1:5173';fs.mkdirSync(out,{recursive:true});
+(async()=>{const b=await chromium.launch({headless:true,executablePath:'C:/Users/rapha/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe',args:['--use-angle=d3d11']});const report={views:[],errors:[]};try{for(const viewport of[{width:1280,height:800},{width:375,height:812}]){
+ const c=await b.newContext({viewport}),p=await c.newPage();p.on('pageerror',e=>report.errors.push(e.message));
+ const post=async(route,data)=>{const r=await c.request.post(url+'/api/'+route,{data});assert(r.ok(),await r.text());return r.json()};
+ await post('auth/guest',{});await post('worlds',{mode:'solo',name:'Workplace rule review'});await post('sim/setup',{city:'atl',neighborhood:'midtown',aspiration:'mogul'});
+ const jobs=(await(await c.request.get(url+'/api/jobs?city=atl')).json()).jobs;
+ const denied=await c.request.post(url+'/api/jobs/apply',{data:{jobId:jobs.find(j=>j.level===1).id}});assert.equal(denied.status(),409);assert.match((await denied.json()).error,/Visit the workplace/);
+ await p.goto(url);await p.waitForFunction(()=>!!window.__metroScene);await p.evaluate(async()=>{const u=performance.getEntriesByType('resource').map(e=>e.name).find(u=>u.includes('/src/store.ts'));window.store=(await import(u)).useStore;window.store.getState().openPanel('jobs')});
+ await p.getByRole('button',{name:'Visit workplace',exact:true}).first().waitFor();await p.waitForTimeout(600);await p.screenshot({path:path.join(out,viewport.width+'-visit-before-apply.png')});
+ await p.getByRole('button',{name:'Visit workplace',exact:true}).first().click();await p.locator('.busy-card').waitFor();await p.getByRole('button',{name:'Apply',exact:true}).first().waitFor({state:'visible'});await p.waitForFunction(()=>!window.store.getState().sim.busyUntil);await p.getByRole('button',{name:'Apply',exact:true}).first().click();await p.getByRole('button',{name:/Work a shift/}).first().waitFor();await p.waitForTimeout(600);await p.screenshot({path:path.join(out,viewport.width+'-hired-at-workplace.png')});
+ await p.evaluate(()=>window.store.getState().openPanel('mayor'));await p.getByText(/Live here for one game day before voting/).waitFor();if(viewport.width===375)await p.getByRole('button',{name:/Resize panel/}).press('ArrowUp');await p.getByText(/Live here for one game day before voting/).scrollIntoViewIfNeeded();await p.waitForTimeout(600);await p.screenshot({path:path.join(out,viewport.width+'-fresh-voter-gate.png')});
+ const mayor=(await(await c.request.get(url+'/api/mayor?city=atl')).json());assert.match(mayor.canVote,/game day/);assert((await(await c.request.get(url+'/api/stats')).json()).online>=1);
+ report.views.push({viewport,applyFromHomeRejected:409,visitThenApply:true,freshVotingReason:mayor.canVote,onlineHumans:1});await c.close();
+}assert.deepEqual(report.errors,[]);console.log('Final C PASS')}finally{fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));await b.close()}})().catch(e=>{console.error(e);process.exitCode=1});

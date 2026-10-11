@@ -53,6 +53,7 @@ public class Content {
             shift.putObject("requires").put("job",TRACKS[t]);ArrayNode workplaceActions=landmark("atl",workplaces[t]).withArray("actions");boolean existingShift=false;for(JsonNode existing:workplaceActions)if(existing.path("label").asText().equals("Work a shift")&&existing.path("requires").path("job").asText().equals(TRACKS[t]))existingShift=true;if(!existingShift)workplaceActions.add(shift);
             for(String other:new String[]{"nyc","bay"}){ArrayNode actions=landmark(other,workplace(other,TRACKS[t])).withArray("actions");boolean exists=false;for(JsonNode a:actions)if(a.path("requires").path("job").asText().equals(TRACKS[t]))exists=true;if(!exists)actions.add(shift.deepCopy());}
         }
+        for(JsonNode city:world.path("cities"))for(JsonNode place:city.path("landmarks")){boolean workplace=false;for(String track:TRACKS)if(workplace(city.path("id").asText(),track).equals(place.path("id").asText()))workplace=true;if(workplace)((ObjectNode)place).withArray("actions").add(action("visit-workplace","Visit the workplace","rest","footprints",1,0,0,Map.of(),Map.of()).put("xp",0));}
         ArrayNode aspirations=world.putArray("aspirations");
         for(int i=0;i<ASPIRATIONS.length;i++) {
             ObjectNode aspiration=aspirations.addObject().put("id",ASPIRATIONS[i]).put("label",ASPIRATION_NAMES[i]).put("icon",new String[]{"rocket","mic-vocal","landmark","utensils","trophy","palette","house"}[i]).put("blurb","Build your own path, one good day at a time.");

@@ -187,3 +187,11 @@ The exact TypeScript shapes are in `frontend/src/api/types.ts` — that file is 
 
 No emoji in UI, scene, seeded data, generated images, NPC chat or story text. Icons are lucide names
 (kebab-case) carried in data (`icon` fields) and rendered as SVG.
+
+## Final review rule clarifications
+- Explore daily goals count distinct city/place pairs completed on that game day, independently of lifetime exploration.
+- Offline need decay and rent catch-up cover the first six game hours since the last update (six real minutes at the canonical clock rate). Only midnights in that capped interval charge rent. Recorded housing-policy changes and term boundaries determine the rate at each midnight. Policy dates before this migration cannot be reconstructed; legacy saves begin with their known current policy as the baseline.
+- A life must be at least one game day old (24 real minutes) to send cash gifts or cast a public/private-world ballot. Waves, chat and activities remain immediate. New sims expose authoritative createdAt; legacy sims fall back to account creation time.
+- Job applications require the sim's actual location to be the open workplace, with no activity or story pending. The job listing's Visit workplace action takes two seconds, gives no XP or cash itself, and cannot trigger a story; Apply then hires in place. It uses normal authoritative activity/travel validation.
+- A campaign consumes its accepted game day even if it settles after midnight. Election wins are credited only when that term's winner is actually seated.
+- Read endpoints apply due simulation state in memory without fsync. Explicit mutations persist immediately; active worlds checkpoint every five seconds and at orderly shutdown. Accepted activity outcomes are durable before a response and replay once after a crash. Visit statistics are process-memory counters; online stats count current authenticated human users. Story chapter/total counts are separate from titles (optional on legacy saved beats).

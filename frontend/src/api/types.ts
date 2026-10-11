@@ -160,6 +160,8 @@ export type Goal = {
 }
 
 export type Sim = {
+  /** Server epoch when this life began; civic/gift eligibility after one game day. */
+  createdAt: number
   userId: string
   worldId: string
   username: string

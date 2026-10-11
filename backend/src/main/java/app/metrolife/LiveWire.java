@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LiveWire extends TextWebSocketHandler implements WebSocketConfigurer {
  @org.springframework.beans.factory.annotation.Value("${metro.ws.origins:http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080}")
  String origins="http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080";
+ long lastCheckpoint;
  final GameService g;
  final ConcurrentHashMap<String,Client> clients=new ConcurrentHashMap<>();
  final ExecutorService sends=Executors.newVirtualThreadPerTaskExecutor();
@@ -43,6 +44,7 @@ public class LiveWire extends TextWebSocketHandler implements WebSocketConfigure
    for(String kind:List.of("mayor","plots","billboards","homes")){JsonNode resource=kind.equals("mayor")?g.civic.state(w,c.city):kind.equals("homes")?g.property.homes(c.token,c.city):g.property.state(w,c.city).path(kind.equals("plots")?"plots":"billboards");int hash=resource.hashCode();Integer old=c.resources.put(kind,hash);if(old==null||old!=hash)frames.add(Map.entry(c,g.object().put("type","event").put("kind",kind).put("city",c.city).toString()));}
    for(JsonNode m:g.community.history(w,c.city)){if(c.chatSeen.add(m.path("id").asText())){ObjectNode f=g.object().put("type","chat");f.set("message",m);frames.add(Map.entry(c,f.toString()));}}while(c.chatSeen.size()>100)c.chatSeen.remove(c.chatSeen.iterator().next());
   }
+  if(g.now()-lastCheckpoint>=5000&&(!clients.isEmpty()||!g.community.activeWorlds.isEmpty())){g.checkpoint();lastCheckpoint=g.now();}
  }for(Client c:invalid){clients.values().remove(c);sends.submit(()->{try{c.ws.close(CloseStatus.POLICY_VIOLATION);}catch(Exception ignored){}});}for(var frame:frames)send(frame.getKey(),frame.getValue());}
  @PreDestroy void close(){for(Client c:clients.values())try{c.ws.close();}catch(Exception ignored){}sends.shutdownNow();}
 }
