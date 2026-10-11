@@ -60,13 +60,16 @@ class ProgressionTests {
         now=started.path("sim").path("busyUntil").asLong();JsonNode finished=game.getSim(token).path("sim");assertEquals(2,finished.path("aspiration").path("step").asInt());assertEquals(2935,finished.path("cash").asInt());assertEquals("atl-startup:0",finished.path("pendingBeat").path("id").asText());
         assertEquals(409,assertThrows(ApiException.class,()->game.setAspiration(token,json("{\"aspiration\":\"athlete\"}"))).status);
         game.chooseStory(token,json("{\"beatId\":\"atl-startup:0\",\"choice\":\"steady\"}"));
-        GameService restarted=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),content,mapper);restarted.time=()->now;assertEquals("atl-startup:1",restarted.getSim(token).path("sim").path("pendingBeat").path("id").asText());
+        GameService restarted=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),content,mapper);restarted.time=()->now;assertTrue(restarted.getSim(token).path("sim").path("pendingBeat").isNull());assertEquals("waiting",restarted.getSim(token).path("sim").path("stories").get(0).path("status").asText());
+        JsonNode breakTime=restarted.act(token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"shower\"}"));now=breakTime.path("sim").path("busyUntil").asLong();restarted.getSim(token);
+        JsonNode next=restarted.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"a0\"}"));now=next.path("sim").path("busyUntil").asLong();assertEquals("atl-startup:1",restarted.getSim(token).path("sim").path("pendingBeat").path("id").asText());
     }
     @Test void nineStoriesChainSkillChecksAndRejectReplayAndForgery()throws Exception{
         assertEquals(9,game.stories.all.size());
         for(Stories.Story story:game.stories.all){
             sim().put("city",story.city());game.stories.trigger(sim(),story.city(),story.loc());
             for(int step=0;step<3;step++){
+                if(step>0){assertTrue(sim().path("pendingBeat").isNull());game.stories.trigger(sim(),story.city(),story.loc());assertTrue(sim().path("pendingBeat").isNull());game.stories.depart(sim(),story.city(),"home");game.stories.trigger(sim(),story.city(),story.loc());}
                 String id=story.id()+":"+step;
                 assertEquals(400,assertThrows(ApiException.class,()->game.chooseStory(token,json("{\"beatId\":\""+id+"\",\"choice\":\"forged\"}"))).status);
                 if(step==1)sim().withObject("skills").withObject(story.skill()).put("level",10);else if(step==0)sim().withObject("skills").withObject(story.skill()).put("level",0);
@@ -76,5 +79,10 @@ class ProgressionTests {
             assertTrue(sim().path("pendingBeat").isNull());game.stories.trigger(sim(),story.city(),story.loc());assertTrue(sim().path("pendingBeat").isNull());
         }
         game.store.save();GameService restarted=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),content,mapper);restarted.time=()->now;assertTrue(restarted.getSim(token).path("sim").path("pendingBeat").isNull());
+        JsonNode early=restarted.getSim(token).path("sim").path("aspiration").path("milestones").get(5);assertEquals("ready",early.path("status").asText());assertEquals(900,early.path("reward").path("cash").asInt());
+    }
+    @Test void firstPromotionTakesFourHealthyShifts()throws Exception{
+        game.applyJob(token,json("{\"jobId\":\"tech-1\"}"));for(int i=1;i<=4;i++){JsonNode accepted=shift("tech");now=accepted.path("sim").path("busyUntil").asLong();assertEquals(i<4?1:2,game.getSim(token).path("sim").path("job").path("level").asInt());}
+        game.quitJob(token);assertEquals("ready",game.getSim(token).path("sim").path("aspiration").path("milestones").get(2).path("status").asText());assertFalse(game.getSim(token).path("sim").has("_readyClaims"));
     }
 }

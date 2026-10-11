@@ -127,7 +127,7 @@ public class GameService {
         require(w!=null&&belongs(w,session.path("userId").asText()),403,"Join this world with its private code first");select(session,w);store.save();
         ObjectNode out=object();out.set("world",worldInfo(w));ObjectNode s=(ObjectNode)table("sims").get(simKey(session));if(s==null)out.putNull("sim");else {decay(s,w);out.set("sim",publicSim(s));store.save();}return out;
     }
-    ObjectNode publicSim(ObjectNode s) {ObjectNode copy=s.deepCopy();copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
+    ObjectNode publicSim(ObjectNode s) {ObjectNode copy=s.deepCopy();if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
     String friendlyName(){
         String[] first={"Avery","Riley","Jordan","Casey","Morgan","Taylor","Alex","Jamie","Quinn","Rowan","Sage","Skyler","Reese","Parker","Cameron","Blair"};
         String[] last={"Brooks","Vale","Reed","Lane","Park","Ellis","Hayes","Quill","Blake","Bell","Stone","Wells","Banks","Hill","West","Hart"};
@@ -170,7 +170,7 @@ public class GameService {
         JsonNode pending=s.remove("_pendingAction"),future=pending.path("state"),deltas=pending.path("deltas");
         s.put("cash",s.path("cash").asDouble()+deltas.path("cash").asDouble()).put("xp",s.path("xp").asInt()+deltas.path("xp").asInt());
         double cost=pending.path("cost").asDouble();ObjectNode money=s.withObject("moneyToday");money.put("spent",money.path("spent").asDouble()+cost).put("income",money.path("income").asDouble()+deltas.path("cash").asDouble()+cost);
-        for(String field:List.of("city","loc","skills","job","visited","actionsCount","pendingBeat","aspiration","_metrics","_stories","_claims"))if(future.has(field))s.set(field,future.path(field).deepCopy());
+        for(String field:List.of("city","loc","skills","job","visited","actionsCount","pendingBeat","aspiration","_metrics","_stories","_claims","_readyClaims","_storyDeparted"))if(future.has(field))s.set(field,future.path(field).deepCopy());
         if(future.path("lastDay").asInt()==s.path("lastDay").asInt())s.set("daily",future.path("daily").deepCopy());
         deltas.path("needs").fields().forEachRemaining(e->s.withObject("needs").put(e.getKey(),Math.clamp(s.path("needs").path(e.getKey()).asDouble()+e.getValue().asDouble(),0,100)));
         updateLevel(s);
@@ -223,7 +223,7 @@ public class GameService {
         long busyUntil=now()+Math.clamp(a.path("durationMin").asLong()*60,2000,6000);s.put("busyUntil",busyUntil).put("busyLabel",a.path("label").asText());
         ArrayNode completed=mapper.createArrayNode();
         for(JsonNode node:s.path("daily")){ObjectNode g=(ObjectNode)node;if(g.path("done").asBoolean())continue;String gid=g.path("id").asText();boolean progress=gid.equals("explore")&&firstVisit||gid.equals("work")&&a.path("pay").asInt()>0||gid.equals("cook")&&loc.equals("home")&&action.equals("cook");if(progress){int p=g.path("progress").asInt()+1;g.put("progress",p);if(p>=g.path("target").asInt()){g.put("done",true);s.put("cash",s.path("cash").asDouble()+g.path("reward").path("cash").asDouble());s.put("xp",s.path("xp").asInt()+g.path("reward").path("xp").asInt());completed.add(g.path("text").asText());}}}
-        int dailyCount=completed.size();String promoted=progression.activity(s,a,loc);if(!a.path("requires").has("job"))stories.trigger(s,city,loc);progression.evaluate(s,completed);
+        int dailyCount=completed.size();String promoted=progression.activity(s,a,loc);stories.depart(s,city,loc);if(!a.path("requires").has("job"))stories.trigger(s,city,loc);progression.evaluate(s,completed);
         updateMood(s);updateLevel(s);
         ObjectNode out=object(),result=object().put("text",outcomeText(a,loc,action,cashDelta,needDeltas,skillDeltas,dailyCount)).put("busyUntil",busyUntil).put("leveledUp",s.path("level").asInt()>oldLevel).putNull("promoted").putNull("beat");
         if(completed.size()>dailyCount){StringBuilder text=new StringBuilder(result.path("text").asText());for(int i=dailyCount;i<completed.size();i++)text.append(" ").append(completed.get(i).asText()).append(" completed.");result.put("text",text.toString());}

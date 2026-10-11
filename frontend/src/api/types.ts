@@ -178,7 +178,7 @@ export type Sim = {
   mood: Mood
   skills: Record<SkillId, { level: number; xp: number; next: number }>
   job: (Job & { shifts: number; shiftsToPromote: number }) | null
-  aspiration: { id: string; label: string; step: number; total: number; current: Milestone | null } | null
+  aspiration: { id: string; label: string; step: number; total: number; current: Milestone | null; milestones?: (Milestone & { status: 'done' | 'ready' | 'current' | 'locked'; progress: number; target: number })[] } | null
   daily: Goal[]
   /** epoch ms until which the sim is busy with an action, or null */
   busyUntil: number | null
@@ -186,6 +186,7 @@ export type Sim = {
   busyStartedAt?: number | null
   busyLabel: string | null
   /** a story beat waiting for a choice */
+  stories?: { id: string; title: string; city: CityId; loc: string; completedBeats: number; total: number; status: 'waiting' | 'choice' | 'complete'; canContinue: boolean }[]
   pendingBeat: StoryBeat | null
   visited: string[]
   setupDone: boolean

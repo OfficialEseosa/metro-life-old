@@ -65,15 +65,28 @@ final class Progression {
         case "story"->{boolean found=false;var names=s.path("_stories").fieldNames();while(names.hasNext()){String name=names.next();if(name.endsWith("-"+r[1])&&s.path("_stories").path(name).asInt()>=3)found=true;}yield found;}
         default->false;
     };}
+    ArrayNode milestones(ObjectNode s){
+        String id=s.path("aspiration").path("id").asText();int index=Arrays.asList(Content.ASPIRATIONS).indexOf(id),step=s.path("aspiration").path("step").asInt();ArrayNode rows=content.mapper.createArrayNode();
+        if(index<0)return rows;
+        for(int i=0;i<6;i++){
+            String rule=RULES[index][i];String[] r=rule.split(":");ObjectNode row=((ObjectNode)content.aspiration(id).path("milestones").get(i)).deepCopy();
+            row.put("status",i<step?"done":(s.path("_readyClaims").path(id+"-"+i).asBoolean()||met(s,rule))?"ready":i==step?"current":"locked");
+            int target=switch(r[0]){case "visits","cash"->Integer.parseInt(r[1]);case "skill","job","count"->Integer.parseInt(r[2]);default->1;};
+            int value=switch(r[0]){case "visits"->s.path("visited").size()-1;case "cash"->s.path("cash").asInt();case "skill"->skill(s,r[1]);case "job"->s.path("job").path("track").asText().equals(r[1])?s.path("job").path("level").asInt():0;case "count"->s.path("_metrics").path(r[1]).asInt();default->met(s,rule)?1:0;};
+            row.put("progress",i<step||s.path("_readyClaims").path(id+"-"+i).asBoolean()?target:Math.min(value,target)).put("target",target);rows.add(row);
+        }
+        return rows;
+    }
+    void rememberReady(ObjectNode s,String id,int index){for(int i=0;i<6;i++)if(met(s,RULES[index][i]))s.withObject("_readyClaims").put(id+"-"+i,true);}
     void evaluate(ObjectNode s,ArrayNode completed){
         String id=s.path("aspiration").path("id").asText();int index=Arrays.asList(Content.ASPIRATIONS).indexOf(id);if(index<0)return;
-        select(s,id);int step=s.path("aspiration").path("step").asInt();
-        while(step<6&&met(s,RULES[index][step])){
+        rememberReady(s,id,index);select(s,id);int step=s.path("aspiration").path("step").asInt();
+        while(step<6&&(s.path("_readyClaims").path(id+"-"+step).asBoolean()||met(s,RULES[index][step]))){
             JsonNode milestone=content.aspiration(id).path("milestones").get(step);
             s.withObject("_claims").put(id+"-"+step,true);
             s.put("cash",s.path("cash").asDouble()+milestone.path("reward").path("cash").asDouble()).put("xp",s.path("xp").asInt()+milestone.path("reward").path("xp").asInt());
             completed.add("Dream step: "+milestone.path("text").asText());step++;
         }
-        select(s,id);
+        rememberReady(s,id,index);select(s,id);
     }
 }

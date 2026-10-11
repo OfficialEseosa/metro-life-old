@@ -56,11 +56,20 @@ final class Stories {
             new String[]{"Some doors stay closed. A weekend table collects more comments.","The layout still needs work. Everyone agrees to measure the site together.","The proposal returns for revision. The new relationships make the next try easier."})
     );
     Stories(GameService game){this.game=game;}
+    void depart(ObjectNode s,String city,String loc){for(Story story:all)if(s.path("_stories").has(story.id)&&s.path("_stories").path(story.id).asInt()<3&&(!story.city.equals(city)||!story.loc.equals(loc)))s.withObject("_storyDeparted").put(story.id,true);}
     void trigger(ObjectNode s,String city,String loc){
         if(!s.path("pendingBeat").isNull())return;
-        for(Story story:all)if(story.city.equals(city)&&story.loc.equals(loc)&&!s.path("_stories").has(story.id)){
-            s.withObject("_stories").put(story.id,0);s.set("pendingBeat",beat(story,0));return;
+        for(Story story:all)if(story.city.equals(city)&&story.loc.equals(loc)&&s.path("_stories").path(story.id).asInt(0)<3){
+            int step=s.path("_stories").path(story.id).asInt(0);if(step>0&&!s.path("_storyDeparted").path(story.id).asBoolean())return;s.withObject("_storyDeparted").put(story.id,false);s.withObject("_stories").put(story.id,step);s.set("pendingBeat",beat(story,step));return;
         }
+    }
+    ArrayNode journal(ObjectNode s){
+        ArrayNode rows=game.mapper.createArrayNode();
+        for(Story story:all)if(s.path("_stories").has(story.id)){
+            int completed=s.path("_stories").path(story.id).asInt();String status=completed>=3?"complete":s.path("pendingBeat").path("id").asText().startsWith(story.id+":")?"choice":"waiting";
+            rows.addObject().put("id",story.id).put("title",story.title).put("city",story.city).put("loc",story.loc).put("completedBeats",completed).put("total",3).put("status",status).put("canContinue",s.path("_storyDeparted").path(story.id).asBoolean());
+        }
+        return rows;
     }
     ObjectNode beat(Story story,int step){
         ObjectNode b=game.object().put("id",story.id+":"+step).put("title",story.title+" · "+(step+1)+" / 3").put("icon",story.skill.equals("tech")?"rocket":story.skill.equals("music")?"music":"users").put("body",story.bodies[step]);
@@ -68,7 +77,7 @@ final class Stories {
         choices.addObject().put("id","steady").put("label",step==0?"Start small, with a neighbour's help":step==1?"Ask the group to help": "Share the moment with the team").put("hint","No skill level needed · $"+(20*(step+1))+" and practice XP");return b;
     }
     ObjectNode choose(ObjectNode s,String beatId,String choice){
-        GameService.require(s.path("pendingBeat").path("id").asText().equals(beatId),409,"That choice has already been resolved");
+        GameService.require(s.path("pendingBeat").path("id").asText().equals(beatId),409,"That choice is not currently available");
         GameService.require(choice.equals("bold")||choice.equals("steady"),400,"Choose one of the offered paths");
         Story story=null;int step=-1;for(Story candidate:all)for(int i=0;i<3;i++)if((candidate.id+":"+i).equals(beatId)){story=candidate;step=i;}
         GameService.require(story!=null&&s.path("_stories").path(story.id).asInt(-1)==step,409,"This story has moved on");
@@ -76,11 +85,11 @@ final class Stories {
         double before=s.path("cash").asDouble();int xpBefore=s.path("xp").asInt();
         s.put("cash",before+cash).put("xp",xpBefore+xp);game.addSkill((ObjectNode)s.path("skills").path(story.skill),15);
         s.withObject("_stories").put(story.id,step+1);
-        if(step<2)s.set("pendingBeat",beat(story,step+1));else s.putNull("pendingBeat");
+        s.putNull("pendingBeat");
         ArrayNode completed=game.mapper.createArrayNode();game.progression.evaluate(s,completed);game.updateLevel(s);
         int totalCash=(int)(s.path("cash").asDouble()-before);ObjectNode money=s.withObject("moneyToday");money.put("income",money.path("income").asDouble()+totalCash);
         String text=safe?"You share the work. The team finds a practical way forward.":win?story.wins[step]:story.losses[step];
-        if(step==2)text+=" Story complete.";if(!completed.isEmpty())text+=" "+completed.get(0).asText()+".";
+        if(step==2)text+=" Story complete.";else text+=" Take a break elsewhere, then return to "+game.content.landmark(story.city,story.loc).path("name").asText()+".";if(!completed.isEmpty())text+=" "+completed.get(0).asText()+".";
         ObjectNode out=game.object().put("win",win).put("text",text);ObjectNode deltas=out.putObject("deltas").put("cash",totalCash).put("xp",s.path("xp").asInt()-xpBefore);deltas.putObject("needs");deltas.putObject("skills").put(story.skill,15);out.set("next",s.path("pendingBeat").deepCopy());return out;
     }
 }

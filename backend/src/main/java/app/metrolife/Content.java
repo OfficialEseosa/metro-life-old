@@ -48,7 +48,7 @@ public class Content {
                 ObjectNode row=levels.addObject().put("level",level).put("title",titles[t][level-1]).put("city","atl").put("loc",workplaces[t]).put("payPerHour",75+level*45).put("shiftsToPromote",3+level);
                 row.putObject("requires").putObject("skills").put(careerSkills[t],(level-1)*2);
             }
-            ObjectNode shift=action("shift-"+TRACKS[t],"Work a shift","work","briefcase",60,0,120,Map.of("energy",-10,"hunger",-7,"fun",-3),Map.of(careerSkills[t],25));
+            ObjectNode shift=action("shift-"+TRACKS[t],"Work a shift","work","briefcase",60,0,120,Map.of("energy",-10,"hunger",-7,"fun",-3),Map.of(careerSkills[t],75));
             shift.putObject("requires").put("job",TRACKS[t]);ArrayNode workplaceActions=landmark("atl",workplaces[t]).withArray("actions");boolean existingShift=false;for(JsonNode existing:workplaceActions)if(existing.path("label").asText().equals("Work a shift")&&existing.path("requires").path("job").asText().equals(TRACKS[t]))existingShift=true;if(!existingShift)workplaceActions.add(shift);
             for(String other:new String[]{"nyc","bay"}){ArrayNode actions=landmark(other,workplace(other,TRACKS[t])).withArray("actions");boolean exists=false;for(JsonNode a:actions)if(a.path("requires").path("job").asText().equals(TRACKS[t]))exists=true;if(!exists)actions.add(shift.deepCopy());}
         }
@@ -83,7 +83,7 @@ public class Content {
         else if(cat.equals("park")||cat.equals("sight")||cat.equals("waterfront")) cost=0;
         icon=s.contains("pitch")?"rocket":s.contains("co-work")?"laptop":s.contains("co-founder")?"users":kind.equals("food")?"utensils":kind.equals("social")?"users":kind.equals("work")?"briefcase":kind.equals("learn")?"book-open":s.contains("ride")||s.contains("bike")?"bike":s.contains("watch")||s.contains("tour")?"eye":icon;
         ObjectNode a=action("a"+index,label,kind,icon,kind.equals("work")?60:30,cost,pay,needs,skill.isBlank()?Map.of():Map.of(skill,20));
-        if(s.equals("work a shift")) a.putObject("requires").put("job","health");
+        if(s.equals("work a shift")){a.putObject("requires").put("job","health");a.putObject("skills").put("fitness",75);}
         return a;
     }
     ObjectNode city(String id) {for(JsonNode c:world.path("cities")) if(c.path("id").asText().equals(id)) return (ObjectNode)c;throw new ApiException(400,"Choose Atlanta, New York or the Bay Area");}

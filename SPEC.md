@@ -68,13 +68,20 @@ plots grid `cols x rows` cells with origin top-left, x right, y down).
 - **Careers**: tracks `tech, music, sports, food, finance, arts, civic, health`, 5 levels each, each level tied
   to a workplace landmark in some city, with skill requirements and hourly pay. Apply at the workplace; a
   "Work a shift" action then appears there. Promotions come from shifts worked + skills.
+  A healthy shift gives 75 XP in its career skill; the first promotion requires four shifts and skill level 2.
+  Both requirements and an estimate of missing practice are shown before promotion.
 - **Aspirations** (long arc, chosen at onboarding, changeable): e.g. Startup Founder, Headliner, Mayor,
   Restaurateur, Pro Athlete, Art Collector, Real-Estate Mogul. Each is 6–8 ordered milestones
   ("Reach Tech 3", "Pitch at Sand Hill Road", "Earn $25,000", ...) with rewards.
+  Public sim milestones include `status` (`done|ready|current|locked`), `progress`, `target` and rewards.
+  An early completed milestone is remembered while that dream is active, then paid once in order.
 - **Daily goals**: three per day, small (visit X, work a shift, cook, hang out with someone).
 - **Story beats**: some actions trigger a choice event (title, body, 2–3 choices; each choice has a skill check
   or a chance, with win/lose text and effects). Several beats chain into short storylines per city
   (open-mic night at the Apollo, demo day on Sand Hill Road, a campaign rally at the Capitol...).
+  One choice closes the dialog. The next chapter requires a completed activity elsewhere and then a
+  non-job activity back at the story landmark. The public sim `stories` journal records completed chapters,
+  `choice|waiting|complete` status and `canContinue`; departure and reward guards persist privately.
 - **Money**: starting cash from `shared/world.json`. Income: shifts, gigs, story wins, plots resale later.
   Sinks: food, fun, rent (per neighborhood, daily), flights between cities (airport action), plots, billboards.
   `moneyToday: { income, spent }` records settled action income (including goal rewards) and costs for the
