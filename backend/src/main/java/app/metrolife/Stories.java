@@ -72,7 +72,7 @@ final class Stories {
         return rows;
     }
     ObjectNode beat(Story story,int step){
-        ObjectNode b=game.object().put("id",story.id+":"+step).put("title",story.title+" · "+(step+1)+" / 3").put("icon",story.skill.equals("tech")?"rocket":story.skill.equals("music")?"music":"users").put("body",story.bodies[step]);
+        ObjectNode b=game.object().put("id",story.id+":"+step).put("title",story.title).put("chapter",step+1).put("total",3).put("icon",story.skill.equals("tech")?"rocket":story.skill.equals("music")?"music":"users").put("body",story.bodies[step]);
         ArrayNode choices=b.putArray("choices");choices.addObject().put("id","bold").put("label",story.risks[step]).put("hint",Content.title(story.skill)+" "+(step+1)+" succeeds · $"+(80*(step+1))+" reward; otherwise +10 XP");
         choices.addObject().put("id","steady").put("label",step==0?"Start small, with a neighbour's help":step==1?"Ask the group to help": "Share the moment with the team").put("hint","No skill level needed · $"+(20*(step+1))+" and practice XP");return b;
     }

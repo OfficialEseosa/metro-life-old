@@ -211,7 +211,7 @@ export type ActResult = {
 }
 
 export type StoryChoice = { id: string; label: string; hint?: string }
-export type StoryBeat = { id: string; title: string; icon: string; body: string; choices: StoryChoice[] }
+export type StoryBeat = { id: string; title: string; chapter?: number; total?: number; icon: string; body: string; choices: StoryChoice[] }
 export type StoryOutcome = { win: boolean; text: string; deltas: Deltas; next: StoryBeat | null }
 
 // ---- people ---------------------------------------------------------------

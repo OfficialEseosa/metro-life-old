@@ -48,7 +48,7 @@ public class GameService {
         return look;
     }
     private String username(String name) {require(name.matches("[A-Za-z0-9][A-Za-z0-9 _-]{2,23}"),400,"Use 3–24 letters, numbers, spaces, underscores or hyphens");return name.trim();}
-    private void unique(String name,String except) {for(JsonNode u:table("users")) require(u.path("id").asText().equals(except)||!u.path("username").asText().equalsIgnoreCase(name),409,"That name is already taken");}
+    private void unique(String name,String except) {for(JsonNode u:table("users")) require(u.path("id").asText().equals(except)||!u.path("username").asText().equalsIgnoreCase(name),409,"That name is already taken");for(JsonNode rows:community.residents())for(JsonNode n:rows)require(!n.path("username").asText().equalsIgnoreCase(name),409,"That name belongs to a city resident. Choose another name.");}
     private String issueSession(String old,ObjectNode u,String selected) {
         if(old!=null) table("sessions").remove(old);
         byte[] bytes=new byte[32];random.nextBytes(bytes);String token=Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
@@ -146,7 +146,7 @@ public class GameService {
     String friendlyName(){
         String[] first={"Avery","Riley","Jordan","Casey","Morgan","Taylor","Alex","Jamie","Quinn","Rowan","Sage","Skyler","Reese","Parker","Cameron","Blair"};
         String[] last={"Brooks","Vale","Reed","Lane","Park","Ellis","Hayes","Quill","Blake","Bell","Stone","Wells","Banks","Hill","West","Hart"};
-        for(int attempt=0;;attempt++){String name=first[random.nextInt(first.length)]+" "+last[random.nextInt(last.length)]+(attempt>50?" "+random.nextInt(1000):"");boolean used=false;for(JsonNode u:table("users"))if(u.path("username").asText().equalsIgnoreCase(name))used=true;if(!used)return name;}
+        for(int attempt=0;;attempt++){String name=first[random.nextInt(first.length)]+" "+last[random.nextInt(last.length)]+(attempt>50?" "+random.nextInt(1000):"");boolean used=false;for(JsonNode u:table("users"))if(u.path("username").asText().equalsIgnoreCase(name))used=true;for(JsonNode rows:community.residents())for(JsonNode n:rows)if(n.path("username").asText().equalsIgnoreCase(name))used=true;if(!used)return name;}
     }
     synchronized ObjectNode setup(String token,JsonNode body) {
         ObjectNode session=session(token,true),u=user(session);String city=body.path("city").asText(),nh=body.path("neighborhood").asText(),aid=body.path("aspiration").asText();

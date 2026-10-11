@@ -41,6 +41,7 @@ export type Panel =
 export type CityData = 'daily' | 'mayor' | 'plots' | 'billboards' | 'homes' | 'players' | 'chat'
 
 type State = {
+  sceneFailed: boolean
   acting: boolean
   ready: boolean
   loadError: string | null
@@ -147,6 +148,7 @@ export const useStore = create<State>((set, get) => {
   }
 
   return {
+    sceneFailed: false,
     acting: false,
     ready: false,
     loadError: null,
