@@ -36,3 +36,6 @@ button.plot-atlas{padding:0;width:100%;display:block;box-shadow:none}.metro-hud 
 .chat-composer{margin:0}.chat-compose-row{display:flex;gap:8px;align-items:center}.chat-compose-row input{min-width:0;flex:1}.chat-compose-row .primary{flex-shrink:0;padding:10px;gap:6px}.candidate-self{display:block;font-size:15px;font-weight:650;color:#216546;margin-top:4px}.plot-selection.owned{background:transparent;outline-color:#216546}
 
 .candidate-row{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:start}.candidate-row>button{grid-column:2;justify-self:start}.chat-message small,.connection-status{font-size:15px}
+
+.plot-listing>span{min-width:0;flex:1;overflow-wrap:anywhere}.plot-listing>svg{flex-shrink:0}
+@media(max-width:700px){.city-controls{top:calc(env(safe-area-inset-top) + 104px)}.is-playing .city-controls{top:calc(env(safe-area-inset-top) + 20px)}}

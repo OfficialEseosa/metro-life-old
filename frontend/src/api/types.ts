@@ -277,7 +277,7 @@ export type Plots = {
 }
 
 export type BillboardAd = { id: string; title: string; link: string; image: string; owner: string; endsAt: number; startsAt?: number }
-export type BillboardSlot = { slot: number; ad: BillboardAd | null; queue: number; freeFrom: number }
+export type BillboardSlot = { slot: number; ad: BillboardAd | null; queue: number; bookedByMe: boolean; freeFrom: number }
 export type Billboards = { city: CityId; days: number; price: number; slots: BillboardSlot[] }
 
 export type Home = { id: string; userId: string; username: string; city: CityId; neighborhood: string; look: Look; npc: boolean }

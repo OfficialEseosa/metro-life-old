@@ -1,4 +1,4 @@
-import { Suspense, useLayoutEffect, useMemo } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { Builder } from './geometry'
@@ -94,6 +94,7 @@ function dataFor(city:'nyc'|'bay'){
 }
 export function MetropolitanFabric({city,night}:{city:'nyc'|'bay';night:boolean}){
  const data=useMemo(()=>dataFor(city),[city])
+ useEffect(()=>()=>{data.land.dispose();data.streets.dispose()},[data])
  const groups=useMemo(()=>{
   const result:Record<string,Placement[]>={},add=(url:string,p:Placement)=>{(result[url]??=[]).push(p)},sample=(p:Placement[],n:number)=>p.filter((_,i)=>Math.floor((i+1)*n/p.length)>Math.floor(i*n/p.length)),soft=(p:Placement)=>({...p,color:'#'+new THREE.Color(p.color).lerp(new THREE.Color('#ffffff'),.4).getHexString(),angle:Math.round((p.x+p.z)/8)%4*Math.PI/2})
   sample(data.homes,city==='bay'?60:20).forEach((p,i)=>add(city==='bay'&&i%9===0?'world/suburban/building-type-c.glb':'kaykit/building_'+['A','B'][i%2]+'_withoutBase.gltf',soft(p)))

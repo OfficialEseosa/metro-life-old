@@ -2,12 +2,10 @@ import { serverNow } from './server-time'
 import { useEffect, useState } from 'react'
 import { useStore } from './store'
 
-/** Use the same advancing clock for the scene and its preview control. */
-export function useNightLighting() {
-  const theme=useStore(s=>s.sceneTheme),clock=useStore(s=>s.clock)
-  const [now,setNow]=useState(serverNow)
-  useEffect(()=>{const timer=setInterval(()=>setNow(serverNow()),1000);return()=>clearInterval(timer)},[])
-  const elapsed=clock?Math.max(0,now-clock.at)/clock.msPerMinute:0
-  const hour=clock?Math.floor((clock.hour*60+clock.minute+elapsed)%1440/60):11
-  return theme==='night'||theme==='auto'&&(hour<6||hour>=19)
+const currentNight=()=>{const {sceneTheme:theme,clock}=useStore.getState();const minutes=clock?clock.hour*60+clock.minute+Math.max(0,serverNow()-clock.at)/clock.msPerMinute:660;const hour=Math.floor(minutes%1440/60);return theme==='night'||theme==='auto'&&(hour<6||hour>=19)}
+/** Notify the scene only when the light actually changes. */
+export function useNightLighting(){
+ const [night,setNight]=useState(currentNight)
+ useEffect(()=>{const update=()=>setNight(currentNight());const off=useStore.subscribe((s,previous)=>{if(s.sceneTheme!==previous.sceneTheme||s.clock!==previous.clock)update()});const timer=setInterval(update,1000);update();return()=>{off();clearInterval(timer)}},[])
+ return night
 }
