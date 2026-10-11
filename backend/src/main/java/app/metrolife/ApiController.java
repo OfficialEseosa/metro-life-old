@@ -17,7 +17,7 @@ public class ApiController {
     ApiController(GameService game,Content content){this.game=game;this.content=content;}
     void cookie(HttpServletRequest req,HttpServletResponse res,String token){res.addHeader("Set-Cookie",ResponseCookie.from("ml_session",token).httpOnly(true).secure(req.isSecure()).sameSite("Lax").path("/").maxAge(token.isEmpty()?0:30L*86400).build().toString());res.setHeader("Cache-Control","no-store");}
     @GetMapping("/world") ObjectNode world(){return content.world;}
-    @GetMapping("/version") Map<String,String> version(){return Map.of("build","metro-life-m1");}
+    @GetMapping("/version") Map<String,String> version(){return Map.of("build","metro-life-m8");}
     @GetMapping("/stats") ObjectNode stats(){return game.stats();}
     @GetMapping("/daily") ObjectNode daily(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.daily(token,game.defaultCity(token,city));}
     @GetMapping("/auth/me") ObjectNode me(@CookieValue(name="ml_session",required=false)String token){return game.me(token);}

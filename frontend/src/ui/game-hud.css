@@ -29,3 +29,10 @@ button.plot-atlas{padding:0;width:100%;display:block;box-shadow:none}.metro-hud 
 .community-links{display:flex;gap:12px;margin:16px 0}.community-links button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px}.neighbour-row{display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:2px solid #e0d2bb}.neighbour-row>div{min-width:0;flex:1}.neighbour-row h3{font-size:18px}.neighbour-row p{font-size:15px;margin:5px 0}.social-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.social-actions button{min-height:44px;padding:8px 10px!important}.chat-history{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}.chat-message{padding:12px;background:#e6eddb;border:2px solid #c3cfb5;border-radius:14px;overflow-wrap:anywhere}.chat-message.mine{background:#d8e9e3;border-color:#85aa9a}.chat-message strong{font-size:16px}.chat-message small{font-size:13px;display:block;font-weight:400;color:var(--muted)}.chat-message p{margin-top:8px;white-space:pre-wrap}
 
 .plot-atlas{touch-action:none;cursor:crosshair;user-select:none}.plot-exact summary{min-height:44px;display:flex;align-items:center;font-weight:650;cursor:pointer}.plot-exact{margin-top:12px}
+
+.connection-status{font-size:13px;line-height:1.2;color:var(--muted);display:block}
+
+.sheet-handle{order:0}.sheet-heading{order:1}.sheet-body{order:2;flex:1 1 auto}.sheet-primary{order:3;border-top:2px solid #d8c8ac;background:var(--cream)}
+.chat-composer{margin:0}.chat-compose-row{display:flex;gap:8px;align-items:center}.chat-compose-row input{min-width:0;flex:1}.chat-compose-row .primary{flex-shrink:0;padding:10px;gap:6px}.candidate-self{display:block;font-size:15px;font-weight:650;color:#216546;margin-top:4px}.plot-selection.owned{background:transparent;outline-color:#216546}
+
+.candidate-row{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:start}.candidate-row>button{grid-column:2;justify-self:start}.chat-message small,.connection-status{font-size:15px}

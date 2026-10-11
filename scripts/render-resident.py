@@ -12,4 +12,4 @@ points=[o.matrix_world@Vector(c) for o in meshes for c in o.bound_box];lo=Vector
 bpy.ops.object.camera_add(location=center+Vector((size*1.2,-size*1.8,size*.7)));camera=bpy.context.object;camera.rotation_euler=(center-camera.location).to_track_quat('-Z','Y').to_euler();camera.data.type='ORTHO';camera.data.ortho_scale=size*1.5
 scene=bpy.context.scene;scene.camera=camera;scene.render.engine='CYCLES';scene.cycles.device='CPU';scene.cycles.samples=16;scene.render.resolution_x=512;scene.render.resolution_y=512;scene.render.resolution_percentage=100;scene.world.color=(.5,.5,.5)
 bpy.ops.object.light_add(type='AREA',location=center+Vector((size,-size,size*2)));bpy.context.object.data.energy=350; bpy.context.object.data.shape='DISK';bpy.context.object.data.size=size*2
-scene.render.filepath=str(root/'evidence/m7/resident-render.png');bpy.ops.render.render(write_still=True)
+scene.render.filepath=str(root/'evidence/m8/audit/resident-render.png');bpy.ops.render.render(write_still=True)

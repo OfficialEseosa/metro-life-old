@@ -34,6 +34,7 @@
 	</dependencies>
 	<build>
 		<resources>
+			<resource><directory>../frontend/dist</directory><targetPath>static</targetPath></resource>
 			<resource><directory>src/main/resources</directory></resource>
 			<resource><directory>../shared</directory><targetPath>static-data</targetPath><includes><include>world.json</include></includes></resource>
 		</resources>

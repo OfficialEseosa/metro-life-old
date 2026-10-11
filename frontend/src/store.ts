@@ -221,7 +221,7 @@ export const useStore = create<State>((set, get) => {
       await Promise.all(jobs)
     },
 
-    setSim: (sim) => set({ sim }),
+    setSim: (sim) => {if(sim&&sim.worldId!==get().worldInfo?.id)return;const travelled=sim&&get().sim&&sim.city!==get().sim?.city;set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {

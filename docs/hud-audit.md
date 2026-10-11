@@ -30,3 +30,11 @@ Applied vercel:react-best-practices after multiple TSX edits. Global feedback li
 ## Practical limits
 
 Screen-reader speech, audible sound quality, physical-phone haptics, Safari/iOS, long-session memory and ultrawide remain M8 checks. Critical-needs visual proof uses intercepted read responses, explicitly recorded; it never changes server needs. Work/low-mood consequences remain server rules. M4 must also reconcile the Home shortcut and need-care destinations after intercity travel, when the sim's home belongs to another city. No claim that this HUD checkpoint completes M4–M8.
+
+## M8 review additions
+
+Primary actions now sit below the scrolling body, with an opaque cream divider. Chat has a fixed bottom input/Send row; own candidates carry a You label and explicit self-voting explanation. Font sizes for connection status and chat metadata are at least15px. Visual evidence distinguishes live vote checks from injected candidate layout fixtures. Public meetings are required for social actions; private homes are separate.
+
+Scene loading is lazy and visible, and the top bar exposes reconnect status. Search focuses its input and restores keyboard focus on Escape; modal traps and reduced motion are checked in the M8 browser flow. Async chat/resource/sim responses verify world/city before applying, and pending requests have a15-second timeout. New resident/kit geometry and materials dispose on unmount; scene motion still uses instance refs rather than frame-driven React state. No additional component library, remote font or postprocessing pass was introduced.
+
+Physical phone, virtual keyboard, screen reader, human sound/haptic quality and long-session memory remain unchecked. Final results and current run addresses are in PLAN.md and final-report.md.

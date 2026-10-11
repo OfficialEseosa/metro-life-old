@@ -98,7 +98,7 @@ plots grid `cols x rows` cells with origin top-left, x right, y down).
   to midnight; smallbiz adds 5% work pay; arts extends culture hours to midnight and removes after-18:00
   non-job costs; housing cuts daily rent by 20%; nightlife extends hours to 04:00. Announcements are plain
   text, 3–140 characters, without links, at most once per game hour.
-- **Social**: both residents must be at the same location in the same city/world and free of activities or
+- **Social**: both residents must be at the same public location (private homes are separate) in the same city/world and free of activities or
   story choices. Human targets must be online. Wave gives both +3 Social; hang out gives both +15, capped
   at 100. Gifts transfer an integer $1–$500 with matching income/spending ledger entries. A sender waits
   three seconds between social actions. Private cooldown and notification fields never enter the public sim.
@@ -139,7 +139,7 @@ Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl
 | GET | `/api/version` | `{ build }` |
 | GET | `/api/daily?city` | `{ date, weekday, weather, headline, tip }` (per city, per game day) |
 | GET | `/api/auth/me` | `{ now, user: User|null, world: WorldInfo|null, sim: Sim|null, clock: Clock }` |
-| POST | `/api/auth/guest` | `{ username? }` → `{ user }` |
+| POST | `/api/auth/guest` | `{ username? }` → `{ user }` (name applies to a new guest; an existing valid session is returned unchanged) |
 | POST | `/api/auth/signup` | `{ username, password, look? }` → `{ user }` (upgrades a guest in place) |
 | POST | `/api/auth/login` | `{ username, password }` → `{ user }` |
 | POST | `/api/auth/logout` | → `{ ok: true }` |

@@ -1,7 +1,7 @@
 /* oxlint-disable react/immutability -- Three.js objects and shader uniforms are imperative renderer resources. */
 import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { OrbitControls, useProgress } from '@react-three/drei'
 import type { OrbitControls as Controls } from 'three-stdlib'
 import * as THREE from 'three'
 import { useStore } from '../store'
@@ -51,7 +51,7 @@ function Sky({ night }: { night: boolean }) {
 function Lake({ night,city }: { night: boolean;city:CityId }) {
   const mat = useMemo(() => new THREE.ShaderMaterial({ uniforms: { time: { value: 0 }, tint: { value: new THREE.Color() } },
     vertexShader: 'varying vec3 vPosition;void main(){vPosition=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader: 'uniform float time;uniform vec3 tint;varying vec3 vPosition;void main(){float wave=sin(vPosition.x*.4+vPosition.z*.55+time*.55)*sin(vPosition.z*.65-time*.3);float glint=pow(max(0.,wave),9.)*.035;gl_FragColor=vec4(tint+glint+wave*.008,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}' }), [])
+    fragmentShader: 'uniform float time;uniform vec3 tint;varying vec3 vPosition;void main(){float wave=sin(vPosition.x*.045+vPosition.z*.025+time*.12)*.55+sin(vPosition.z*.068-time*.09)*.25+sin((vPosition.x+vPosition.z)*.019+time*.06)*.2;wave*=1.-smoothstep(.05,.35,length(fwidth(vPosition.xz))*.07);float glint=pow(max(0.,wave),4.)*.012;gl_FragColor=vec4(tint+glint+wave*.008,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}' }), [])
   useEffect(() => {mat.uniforms.tint.value.set(night ? '#183744' : '#6098ad')}, [mat, night])
   useFrame(({ clock }) => {mat.uniforms.time.value=clock.elapsedTime})
   return city==='atl'?null:<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.3,0]} material={mat} raycast={noPick}><planeGeometry args={[1600,1600]}/></mesh>
@@ -140,7 +140,8 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
     <EconomyScene night={night}/><Residents/><WorldActivity/><OrbitControls ref={controls} enabled={!beat&&panel!=='plots'&&!['play','setup','signup','login','worlds'].includes(panel??'')} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null;useStore.getState().setCameraMoving(true)}} onEnd={()=>useStore.getState().setCameraMoving(false)} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
   </>
 }
+function SceneLoading(){const {active,progress}=useProgress();return active?<div className="scene-loading" role="status">Bringing the city to life · {Math.round(progress)}%</div>:null}
 export default function CityScene() {
   const [hover,setHover]=useState<{name:string;x:number;y:number}|null>(null)
-  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[1,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><AmbientTicker/><Suspense fallback={null}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Suspense></Canvas><PlayerMarker/>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
+  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[1,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><AmbientTicker/><Suspense fallback={null}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Suspense></Canvas><SceneLoading/><PlayerMarker/>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
 }

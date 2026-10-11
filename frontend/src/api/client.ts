@@ -32,12 +32,14 @@ export class ApiError extends Error {
 }
 
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
-  const res = await fetch(path, {
+  let res: Response
+  try{res = await fetch(path, {
+    signal:AbortSignal.timeout(15000),
     method,
     credentials: 'include',
     headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  })}catch{throw new ApiError(0,'Could not reach the city. Check your connection and try again.')}
   const data = await res.json().catch(() => null)
   if (!res.ok) throw new ApiError(res.status, data?.error ?? `Request failed (${res.status})`)
   return data as T

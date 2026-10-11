@@ -18,12 +18,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** World-bound subscriptions. No network write holds the simulation monitor. */
 @Configuration @EnableWebSocket @EnableScheduling
 public class LiveWire extends TextWebSocketHandler implements WebSocketConfigurer {
+ @org.springframework.beans.factory.annotation.Value("${metro.ws.origins:http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080}")
+ String origins="http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080";
  final GameService g;
  final ConcurrentHashMap<String,Client> clients=new ConcurrentHashMap<>();
  final ExecutorService sends=Executors.newVirtualThreadPerTaskExecutor();
  static final class Client {final WebSocketSession ws;final String token,wid;String city="atl",presence="",sim="",clock="";final Set<String> chatSeen=new LinkedHashSet<>();final Queue<String> outgoing=new ConcurrentLinkedQueue<>();final AtomicBoolean draining=new AtomicBoolean();final Map<String,Integer> resources=new HashMap<>();Client(WebSocketSession ws,String token,String wid){this.ws=new ConcurrentWebSocketSessionDecorator(ws,2000,65536);this.token=token;this.wid=wid;}}
  LiveWire(GameService g){this.g=g;}
- @Override public void registerWebSocketHandlers(WebSocketHandlerRegistry registry){registry.addHandler(this,"/ws").setAllowedOrigins("http://localhost:5173","http://127.0.0.1:5173","http://localhost:8080","http://127.0.0.1:8080").addInterceptors(new HandshakeInterceptor(){
+ @Override public void registerWebSocketHandlers(WebSocketHandlerRegistry registry){registry.addHandler(this,"/ws").setAllowedOrigins(origins.split(",")).addInterceptors(new HandshakeInterceptor(){
   public boolean beforeHandshake(ServerHttpRequest request,ServerHttpResponse response,WebSocketHandler handler,Map<String,Object> attributes){String token="";for(String cookie:request.getHeaders().getOrEmpty("Cookie"))for(String part:cookie.split(";"))if(part.trim().startsWith("ml_session="))token=part.trim().substring(11);synchronized(g){ObjectNode session=g.session(token,false);if(session==null){response.setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);return false;}attributes.put("token",token);attributes.put("wid",g.world(session).path("id").asText());return true;}}
   public void afterHandshake(ServerHttpRequest request,ServerHttpResponse response,WebSocketHandler handler,Exception exception){}
  });}
