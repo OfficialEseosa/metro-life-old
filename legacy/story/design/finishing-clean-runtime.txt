@@ -1,4 +1,0 @@
-{
-  "ProcessId": 57516,
-  "CommandLine": "node  dist/server/server/index.js"
-}

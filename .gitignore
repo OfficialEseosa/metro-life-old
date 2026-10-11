@@ -1,9 +1,9 @@
-node_modules/
-dist/
-test-results/
+**/node_modules/
+**/target/
+backend/data/
+**/dist/
+**/.git/
 playwright-report/
+test-results/
 *.log
 .env
-.env.*
-!.env.example
-assets/source/

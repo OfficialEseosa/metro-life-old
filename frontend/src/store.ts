@@ -1,0 +1,190 @@
+import { create } from 'zustand'
+import { api, connectSocket } from './api/client'
+import type {
+  ActResult,
+  Billboards,
+  ChatMessage,
+  CityId,
+  Clock,
+  Daily,
+  Homes,
+  MayorState,
+  Player,
+  Plots,
+  ServerEvent,
+  Sim,
+  Stats,
+  User,
+  World,
+  WorldInfo,
+} from './api/types'
+
+export type Panel =
+  | null
+  | 'play' // choose solo / online / join with code
+  | 'signup'
+  | 'login'
+  | 'setup' // onboarding: city, neighborhood, aspiration, look
+  | 'location' // selectedLoc (landmark id or "home")
+  | 'sim' // needs, skills, goals, aspiration
+  | 'jobs'
+  | 'people'
+  | 'chat'
+  | 'mayor'
+  | 'plots'
+  | 'billboard' // selectedSlot
+  | 'homes'
+  | 'worlds'
+
+export type CityData = 'daily' | 'mayor' | 'plots' | 'billboards' | 'homes' | 'players' | 'chat'
+
+type State = {
+  // static content
+  world: World | null
+  // session
+  user: User | null
+  worldInfo: WorldInfo | null
+  sim: Sim | null
+  clock: Clock | null
+  stats: Stats | null
+  connected: boolean
+  // the city map being looked at (may differ from sim.city)
+  city: CityId
+  // per viewed city
+  daily: Daily | null
+  mayor: MayorState | null
+  plots: Plots | null
+  billboards: Billboards | null
+  homes: Homes | null
+  players: Player[]
+  chat: ChatMessage[]
+  // ui <-> scene
+  panel: Panel
+  selectedLoc: string | null
+  selectedSlot: number | null
+  /** set by the UI to make the scene camera fly to a landmark id, "plots", "homes" or "home"; the scene clears it */
+  focus: string | null
+  /** last action result, for a toast; the UI clears it */
+  lastResult: ActResult | null
+
+  load: () => Promise<void>
+  /** re-read session, world info, sim and clock (after login, world switch, etc.), then the city data */
+  syncSession: () => Promise<void>
+  setCity: (city: CityId) => Promise<void>
+  refresh: (...what: CityData[]) => Promise<void>
+  setSim: (sim: Sim | null) => void
+  setUser: (user: User | null) => void
+  setMayor: (m: MayorState) => void
+  setLastResult: (r: ActResult | null) => void
+  openPanel: (p: Panel) => void
+  selectLocation: (id: string | null) => void
+  selectSlot: (slot: number | null) => void
+  setFocus: (key: string | null) => void
+}
+
+const safe = <T,>(p: Promise<T>) => p.catch(() => null)
+let socket: ReturnType<typeof connectSocket> | null = null
+
+export const useStore = create<State>((set, get) => {
+  const onEvent = (e: ServerEvent) => {
+    const { city } = get()
+    switch (e.type) {
+      case 'hello':
+      case 'clock':
+        set({ clock: e.clock })
+        break
+      case 'presence':
+        if (e.city === city) set({ players: e.players })
+        break
+      case 'chat':
+        if (e.message.city === city) set({ chat: [...get().chat.slice(-99), e.message] })
+        break
+      case 'event':
+        if (e.city === city && e.kind !== 'story') void get().refresh(e.kind)
+        break
+    }
+  }
+
+  const reconnect = () => {
+    socket?.close()
+    socket = connectSocket(onEvent, (connected) => {
+      set({ connected })
+      if (connected) socket?.send({ type: 'view', city: get().city })
+    })
+  }
+
+  return {
+    world: null,
+    user: null,
+    worldInfo: null,
+    sim: null,
+    clock: null,
+    stats: null,
+    connected: false,
+    city: 'atl',
+    daily: null,
+    mayor: null,
+    plots: null,
+    billboards: null,
+    homes: null,
+    players: [],
+    chat: [],
+    panel: null,
+    selectedLoc: null,
+    selectedSlot: null,
+    focus: null,
+    lastResult: null,
+
+    load: async () => {
+      const [world, stats] = await Promise.all([safe(api.world()), safe(api.stats())])
+      set({ world, stats })
+      await get().syncSession()
+    },
+
+    syncSession: async () => {
+      const me = await safe(api.me())
+      const city = me?.sim?.city ?? get().city
+      set({ user: me?.user ?? null, worldInfo: me?.world ?? null, sim: me?.sim ?? null, clock: me?.clock ?? null, city })
+      reconnect()
+      await get().refresh('daily', 'mayor', 'plots', 'billboards', 'homes', 'players', 'chat')
+    },
+
+    setCity: async (city) => {
+      if (city === get().city) return
+      set({ city, daily: null, mayor: null, plots: null, billboards: null, homes: null, players: [], chat: [], selectedLoc: null, selectedSlot: null })
+      socket?.send({ type: 'view', city })
+      await get().refresh('daily', 'mayor', 'plots', 'billboards', 'homes', 'players', 'chat')
+    },
+
+    refresh: async (...what) => {
+      const city = get().city
+      const jobs: Promise<void>[] = []
+      const put = <K extends keyof State>(key: K, p: Promise<State[K] | null>) =>
+        jobs.push(
+          p.then((v) => {
+            // drop the result if the user switched city meanwhile
+            if (get().city === city && v !== null) set({ [key]: v } as Pick<State, K>)
+          }),
+        )
+      for (const w of what) {
+        if (w === 'daily') put('daily', safe(api.daily(city)))
+        if (w === 'mayor') put('mayor', safe(api.mayor(city)))
+        if (w === 'plots') put('plots', safe(api.plots(city)))
+        if (w === 'billboards') put('billboards', safe(api.billboards(city)))
+        if (w === 'homes') put('homes', safe(api.homes(city)))
+        if (w === 'players') put('players', safe(api.players(city).then((r) => r.players)))
+        if (w === 'chat') put('chat', safe(api.chat(city).then((r) => r.messages)))
+      }
+      await Promise.all(jobs)
+    },
+
+    setSim: (sim) => set({ sim }),
+    setUser: (user) => set({ user }),
+    setMayor: (mayor) => set({ mayor }),
+    setLastResult: (lastResult) => set({ lastResult }),
+    openPanel: (panel) => set({ panel }),
+    selectLocation: (id) => set({ selectedLoc: id, panel: id ? 'location' : null }),
+    selectSlot: (slot) => set({ selectedSlot: slot, panel: slot === null ? null : 'billboard' }),
+    setFocus: (focus) => set({ focus }),
+  }
+})

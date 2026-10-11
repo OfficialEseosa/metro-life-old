@@ -1,0 +1,1087 @@
+{
+ "locations": [
+  {
+   "id": "mamaPut",
+   "name": "Amala Shitta",
+   "area": "Surulere",
+   "emoji": "🍲",
+   "blurb": "Legendary amala, gbegiri & ewedu since 1967. The queue is part of the experience.",
+   "map": {
+    "x": 18,
+    "y": 76
+   },
+   "open": [
+    7,
+    22
+   ],
+   "sky": [
+    "#ffb35c",
+    "#ff7b54"
+   ],
+   "ground": "#8b5a3c",
+   "accent": "#ffd166",
+   "actions": [
+    "amala",
+    "jollofChicken",
+    "pepperSoup",
+    "efoSemo",
+    "shawaRice",
+    "zoboCup",
+    "gistMama",
+    "mamaRecipe",
+    "washPlates",
+    "washHandsBuka",
+    "whotBuka"
+   ]
+  },
+  {
+   "id": "balogun",
+   "name": "Balogun Market",
+   "area": "Lagos Island",
+   "emoji": "🧺",
+   "blurb": "Everything is here. Everything. Just haggle.",
+   "map": {
+    "x": 26,
+    "y": 98
+   },
+   "open": [
+    7,
+    19
+   ],
+   "sky": [
+    "#7cc6fe",
+    "#ffd6a5"
+   ],
+   "ground": "#9c6644",
+   "accent": "#ef476f",
+   "actions": [
+    "shopMarket",
+    "haggle",
+    "asoebi",
+    "windowShop",
+    "resell",
+    "alabaru",
+    "galaLacasera",
+    "pickpocket",
+    "fakeBags"
+   ]
+  },
+  {
+   "id": "yabaHub",
+   "name": "CcHub",
+   "area": "Yaba",
+   "emoji": "💡",
+   "blurb": "The heart of Yabacon Valley. Fast Wi-Fi, faster founders.",
+   "map": {
+    "x": 29,
+    "y": 63
+   },
+   "open": [
+    8,
+    23
+   ],
+   "sky": [
+    "#4cc9f0",
+    "#4361ee"
+   ],
+   "ground": "#3a3a5a",
+   "accent": "#72efdd",
+   "actions": [
+    "sideProject",
+    "wifiChill",
+    "freelanceGig",
+    "meetup",
+    "pitch",
+    "hackathon",
+    "coffeePuff",
+    "startupGist",
+    "atmHack"
+   ]
+  },
+  {
+   "id": "elegushi",
+   "name": "Elegushi Beach",
+   "area": "Lekki",
+   "emoji": "🏖️",
+   "blurb": "Atlantic waves, horses, suya and good vibes by day. A beach rave from 8pm till 4am.",
+   "map": {
+    "x": 65,
+    "y": 115
+   },
+   "open": [
+    8,
+    4
+   ],
+   "sky": [
+    "#48cae4",
+    "#ffe5b4"
+   ],
+   "ground": "#f4d58d",
+   "accent": "#00b4d8",
+   "actions": [
+    "swim",
+    "jetSki",
+    "horse",
+    "suya",
+    "coconut",
+    "beachBall",
+    "cabana",
+    "beachPics",
+    "paidShoot",
+    "beachRave",
+    "requestSong"
+   ]
+  },
+  {
+   "id": "shrine",
+   "name": "New Afrika Shrine",
+   "area": "Ikeja",
+   "emoji": "🎷",
+   "blurb": "Home of Afrobeat. Live band, Felabration vibes, till morning.",
+   "map": {
+    "x": 17,
+    "y": 18
+   },
+   "open": [
+    14,
+    4
+   ],
+   "sky": [
+    "#3a0ca3",
+    "#f72585"
+   ],
+   "ground": "#2b2d42",
+   "accent": "#ffbe0b",
+   "actions": [
+    "liveBand",
+    "openMic",
+    "requestFela",
+    "buyTable",
+    "shrineChops",
+    "felaHistory"
+   ]
+  },
+  {
+   "id": "freedomPark",
+   "name": "Freedom Park",
+   "area": "Lagos Island",
+   "emoji": "🎭",
+   "blurb": "Art, poetry, plays and cold drinks under the trees.",
+   "map": {
+    "x": 34,
+    "y": 103
+   },
+   "open": [
+    9,
+    22
+   ],
+   "sky": [
+    "#95d5b2",
+    "#fefae0"
+   ],
+   "ground": "#52796f",
+   "accent": "#ffb703",
+   "actions": [
+    "stagePlay",
+    "watchComedy",
+    "spokenWord",
+    "comedyNight",
+    "artShow",
+    "buyArt",
+    "treeChill",
+    "ayo",
+    "chapman",
+    "graffiti"
+   ]
+  },
+  {
+   "id": "ikoyiGym",
+   "name": "i-Fitness",
+   "area": "Ikoyi",
+   "emoji": "🏋️",
+   "blurb": "Lagos' favourite gym chain. Where Ikoyi babes and big boys sweat.",
+   "map": {
+    "x": 46,
+    "y": 99
+   },
+   "open": [
+    5,
+    22
+   ],
+   "sky": [
+    "#caf0f8",
+    "#90e0ef"
+   ],
+   "ground": "#495057",
+   "accent": "#e63946",
+   "actions": [
+    "lift",
+    "treadmill",
+    "yoga",
+    "ptSession",
+    "gymShower",
+    "shake"
+   ]
+  },
+  {
+   "id": "viewingCentre",
+   "name": "Oga Sunday Viewing Centre",
+   "area": "Surulere",
+   "emoji": "⚽",
+   "blurb": "Plastic chairs, a humming gen and the loudest EPL arguments in Lagos.",
+   "map": {
+    "x": 12,
+    "y": 80
+   },
+   "open": [
+    12,
+    23
+   ],
+   "sky": [
+    "#8fc3e6",
+    "#e3ecef"
+   ],
+   "ground": "#7a6a58",
+   "accent": "#3aa935",
+   "actions": [
+    "watchMatch",
+    "argueFootball",
+    "betPadi",
+    "accumulator",
+    "lotto",
+    "maltSuya",
+    "fightAgbero",
+    "ludoViewing"
+   ]
+  },
+  {
+   "id": "clubEko",
+   "name": "Quilox",
+   "area": "Victoria Island",
+   "emoji": "🪩",
+   "blurb": "Ozumba Mbadiwe's most famous club. VIP tables, sparklers, Afrobeats till 5am.",
+   "map": {
+    "x": 46,
+    "y": 115
+   },
+   "open": [
+    22,
+    5
+   ],
+   "sky": [
+    "#240046",
+    "#ff006e"
+   ],
+   "ground": "#1b1b2f",
+   "accent": "#ff006e",
+   "actions": [
+    "clubDance",
+    "danceBattle",
+    "sprayMoney",
+    "hypeMan",
+    "djShoutout",
+    "bottleService",
+    "goldBottle",
+    "vipTable",
+    "champagneParade",
+    "clubRound",
+    "clubTakeover",
+    "bigRound",
+    "bigTable",
+    "clubShutdown",
+    "clubCocktail",
+    "network",
+    "requestSong",
+    "selfies",
+    "sneakVip"
+   ]
+  },
+  {
+   "id": "lcc",
+   "name": "Lekki Conservation Centre",
+   "area": "Lekki",
+   "emoji": "🌉",
+   "blurb": "Monkeys, crocodiles and Africa's longest canopy walkway.",
+   "map": {
+    "x": 74,
+    "y": 106
+   },
+   "open": [
+    8,
+    17
+   ],
+   "sky": [
+    "#b7e4c7",
+    "#e3ecef"
+   ],
+   "ground": "#2d6a4f",
+   "accent": "#52b788",
+   "actions": [
+    "canopy",
+    "monkeys",
+    "croc",
+    "picnic",
+    "treeHouse",
+    "naturePics"
+   ]
+  },
+  {
+   "id": "library",
+   "name": "The Library",
+   "area": "Victoria Island",
+   "emoji": "📚",
+   "blurb": "Enter through a secret bookcase. Moody lights, cocktails and a packed dancefloor.",
+   "map": {
+    "x": 44,
+    "y": 113
+   },
+   "open": [
+    22,
+    4
+   ],
+   "sky": [
+    "#2d1b4e",
+    "#a3316f"
+   ],
+   "ground": "#241a2e",
+   "accent": "#c9a227",
+   "actions": [
+    "secretShelf",
+    "readBook",
+    "cocktails",
+    "libraryDance",
+    "sprayMoney",
+    "requestSong",
+    "djShoutout",
+    "goldBottle",
+    "bigRound",
+    "bigTable",
+    "clubShutdown",
+    "lounge",
+    "selfies"
+   ]
+  },
+  {
+   "id": "mall",
+   "name": "The Palms",
+   "area": "Lekki",
+   "emoji": "🛍️",
+   "blurb": "Genesis Cinema, a big supermarket, Chicken Republic and air-con for days.",
+   "map": {
+    "x": 66,
+    "y": 104
+   },
+   "open": [
+    9,
+    22
+   ],
+   "sky": [
+    "#bfe0f7",
+    "#e8f1f7"
+   ],
+   "ground": "#d9d4c8",
+   "accent": "#2f7de1",
+   "actions": [
+    "shopSupermarket",
+    "cinema",
+    "foodCourt",
+    "shawarma",
+    "iceCream",
+    "newOutfit",
+    "mallStroll",
+    "shoplift"
+   ]
+  },
+  {
+   "id": "hospital",
+   "name": "General Hospital",
+   "area": "Ikeja",
+   "emoji": "🏥",
+   "blurb": "Busy wards, kind nurses and a pharmacy that never closes.",
+   "map": {
+    "x": 40,
+    "y": 60
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#bde0fe",
+    "#e0f2fe"
+   ],
+   "ground": "#94a3b8",
+   "accent": "#e5484d",
+   "actions": [
+    "injection",
+    "checkup",
+    "vitamins",
+    "visitPatient",
+    "volunteerWard"
+   ]
+  },
+  {
+   "id": "pollingUnit",
+   "name": "Polling Unit 001",
+   "area": "Lagos Island",
+   "emoji": "🗳️",
+   "blurb": "Where Lagos picks its governor. Get accredited, cast your vote in person and watch the live count. Polls close Sunday 8pm.",
+   "map": {
+    "x": 28,
+    "y": 105
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#bbf7d0",
+    "#f0fdf4"
+   ],
+   "ground": "#c9b48a",
+   "accent": "#008751",
+   "actions": [
+    "castVote",
+    "getAccredited",
+    "inkThumb",
+    "watchCount",
+    "argueResults",
+    "queueGist"
+   ]
+  },
+  {
+   "id": "naijaRadio",
+   "name": "Naija Radio House",
+   "area": "Ikeja",
+   "emoji": "📻",
+   "blurb": "Live radio from all over Nigeria. Pick a studio, sit back and tune in. Powered by Naija Radio.",
+   "map": {
+    "x": 22,
+    "y": 34
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#1e293b",
+    "#0f766e"
+   ],
+   "ground": "#334155",
+   "accent": "#22c55e",
+   "actions": [
+    "radioListen",
+    "radioDance",
+    "radioRequest",
+    "radioGist",
+    "radioPresent",
+    "radioWork",
+    "radioPray",
+    "radioTour"
+   ]
+  },
+  {
+   "id": "mosque",
+   "name": "Lagos Central Mosque",
+   "area": "Lagos Island",
+   "emoji": "🕌",
+   "blurb": "Pray, reflect and catch up with the community, a short walk from Balogun. Don't miss Jumu'ah on Friday.",
+   "map": {
+    "x": 18,
+    "y": 96
+   },
+   "open": [
+    5,
+    22
+   ],
+   "sky": [
+    "#bbf7d0",
+    "#ecfdf5"
+   ],
+   "ground": "#a3b18a",
+   "accent": "#047857",
+   "actions": [
+    "prayMosque",
+    "jumuah",
+    "wudu",
+    "readQuran",
+    "imamLecture",
+    "giveSadaqah",
+    "gistImam"
+   ]
+  },
+  {
+   "id": "church",
+   "name": "House of Grace Chapel",
+   "area": "Ikeja",
+   "emoji": "⛪",
+   "blurb": "Praise, worship and a choir that doesn't play. Come every day, and don't miss Sunday Service.",
+   "map": {
+    "x": 14,
+    "y": 70
+   },
+   "open": [
+    6,
+    22
+   ],
+   "sky": [
+    "#fde68a",
+    "#fef3c7"
+   ],
+   "ground": "#a3b18a",
+   "accent": "#6d28d9",
+   "actions": [
+    "attendService",
+    "sundayService",
+    "joinChoir",
+    "giveTestimony",
+    "giveOffering",
+    "prayBreakthrough",
+    "gistPastor"
+   ]
+  },
+  {
+   "id": "policeStation",
+   "name": "Eko Police Division",
+   "area": "Lagos Island",
+   "emoji": "🚓",
+   "blurb": "Where Lagos settles its scores. Pay your fine, pay bail, or wait it out in the cell.",
+   "map": {
+    "x": 22,
+    "y": 108
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#c7d2fe",
+    "#e0e7ff"
+   ],
+   "ground": "#64748b",
+   "accent": "#1d4ed8",
+   "actions": [
+    "waitCell",
+    "cellToilet",
+    "cellFood",
+    "cellSleep",
+    "cellCards",
+    "cellPushups",
+    "cellClean",
+    "payBail",
+    "reportCrime",
+    "gistOfficer"
+   ]
+  },
+  {
+   "id": "salon",
+   "name": "Mama Bisi's Salon",
+   "area": "Surulere",
+   "emoji": "💇🏾‍♀️",
+   "blurb": "Braids, low cuts, nails and the best gist in Surulere.",
+   "map": {
+    "x": 22,
+    "y": 70
+   },
+   "open": [
+    8,
+    21
+   ],
+   "sky": [
+    "#ffc8dd",
+    "#ffafcc"
+   ],
+   "ground": "#b5838d",
+   "accent": "#ec4899",
+   "actions": [
+    "braids",
+    "lowCut",
+    "afroSet",
+    "locs",
+    "nails",
+    "salonGist"
+   ]
+  },
+  {
+   "id": "rooftop",
+   "name": "Ivory Rooftop",
+   "area": "Victoria Island",
+   "emoji": "🕯️",
+   "blurb": "Fine dining 20 floors up. Candlelight, a live saxophonist and the whole Lagos skyline. Book for two.",
+   "map": {
+    "x": 42,
+    "y": 110
+   },
+   "open": [
+    12,
+    1
+   ],
+   "sky": [
+    "#ff9e6d",
+    "#3a0ca3"
+   ],
+   "ground": "#2b2d42",
+   "accent": "#f5d27a",
+   "actions": [
+    "candlelitDinner",
+    "tastingMenu",
+    "chocolateLava",
+    "champagneToast",
+    "requestSax",
+    "sunsetView",
+    "rooftopPhotos"
+   ]
+  },
+  {
+   "id": "office",
+   "name": "Marina Towers",
+   "area": "Victoria Island",
+   "emoji": "🏢",
+   "blurb": "Glass, AC and serious corporate energy.",
+   "map": {
+    "x": 38,
+    "y": 112
+   },
+   "open": [
+    6,
+    21
+   ],
+   "sky": [
+    "#a2d2ff",
+    "#bde0fe"
+   ],
+   "ground": "#6c757d",
+   "accent": "#0077b6",
+   "actions": [
+    "lobbyNetwork",
+    "canteenLunch"
+   ]
+  },
+  {
+   "id": "ekoHotel",
+   "name": "Eko Hotels & Suites",
+   "area": "Victoria Island",
+   "emoji": "🏨",
+   "blurb": "Lagos' most famous hotel. The pool, the big buffet, a live band in the lounge, and the Presidential Suite if you can pay for it.",
+   "map": {
+    "x": 48,
+    "y": 117
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#a5d8ff",
+    "#ffe8cc"
+   ],
+   "ground": "#9cc47a",
+   "accent": "#c9a227",
+   "actions": [
+    "hotelPool",
+    "poolsideChops",
+    "hotelBuffet",
+    "hotelLounge",
+    "shisha",
+    "polancoBrunch",
+    "hotelSpa",
+    "lobbyPics",
+    "hotelRoom",
+    "presidentialSuite"
+   ]
+  },
+  {
+   "id": "polanco",
+   "name": "Polanco Motors",
+   "area": "Victoria Island",
+   "emoji": "🚘",
+   "blurb": "The car showroom on the Island. Tokunbo to Bugatti on the floor: browse, test drive, and drive your new whip home.",
+   "map": {
+    "x": 43,
+    "y": 108
+   },
+   "open": [
+    8,
+    22
+   ],
+   "sky": [
+    "#cfe8ff",
+    "#f5f5f5"
+   ],
+   "ground": "#9aa3ad",
+   "accent": "#c9a227",
+   "actions": [
+    "browseShowroom",
+    "testDrive",
+    "salesRep",
+    "showroomSelfie"
+   ]
+  },
+  {
+   "id": "boatCruise",
+   "name": "Lagoon Boat Cruise",
+   "area": "Five Cowries Creek",
+   "emoji": "⛵",
+   "blurb": "Sail the lagoon from the jetty. Sunset cruises, cocktails and music on deck, and the whole boat if you can charter it.",
+   "map": {
+    "x": 50,
+    "y": 104
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#7cd3f7",
+    "#ffd6a5"
+   ],
+   "ground": "#2aa9d8",
+   "accent": "#0077b6",
+   "actions": [
+    "sunsetCruise",
+    "deckSunbathe",
+    "deckCocktail",
+    "boatParty",
+    "cruisePhotos",
+    "fishing",
+    "captainHelm",
+    "yachtCharter"
+   ]
+  },
+  {
+   "id": "mako",
+   "name": "Mako",
+   "area": "Ikoyi",
+   "emoji": "🍕",
+   "blurb": "Members only, by the water on Ademola Street. House music, wood-fired pizza, boats tying up at the jetty, and the pregame before the clubs. Weekly membership.",
+   "map": {
+    "x": 49,
+    "y": 102
+   },
+   "open": [
+    14,
+    3
+   ],
+   "sky": [
+    "#0f766e",
+    "#f59e0b"
+   ],
+   "ground": "#1e6f8f",
+   "accent": "#f5d27a",
+   "actions": [
+    "makoPizza",
+    "makoCocktail",
+    "makoHouse",
+    "makoJetty",
+    "makoPregame",
+    "makoNetwork"
+   ]
+  },
+  {
+   "id": "golfClub",
+   "name": "Ikoyi Golf Club",
+   "area": "Ikoyi",
+   "emoji": "⛳",
+   "blurb": "Members only: a net worth of ₦1bn gets you through the gate. Eighteen holes, single malts, quiet deals, and the ₦1bn bottle.",
+   "map": {
+    "x": 52,
+    "y": 99
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#b7e4c7",
+    "#fefae0"
+   ],
+   "ground": "#5d9a45",
+   "accent": "#14532d",
+   "actions": [
+    "playGolf",
+    "golfLesson",
+    "golfDrinks",
+    "golfRound",
+    "membersLounge",
+    "billionDeal",
+    "golfChampagne",
+    "billionBottle"
+   ]
+  },
+  {
+   "id": "courthouse",
+   "name": "Lagos High Court",
+   "area": "Igbosere, Lagos Island",
+   "emoji": "⚖️",
+   "blurb": "The famous Igbosere courthouse. Watch a trial from the gallery, swear an affidavit, gist with the wigs, and answer your own case when it's called. Lawyers work here.",
+   "map": {
+    "x": 30,
+    "y": 102
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#e2e8f0",
+    "#f8fafc"
+   ],
+   "ground": "#a3b18a",
+   "accent": "#7c2d12",
+   "actions": [
+    "watchTrial",
+    "celebCase",
+    "courtGist",
+    "closingArgument",
+    "swearAffidavit",
+    "legalAid",
+    "courtSnack"
+   ]
+  },
+  {
+   "id": "casino",
+   "name": "Eko Casino",
+   "area": "Victoria Island",
+   "emoji": "🎰",
+   "blurb": "Slot machines, a blackjack table and poker against the house, with a cocktail bar and a cage for chips. Lagos Life money only, just for fun.",
+   "map": {
+    "x": 40,
+    "y": 118
+   },
+   "open": [
+    0,
+    24
+   ],
+   "sky": [
+    "#1a0f24",
+    "#c9a227"
+   ],
+   "ground": "#2a1838",
+   "accent": "#f5c542",
+   "actions": [
+    "slotLights",
+    "tipDealer",
+    "watchHighRollers",
+    "casinoCocktail",
+    "casinoBuffet",
+    "casinoSelfie"
+   ]
+  }
+ ],
+ "worldPos": {
+  "home_mushin": {
+   "x": -8,
+   "z": -5,
+   "label": "Home"
+  },
+  "home_yaba": {
+   "x": 0.5,
+   "z": -5.5,
+   "label": "Home"
+  },
+  "home_lekki": {
+   "x": 12.9,
+   "z": 8.6,
+   "label": "Home"
+  },
+  "home_ikoyi": {
+   "x": 2.5,
+   "z": 2.8,
+   "label": "Home"
+  },
+  "home_bananaIsland": {
+   "x": 3.4,
+   "z": -0.5,
+   "label": "Home"
+  },
+  "home_ikateTerrace": {
+   "x": 12.9,
+   "z": 8.6,
+   "label": "Home"
+  },
+  "home_magodo": {
+   "x": 0.5,
+   "z": -5.5,
+   "label": "Home"
+  },
+  "shrine": {
+   "x": -7,
+   "z": -8.5,
+   "label": "Afrika Shrine"
+  },
+  "viewingCentre": {
+   "x": -2.5,
+   "z": -8.5,
+   "label": "Viewing Centre"
+  },
+  "mamaPut": {
+   "x": -4.5,
+   "z": -5,
+   "label": "Amala Shitta"
+  },
+  "yabaHub": {
+   "x": 4.5,
+   "z": -7.5,
+   "label": "CcHub"
+  },
+  "balogun": {
+   "x": -7,
+   "z": 3.3,
+   "label": "Market"
+  },
+  "freedomPark": {
+   "x": -2.8,
+   "z": 8.2,
+   "label": "Freedom Park"
+  },
+  "ikoyiGym": {
+   "x": 0.7,
+   "z": 2.7,
+   "label": "i-Fitness"
+  },
+  "office": {
+   "x": -2.8,
+   "z": 5.7,
+   "label": "Marina Towers"
+  },
+  "clubEko": {
+   "x": 4.4,
+   "z": 2.8,
+   "label": "Quilox"
+  },
+  "lcc": {
+   "x": 8.7,
+   "z": 2.1,
+   "label": "Canopy Walk"
+  },
+  "mall": {
+   "x": 7.1,
+   "z": 6.72,
+   "label": "The Palms"
+  },
+  "library": {
+   "x": 2.7,
+   "z": 4.8,
+   "label": "The Library"
+  },
+  "elegushi": {
+   "x": 9.3,
+   "z": 10.3,
+   "label": "Beach"
+  },
+  "hospital": {
+   "x": 12.2,
+   "z": -8,
+   "label": "General Hospital"
+  },
+  "salon": {
+   "x": -2.6,
+   "z": -4.8,
+   "label": "Mama Bisi's Salon"
+  },
+  "rooftop": {
+   "x": 4.3,
+   "z": 6.8,
+   "label": "Ivory Rooftop"
+  },
+  "policeStation": {
+   "x": -10,
+   "z": 5.3,
+   "label": "Police Station"
+  },
+  "church": {
+   "x": -11.9,
+   "z": -4.6,
+   "label": "Church"
+  },
+  "mosque": {
+   "x": -9.9,
+   "z": 3,
+   "label": "Mosque"
+  },
+  "naijaRadio": {
+   "x": -4.5,
+   "z": -11.5,
+   "label": "Naija Radio"
+  },
+  "pollingUnit": {
+   "x": -10,
+   "z": 7.1,
+   "label": "Polling Unit"
+  },
+  "ekoHotel": {
+   "x": 0.2,
+   "z": 6.6,
+   "label": "Eko Hotels"
+  },
+  "polanco": {
+   "x": -5.3,
+   "z": 5.7,
+   "label": "Polanco Motors"
+  },
+  "boatCruise": {
+   "x": 1.6,
+   "z": -0.5,
+   "label": "Boat Cruise"
+  },
+  "golfClub": {
+   "x": 10.1,
+   "z": 6.1,
+   "label": "Ikoyi Golf Club"
+  },
+  "courthouse": {
+   "x": -1.3,
+   "z": 3.5,
+   "label": "High Court"
+  },
+  "unilag": {
+   "x": 8,
+   "z": -6.1,
+   "label": "UNILAG"
+  },
+  "home_unilagHostel": {
+   "x": 11.6,
+   "z": -4.9,
+   "label": "Home"
+  },
+  "casino": {
+   "x": -5.3,
+   "z": 8.2,
+   "label": "Eko Casino"
+  },
+  "mindSpace": {
+   "x": 1,
+   "z": -9,
+   "label": "MindSpace"
+  },
+  "stadium": {
+   "x": -1.2,
+   "z": -12,
+   "label": "Stadium"
+  },
+  "charterhouse": {
+   "x": 19.5,
+   "z": 11.73
+  },
+  "ojuelegba": {
+   "x": -4.8,
+   "z": -7.6,
+   "label": "Snooker Spot"
+  },
+  "handiHq": {
+   "x": 13.13,
+   "z": -5.6,
+   "label": "HANDI HQ"
+  },
+  "mako": {
+   "x": 5.25,
+   "z": 0.85,
+   "label": "Mako"
+  },
+  "jibowuPark": {
+   "x": 5,
+   "z": -10.4,
+   "label": "Jibowu Park"
+  }
+ }
+}
