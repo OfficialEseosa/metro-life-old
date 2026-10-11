@@ -22,6 +22,9 @@ import type {
   World,
   WorldInfo,
 } from './types'
+import { syncServerTime } from '../server-time'
+
+let mutationRevision=0,mutations=0
 
 export class ApiError extends Error {
   status: number
@@ -32,6 +35,9 @@ export class ApiError extends Error {
 }
 
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
+  const mutation=method!=='GET',revision=mutationRevision,started=performance.now()
+  if(mutation){mutationRevision++;mutations++}
+  try {
   let res: Response
   try{res = await fetch(path, {
     signal:AbortSignal.timeout(15000),
@@ -42,7 +48,10 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
   })}catch{throw new ApiError(0,'Could not reach the city. Check your connection and try again.')}
   const data = await res.json().catch(() => null)
   if (!res.ok) throw new ApiError(res.status, data?.error ?? `Request failed (${res.status})`)
+  if(path==='/api/sim'&&(mutations>0||revision!==mutationRevision))throw new ApiError(0,'A newer action is already in progress.')
+  if(data?.now||data?.clock?.at)syncServerTime(data.now??data.clock.at,performance.now()-started)
   return data as T
+  } finally {if(mutation){mutations--;mutationRevision++}}
 }
 
 const q = (city?: CityId) => (city ? `?city=${city}` : '')

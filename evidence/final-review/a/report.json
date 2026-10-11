@@ -1,0 +1,57 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "skew": 10000,
+      "storageBlocked": true,
+      "soundDefaultsOn": true,
+      "serverClock": true,
+      "stalePollRejected": true,
+      "doubleTapRequests": 1,
+      "payOnlyAtCompletion": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "skew": -120000,
+      "storageBlocked": true,
+      "soundDefaultsOn": true,
+      "serverClock": true,
+      "stalePollRejected": true,
+      "doubleTapRequests": 1,
+      "payOnlyAtCompletion": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "skew": 10000,
+      "storageBlocked": true,
+      "soundDefaultsOn": true,
+      "serverClock": true,
+      "stalePollRejected": true,
+      "doubleTapRequests": 1,
+      "payOnlyAtCompletion": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "skew": -120000,
+      "storageBlocked": true,
+      "soundDefaultsOn": true,
+      "serverClock": true,
+      "stalePollRejected": true,
+      "doubleTapRequests": 1,
+      "payOnlyAtCompletion": true
+    }
+  ],
+  "errors": []
+}

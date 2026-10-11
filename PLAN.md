@@ -1,5 +1,16 @@
 # Metro Life living plan
 
+## Final owner review — A to F (in progress)
+- Read audits/M8-findings.md and audits/FINAL-REVIEW-BRIEF.md before implementation. Commit each group locally; never push/deploy. No new landmark work. Preserve 150 calls/300k triangles and measure both native sizes.
+- [x] A: blocked storage, password lock/attempt limits, authoritative client time, stale polls, shared action guard.
+- [ ] B: opaque/layered HUD and culled pins; loading/failure slots; distinct residents and overview crowd/booking visibility; story count/focus/named feedback; ballot capture.
+- [ ] C: daily visits, capped policy-aware rent, guest abuse gates, civic rollover/acceptance day, workplace applications, read persistence/online count.
+- [ ] D: scene disposal/framing/drag/fog/idle rendering; refusal reasons, live merges, world resets, resident count and small states/text checks.
+- [ ] F: recapture historical visual concerns; run authority/build/lint and fresh M8 scene/live/production flows at 1280x800 and 375x812; inspect captures.
+- E hosting-only backlog (no deployment): body size cap; guest/world creation/join limits; world/socket caps; expired-session purge; Origin/custom header for body-less POSTs; Secure proxy cookie; SHA-256 PBKDF2 600k.
+- Correction: the prior M7 timestamp reread incorrectly said findings were unchanged. It missed the newly added repeated-name problem 10. Group B explicitly includes it and disjoint guest/resident names.
+- Initial source reads used two incorrect paths (com/metrolife/GameService.java and helpers.tsx/CoreTest.java); commands failed, corrected to app/metrolife, helpers.ts and CoreTests.java. An initial combined patch failed on the PLAN heading and made no changes; corrected below. These are tooling failures, not passing checks.
+
 ## Progress
 - [x] Read objective, CODEX_PROMPT.md, SPEC.md and canonical world content.
 - [x] Preserve old game; replace checkout with Metro Life sources.
@@ -293,3 +304,14 @@
 - Final handoff: compiled game http://localhost:8080 (PID56556/session59097); development http://127.0.0.1:5173 (Vite session93287). Try Start playing → Play solo → Start my life → Apply → Work a shift. Create a private world for an eight-character code to share with another browser profile. Meet at a public landmark for social actions. Audit inventory rechecked: M7 timestamp correction read; no new findings. All M1–M8 checkpoints handled with recognition/performance limits documented. Local commit only; nothing pushed or deployed.
 - A combined documentation/check shell command was rejected by automatic review before execution. Separate file patches and read-only checks succeeded.
 - Focused `node scripts/m8-private-homes.cjs` PASS at both sizes and recaptured stable, scrolled-to-player home rows. Its first selector matched an NPC with the same name; scoped to the Player label and reran. This was a harness ambiguity. No game-code changes after the final build/package. Final screenshots inspected.
+
+### Final review A — verification
+- All storage access is caught; sound defaults on when unavailable. Server epoch time is anchored to performance.now, refreshed from Me.now/API clocks/socket clocks and used for venue hours, busy progress, lighting, plot/billboard expiry and payoff timing. Older time samples cannot rewind it. All sim reads reject responses spanning a mutation (including polls/socket refresh/settlement); LocationPrimary and LocationPanel share a synchronous acting guard.
+- Login snapshots identity/hash under the monitor, verifies outside it, then rechecks before issuing a session. Signup hashes outside the monitor and revalidates guest identity/name before upgrading. Limits shared across both routes: 8 attempts/name/minute and 20/address/minute, with four concurrent password operations maximum; direct peer address used, no untrusted forwarded header. Expiring bounded in-memory counters. Tests prove reads proceed while password work is held open, limit expiry/canonical names and logout during upgrade.
+- First Maven run failed compilation because the new test setup omitted throws IOException; corrected. Clean `backend/mvnw.cmd -f backend/pom.xml test -q` PASS: 40 tests, zero failures/errors/skips. First frontend build/lint PASS; final package rebuild follows latest time-sample guard.
+- `node scripts/final-a.cjs` initial clock and stale-read assertions failed because harness imports loaded duplicate Vite modules with independent clocks/revisions; now discovers the actual loaded resource URLs. Next run reached phone but timed out waiting for an action hidden by the intended peek sheet; expand before waiting. Clean final run PASS: four contexts at1280x800/375x812 and +10s/-120s device clock skew, blocked storage getter/writes, sound default/toggle, server clock within1.5s, one double-tap request, delayed pre-action snapshot rejected, cash unchanged during work and paid only after settlement, zero page errors. Fresh eight captures/report in evidence/final-review/a; inspected phone busy/paid and laptop paid/busy. No physical Safari claim.
+- Read new audits/MORNING-SUMMARY.md at15:45; no additional requirements beyond this final review. Apply React checklist: shared synchronous guard, narrow acting subscription, cleaned progress timers, no per-frame HUD state. Group B will address the visible focus bar and overview layering still present in these A captures.
+
+- Before the15:46:22 restart: verified own PID56556 command, stopped it to replace the locked packaged JAR. Final frontend build/lint PASS (main338.53KB/107.01gzip,scene1271.02/345.69gzip; existing large chunk warning). Maven package -DskipTests PASS after the40-test run. Backend restart underway immediately; frontend remained available at127.0.0.1:5173.
+
+- Backend restarted15:46:22 at http://localhost:8080,PID40192/session5755; frontend remains http://127.0.0.1:5173. Fresh packaged HTTP auth check PASS: signup200,three concurrent wrong-password401s while me200 responds within1.5s, eighth additional attempt429,root200; exact read timing in evidence/final-review/a/auth-live.json. Group A complete.

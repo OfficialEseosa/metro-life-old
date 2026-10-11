@@ -18,6 +18,9 @@ public class GameService {
     final Civic civic;final Property property;final Community community;
     LongSupplier time = System::currentTimeMillis;
     private final SecureRandom random = new SecureRandom();
+    private final AuthAttempts authAttempts=new AuthAttempts();
+    java.util.function.Function<String,String> hashPassword=Passwords::hash;
+    java.util.function.BiPredicate<String,String> verifyPassword=Passwords::verify;
     GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this);this.community=new Community(this); }
     long now() { return time.getAsLong(); }
     ObjectNode object() { return mapper.createObjectNode(); }
@@ -61,26 +64,37 @@ public class GameService {
         ObjectNode u=table("users").putObject(uid).put("id",uid).put("username",name).put("guest",true).put("createdAt",now());u.set("look",look(body.get("look")));
         String issued=issueSession(null,u,"public");store.save();return new AuthResult(issued,publicUser(u));
     }
-    synchronized AuthResult signup(String token,JsonNode body) {
+    AuthResult signup(String token,JsonNode body) {return signup(token,body,"local");}
+    AuthResult signup(String token,JsonNode body,String ip) {
         String name=username(body.path("username").asText().trim()),password=body.path("password").asText();
         require(password.length()>=8 && password.length()<=128,400,"Use a password between 8 and 128 characters");
+        authAttempts.check(ip,name,now());
+        String expectedUid;
+        synchronized(this){ObjectNode existing=session(token,false);if(existing!=null)require(user(existing).path("guest").asBoolean(),409,"You already have an account");expectedUid=existing==null?null:user(existing).path("id").asText();unique(name,expectedUid==null?"":expectedUid);}
+        String hash;authAttempts.acquire();try{hash=hashPassword.apply(password);}finally{authAttempts.release();}
+        synchronized(this){
         ObjectNode old=session(token,false);if(old!=null) require(user(old).path("guest").asBoolean(),409,"You already have an account");
+        require(expectedUid==null?old==null:old!=null&&expectedUid.equals(user(old).path("id").asText()),409,"Your session changed. Try signing in again.");
         String uid=old==null?id():user(old).path("id").asText();unique(name,uid);
         ObjectNode u=old==null?table("users").putObject(uid).put("id",uid).put("createdAt",now()):user(old);
-        u.put("username",name).put("guest",false).put("passwordHash",Passwords.hash(password));
+        u.put("username",name).put("guest",false).put("passwordHash",hash);
         if(!u.has("look")||body.has("look")) u.set("look",look(body.get("look")));
         for(JsonNode s:table("sims")) if(s.path("userId").asText().equals(uid)) {((ObjectNode)s).put("username",name).set("look",u.get("look").deepCopy());}
         String issued=issueSession(token,u,old==null?"public":old.path("worldId").asText());store.save();return new AuthResult(issued,publicUser(u));
-    }
-    synchronized AuthResult login(String token,JsonNode body) {
-        String name=body.path("username").asText();String password=body.path("password").asText();require(password.length()<=128,400,"Password is too long");
-        for(JsonNode node:table("users")) {
-            ObjectNode u=(ObjectNode)node;
-            if(u.path("username").asText().equalsIgnoreCase(name)&&Passwords.verify(password,u.path("passwordHash").asText())) {
-                String selected=u.path("lastWorld").asText("public");String issued=issueSession(token,u,selected);store.save();return new AuthResult(issued,publicUser(u));
-            }
         }
-        throw new ApiException(401,"Name or password did not match");
+    }
+    AuthResult login(String token,JsonNode body) {return login(token,body,"local");}
+    AuthResult login(String token,JsonNode body,String ip) {
+        String name=body.path("username").asText();String password=body.path("password").asText();require(password.length()<=128,400,"Password is too long");
+        authAttempts.check(ip,name,now());
+        String uid=null,hash="";
+        synchronized(this){for(JsonNode u:table("users"))if(u.path("username").asText().equalsIgnoreCase(name.trim())){uid=u.path("id").asText();hash=u.path("passwordHash").asText();break;}}
+        boolean valid;authAttempts.acquire();try{valid=verifyPassword.test(password,hash);}finally{authAttempts.release();}
+        synchronized(this){
+            ObjectNode u=uid==null?null:(ObjectNode)table("users").get(uid);
+            require(valid&&u!=null&&hash.equals(u.path("passwordHash").asText()),401,"Name or password did not match");
+            String selected=u.path("lastWorld").asText("public");String issued=issueSession(token,u,selected);store.save();return new AuthResult(issued,publicUser(u));
+        }
     }
     synchronized ObjectNode logout(String token) {if(token!=null) table("sessions").remove(token);store.save();return object().put("ok",true);}
     ObjectNode clock(ObjectNode world) {

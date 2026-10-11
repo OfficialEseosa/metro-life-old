@@ -1,3 +1,4 @@
+import { serverNow, syncServerTime } from './server-time'
 import { create } from 'zustand'
 import { api, connectSocket } from './api/client'
 import type {
@@ -40,6 +41,7 @@ export type Panel =
 export type CityData = 'daily' | 'mayor' | 'plots' | 'billboards' | 'homes' | 'players' | 'chat'
 
 type State = {
+  acting: boolean
   ready: boolean
   loadError: string | null
   // static content
@@ -118,6 +120,7 @@ export const useStore = create<State>((set, get) => {
     switch (e.type) {
       case 'hello':
       case 'clock':
+        syncServerTime(e.clock.at)
         set({ clock: e.clock })
         break
       case 'presence':
@@ -144,6 +147,7 @@ export const useStore = create<State>((set, get) => {
   }
 
   return {
+    acting: false,
     ready: false,
     loadError: null,
     world: null,
@@ -226,12 +230,12 @@ export const useStore = create<State>((set, get) => {
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {
       if(resultTimer)clearTimeout(resultTimer);resultTimer=null
-      const wait=(lastResult?.busyUntil??0)-Date.now(),worldId=get().sim?.worldId,sourceCity=get().sim?.city
+      const wait=(lastResult?.busyUntil??0)-serverNow(),worldId=get().sim?.worldId,sourceCity=get().sim?.city
       if(lastResult&&wait>0){
         set({lastResult:null,rewardAnchor:null})
         const complete=async()=>{if(get().sim?.worldId!==worldId)return;try{
           const r=await api.sim();if(get().sim?.worldId!==worldId)return
-          if(r.sim.busyUntil&&r.sim.busyUntil>Date.now()){resultTimer=setTimeout(()=>void complete(),150);return}
+          if(r.sim.busyUntil&&r.sim.busyUntil>serverNow()){resultTimer=setTimeout(()=>void complete(),150);return}
           set({sim:r.sim,clock:r.clock,lastResult,rewardAnchor:null})
           if(r.sim.city!==sourceCity){await get().setCity(r.sim.city);get().selectLocation(r.sim.loc);get().setFocus(r.sim.loc)}
           resultTimer=null
