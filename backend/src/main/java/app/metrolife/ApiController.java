@@ -35,6 +35,10 @@ public class ApiController {
     @GetMapping("/jobs") ObjectNode jobs(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.jobs(token,game.defaultCity(token,city));}
     @PostMapping("/jobs/apply") ObjectNode apply(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.applyJob(token,body);}
     @PostMapping("/jobs/quit") ObjectNode quit(@CookieValue(name="ml_session",required=false)String token){return game.quitJob(token);}
+    @GetMapping("/players") ObjectNode players(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.players(token,game.defaultCity(token,city));}
+    @GetMapping("/chat") ObjectNode chat(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.chat(token,game.defaultCity(token,city));}
+    @PostMapping("/chat") ObjectNode say(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.say(token,body);}
+    @PostMapping("/social") ObjectNode social(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.social(token,body);}
     @GetMapping("/mayor") ObjectNode mayor(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.mayor(token,game.defaultCity(token,city));}
     @PostMapping("/mayor/{kind:vote|run|policy|announce}") ObjectNode civic(@PathVariable String kind,@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.mayorAction(token,kind,body);}
     @GetMapping("/plots") ObjectNode plots(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.plots(token,game.defaultCity(token,city));}

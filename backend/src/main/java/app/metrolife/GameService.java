@@ -15,10 +15,10 @@ public class GameService {
     final ObjectMapper mapper;
     final Progression progression;
     final Stories stories;
-    final Civic civic;final Property property;
+    final Civic civic;final Property property;final Community community;
     LongSupplier time = System::currentTimeMillis;
     private final SecureRandom random = new SecureRandom();
-    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this); }
+    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this);this.community=new Community(this); }
     long now() { return time.getAsLong(); }
     ObjectNode object() { return mapper.createObjectNode(); }
     ObjectNode table(String name) { return (ObjectNode)store.data.get(name); }
@@ -90,7 +90,7 @@ public class GameService {
     ObjectNode worldInfo(ObjectNode w) {
         ObjectNode result=w.deepCopy();result.remove(List.of("members","startedAt"));int count=0;
         for(JsonNode s:table("sims")) if(s.path("worldId").equals(w.get("id"))) count++;
-        return result.put("players",count).put("online",0);
+        return result.put("players",count+community.residents().path(w.path("id").asText()).size()).put("online",community.onlineCount(w.path("id").asText()));
     }
     synchronized ObjectNode me(String token) {
         ObjectNode session=session(token,false),w=world(session),out=object().put("now",now());out.set("clock",clock(w));
@@ -128,7 +128,7 @@ public class GameService {
         require(w!=null&&belongs(w,session.path("userId").asText()),403,"Join this world with its private code first");select(session,w);store.save();
         ObjectNode out=object();out.set("world",worldInfo(w));ObjectNode s=(ObjectNode)table("sims").get(simKey(session));if(s==null)out.putNull("sim");else {decay(s,w);out.set("sim",publicSim(s));store.save();}return out;
     }
-    ObjectNode publicSim(ObjectNode s) {ObjectNode copy=s.deepCopy();if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
+    ObjectNode publicSim(ObjectNode s) {ObjectNode copy=s.deepCopy();if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
     String friendlyName(){
         String[] first={"Avery","Riley","Jordan","Casey","Morgan","Taylor","Alex","Jamie","Quinn","Rowan","Sage","Skyler","Reese","Parker","Cameron","Blair"};
         String[] last={"Brooks","Vale","Reed","Lane","Park","Ellis","Hayes","Quill","Blake","Bell","Stone","Wells","Banks","Hill","West","Hart"};
@@ -271,5 +271,9 @@ public class GameService {
     synchronized ObjectNode moveHome(String token,JsonNode body){return property.move(token,body);}
     synchronized byte[] atlas(String token,String city,String world){return property.atlas(token,city,world);}
     synchronized byte[] art(String token,String kind,String id){return property.art(token,kind,id);}
+    synchronized ObjectNode players(String token,String city){return community.players(world(session(token,false)),city);}
+    synchronized ObjectNode chat(String token,String city){return community.chat(token,city);}
+    synchronized ObjectNode say(String token,JsonNode body){return community.say(token,body);}
+    synchronized ObjectNode social(String token,JsonNode body){return community.social(token,body);}
     static boolean containsEmoji(String s){return s.codePoints().anyMatch(cp->cp>=0x1F000||cp>=0x2600&&cp<=0x27BF||cp==0xFE0F||cp==0x200D);}
 }

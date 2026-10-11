@@ -1,0 +1,35 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "presence": true,
+      "movement": true,
+      "chat": true,
+      "cityWorldFiltering": true,
+      "waveGift": true,
+      "npcMovement": true,
+      "liveVote": true,
+      "reloadDedup": true,
+      "disconnectExpiry": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "presence": true,
+      "movement": true,
+      "chat": true,
+      "cityWorldFiltering": true,
+      "waveGift": true,
+      "npcMovement": true,
+      "liveVote": true,
+      "reloadDedup": true,
+      "disconnectExpiry": true
+    }
+  ],
+  "errors": []
+}

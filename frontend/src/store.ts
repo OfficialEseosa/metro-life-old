@@ -50,6 +50,7 @@ type State = {
   sim: Sim | null
   clock: Clock | null
   stats: Stats | null
+  socialNotice: string
   connected: boolean
   // the city map being looked at (may differ from sim.city)
   city: CityId
@@ -108,7 +109,8 @@ let resultTimer:ReturnType<typeof setTimeout>|null=null
 let panelTrigger:HTMLElement|null=null
 export const getPanelTrigger=()=>panelTrigger
 function rememberTrigger(){const active=document.activeElement;if(active instanceof HTMLElement&&active.matches('button')&&!active.closest('.sheet'))panelTrigger=active}
-const realtimeEnabled = false
+const realtimeEnabled = true
+let socketEpoch=0
 
 export const useStore = create<State>((set, get) => {
   const onEvent = (e: ServerEvent) => {
@@ -122,19 +124,22 @@ export const useStore = create<State>((set, get) => {
         if (e.city === city) set({ players: e.players })
         break
       case 'chat':
-        if (e.message.city === city) set({ chat: [...get().chat.slice(-99), e.message] })
+        if (e.message.city === city&&!get().chat.some(m=>m.id===e.message.id)) set({ chat: [...get().chat.slice(-49), e.message] })
         break
       case 'event':
-        if (e.city === city && e.kind !== 'story') void get().refresh(e.kind)
+        if(e.kind==='story'){const wid=get().worldInfo?.id;void api.sim().then(r=>{if(get().worldInfo?.id===wid){const travelled=r.sim.city!==get().sim?.city;set({sim:r.sim,clock:r.clock});if(travelled){void get().setCity(r.sim.city);get().selectLocation(r.sim.loc);get().setFocus(r.sim.loc)}}}).catch(()=>{});if(e.text)set({socialNotice:e.text})}else if(e.city===city)void get().refresh(e.kind)
         break
     }
   }
 
   const reconnect = () => {
     socket?.close()
-    socket = connectSocket(onEvent, (connected) => {
+    const epoch=++socketEpoch
+    if(!get().user){socket=null;set({connected:false});return}
+    socket = connectSocket(e=>{if(epoch===socketEpoch)onEvent(e)}, (connected) => {
+      if(epoch!==socketEpoch)return
       set({ connected })
-      if (connected) socket?.send({ type: 'view', city: get().city })
+      if (connected){socket?.send({ type: 'view', city: get().city });void get().refresh('players','chat','mayor','plots','billboards','homes')}
     })
   }
 
@@ -148,6 +153,7 @@ export const useStore = create<State>((set, get) => {
     clock: null,
     stats: null,
     connected: false,
+    socialNotice: '',
     city: 'atl',
     sceneTheme: 'auto',
     mapLens: 'all',setMapLens:mapLens=>set({mapLens}),
@@ -180,7 +186,7 @@ export const useStore = create<State>((set, get) => {
     syncSession: async () => {
       const me = await safe(api.me())
       const city = me?.sim?.city ?? get().city
-      set({ user: me?.user ?? null, worldInfo: me?.world ?? null, sim: me?.sim ?? null, clock: me?.clock ?? null, city, mayor:null,plots:null,billboards:null,homes:null,plotSelection:null })
+      set({ user: me?.user ?? null, worldInfo: me?.world ?? null, sim: me?.sim ?? null, clock: me?.clock ?? null, city,players:[],chat:[],socialNotice:'', mayor:null,plots:null,billboards:null,homes:null,plotSelection:null })
       // Civic and live resources become available in M6/M7; do not poll absent routes.
       if (realtimeEnabled) reconnect()
       await get().refresh('daily','mayor','plots','billboards')

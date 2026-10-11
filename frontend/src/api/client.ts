@@ -123,8 +123,8 @@ export function connectSocket(onEvent: (e: ServerEvent) => void, onStatus?: (ope
       }
     }
     ws.onclose = () => {
-      onStatus?.(false)
       if (closed) return
+      onStatus?.(false)
       retry = Math.min(retry + 1, 6)
       timer = setTimeout(open, 500 * 2 ** retry)
     }

@@ -98,7 +98,23 @@ plots grid `cols x rows` cells with origin top-left, x right, y down).
   to midnight; smallbiz adds 5% work pay; arts extends culture hours to midnight and removes after-18:00
   non-job costs; housing cuts daily rent by 20%; nightlife extends hours to 04:00. Announcements are plain
   text, 3–140 characters, without links, at most once per game hour.
-- **Social**: at the same landmark you can wave, hang out (+social for both) or gift cash. City chat per world.
+- **Social**: both residents must be at the same location in the same city/world and free of activities or
+  story choices. Human targets must be online. Wave gives both +3 Social; hang out gives both +15, capped
+  at 100. Gifts transfer an integer $1–$500 with matching income/spending ledger entries. A sender waits
+  three seconds between social actions. Private cooldown and notification fields never enter the public sim.
+- **Presence and chat**: authenticated sockets are bound to their selected world and close on logout or
+  world switch. Online seats expire after 12 seconds without a live socket; multiple tabs count once.
+  Viewed-city presence includes offline human residents and NPCs; the HUD shows online humans plus NPCs.
+  City chat retains the last 50 messages per world/city across restart. Sending requires physically being
+  in that city, 1–240 plain-text characters, and a 1.5-second send cooldown. Reconnect refetches resources
+  and deduplicates chat IDs. Socket writes run outside the simulation lock with bounded per-client queues.
+- **City residents**: each world lazily seeds 40 residents per city in solo mode, 20 in private mode and
+  10 in public mode. Synthetic residents have one authoritative location and persistent cash/home/needs.
+  Active worlds simulate movement every 45–96 seconds after staggered initial departures. Residents use
+  a limited activity routine, rather than the full human career/story loop. Up to three residents per city
+  vote once per term when a human candidate exists; up to two lease one-cell plots. They do not run for
+  office or buy billboards. At most one synthetic chat message per city every two real minutes. Worlds
+  stop simulating five minutes after their last read/live connection; no offline simulation catch-up.
 - **Plots**: rectangles of 1–12 cells in each dimension, $35 per cell for seven game days, with atomic
   bounds/overlap validation. One generated atlas PNG per city/world; no per-cell meshes or image requests.
   Booking is immediate under the server lock, so `holds` is empty. Titles use 3–48 plain-text characters;
@@ -151,11 +167,11 @@ Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl
 | POST | `/api/mayor/announce` | mayor only `{ city, text }` → `MayorState` |
 | GET | `/api/plots?city` | `{ ads: PlotAd[], holds: Rect[], price, days, cols, rows, atlas, atlasCell }` |
 | POST | `/api/plots` | `{ city, x, y, w, h, title, link }` → `{ ad, sim }` (409 overlap, 402 no cash) |
-| GET | `/api/plots/{id}/image` | PNG placeholder art |
+| GET | `/api/plots/{id}/image` | PNG generated poster art |
 | GET | `/api/plots/atlas.png?city&world&v` | one PNG of the whole grid, `atlasCell` px per cell, `cols*atlasCell` x `rows*atlasCell` |
 | GET | `/api/billboards?city` | `{ days, price, slots: [{ slot, ad: BillboardAd|null, queue: number, freeFrom }] }` |
 | POST | `/api/billboards` | `{ city, slot, title, link }` → `{ ad, sim }` |
-| GET | `/api/billboards/{id}/image` | PNG placeholder art (16:9) |
+| GET | `/api/billboards/{id}/image` | PNG generated poster art (16:9) |
 | GET | `/api/homes?city` | `{ homes: Home[], total }` |
 
 **WebSocket** `GET /ws` (same cookie). Plain JSON text frames.
