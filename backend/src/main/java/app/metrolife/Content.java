@@ -48,6 +48,8 @@ public class Content {
                 ObjectNode row=levels.addObject().put("level",level).put("title",titles[t][level-1]).put("city","atl").put("loc",workplaces[t]).put("payPerHour",75+level*45).put("shiftsToPromote",3+level);
                 row.putObject("requires").putObject("skills").put(careerSkills[t],(level-1)*2);
             }
+            ObjectNode shift=action("shift-"+TRACKS[t],"Work a shift","work","briefcase",60,0,120,Map.of("energy",-10,"hunger",-7,"fun",-3),Map.of(careerSkills[t],25));
+            shift.putObject("requires").put("job",TRACKS[t]);ArrayNode workplaceActions=landmark("atl",workplaces[t]).withArray("actions");boolean existingShift=false;for(JsonNode existing:workplaceActions)if(existing.path("label").asText().equals("Work a shift")&&existing.path("requires").path("job").asText().equals(TRACKS[t]))existingShift=true;if(!existingShift)workplaceActions.add(shift);
         }
         ArrayNode aspirations=world.putArray("aspirations");
         for(int i=0;i<ASPIRATIONS.length;i++) {

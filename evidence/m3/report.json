@@ -1,0 +1,373 @@
+{
+  "runs": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "secondsToPay": 4.787,
+      "cashBefore": 2500,
+      "cashAfter": 2665,
+      "job": "Support Associate",
+      "meters": 4,
+      "overflow": {
+        "body": false,
+        "panels": [
+          {
+            "left": 28,
+            "right": 1252,
+            "top": 18,
+            "bottom": 84
+          },
+          {
+            "left": 470,
+            "right": 810,
+            "top": 697,
+            "bottom": 768
+          },
+          {
+            "left": 872,
+            "right": 1252,
+            "top": 108,
+            "bottom": 704
+          }
+        ]
+      },
+      "sim": {
+        "userId": "1cd79c49-f989-4955-b17d-fa7a26d31441",
+        "worldId": "8ed9b58c-e4c8-4efd-b8ae-11918b521aab",
+        "username": "Morgan Stone",
+        "city": "atl",
+        "loc": "techVillage",
+        "cash": 2665,
+        "xp": 40,
+        "level": 1,
+        "xpNext": 100,
+        "mood": "great",
+        "setupDone": true,
+        "look": {
+          "body": "f",
+          "skin": "#b47752",
+          "hair": "curly",
+          "hairColor": "#302820",
+          "top": "#326957",
+          "bottom": "#313c4b",
+          "style": "casual",
+          "shoeColor": "#f4eddf"
+        },
+        "home": {
+          "city": "atl",
+          "neighborhood": "midtown",
+          "rent": 65
+        },
+        "needs": {
+          "energy": 75,
+          "hunger": 77.9,
+          "fun": 82,
+          "social": 85
+        },
+        "skills": {
+          "fitness": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "cooking": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "music": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "tech": {
+            "level": 0,
+            "xp": 25,
+            "next": 100
+          },
+          "charisma": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "creativity": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "business": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          }
+        },
+        "job": {
+          "level": 1,
+          "title": "Support Associate",
+          "city": "atl",
+          "loc": "techVillage",
+          "payPerHour": 120,
+          "shiftsToPromote": 4,
+          "requires": {
+            "skills": {
+              "tech": 0
+            }
+          },
+          "id": "tech-1",
+          "track": "tech",
+          "shifts": 1
+        },
+        "busyUntil": 1791693052181,
+        "busyLabel": "Work a shift",
+        "pendingBeat": null,
+        "visited": [
+          "home",
+          "techVillage"
+        ],
+        "aspiration": {
+          "id": "founder",
+          "label": "Startup Founder",
+          "step": 0,
+          "total": 6,
+          "current": {
+            "id": "founder-0",
+            "text": "Explore three places",
+            "reward": {
+              "cash": 150,
+              "xp": 50
+            }
+          }
+        },
+        "daily": [
+          {
+            "id": "explore",
+            "text": "Visit three places",
+            "icon": "map-pin",
+            "progress": 1,
+            "target": 3,
+            "done": false,
+            "reward": {
+              "cash": 45,
+              "xp": 25
+            }
+          },
+          {
+            "id": "work",
+            "text": "Earn money from an activity",
+            "icon": "briefcase",
+            "progress": 1,
+            "target": 1,
+            "done": true,
+            "reward": {
+              "cash": 45,
+              "xp": 25
+            }
+          },
+          {
+            "id": "cook",
+            "text": "Cook a meal at home",
+            "icon": "cooking-pot",
+            "progress": 0,
+            "target": 1,
+            "done": false,
+            "reward": {
+              "cash": 45,
+              "xp": 25
+            }
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "secondsToPay": 3.476,
+      "cashBefore": 2500,
+      "cashAfter": 2665,
+      "job": "Support Associate",
+      "meters": 4,
+      "overflow": {
+        "body": false,
+        "panels": [
+          {
+            "left": 12,
+            "right": 363,
+            "top": 12,
+            "bottom": 117.5
+          },
+          {
+            "left": 12,
+            "right": 363,
+            "top": 722,
+            "bottom": 788
+          },
+          {
+            "left": 12,
+            "right": 363,
+            "top": 159,
+            "bottom": 718
+          }
+        ]
+      },
+      "sim": {
+        "userId": "14aa1ba7-5c6a-481e-8406-5b9d0832c65a",
+        "worldId": "bad8358f-d265-4296-981f-ba8d0351581b",
+        "username": "Sage Blake",
+        "city": "atl",
+        "loc": "techVillage",
+        "cash": 2665,
+        "xp": 40,
+        "level": 1,
+        "xpNext": 100,
+        "mood": "great",
+        "setupDone": true,
+        "look": {
+          "body": "f",
+          "skin": "#b47752",
+          "hair": "curly",
+          "hairColor": "#302820",
+          "top": "#326957",
+          "bottom": "#313c4b",
+          "style": "casual",
+          "shoeColor": "#f4eddf"
+        },
+        "home": {
+          "city": "atl",
+          "neighborhood": "midtown",
+          "rent": 65
+        },
+        "needs": {
+          "energy": 75,
+          "hunger": 78,
+          "fun": 82,
+          "social": 85
+        },
+        "skills": {
+          "fitness": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "cooking": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "music": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "tech": {
+            "level": 0,
+            "xp": 25,
+            "next": 100
+          },
+          "charisma": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "creativity": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          },
+          "business": {
+            "level": 0,
+            "xp": 0,
+            "next": 100
+          }
+        },
+        "job": {
+          "level": 1,
+          "title": "Support Associate",
+          "city": "atl",
+          "loc": "techVillage",
+          "payPerHour": 120,
+          "shiftsToPromote": 4,
+          "requires": {
+            "skills": {
+              "tech": 0
+            }
+          },
+          "id": "tech-1",
+          "track": "tech",
+          "shifts": 1
+        },
+        "busyUntil": 1791693063021,
+        "busyLabel": "Work a shift",
+        "pendingBeat": null,
+        "visited": [
+          "home",
+          "techVillage"
+        ],
+        "aspiration": {
+          "id": "founder",
+          "label": "Startup Founder",
+          "step": 0,
+          "total": 6,
+          "current": {
+            "id": "founder-0",
+            "text": "Explore three places",
+            "reward": {
+              "cash": 150,
+              "xp": 50
+            }
+          }
+        },
+        "daily": [
+          {
+            "id": "explore",
+            "text": "Visit three places",
+            "icon": "map-pin",
+            "progress": 1,
+            "target": 3,
+            "done": false,
+            "reward": {
+              "cash": 45,
+              "xp": 25
+            }
+          },
+          {
+            "id": "work",
+            "text": "Earn money from an activity",
+            "icon": "briefcase",
+            "progress": 1,
+            "target": 1,
+            "done": true,
+            "reward": {
+              "cash": 45,
+              "xp": 25
+            }
+          },
+          {
+            "id": "cook",
+            "text": "Cook a meal at home",
+            "icon": "cooking-pot",
+            "progress": 0,
+            "target": 1,
+            "done": false,
+            "reward": {
+              "cash": 45,
+              "xp": 25
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "privateWorld": {
+    "sameWorld": true,
+    "separateUsers": true,
+    "invalidCodeRejected": true
+  },
+  "expectedErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}

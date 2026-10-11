@@ -48,7 +48,7 @@ Final measurements: 31 calls without pins / 32 with pins, 158,694 triangles; 59.
 | ponce | Yes | Brick window grid, central tower, rooftop midway and water tank identify the market. |
 | krog | No | Industrial roofs and mural tunnel suggest Krog; the hall alone is not an unmistakable exact building. |
 | fox | Yes | Striped masonry, minarets, copper dome and marquee remain visible on phone after camera rework. |
-| high | Yes | White quadrant atrium, adjoining gridded wings and skylights distinguish the museum in context. |
+| high | No | White quadrant atrium, panelled wings and skylights suggest Meier, but the missing glazed atrium and compressed proportions prevent confident immediate naming. |
 | gatech | Yes | Tech Tower with steep roof and historic brick gables is distinctive. |
 | gsu | No | Downtown glass corner and academic block are too general to name the campus within a second. |
 | techVillage | No | Ribbons and orange entry match the intended office, but the architecture is not unique enough without signage. |
@@ -61,3 +61,9 @@ Final measurements: 31 calls without pins / 32 with pins, 158,694 triangles; 59.
 | atlAirport | Yes | Parallel concourses, long runways and control tower identify Hartsfield-Jackson in Atlanta context. |
 
 Every initial weak model was reworked through the allowed three rounds. Remaining "no" entries are explicit exceptions to the recognition target, not claims of completion at commercial art quality. Further architecture work would most benefit Grady, GSU, Lenox and the arena.
+
+### M3 focused audit correction
+
+Independent M2 findings prompted targeted fixes after the three full rounds: taller Ponce sign tower (4,800 triangles), vertical FOX sign (4,060), TECH letters, white High panel grid and rectangular skylights, fan-shaped Truist tiers with diamond/base paths/outfield wall, continuous city-wide BeltLine, and three distinct downtown skyline silhouettes. Targeted images are in evidence/m3/m2-audit. Fox now remains fully visible between nearby towers. High verdict revised to No above: the independent finding was fair, and the corrected facade still does not earn a confident Yes. Truist reads as baseball but remains No for exact stadium; Piedmont remains No despite skyline framing. Ponce, Fox and Tech retain Yes in the Atlanta map context. These judgments are visual self-review, not a recognition study.
+
+Scene audit measurements supersede the older M2 performance figures: 34–35 normal calls, 118,125 day / 128,877 night triangles; sampled static shadow refresh peak 61 calls / 217,272 triangles. Phone overview now contains all sites with decluttered pins; far fog reduced, night is blue with lit windows and street glows. Final night-phone and Fox captures were inspected after fixing sky background ordering and skyline occlusion.

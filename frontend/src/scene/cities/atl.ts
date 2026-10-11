@@ -6,7 +6,7 @@ export const atlSites: Record<string, Site> = {
   centennial: { x: -12, z: 8, size: 14, height: 1 },
   piedmont: { x: 20, z: -35, size: 24, height: 3 },
   beltline: { x: 39, z: -9, size: 20, height: 3 },
-  ponce: { x: 27, z: -17, size: 17, height: 8 },
+  ponce: { x: 27, z: -17, size: 17, height: 11 },
   krog: { x: 35, z: 13, size: 12, height: 3 },
   fox: { x: 0, z: -17, size: 12, height: 9 },
   high: { x: 0, z: -37, size: 12, height: 7 },

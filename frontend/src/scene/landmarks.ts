@@ -70,13 +70,14 @@ export function landmarkGeometry(id: string) {
       break
     }
     case 'ponce': {
-      block(0, 0, 16, 6, 6.2, brick); block(0, -1, 4, 8, 4, brick)
+      block(0, 0, 16, 6, 6.2, brick); block(0, 0, 4.3, 11, 6.8, brick)
+      b.box(0,10.2,3.45,4.1,1.2,.12,'#e6d6b6').text(0,10.35,3.54,'PONCE',.16,'#784c3a').text(0,9.8,3.54,'CITY MARKET',.075,'#784c3a')
       for (let y = 1; y <= 6; y += 1.2) b.box(0, y, 0, 16.2, .12, 6.35, '#d3b797')
       for (let x = -7; x <= 7; x += 1.6) b.box(x, 3.1, 3.15, .18, 6, .18, '#b87654')
       b.box(0, .65, 3.4, 5.5, 1.3, .8, glass)
       for (let x = -5.7; x < -3; x += 1.8) for (let z = -1; z <= 1; z += 2) b.box(x, 7, z, .12, 2, .12, dark)
       b.cylinder(-4.8, 8.3, 0, 1.6, 1.7, '#737e74', 16).cylinder(-4.8, 9.3, 0, 1.7, .4, '#858b80', 16, 0)
-      b.torus(5.2, 7.8, 0, 1.3, .12, '#d3bb78'); b.box(5.2, 6.5, 0, .15, 2.5, .15, white)
+      b.box(5,6.4,0,3,.5,2,'#d2b68c').box(5,7.2,0,.2,1.4,.2,white)
       break
     }
     case 'krog': {
@@ -92,6 +93,7 @@ export function landmarkGeometry(id: string) {
       for (let y = .4; y < 5.6; y += .65) b.box(0, y, 3.55, 9.1, .18, .09, stone)
       for (let x = -3; x <= 3; x += 1.5) { door(x, 3.62, 1, 2.2); b.torus(x, 2.1, 3.7, .6, .12, stone, 0, Math.PI) }
       b.box(0, 2.6, 4.3, 5, .45, 1.7, '#c8ab66').box(0, 3.1, 4.75, 2.6, .6, .12, '#e7ce8b')
+      b.box(-2.6,4.5,3.8,.9,4.1,.3,'#78423a');for(let i=0;i<3;i++)b.text(-2.6,5.7-i*1.15,4,'FOX'[i],.16,'#f6e5bd')
       b.cylinder(2.7, 5.9, -.5, 1.6, .8, stone)
       const onion = new THREE.LatheGeometry([new THREE.Vector2(0, 0), new THREE.Vector2(1.5, .1), new THREE.Vector2(1.85, 1), new THREE.Vector2(1.2, 1.8), new THREE.Vector2(.15, 2.6), new THREE.Vector2(0, 2.8)], 20)
       b.add(onion, copper, 2.7, 6.2, -.5)
@@ -102,20 +104,21 @@ export function landmarkGeometry(id: string) {
       break
     }
     case 'high': {
-      b.box(2, 2, -1, 6, 4, 7, white).box(-3, 1.5, -1, 4, 3, 5, white)
-      b.add(new THREE.CylinderGeometry(3, 3, 6.3, 24, 1, false, 0, Math.PI / 2), white, -1, 3.15, 2)
+      b.box(2, 2, -1, 6, 4, 7, '#ffffff').box(-3, 1.5, -1, 4, 3, 5, '#ffffff')
+      b.add(new THREE.CylinderGeometry(3, 3, 6.3, 24, 1, false, 0, Math.PI / 2), '#ffffff', -1, 3.15, 2)
       b.box(0, 2.6, 3.4, 3, 5.2, .15, '#a8c2bf').box(1.6, 2.8, 3.55, .18, 5.6, .18, white)
       for(let i=0;i<9;i++){const a=i*Math.PI/18;const x=-1+Math.sin(a)*3.02,z=2+Math.cos(a)*3.02;b.box(x,2.7,z,.08,5.4,.08,'#c4d3ca',a)}
       b.line([-6, .2, 5], [-1, 2.3, 3.5], .3, stone)
-      for (let x = 0; x < 5; x++) for (let z = -3; z < 2; z++) b.cylinder(x, 4.3, z, .28, .5, '#e1e5df', 8)
-      for (let y = 1; y < 4; y++) b.box(2, y, 2.55, 6, .06, .04, '#c1ccc6')
+      for (let x = 0; x < 5; x++) for (let z = -3; z < 2; z++) b.box(x,4.1,z,.6,.18,.75,'#d9e3e8')
+      for (let y = .5; y < 4; y+=.75) b.box(2, y, 2.55, 6, .035, .04, '#bfcbd2')
+      for(let x=-1;x<5;x+=.8)b.box(x,2,2.55,.035,4,.04,'#bfcbd2')
       break
     }
     case 'gatech': {
       block(0, 0, 9, 3.6, 5, brick); b.roof(0, 3.7, 0, 9.5, 2, 5.3, '#59616a')
       block(0, 1.4, 2.4, 7.5, 2.4, brick); b.roof(0, 7.6, 1.4, 2.8, 2.7, 2.8, '#4d5a62')
       for (const x of [-1.25, 1.25]) for (const z of [.15, 2.65]) b.cylinder(x, 8, z, .2, 1.2, stone, 6, 0)
-      b.box(0, 6.5, 2.65, 1.5, .55, .04, '#e1ca75');door(0, 2.65)
+      b.box(0, 6.5, 2.65, 2, .7, .04, '#4c5050').text(0,6.5,2.72,'TECH',.11,'#f2d881');door(0, 2.65)
       break
     }
     case 'gsu': {
@@ -160,11 +163,14 @@ export function landmarkGeometry(id: string) {
       for(let i=0;i<4;i++)b.box(3+i*.6,1.5,2.03,.3,1,.05,['#bb7378','#70a2a1','#dbba65','#77749b'][i]);break
     }
     case 'truist': {
-      b.cylinder(0, .12, 0, 9, .24, '#6b9255', 32)
-      for(let tier=0;tier<3;tier++) {
-        const g=new THREE.TorusGeometry(7.7+tier*.5,.5,5,28,Math.PI*1.45);g.rotateX(Math.PI/2);g.rotateY(Math.PI*.3);b.add(g,'#4c666a',0,1+tier*.6)
-      }
-      b.box(0, .3, 3, 4, .1, 4, '#c9a57a', Math.PI / 4).box(0,.36,3,2.6,.05,2.6,'#82a25d',Math.PI/4)
+      const field=new THREE.Shape().moveTo(-7,-5).lineTo(7,-5).lineTo(7,2).lineTo(0,7).lineTo(-7,2).closePath();b.add(new THREE.ShapeGeometry(field),'#6f9959',0,.15,0,-Math.PI/2,Math.PI)
+      const edge=[[-8,-5],[-8.5,1],[-6.5,5],[0,8],[6.5,5],[8.5,1],[8,-5]]
+      for(let tier=0;tier<4;tier++)for(let i=1;i<edge.length;i++){const outer=1+tier*.09,inner=outer-.08,a=edge[i-1],c=edge[i],y=.5+tier*.6;b.triangle([a[0]*inner,y,a[1]*inner,c[0]*inner,y,c[1]*inner,c[0]*outer,y,c[1]*outer,a[0]*inner,y,a[1]*inner,c[0]*outer,y,c[1]*outer,a[0]*outer,y,a[1]*outer],'#647985',true);b.line([a[0]*outer,y,a[1]*outer],[c[0]*outer,y,c[1]*outer],.045,'#c3c9c8')}
+      b.box(0,1,-5.1,15,1.8,.2,'#446249').box(4,2.7,-5.2,4.5,2,.25,dark)
+      b.box(0,.2,3,3.4,.1,3.4,'#c9a57a',Math.PI/4).box(0,.27,3,2.5,.03,2.5,'#80a05b',Math.PI/4)
+      for(const[x,z]of[[0,5.25],[-2.25,3],[0,.75],[2.25,3]])b.box(x,.31,z,.32,.06,.32,white,Math.PI/4)
+      for(const[a,c]of[[[0,5.25],[-2.25,3]],[[-2.25,3],[0,.75]],[[0,.75],[2.25,3]],[[2.25,3],[0,5.25]]])b.line([a[0],.32,a[1]],[c[0],.32,c[1]],.025,white)
+      b.cylinder(0,.32,3,.3,.06,'#c9a57a',12)
       for (const x of [-6, 6]) {block(x, 5.5, 2.3, 4, 2.3, brick);b.box(x,4.2,5.5,2.5,.2,2.5,stone)}
       for(const [x,z] of [[-8,-4],[8,-4],[-5,7],[5,7]])b.cylinder(x,3,z,.11,6,dark,6).box(x,6,z,2,.6,.3,white)
       break

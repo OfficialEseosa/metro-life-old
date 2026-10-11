@@ -99,7 +99,7 @@ Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl
 | POST | `/api/worlds` | `{ name, mode: "solo"|"private" }` → `{ world }` (and selects it) |
 | POST | `/api/worlds/join` | `{ code }` → `{ world }` |
 | POST | `/api/worlds/select` | `{ worldId }` → `{ world, sim: Sim|null }` |
-| POST | `/api/sim/setup` | `{ city, neighborhood, aspiration, look? }` → `{ sim }` (creates or re-configures the sim in the current world) |
+| POST | `/api/sim/setup` | `{ city, neighborhood, aspiration, look? }` → `{ sim }` (creates the sim once in the current world; existing sim returns 409, later home/aspiration changes use their dedicated endpoints) |
 | GET | `/api/sim` | `{ sim, clock }` (applies decay up to now) |
 | POST | `/api/act` | `{ city, loc, action }` → `{ sim, result: ActResult }` |
 | POST | `/api/story/choose` | `{ beatId, choice }` → `{ sim, outcome: StoryOutcome }` |

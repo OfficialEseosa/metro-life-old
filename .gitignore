@@ -9,3 +9,4 @@ test-results/
 .env
 evidence/**/*.cookies
 evidence/**/request.json
+evidence/rea-*-input/

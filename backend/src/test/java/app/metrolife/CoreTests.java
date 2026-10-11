@@ -77,4 +77,15 @@ class CoreTests {
         assertTrue(result.path("result").path("text").asText().contains("Energy +18"));assertTrue(result.path("result").path("text").asText().contains("Fun +12"));
         now+=12345;JsonNode rounded=game.getSim(token).path("sim").path("needs");for(String need:Content.NEEDS)assertEquals(Math.round(rounded.path(need).asDouble()*10),rounded.path(need).asDouble()*10,.00001);
     }
+    @Test void jobShiftRequiresHiringAndPaysAuthoritativeRate()throws Exception{
+        worldAndSim();assertEquals(40,game.jobs(token,"atl").path("jobs").size());
+        assertEquals(403,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"))).status);
+        assertEquals(403,assertThrows(ApiException.class,()->game.applyJob(token,json("{\"jobId\":\"tech-5\"}"))).status);
+        assertEquals(404,assertThrows(ApiException.class,()->game.applyJob(token,json("{\"jobId\":\"forged\"}"))).status);
+        JsonNode hired=game.applyJob(token,json("{\"jobId\":\"tech-1\"}"));assertTrue(hired.path("hired").asBoolean());assertEquals("techVillage",hired.path("sim").path("loc").asText());
+        JsonNode shift=game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"));assertEquals(2665,shift.path("sim").path("cash").asInt());assertEquals(1,shift.path("sim").path("job").path("shifts").asInt());
+        assertEquals(409,assertThrows(ApiException.class,()->game.quitJob(token)).status);now+=7000;assertTrue(game.quitJob(token).path("sim").path("job").isNull());
+        long healthShifts=java.util.stream.StreamSupport.stream(content.landmark("atl","grady").path("actions").spliterator(),false).filter(a->a.path("label").asText().equals("Work a shift")).count();assertEquals(1,healthShifts);
+        game.applyJob(token,json("{\"jobId\":\"health-1\"}"));JsonNode care=game.act(token,json("{\"city\":\"atl\",\"loc\":\"grady\",\"action\":\"a2\"}"));assertEquals(120,care.path("result").path("deltas").path("cash").asInt());
+    }
 }

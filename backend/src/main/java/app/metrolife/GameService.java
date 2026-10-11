@@ -165,6 +165,17 @@ public class GameService {
         requires.path("skills").fields().forEachRemaining(e->require(s.path("skills").path(e.getKey()).path("level").asInt()>=e.getValue().asInt(),403,"You need "+Content.title(e.getKey())+" "+e.getValue().asInt()));
         if(requires.has("job")) require(s.path("job").path("track").asText().equals(requires.path("job").asText()),403,"Apply for this job before working a shift");
     }
+    synchronized ObjectNode jobs(String token,String city){content.city(city);ObjectNode out=object();ArrayNode jobs=out.putArray("jobs");for(JsonNode career:content.world.path("careers"))for(JsonNode level:career.path("levels"))if(level.path("city").asText().equals(city)){ObjectNode job=((ObjectNode)level).deepCopy();job.put("id",career.path("track").asText()+"-"+level.path("level").asInt()).put("track",career.path("track").asText());job.remove("shiftsToPromote");jobs.add(job);}return out;}
+    synchronized ObjectNode applyJob(String token,JsonNode body){
+        ObjectNode session=session(token,true),s=sim(session);decay(s,world(session));require(s.path("busyUntil").isNull(),409,"Finish your activity before applying");
+        String jobId=body.path("jobId").asText();ObjectNode chosen=null;JsonNode careerChosen=null;
+        for(JsonNode career:content.world.path("careers"))for(JsonNode level:career.path("levels"))if((career.path("track").asText()+"-"+level.path("level").asInt()).equals(jobId)){chosen=((ObjectNode)level).deepCopy();careerChosen=career;}
+        require(chosen!=null,404,"That job is no longer listed");require(s.path("city").equals(chosen.get("city")),403,"Travel to this city before applying");requirements(s,chosen.path("requires"));
+        require(chosen.path("level").asInt()==1,403,"Apply for an entry role and earn promotions through shifts");
+        require(s.path("job").isNull(),409,"Leave your current role before accepting another");
+        chosen.put("id",jobId).put("track",careerChosen.path("track").asText()).put("shifts",0);s.set("job",chosen);s.put("loc",chosen.path("loc").asText());store.save();ObjectNode out=object().put("hired",true);out.set("sim",publicSim(s));return out;
+    }
+    synchronized ObjectNode quitJob(String token){ObjectNode session=session(token,true),s=sim(session);decay(s,world(session));require(s.path("busyUntil").isNull(),409,"Finish your shift before leaving your role");s.putNull("job");store.save();ObjectNode out=object();out.set("sim",publicSim(s));return out;}
     synchronized ObjectNode act(String token,JsonNode body) {
         ObjectNode session=session(token,true),s=sim(session),w=world(session);decay(s,w);
         String city=body.path("city").asText(),loc=body.path("loc").asText(),action=body.path("action").asText();content.city(city);
@@ -183,6 +194,7 @@ public class GameService {
         if(a.path("kind").asText().equals("work"))for(String need:Content.NEEDS)require(s.path("needs").path(need).asDouble()>0,409,"Take care of your needs before working");
         if(a.path("requires").has("job"))require(s.path("job").path("city").asText().equals(city)&&s.path("job").path("loc").asText().equals(loc),403,"Work at your own workplace");
         double cashBefore=s.path("cash").asDouble();int xpBefore=s.path("xp").asInt();
+        if(a.path("requires").has("job")){a=a.deepCopy();a.put("pay",s.path("job").path("payPerHour").asInt());s.withObject("job").put("shifts",s.path("job").path("shifts").asInt()+1);}
         boolean low=Set.of("rough","low").contains(s.path("mood").asText());double cashDelta=Math.floor(a.path("pay").asDouble()*(low?.7:1))-a.path("cost").asDouble();
         s.put("cash",s.path("cash").asDouble()+cashDelta);int xp=a.path("xp").asInt();s.put("xp",s.path("xp").asInt()+xp);int oldLevel=s.path("level").asInt();updateLevel(s);
         ObjectNode needDeltas=object(),skillDeltas=object();

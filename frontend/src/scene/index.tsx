@@ -11,17 +11,20 @@ import { Fabric } from './fabric'
 import { Pins } from './pins'
 
 declare global {
-  interface Window { __metroScene?: { focus: (id: string | null) => void; theme: (value: 'day' | 'night') => void; metrics: () => { calls: number; triangles: number; fps: number; p95Ms: number; renderer: string }; hidePins: (hidden: boolean) => void; project: (id: string) => { x: number; y: number }; geometry: () => Record<string, number> } }
+  interface Window { __metroScene?: { refreshShadows:()=>void; focus: (id: string | null) => void; theme: (value: 'day' | 'night') => void; metrics: () => { calls: number; triangles: number; fps: number; p95Ms: number; renderer: string }; hidePins: (hidden: boolean) => void; project: (id: string) => { x: number; y: number }; geometry: () => Record<string, number> } }
 }
 const noPick = () => {}
 const worldTarget = new THREE.Vector3(0, 0, 5)
+function Terrain({night}:{night:boolean}){const geometry=useMemo(()=>{const g=new THREE.PlaneGeometry(1200,1200,64,64),p=g.getAttribute('position');for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.hypot(x,z),rise=THREE.MathUtils.smoothstep(r,100,210)*(Math.sin(x*.022)*Math.cos(z*.019)*7+8);p.setZ(i,rise)}g.computeVertexNormals();return g},[]);return <mesh geometry={geometry} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><meshStandardMaterial color={night?'#647782':'#9bad86'} roughness={1}/></mesh>}
 
 function Sky({ night }: { night: boolean }) {
-  const material = useMemo(() => new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, uniforms: { top: { value: new THREE.Color() }, bottom: { value: new THREE.Color() } },
+  const ref=useRef<THREE.Mesh>(null)
+  const material = useMemo(() => new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, depthTest: false, uniforms: { top: { value: new THREE.Color() }, bottom: { value: new THREE.Color() } },
     vertexShader: 'varying vec3 vPosition;void main(){vPosition=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader: 'uniform vec3 top;uniform vec3 bottom;varying vec3 vPosition;void main(){float h=clamp(normalize(vPosition).y*1.7,0.,1.);gl_FragColor=vec4(mix(bottom,top,pow(h,.65)),1.);}' }), [])
-  useEffect(() => {material.uniforms.top.value.set(night ? '#112b43' : '#8eb8c5');material.uniforms.bottom.value.set(night ? '#77958e' : '#e5e5cb')}, [material, night])
-  return <mesh material={material} raycast={noPick}><sphereGeometry args={[450, 24, 16]} /></mesh>
+    fragmentShader: 'uniform vec3 top;uniform vec3 bottom;varying vec3 vPosition;void main(){vec3 dir=normalize(vPosition);float h=clamp(dir.y*1.7,0.,1.);vec3 col=mix(bottom,top,pow(h,.65));vec2 cell=floor(dir.xz/(abs(dir.y)+.3)*350.);float star=step(.9988,fract(sin(dot(cell,vec2(127.1,311.7)))*43758.5453))*smoothstep(.12,.3,h)*(1.-step(.08,top.r));gl_FragColor=vec4(col+star*.65,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}' }), [])
+  useEffect(() => {material.uniforms.top.value.set(night ? '#061428' : '#83b6d3');material.uniforms.bottom.value.set(night ? '#223752' : '#d7e0dd')}, [material, night])
+  useFrame(({camera})=>{ref.current?.position.copy(camera.position)})
+  return <mesh ref={ref} renderOrder={-1000} material={material} raycast={noPick} frustumCulled={false}><sphereGeometry args={[450, 24, 16]} /></mesh>
 }
 function Lake({ night }: { night: boolean }) {
   const mat = useMemo(() => new THREE.ShaderMaterial({ uniforms: { time: { value: 0 }, tint: { value: new THREE.Color() } },
@@ -43,10 +46,16 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   const destination = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)
   const [pinsHidden, setPinsHidden] = useState(false)
   const timings = useRef<number[]>([]), lastFrame = useRef(0)
+  useEffect(()=>{const perspective=camera as THREE.PerspectiveCamera;perspective.setViewOffset(size.width,size.height,0,size.width<600?size.height*.12:0,size.width,size.height);perspective.updateProjectionMatrix()},[camera,size.width,size.height])
   const overview = useCallback(() => {
-    const factor = size.width < 600 ? 1.35 : 1
-    return { eye: new THREE.Vector3(95 * factor, 108 * factor, 130 * factor), target: worldTarget.clone() }
-  }, [size.width])
+    const preview=(camera as THREE.PerspectiveCamera).clone(),target=worldTarget.clone();let factor=1
+    for(let attempt=0;attempt<30;attempt++){
+      preview.position.set(95*factor,108*factor,130*factor);preview.lookAt(target);preview.updateMatrixWorld(true)
+      const fits=Object.values(atlSites).every(s=>[-1,1].every(x=>[-1,1].every(z=>{const p=new THREE.Vector3(s.x+x*s.size*.5,s.height,s.z+z*s.size*.5).project(preview);return Math.abs(p.x)<.88&&Math.abs(p.y)<.77})))
+      if(fits)break;factor*=1.06
+    }
+    return {eye:preview.position.clone(),target}
+  }, [camera])
   const view = useCallback((id: string | null, immediate = false) => {
     const site = id ? atlSites[id] : null
     const distance = site ? Math.max(12, site.size * .95) * 1.3 * Math.max(1, .85 / (size.width / size.height)) : 0
@@ -54,6 +63,8 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
     if(site){
       // Pick an unobstructed approach, including nearby landmarks and tall instanced filler.
       const obstacles: THREE.Box3[]=[],matrix=new THREE.Matrix4(),instance=new THREE.Matrix4()
+      // The merged skyline contains three separate towers; avoid each footprint rather than its city-wide bounds.
+      for(const [x,y,z,w,h,d] of [[-7,16,-30,4.5,32,4.5],[-5,11,13,4.6,22,4.6],[11,11,-6,6,22,5]])obstacles.push(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(x,y,z),new THREE.Vector3(w,h,d)))
       scene.updateMatrixWorld(true)
       scene.traverse(object=>{
         if(!(object instanceof THREE.Mesh)||object.name===id)return
@@ -76,7 +87,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   }, [camera,invalidate,overview,scene,size.width,size.height])
   useEffect(() => {view(null,true)}, [view])
   useEffect(() => {if(focus){view(focus);useStore.getState().setFocus(null)}}, [focus,view])
-  useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=new THREE.Fog(night?'#6f8c86':'#d8dfc6',140,330);invalidate()}, [gl,scene,night,invalidate])
+  useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=new THREE.Fog(night?'#223752':'#d7e0dd',500,1100);invalidate()}, [gl,scene,night,invalidate])
   useEffect(() => {
     let frame=0
     const tick=()=>{if(!document.hidden)invalidate();frame=requestAnimationFrame(tick)}
@@ -85,27 +96,28 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   },[invalidate])
   useFrame((_,dt)=>{
     const time=performance.now();if(lastFrame.current&&time-lastFrame.current<250){timings.current.push(time-lastFrame.current);if(timings.current.length>300)timings.current.shift()}lastFrame.current=time
-    if(timings.current.length===300&&gl.getPixelRatio()>1&&timings.current.reduce((a,b)=>a+b,0)/300>23){setDpr(1);timings.current=[]}
+    if(timings.current.length===300&&gl.getPixelRatio()>1&&timings.current.reduce((a,b)=>a+b,0)/300>18.5){setDpr(1);timings.current=[]}
     const d=destination.current,c=controls.current
     if(d&&c){const t=1-Math.exp(-dt*7);camera.position.lerp(d.eye,t);c.target.lerp(d.target,t);c.update();if(camera.position.distanceTo(d.eye)<.03)destination.current=null;invalidate()}
   })
   useEffect(()=>{
     if(!import.meta.env.DEV)return
-    window.__metroScene={focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id) as THREE.Mesh;return[id,m.geometry.getAttribute('position').count/3]})),metrics:()=>{
+    window.__metroScene={refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id) as THREE.Mesh;return[id,m.geometry.getAttribute('position').count/3]})),metrics:()=>{
       const times=[...timings.current].sort((a,b)=>a-b),context=gl.getContext(),debug=context.getExtension('WEBGL_debug_renderer_info')
       return{calls:gl.info.render.calls,triangles:gl.info.render.triangles,fps:times.length?1000/(times.reduce((a,b)=>a+b,0)/times.length):0,p95Ms:times[Math.floor(times.length*.95)]??0,renderer:debug?context.getParameter(debug.UNMASKED_RENDERER_WEBGL):'unknown'}
     }}
     return()=>{delete window.__metroScene}
-  },[camera,gl,scene,size.width,size.height,view])
+  },[camera,gl,scene,size.width,size.height,view,invalidate])
   return <>
-    <Sky night={night}/><hemisphereLight args={[night?'#9fb9cd':'#f4f0d6',night?'#567968':'#879872',night?1.3:2.1]}/>
-    <directionalLight position={[-55,90,45]} intensity={night?.8:2.5} color={night?'#b0c6db':'#fff0cf'} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-100} shadow-camera-right={100} shadow-camera-top={100} shadow-camera-bottom={-100} shadow-camera-near={1} shadow-camera-far={230} shadow-bias={-.0003} shadow-normalBias={.12}/>
-    <mesh rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><planeGeometry args={[1000,1000]}/><meshStandardMaterial color={night?'#6c8a72':'#9eaf80'} roughness={1}/></mesh>
+    <Sky night={night}/><hemisphereLight args={[night?'#9bb0d1':'#d6e6ef',night?'#3a4d63':'#9da895',1.7]}/>
+    <directionalLight position={[-55,90,45]} intensity={night?.65:2.1} color={night?'#8aa7df':'#fffaf0'} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-100} shadow-camera-right={100} shadow-camera-top={100} shadow-camera-bottom={-100} shadow-camera-near={1} shadow-camera-far={230} shadow-bias={-.0003} shadow-normalBias={.12}/>
+    <mesh rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><planeGeometry args={[2000,2000]}/><meshStandardMaterial color={night?'#647782':'#9bad86'} roughness={1}/></mesh>
+    <Terrain night={night}/>
     <Fabric night={night}/><Architecture/><Lake night={night}/>{!pinsHidden&&<Pins onHover={onHover}/>}
-    <OrbitControls ref={controls} makeDefault target={worldTarget} minDistance={9} maxDistance={310} maxPolarAngle={1.25} minPolarAngle={.35} enableDamping dampingFactor={.12} screenSpacePanning={false} zoomSpeed={.7} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-75,75);c.target.z=THREE.MathUtils.clamp(c.target.z,-85,90)}invalidate()}}/>
+    <OrbitControls ref={controls} makeDefault target={worldTarget} minDistance={9} maxDistance={650} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null}} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-75,75);c.target.z=THREE.MathUtils.clamp(c.target.z,-85,90)}invalidate()}}/>
   </>
 }
 export default function CityScene() {
   const [hover,setHover]=useState<{name:string;x:number;y:number}|null>(null)
-  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[1,1.5]} camera={{position:[95,108,130],fov:40,near:.1,far:600}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Canvas>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
+  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[1,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Canvas>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
 }

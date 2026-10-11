@@ -24,10 +24,15 @@ export class Builder {
     const g = new THREE.ExtrudeGeometry(shape, { depth: d, bevelEnabled: false, steps: 1 }); return this.add(g, color, x, y, z - d / 2)
   }
   torus(x: number, y: number, z: number, r: number, tube: number, color: string, rx = 0, arc = Math.PI * 2) { return this.add(new THREE.TorusGeometry(r, tube, 5, 24, arc), color, x, y, z, rx) }
-  triangle(points: number[], color: string) { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(points, 3)); return this.add(g, color) }
+  triangle(points: number[], color: string, flip=false) {if(flip)for(let i=0;i<points.length;i+=9)for(let j=0;j<3;j++){const a=points[i+3+j];points[i+3+j]=points[i+6+j];points[i+6+j]=a}const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(points, 3)); return this.add(g, color) }
   line(a: number[], b: number[], width: number, color: string) {
     const start = new THREE.Vector3(...a), end = new THREE.Vector3(...b), delta = end.clone().sub(start)
     const g = new THREE.CylinderGeometry(width, width, delta.length(), 5); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.normalize())); return this.add(g, color, ...start.add(end).multiplyScalar(.5).toArray())
+  }
+  text(x:number,y:number,z:number,text:string,scale:number,color:string){
+    const glyphs:Record<string,string[]>={T:['111','010','010','010','010'],E:['111','100','110','100','111'],C:['111','100','100','100','111'],H:['101','101','111','101','101'],P:['110','101','110','100','100'],O:['111','101','101','101','111'],N:['101','111','111','111','101'],I:['111','010','010','010','111'],Y:['101','101','010','010','010'],M:['101','111','111','101','101'],A:['010','101','111','101','101'],R:['110','101','110','101','101'],K:['101','110','100','110','101'],F:['111','100','110','100','100'],X:['101','101','010','101','101'],' ':['000','000','000','000','000']}
+    for(let i=0;i<text.length;i++)for(let row=0;row<5;row++)for(let col=0;col<3;col++)if(glyphs[text[i]]?.[row][col]==='1')this.box(x+(i*4+col-text.length*2)*scale,y+(2-row)*scale,z,scale*.9,scale*.9,.04,color)
+    return this
   }
   windows(x: number, y: number, z: number, w: number, h: number, d: number, columns: number, rows: number, color = '#557984') {
     for (let row = 0; row < rows; row++) for (let col = 0; col < columns; col++) {

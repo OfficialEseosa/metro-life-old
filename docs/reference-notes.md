@@ -14,4 +14,10 @@ Initial REA graph failure is still the blocker to tracing; direct inspection of 
 
 Metro Life choices: bounded pan/zoom with optional orbit; city-specific spatial tables; merged vertex-colour landmark geometry; repeated trees/homes/lamps instanced; one icon-atlas pin batch with one hover label. Keep large landmarks and simplify filler, as the objective requires. Use a sky gradient, muted city greens, soft static shadows, lit windows and lake ripple. Keep camera animation separate from React HUD updates and suspend ambient invalidation in hidden tabs.
 
-M3–M7 studies will be added at each milestone start.
+## M3 — panels, needs, actions and onboarding
+
+Retried REA on an isolated copy of captured job/UI chunk 0nz0lvdmb76je.js to reduce the earlier graph scope. Tool returned `Transport closed` immediately; no graph or semantic trace was produced. Direct reads of 0nz0lvdmb76je.js, 2a6i2oyqx4umq.js, 2r7ird27h4onb.js, 1tnl62xgfe1fa.js, 3v9ahdlnp9txk.js and the game-state chunk used instead. Observed state-driven mutually exclusive panels, a separate job flow that closes the general panel, local activity queues/progress, mood/need-derived restrictions, tutorialStep in initial state, and result notices. This does not establish the original's complete onboarding sequence; minified dynamic bindings remain uncertain.
+
+Metro Life choices: one clear play entry, a compact world picker, one-page city/home/dream/look setup, and immediate direction to an entry-level job. Keep needs numeric with semantic meters and visible labels. Requirements and closed hours stay next to actions; busy time has a progress indicator and blocks duplicates. Results describe effects and remain dismissible. Server state replaces browser-calculated rewards, and a focus-managed story dialog presents pending choices. No source wording or visual icons copied.
+
+M4–M7 studies will be added at each milestone start.

@@ -39,6 +39,8 @@ export type Panel =
 export type CityData = 'daily' | 'mayor' | 'plots' | 'billboards' | 'homes' | 'players' | 'chat'
 
 type State = {
+  ready: boolean
+  loadError: string | null
   // static content
   world: World | null
   // session
@@ -86,6 +88,7 @@ type State = {
 
 const safe = <T,>(p: Promise<T>) => p.catch(() => null)
 let socket: ReturnType<typeof connectSocket> | null = null
+let loading: Promise<void> | null = null
 const realtimeEnabled = false
 
 export const useStore = create<State>((set, get) => {
@@ -117,6 +120,8 @@ export const useStore = create<State>((set, get) => {
   }
 
   return {
+    ready: false,
+    loadError: null,
     world: null,
     user: null,
     worldInfo: null,
@@ -140,10 +145,10 @@ export const useStore = create<State>((set, get) => {
     focus: null,
     lastResult: null,
 
-    load: async () => {
-      const [world, stats] = await Promise.all([safe(api.world()), safe(api.stats())])
-      set({ world, stats })
-      await get().syncSession()
+    load: () => {
+      if (loading) return loading
+      loading=(async()=>{try{const [world,stats]=await Promise.all([api.world(),api.stats()]);set({world,stats,loadError:null});await get().syncSession()}catch(error){set({loadError:error instanceof Error?error.message:'Could not reach the city. Try again.'})}finally{set({ready:true});loading=null}})()
+      return loading
     },
 
     syncSession: async () => {
