@@ -1,0 +1,86 @@
+[
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "capitol-street",
+      "url": "https://dor.georgia.gov/sites/dor.georgia.gov/files/styles/4_3_720px_x_540px_/public/2019-08/Georgia_State_Capitol%2C_Atlanta%2C_West_view_20160716_1.jpg?h=7abf95bd&itok=KpdAm4_q",
+      "file": "evidence/art-rebuild/references-atl/capitol-street.jpg"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "capitol-aerial",
+      "url": "https://bunny-wp-pullzone-cjamrcljf0.b-cdn.net/wp-content/uploads/2021/02/georgia-state-capitol_003-444x400.jpg",
+      "file": "evidence/art-rebuild/references-atl/capitol-aerial.jpg"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "fox-dome",
+      "url": "https://www.gpb.org/sites/default/files/styles/three_two_702x468/public/2024-01/foxoniondome.png?h=ddb1ad0c&itok=65zuxHDz",
+      "file": "evidence/art-rebuild/references-atl/fox-dome.jpg"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "fox-street",
+      "url": "https://cache.marriott.com/content/dam/marriott-renditions/ATLLE/atlle-local-area-view-7355-hor-clsc.jpg?downsize=1336px%3A%2A&interpolation=progressive-bilinear&output-quality=70",
+      "file": "evidence/art-rebuild/references-atl/fox-street.jpg"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "ponce-aerial",
+      "url": "https://images.squarespace-cdn.com/content/v1/5f9c80c54b29580773375eeb/1619655197288-7FMMAAMW75ATORI49R61/2015-PCM-Aerial-Looking-NE-20151031-MS.jpg",
+      "file": "evidence/art-rebuild/references-atl/ponce-aerial.jpg"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "ponce-roof",
+      "url": "https://www.jamestownlp.com/uploads/images/_2250x1266_crop_center_75_none/ponce-city-market-02-20240528.jpg",
+      "file": "evidence/art-rebuild/references-atl/ponce-roof.jpg"
+    }
+  },
+  {
+    "status": "rejected",
+    "reason": "Error: high-street: 403"
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "high-aerial",
+      "url": "https://www.metalera.com/getattachment/92c5ee96-f751-41e0-9f4e-8be3bb0f3f85/High_Museum_of_Art_800px.png",
+      "file": "evidence/art-rebuild/references-atl/high-aerial.jpg"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "high-meier",
+      "url": "https://architecture-history.org/architects/architects/MEIER/PIC/AM12.JPG",
+      "file": "evidence/art-rebuild/references-atl/high-meier.jpg"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "aquarium-aerial",
+      "url": "https://heymondo.com/blog/wp-content/uploads/2024/05/The-Georgia-Aquarium-in-Atlanta-USA.jpg",
+      "file": "evidence/art-rebuild/references-atl/aquarium-aerial.jpg"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "aquarium-street",
+      "url": "https://www.explore.com/img/gallery/this-southern-us-state-has-the-largest-aquarium-in-the-country/see-the-animals-of-the-georgia-aquarium-in-atlanta-1715085871.jpg",
+      "file": "evidence/art-rebuild/references-atl/aquarium-street.jpg"
+    }
+  }
+]

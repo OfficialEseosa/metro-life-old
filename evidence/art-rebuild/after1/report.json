@@ -1,0 +1,38 @@
+{
+  "errors": [],
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "calls": 43,
+      "triangles": 221839,
+      "fps": 60.0024000960396,
+      "p95Ms": 17.899999998509884,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "calls": 43,
+      "triangles": 221839,
+      "fps": 59.9964002160228,
+      "p95Ms": 17.899999998509884,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "calls": 43,
+      "triangles": 221839,
+      "fps": 59.9976000960498,
+      "p95Ms": 17,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ]
+}

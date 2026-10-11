@@ -10,3 +10,4 @@ test-results/
 evidence/**/*.cookies
 evidence/**/request.json
 evidence/rea-*-input/
+evidence/art-rebuild/**/*.html

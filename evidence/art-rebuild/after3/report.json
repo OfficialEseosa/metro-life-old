@@ -1,0 +1,149 @@
+{
+  "errors": [],
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "calls": 43,
+      "triangles": 177216,
+      "fps": 60.00360021606661,
+      "p95Ms": 18.899999998509884,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "calls": 43,
+      "triangles": 177216,
+      "fps": 60.003600215977194,
+      "p95Ms": 18.30000000447035,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "calls": 43,
+      "triangles": 177216,
+      "fps": 60.00240009595019,
+      "p95Ms": 18.399999998509884,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ],
+  "modelRequests": [
+    {
+      "url": "http://127.0.0.1:5173/models/world/suburban/building-type-a.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/benz.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/centennial.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/landmarks/piedmont.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_B_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_C_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_A_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_D_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_E_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/building_F_withoutBase.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/commercial/building-skyscraper-a.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/commercial/building-skyscraper-b.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/commercial/building-skyscraper-c.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/suburban/tree-large.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/world/suburban/tree-small.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/car_sedan.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/car_hatchback.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/road_straight.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/streetlight.gltf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:5173/models/kaykit/road_junction.gltf",
+      "status": 200
+    }
+  ],
+  "geometry": {
+    "benz": 2856,
+    "arena": 500,
+    "aquarium": 676,
+    "centennial": 3562,
+    "piedmont": 10195,
+    "beltline": 484,
+    "ponce": 4800,
+    "krog": 380,
+    "fox": 4060,
+    "high": 728,
+    "gatech": 1516,
+    "gsu": 1544,
+    "techVillage": 1308,
+    "lenox": 692,
+    "capitol": 2928,
+    "mlk": 1540,
+    "l5p": 1176,
+    "truist": 1259,
+    "grady": 348,
+    "atlAirport": 1160
+  },
+  "shadowPeak": {
+    "calls": 73,
+    "triangles": 254849,
+    "fps": 59.96162456033499,
+    "p95Ms": 18.5,
+    "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  }
+}

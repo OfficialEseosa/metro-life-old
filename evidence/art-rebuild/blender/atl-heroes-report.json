@@ -1,0 +1,27 @@
+{
+  "capitol": {
+    "triangles": 4266,
+    "materialBatches": 1,
+    "glbBytes": 334804
+  },
+  "fox": {
+    "triangles": 2788,
+    "materialBatches": 1,
+    "glbBytes": 240804
+  },
+  "ponce": {
+    "triangles": 4360,
+    "materialBatches": 1,
+    "glbBytes": 381848
+  },
+  "high": {
+    "triangles": 4198,
+    "materialBatches": 1,
+    "glbBytes": 329448
+  },
+  "aquarium": {
+    "triangles": 1553,
+    "materialBatches": 1,
+    "glbBytes": 162416
+  }
+}

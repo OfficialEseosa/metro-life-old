@@ -165,11 +165,11 @@ public class GameService {
         requires.path("skills").fields().forEachRemaining(e->require(s.path("skills").path(e.getKey()).path("level").asInt()>=e.getValue().asInt(),403,"You need "+Content.title(e.getKey())+" "+e.getValue().asInt()));
         if(requires.has("job")) require(s.path("job").path("track").asText().equals(requires.path("job").asText()),403,"Apply for this job before working a shift");
     }
-    synchronized ObjectNode jobs(String token,String city){content.city(city);ObjectNode out=object();ArrayNode jobs=out.putArray("jobs");for(JsonNode career:content.world.path("careers"))for(JsonNode level:career.path("levels"))if(level.path("city").asText().equals(city)){ObjectNode job=((ObjectNode)level).deepCopy();job.put("id",career.path("track").asText()+"-"+level.path("level").asInt()).put("track",career.path("track").asText());job.remove("shiftsToPromote");jobs.add(job);}return out;}
+    synchronized ObjectNode jobs(String token,String city){content.city(city);ObjectNode out=object();ArrayNode jobs=out.putArray("jobs");for(JsonNode career:content.world.path("careers"))for(JsonNode level:career.path("levels")){String track=career.path("track").asText();ObjectNode job=((ObjectNode)level).deepCopy();job.put("id",(city.equals("atl")?"":city+"-")+track+"-"+level.path("level").asInt()).put("track",track).put("city",city).put("loc",Content.workplace(city,track));job.remove("shiftsToPromote");jobs.add(job);}return out;}
     synchronized ObjectNode applyJob(String token,JsonNode body){
         ObjectNode session=session(token,true),s=sim(session);decay(s,world(session));require(s.path("busyUntil").isNull(),409,"Finish your activity before applying");
         String jobId=body.path("jobId").asText();ObjectNode chosen=null;JsonNode careerChosen=null;
-        for(JsonNode career:content.world.path("careers"))for(JsonNode level:career.path("levels"))if((career.path("track").asText()+"-"+level.path("level").asInt()).equals(jobId)){chosen=((ObjectNode)level).deepCopy();careerChosen=career;}
+        for(JsonNode candidate:jobs(token,s.path("city").asText()).path("jobs"))if(candidate.path("id").asText().equals(jobId)){chosen=((ObjectNode)candidate).deepCopy();careerChosen=candidate;chosen.put("shiftsToPromote",3+candidate.path("level").asInt());}
         require(chosen!=null,404,"That job is no longer listed");require(s.path("city").equals(chosen.get("city")),403,"Travel to this city before applying");requirements(s,chosen.path("requires"));
         require(chosen.path("level").asInt()==1,403,"Apply for an entry role and earn promotions through shifts");
         require(s.path("job").isNull(),409,"Leave your current role before accepting another");
@@ -202,7 +202,7 @@ public class GameService {
         a.path("skills").fields().forEachRemaining(e->{ObjectNode skill=(ObjectNode)s.path("skills").get(e.getKey());int gain=(int)Math.floor(e.getValue().asInt()*(low?.7:1));addSkill(skill,gain);skillDeltas.put(e.getKey(),gain);});
         boolean firstVisit=true;for(JsonNode visited:s.path("visited"))if(visited.asText().equals(loc))firstVisit=false;
         if(firstVisit)s.withArray("visited").add(loc);s.put("loc",loc).put("actionsCount",s.path("actionsCount").asInt()+1);
-        if(a.has("to")) s.put("city",a.path("to").asText()).putNull("loc");
+        if(a.has("to")){String to=a.path("to").asText();content.city(to);s.put("city",to).put("loc",to.equals("atl")?"atlAirport":to.equals("nyc")?"nycAirport":"bayAirport");}
         long busyUntil=now()+Math.clamp(a.path("durationMin").asLong()*60,2000,6000);s.put("busyUntil",busyUntil).put("busyLabel",a.path("label").asText());
         ArrayNode completed=mapper.createArrayNode();
         for(JsonNode node:s.path("daily")){ObjectNode g=(ObjectNode)node;if(g.path("done").asBoolean())continue;String gid=g.path("id").asText();boolean progress=gid.equals("explore")&&firstVisit||gid.equals("work")&&a.path("pay").asInt()>0||gid.equals("cook")&&loc.equals("home")&&action.equals("cook");if(progress){int p=g.path("progress").asInt()+1;g.put("progress",p);if(p>=g.path("target").asInt()){g.put("done",true);s.put("cash",s.path("cash").asDouble()+g.path("reward").path("cash").asDouble());s.put("xp",s.path("xp").asInt()+g.path("reward").path("xp").asInt());completed.add(g.path("text").asText());}}}

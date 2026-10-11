@@ -5,13 +5,14 @@ import { useFrame, useThree } from '@react-three/fiber'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useStore } from '../store'
 import canonical from '../../../shared/world.json'
-import { atlSites } from './cities/atl'
+import { sitesFor,homeSite } from './cities'
+import type { Site } from './cities/atl'
 import { ICONS } from './icons'
 import type { IconName, IconShape } from './icons'
 
-const aliases: Record<string, IconName> = { 'trophy': 'ball', 'drama': 'music', 'palette': 'bulb', 'cpu': 'bulb', 'graduation-cap': 'school', 'book-open': 'book', 'shopping-bag': 'bag', 'landmark': 'building', 'flame': 'heart', 'disc-3': 'disc', 'heart-pulse': 'cross', 'soup': 'utensils' }
-const categories = Object.keys(canonical.categories)
-const catInfo = canonical.categories as Record<string, { icon: string; color: string }>
+const aliases: Record<string, IconName> = { 'trophy': 'ball', 'drama': 'music', 'palette': 'bulb', 'cpu': 'bulb', 'graduation-cap': 'school', 'book-open': 'book', 'shopping-bag': 'bag', 'landmark': 'building', 'flame': 'heart', 'disc-3': 'disc', 'heart-pulse': 'cross', 'soup': 'utensils', 'house':'home' }
+const categories = [...Object.keys(canonical.categories),'home']
+const catInfo:Record<string, { icon: string; color: string }> = {...canonical.categories,home:{icon:'house',color:'#2c7150'}}
 
 function iconTexture() {
   const canvas = document.createElement('canvas'); canvas.width = 64 * categories.length; canvas.height = 64
@@ -34,7 +35,10 @@ function iconTexture() {
 }
 
 export function Pins({ onHover }: { onHover: (name: string | null, x?: number, y?: number) => void }) {
-  const locations = canonical.cities[0].landmarks
+  const city=useStore(s=>s.city),homeCity=useStore(s=>s.sim?.home.city),homeNeighborhood=useStore(s=>s.sim?.home.neighborhood)
+  const hasHome=homeCity===city&&!!homeNeighborhood
+  const locations=useMemo(()=>[...canonical.cities.find(c=>c.id===city)!.landmarks,...(hasHome?[{id:'home',name:'Your home',category:'home'}]:[])],[city,hasHome])
+  const atlSites=useMemo<Record<string,Site>>(()=>{const site=homeSite(city,homeCity&&homeNeighborhood?{city:homeCity,neighborhood:homeNeighborhood,rent:0}:undefined);return {...sitesFor(city),...(site?{home:site}:{})}},[city,homeCity,homeNeighborhood])
   const {camera,size,gl}=useThree(),lastCamera=useRef(new THREE.Matrix4()),selected=useStore(s=>s.selectedLoc)
   const lastHover=useRef(0)
   const points=useRef<THREE.Points>(null)
@@ -47,7 +51,7 @@ export function Pins({ onHover }: { onHover: (name: string | null, x?: number, y
       vertexShader: 'attribute float iconIndex; attribute float pinVisible; varying float vVisible; varying float vIcon; uniform float size; void main(){vIcon=iconIndex;vVisible=pinVisible;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=size;}',
       fragmentShader: 'uniform sampler2D atlas; uniform float count; varying float vIcon;varying float vVisible; void main(){if(vVisible<.5)discard;vec4 c=texture2D(atlas,vec2((vIcon+gl_PointCoord.x)/count,1.-gl_PointCoord.y));if(c.a<.2)discard;gl_FragColor=c;}' })
     return { geometry, material }
-  }, [locations])
+  }, [locations,atlSites])
   const version=useRef('')
   useFrame(()=>{data.material.uniforms.size.value=(size.width<600?30:34)*gl.getPixelRatio();const key=`${selected}:${size.width}:${size.height}`;if(lastCamera.current.equals(camera.matrixWorld)&&version.current===key)return;lastCamera.current.copy(camera.matrixWorld);version.current=key;const accepted:{x:number;y:number}[]=[],visible=data.geometry.getAttribute('pinVisible');const order=locations.map((l,i)=>({l,i})).sort((a,b)=>Number(b.l.id===selected)-Number(a.l.id===selected));for(const{l,i}of order){const s=atlSites[l.id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera),x=(v.x+1)*size.width/2,y=(1-v.y)*size.height/2;const show=v.z<1&&x>19&&x<size.width-19&&y>19&&y<size.height-19&&!accepted.some(p=>Math.hypot(x-p.x,y-p.y)<(size.width<600?35:37));visible.setX(i,show?1:0);if(show)accepted.push({x,y})}visible.needsUpdate=true})
   const pick = (e: ThreeEvent<PointerEvent>) => {if(performance.now()-lastHover.current<50)return;lastHover.current=performance.now();const index=e.index??-1,loc = locations[index]; if(loc&&data.geometry.getAttribute('pinVisible').getX(index)>.5) {e.stopPropagation();onHover(loc.name,e.clientX,e.clientY)} }

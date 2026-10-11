@@ -1,0 +1,486 @@
+[
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "empire",
+      "page": "https://en.wikipedia.org/wiki/Empire_State_Building",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/960px-Empire_State_Building_%28aerial_view%29.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/1/10/Empire_State_Building_%28aerial_view%29.jpg",
+            "status": 200
+          },
+          "file": "evidence/art-rebuild/references-cities/empire-0.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/EmpireStateBuilding20205thAvenueEntrance.jpg/960px-EmpireStateBuilding20205thAvenueEntrance.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/c/c1/EmpireStateBuilding20205thAvenueEntrance.jpg",
+            "status": 200
+          },
+          "file": "evidence/art-rebuild/references-cities/empire-1.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/USA-NYC-Empire_State1.JPG/960px-USA-NYC-Empire_State1.JPG",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/b/b3/USA-NYC-Empire_State1.JPG",
+            "status": 200
+          },
+          "file": "evidence/art-rebuild/references-cities/empire-2.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Empire_State_Building_LED_live_election_results_Obama_Romney_Spire_Close-up_%288162616388%29.jpg/960px-Empire_State_Building_LED_live_election_results_Obama_Romney_Spire_Close-up_%288162616388%29.jpg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Empire_State_Building_in_Rainbow_Colors_for_Gay_Pride_2015_%2819076876770%29.jpg/960px-Empire_State_Building_in_Rainbow_Colors_for_Gay_Pride_2015_%2819076876770%29.jpg",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "oneWtc",
+      "page": "https://en.wikipedia.org/wiki/One_World_Trade_Center",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/One_World_Trade_Center_Building_%282021%29.jpg/960px-One_World_Trade_Center_Building_%282021%29.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/1/14/One_World_Trade_Center_Building_%282021%29.jpg",
+            "status": 200
+          },
+          "file": "evidence/art-rebuild/references-cities/oneWtc-0.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Photo_of_WTC1_%28cropped%29.jpg/960px-Photo_of_WTC1_%28cropped%29.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Photo_of_WTC1_%28cropped%29.jpg",
+            "status": 200
+          },
+          "file": "evidence/art-rebuild/references-cities/oneWtc-1.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Freedomtower_oct2006.jpg/960px-Freedomtower_oct2006.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Freedomtower_oct2006.jpg",
+            "status": 200
+          },
+          "file": "evidence/art-rebuild/references-cities/oneWtc-2.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/OneWTC-Construction-Feb2009.jpg/960px-OneWTC-Construction-Feb2009.jpg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/One_WTC_From_W_Hotel_7-28-10.JPG/960px-One_WTC_From_W_Hotel_7-28-10.JPG",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "brooklynBridge",
+      "page": "https://en.wikipedia.org/wiki/Brooklyn_Bridge",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Brooklyn_Bridge_and_the_Lower_Manhattan_skyline_from_Pebble_Beach%2C_New_York.jpg/960px-Brooklyn_Bridge_and_the_Lower_Manhattan_skyline_from_Pebble_Beach%2C_New_York.jpg",
+          "status": 200,
+          "file": "evidence/art-rebuild/references-cities/brooklynBridge-0.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/DUMBO_%2896047423%29.jpg/960px-DUMBO_%2896047423%29.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/e/e7/DUMBO_%2896047423%29.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Brooklyn_Banks_%284094206902%29.jpg/960px-Brooklyn_Banks_%284094206902%29.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Brooklyn_Banks_%284094206902%29.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/USA-NYC-Brooklyn_Bridge3.jpg/960px-USA-NYC-Brooklyn_Bridge3.jpg",
+          "status": 200,
+          "file": "evidence/art-rebuild/references-cities/brooklynBridge-3.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Standing_Tall_%282819665347%29.jpg/960px-Standing_Tall_%282819665347%29.jpg",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "liberty",
+      "page": "https://en.wikipedia.org/wiki/Statue_of_Liberty",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Front_view_of_Statue_of_Liberty_%28cropped%29.jpg/960px-Front_view_of_Statue_of_Liberty_%28cropped%29.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Front_view_of_Statue_of_Liberty_%28cropped%29.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Disc_Sol_BM_GR1899.12-1.2.jpg/960px-Disc_Sol_BM_GR1899.12-1.2.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Disc_Sol_BM_GR1899.12-1.2.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/2014-09-15_16-14-55_lion-belfort.jpg/960px-2014-09-15_16-14-55_lion-belfort.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/2014-09-15_16-14-55_lion-belfort.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Indian_princess_and_Columbia.jpg/960px-Indian_princess_and_Columbia.jpg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Statue_of_Freedom%2C_Washington%2C_D.C.jpg/960px-Statue_of_Freedom%2C_Washington%2C_D.C.jpg",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "grandCentral",
+      "page": "https://en.wikipedia.org/wiki/Grand_Central_Terminal",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Image-Grand_central_Station_Outside_Night_2.jpg/960px-Image-Grand_central_Station_Outside_Night_2.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/7/71/Image-Grand_central_Station_Outside_Night_2.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Grand_Central_Terminal%2C_New_York_2017_45.jpg/960px-Grand_Central_Terminal%2C_New_York_2017_45.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Grand_Central_Terminal%2C_New_York_2017_45.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/USA-NYC-Grand_Central_Terminal_Clock.jpg/960px-USA-NYC-Grand_Central_Terminal_Clock.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/4/40/USA-NYC-Grand_Central_Terminal_Clock.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Main_Concourse%2C_Grand_Central_Terminal%2C_August_30%2C_2024_-_001_%28cropped%29.jpg/960px-Main_Concourse%2C_Grand_Central_Terminal%2C_August_30%2C_2024_-_001_%28cropped%29.jpg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/20th_CL_50th_anniversary_at_Grand_Central_Terminal.png/960px-20th_CL_50th_anniversary_at_Grand_Central_Terminal.png",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "met",
+      "page": "https://en.wikipedia.org/wiki/Metropolitan_Museum_of_Art",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg/960px-Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/The_Met_Cloisters.jpg/960px-The_Met_Cloisters.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/a/ac/The_Met_Cloisters.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Queen_Mother_Pendant_Mask-_Iyoba_MET_DP231460.jpg/960px-Queen_Mother_Pendant_Mask-_Iyoba_MET_DP231460.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Queen_Mother_Pendant_Mask-_Iyoba_MET_DP231460.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/NatarajaMET.JPG/960px-NatarajaMET.JPG",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Standing_Hippopotamus_MET_DP248993.jpg/960px-Standing_Hippopotamus_MET_DP248993.jpg",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "goldenGate",
+      "page": "https://en.wikipedia.org/wiki/Golden_Gate_Bridge",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Golden_Gate_Bridge_as_seen_from_Battery_East.jpg/960px-Golden_Gate_Bridge_as_seen_from_Battery_East.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Golden_Gate_Bridge_as_seen_from_Battery_East.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Golden_gate_circa_1891.png/960px-Golden_gate_circa_1891.png",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Golden_gate_circa_1891.png",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Golden_Gate_bridge_pillar.jpg/960px-Golden_Gate_bridge_pillar.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Golden_Gate_bridge_pillar.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Below_Golden_Gate_Bridge.jpeg/960px-Below_Golden_Gate_Bridge.jpeg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Golden_Gate_Bridge_Dec_15_2015_by_Don_Ramey_Logan.jpg/960px-Golden_Gate_Bridge_Dec_15_2015_by_Don_Ramey_Logan.jpg",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "ferryBuilding",
+      "page": "https://en.wikipedia.org/wiki/San_Francisco_Ferry_Building",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Ferry_Building_San_Francisco_from_Hyatt_Regency_with_R-Evolution_and_Bay_Bridge_2026_dllu.jpg/960px-Ferry_Building_San_Francisco_from_Hyatt_Regency_with_R-Evolution_and_Bay_Bridge_2026_dllu.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Ferry_Building_San_Francisco_from_Hyatt_Regency_with_R-Evolution_and_Bay_Bridge_2026_dllu.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/The_Ferry_Building_in_San_Francisco_under_construction.jpg/960px-The_Ferry_Building_in_San_Francisco_under_construction.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Ferry_Building_in_San_Francisco_under_construction.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Willard_Worden%2C_Ferry_Building_by_night%2C_San_Francisco%2C_1908.jpg/960px-Willard_Worden%2C_Ferry_Building_by_night%2C_San_Francisco%2C_1908.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Willard_Worden%2C_Ferry_Building_by_night%2C_San_Francisco%2C_1908.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Ferry_Building_and_Embarcadero_Freeway%2C_February_1982.jpg/960px-Ferry_Building_and_Embarcadero_Freeway%2C_February_1982.jpg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/San_Francisco_Ferry_Building_%28cropped%29.jpg/960px-San_Francisco_Ferry_Building_%28cropped%29.jpg",
+          "status": 200,
+          "file": "evidence/art-rebuild/references-cities/ferryBuilding-4.jpg"
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "salesforce",
+      "page": "https://en.wikipedia.org/wiki/Salesforce_Tower",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Salesforce_Tower_from_Salesforce_Park.jpg/960px-Salesforce_Tower_from_Salesforce_Park.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Salesforce_Tower_from_Salesforce_Park.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/C%C3%A9sar_Pelli_%28cropped%29.jpg/960px-C%C3%A9sar_Pelli_%28cropped%29.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/b/b0/C%C3%A9sar_Pelli_%28cropped%29.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Salesforce_Tower_facade_detail_%282020%29_%28cropped%29.jpg/960px-Salesforce_Tower_facade_detail_%282020%29_%28cropped%29.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Salesforce_Tower_facade_detail_%282020%29_%28cropped%29.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/WeWork_-_Salesforce_Tower.jpg/960px-WeWork_-_Salesforce_Tower.jpg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Salesforce_Tower_April_2017.jpg/960px-Salesforce_Tower_April_2017.jpg",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "alcatraz",
+      "page": "https://en.wikipedia.org/wiki/Alcatraz_Island",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Alcatraz_2021.jpg/960px-Alcatraz_2021.jpg",
+          "status": 200,
+          "file": "evidence/art-rebuild/references-cities/alcatraz-0.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Alcatraz_Island_Flowers.jpg/960px-Alcatraz_Island_Flowers.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Alcatraz_Island_Flowers.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/AlcatrazIsland-1895.jpg/960px-AlcatrazIsland-1895.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/9/93/AlcatrazIsland-1895.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Alcatraz_dawn_2005-01-07.jpg/960px-Alcatraz_dawn_2005-01-07.jpg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/The_Water_Tower_Alactraz.jpg/960px-The_Water_Tower_Alactraz.jpg",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "paintedLadies",
+      "page": "https://en.wikipedia.org/wiki/Painted_ladies",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Painted_Ladies_San_Francisco_January_2013_panorama_2.jpg/960px-Painted_Ladies_San_Francisco_January_2013_panorama_2.jpg",
+          "status": 200,
+          "file": "evidence/art-rebuild/references-cities/paintedLadies-0.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Haight_Ashbury11.JPG/960px-Haight_Ashbury11.JPG",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/5/51/Haight_Ashbury11.JPG",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Imm027.jpg/960px-Imm027.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Imm027.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Queen_Anne_House.jpg/960px-Queen_Anne_House.jpg",
+          "status": 429
+        }
+      ]
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "id": "sfCityHall",
+      "page": "https://en.wikipedia.org/wiki/San_Francisco_City_Hall",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/San_Francisco_City_Hall_2.JPG/960px-San_Francisco_City_Hall_2.JPG",
+          "status": 200,
+          "file": "evidence/art-rebuild/references-cities/sfCityHall-0.jpg"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/San_Francisco_City_Hall_3.jpg/960px-San_Francisco_City_Hall_3.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/a/af/San_Francisco_City_Hall_3.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/City_hall%2C_San-Francisco%2C_Cal._-_Lith._%26_publ._by_Quirot_%26_Co.%2C_corner_California_and_Montgomery_Sts.%2C_S._Francisco._LCCN2012646051.jpg/960px-City_hall%2C_San-Francisco%2C_Cal._-_Lith._%26_publ._by_Quirot_%26_Co.%2C_corner_California_and_Montgomery_Sts.%2C_S._Francisco._LCCN2012646051.jpg",
+          "status": 429,
+          "original": {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/b/b6/City_hall%2C_San-Francisco%2C_Cal._-_Lith._%26_publ._by_Quirot_%26_Co.%2C_corner_California_and_Montgomery_Sts.%2C_S._Francisco._LCCN2012646051.jpg",
+            "status": 429
+          }
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/SF_City_Hall.jpg/960px-SF_City_Hall.jpg",
+          "status": 429
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/San_Francisco_City_Hall_1906-04-20.jpg/960px-San_Francisco_City_Hall_1906-04-20.jpg",
+          "status": 429
+        }
+      ]
+    }
+  }
+]

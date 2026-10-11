@@ -50,6 +50,7 @@ public class Content {
             }
             ObjectNode shift=action("shift-"+TRACKS[t],"Work a shift","work","briefcase",60,0,120,Map.of("energy",-10,"hunger",-7,"fun",-3),Map.of(careerSkills[t],25));
             shift.putObject("requires").put("job",TRACKS[t]);ArrayNode workplaceActions=landmark("atl",workplaces[t]).withArray("actions");boolean existingShift=false;for(JsonNode existing:workplaceActions)if(existing.path("label").asText().equals("Work a shift")&&existing.path("requires").path("job").asText().equals(TRACKS[t]))existingShift=true;if(!existingShift)workplaceActions.add(shift);
+            for(String other:new String[]{"nyc","bay"}){ArrayNode actions=landmark(other,workplace(other,TRACKS[t])).withArray("actions");boolean exists=false;for(JsonNode a:actions)if(a.path("requires").path("job").asText().equals(TRACKS[t]))exists=true;if(!exists)actions.add(shift.deepCopy());}
         }
         ArrayNode aspirations=world.putArray("aspirations");
         for(int i=0;i<ASPIRATIONS.length;i++) {
@@ -80,6 +81,7 @@ public class Content {
         else if(cat.equals("civic")) {kind="civic";cost=0;needs=Map.of("social",20);skill="charisma";}
         else if(s.contains("reflect")||s.contains("check-up")) {kind="rest";cost=s.contains("check-up")?35:0;needs=Map.of("energy",25,"fun",10);}
         else if(cat.equals("park")||cat.equals("sight")||cat.equals("waterfront")) cost=0;
+        icon=s.contains("pitch")?"rocket":s.contains("co-work")?"laptop":s.contains("co-founder")?"users":kind.equals("food")?"utensils":kind.equals("social")?"users":kind.equals("work")?"briefcase":kind.equals("learn")?"book-open":s.contains("ride")||s.contains("bike")?"bike":s.contains("watch")||s.contains("tour")?"eye":icon;
         ObjectNode a=action("a"+index,label,kind,icon,kind.equals("work")?60:30,cost,pay,needs,skill.isBlank()?Map.of():Map.of(skill,20));
         if(s.equals("work a shift")) a.putObject("requires").put("job","health");
         return a;
@@ -89,4 +91,5 @@ public class Content {
     ObjectNode neighborhood(String city,String id) {for(JsonNode n:city(city).path("neighborhoods")) if(n.path("id").asText().equals(id)) return (ObjectNode)n;throw new ApiException(400,"Choose a neighborhood in this city");}
     ObjectNode aspiration(String id) {for(JsonNode a:world.path("aspirations")) if(a.path("id").asText().equals(id)) return (ObjectNode)a;throw new ApiException(400,"Choose an aspiration");}
     static String title(String s) {return s.substring(0,1).toUpperCase(Locale.ROOT)+s.substring(1);}
+    static String workplace(String city,String track){String[] places=city.equals("nyc")?new String[]{"dumbo","apollo","yankee","chinatown","wallStreet","met","cityHall","presbyterian"}:city.equals("bay")?new String[]{"techCampus","fillmore","chaseCenter","missionEats","sandHill","sfCityHall","sfCityHall","ucsf"}:new String[]{"techVillage","fox","benz","ponce","techVillage","high","capitol","grady"};return places[Arrays.asList(TRACKS).indexOf(track)];}
 }

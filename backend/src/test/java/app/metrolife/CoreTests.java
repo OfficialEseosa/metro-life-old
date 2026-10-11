@@ -77,6 +77,18 @@ class CoreTests {
         assertTrue(result.path("result").path("text").asText().contains("Energy +18"));assertTrue(result.path("result").path("text").asText().contains("Fun +12"));
         now+=12345;JsonNode rounded=game.getSim(token).path("sim").path("needs");for(String need:Content.NEEDS)assertEquals(Math.round(rounded.path(need).asDouble()*10),rounded.path(need).asDouble()*10,.00001);
     }
+    @Test void travelCostsCashArrivesAtAirportAndKeepsHomeAndWorld()throws Exception{
+        worldAndSim();JsonNode before=game.getSim(token).path("sim");
+        assertEquals(403,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"nyc\",\"loc\":\"nycAirport\",\"action\":\"a0\"}"))).status);
+        JsonNode flight=game.act(token,json("{\"city\":\"atl\",\"loc\":\"atlAirport\",\"action\":\"a0\"}"));
+        assertEquals("nyc",flight.path("sim").path("city").asText());assertEquals("nycAirport",flight.path("sim").path("loc").asText());assertEquals(2320,flight.path("sim").path("cash").asInt());assertEquals(before.path("home"),flight.path("sim").path("home"));assertEquals(before.path("worldId"),flight.path("sim").path("worldId"));
+        assertEquals(409,assertThrows(ApiException.class,()->game.applyJob(token,json("{\"jobId\":\"nyc-tech-1\"}"))).status);now+=7000;
+        assertEquals(403,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"nyc\",\"loc\":\"home\",\"action\":\"sleep\"}"))).status);
+        assertEquals(40,game.jobs(token,"nyc").path("jobs").size());assertEquals("dumbo",game.applyJob(token,json("{\"jobId\":\"nyc-tech-1\"}")).path("sim").path("job").path("loc").asText());game.quitJob(token);
+        JsonNode second=game.act(token,json("{\"city\":\"nyc\",\"loc\":\"nycAirport\",\"action\":\"a1\"}"));assertEquals("bayAirport",second.path("sim").path("loc").asText());now+=7000;
+        game.sim(game.session(token,true)).put("cash",0);assertEquals(402,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"bay\",\"loc\":\"bayAirport\",\"action\":\"a0\"}"))).status);
+        for(String city:new String[]{"atl","nyc","bay"})for(String track:Content.TRACKS)assertNotNull(content.landmark(city,Content.workplace(city,track)));
+    }
     @Test void jobShiftRequiresHiringAndPaysAuthoritativeRate()throws Exception{
         worldAndSim();assertEquals(40,game.jobs(token,"atl").path("jobs").size());
         assertEquals(403,assertThrows(ApiException.class,()->game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"))).status);

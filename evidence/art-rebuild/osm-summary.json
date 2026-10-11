@@ -1,0 +1,30 @@
+{
+  "footprints": [
+    {
+      "id": "25312494",
+      "name": "State Farm Arena",
+      "n": 22
+    },
+    {
+      "id": "28912103",
+      "name": "Georgia Aquarium",
+      "n": 48
+    },
+    {
+      "id": "270358205",
+      "name": "World of Coca-Cola",
+      "n": 67
+    },
+    {
+      "id": "536744534",
+      "name": "Mercedes-Benz Stadium",
+      "n": 21
+    },
+    {
+      "id": "relation-Centennial Olympic Park-0",
+      "name": "Centennial Olympic Park",
+      "n": 112
+    }
+  ],
+  "streets": 133
+}

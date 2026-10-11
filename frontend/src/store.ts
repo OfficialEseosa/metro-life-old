@@ -89,6 +89,7 @@ type State = {
 const safe = <T,>(p: Promise<T>) => p.catch(() => null)
 let socket: ReturnType<typeof connectSocket> | null = null
 let loading: Promise<void> | null = null
+let resultTimer:ReturnType<typeof setTimeout>|null=null
 const realtimeEnabled = false
 
 export const useStore = create<State>((set, get) => {
@@ -162,7 +163,7 @@ export const useStore = create<State>((set, get) => {
 
     setCity: async (city) => {
       if (city === get().city) return
-      set({ city, daily: null, mayor: null, plots: null, billboards: null, homes: null, players: [], chat: [], selectedLoc: null, selectedSlot: null })
+      set({ city, daily: null, mayor: null, plots: null, billboards: null, homes: null, players: [], chat: [], selectedLoc: null, selectedSlot: null, panel:null,focus:'overview' })
       socket?.send({ type: 'view', city })
       await get().refresh('daily')
     },
@@ -192,7 +193,7 @@ export const useStore = create<State>((set, get) => {
     setSim: (sim) => set({ sim }),
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
-    setLastResult: (lastResult) => set({ lastResult }),
+    setLastResult: (lastResult) => {if(resultTimer)clearTimeout(resultTimer);resultTimer=null;const wait=(lastResult?.busyUntil??0)-Date.now(),worldId=get().sim?.worldId;if(lastResult&&wait>0){set({lastResult:null});resultTimer=setTimeout(()=>{if(get().sim?.worldId===worldId)set({lastResult});resultTimer=null},wait)}else set({ lastResult })},
     openPanel: (panel) => set({ panel }),
     selectLocation: (id) => set({ selectedLoc: id, panel: id ? 'location' : null }),
     selectSlot: (slot) => set({ selectedSlot: slot, panel: slot === null ? null : 'billboard' }),

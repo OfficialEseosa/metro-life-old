@@ -1,13 +1,18 @@
 /* oxlint-disable react/immutability -- Three.js objects and shader uniforms are imperative renderer resources. */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import type { OrbitControls as Controls } from 'three-stdlib'
 import * as THREE from 'three'
 import { useStore } from '../store'
-import { atlSites } from './cities/atl'
+import { sitesFor,homeSite } from './cities'
+import type { CityId } from '../api/types'
 import { landmarkGeometry } from './landmarks'
+import { nycGeometry, bayGeometry } from './metropolitan-models'
+import { MetropolitanFabric } from './metropolitan-fabric'
 import { Fabric } from './fabric'
+import { BlenderLandmark, KitInstances } from './kit-models'
+import { blenderHeroes } from './hero-ids'
 import { Pins } from './pins'
 
 declare global {
@@ -15,7 +20,7 @@ declare global {
 }
 const noPick = () => {}
 const worldTarget = new THREE.Vector3(0, 0, 5)
-function Terrain({night}:{night:boolean}){const geometry=useMemo(()=>{const g=new THREE.PlaneGeometry(1200,1200,64,64),p=g.getAttribute('position');for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.hypot(x,z),rise=THREE.MathUtils.smoothstep(r,100,210)*(Math.sin(x*.022)*Math.cos(z*.019)*7+8);p.setZ(i,rise)}g.computeVertexNormals();return g},[]);return <mesh geometry={geometry} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><meshStandardMaterial color={night?'#647782':'#9bad86'} roughness={1}/></mesh>}
+function Terrain({night}:{night:boolean}){const geometry=useMemo(()=>{const g=new THREE.PlaneGeometry(1200,1200,64,64),p=g.getAttribute('position');for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.hypot(x,z),rise=THREE.MathUtils.smoothstep(r,100,210)*(Math.sin(x*.022)*Math.cos(z*.019)*7+8);p.setZ(i,rise)}g.computeVertexNormals();return g},[]);return <mesh geometry={geometry} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><meshStandardMaterial color={night?'#647782':'#8ebd75'} roughness={1}/></mesh>}
 
 function Sky({ night }: { night: boolean }) {
   const ref=useRef<THREE.Mesh>(null)
@@ -26,21 +31,23 @@ function Sky({ night }: { night: boolean }) {
   useFrame(({camera})=>{ref.current?.position.copy(camera.position)})
   return <mesh ref={ref} renderOrder={-1000} material={material} raycast={noPick} frustumCulled={false}><sphereGeometry args={[450, 24, 16]} /></mesh>
 }
-function Lake({ night }: { night: boolean }) {
+function Lake({ night,city }: { night: boolean;city:CityId }) {
   const mat = useMemo(() => new THREE.ShaderMaterial({ uniforms: { time: { value: 0 }, tint: { value: new THREE.Color() } },
-    vertexShader: 'varying vec3 vPosition;void main(){vPosition=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader: 'uniform float time;uniform vec3 tint;varying vec3 vPosition;void main(){float wave=sin(vPosition.x*10.+vPosition.z*13.+time*.55)*sin(vPosition.z*19.-time*.3);float glint=pow(max(0.,wave),9.)*.18;gl_FragColor=vec4(tint+glint+wave*.025,1.);}' }), [])
+    vertexShader: 'varying vec3 vPosition;void main(){vPosition=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader: 'uniform float time;uniform vec3 tint;varying vec3 vPosition;void main(){float wave=sin(vPosition.x*.4+vPosition.z*.55+time*.55)*sin(vPosition.z*.65-time*.3);float glint=pow(max(0.,wave),9.)*.18;gl_FragColor=vec4(tint+glint+wave*.025,1.);}' }), [])
   useEffect(() => {mat.uniforms.tint.value.set(night ? '#406b78' : '#537f88')}, [mat, night])
   useFrame(({ clock }) => {mat.uniforms.time.value=clock.elapsedTime})
-  return <mesh position={[22, .45, -36]} scale={[7.5, .012, 5.3]} material={mat} raycast={noPick}><sphereGeometry args={[1, 32, 12]} /></mesh>
+  return city==='atl'?null:<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.3,0]} material={mat} raycast={noPick}><planeGeometry args={[1600,1600]}/></mesh>
 }
-function Architecture() {
-  const buildings = useMemo(() => Object.entries(atlSites).map(([id, site]) => ({ id, site, geometry: landmarkGeometry(id) })), [])
-  return <group>{buildings.map(({ id, site, geometry }) => <mesh key={id} name={id} position={[site.x, 0, site.z]} rotation={[0, site.angle ?? 0, 0]} geometry={geometry} castShadow receiveShadow raycast={noPick} onUpdate={m => {m.updateMatrix();m.matrixAutoUpdate=false}}><meshStandardMaterial vertexColors roughness={.72} metalness={id === 'benz' ? .3 : .04} /></mesh>)}</group>
+function Architecture({city}:{city:CityId}) {
+  const buildings = useMemo(() => Object.entries(sitesFor(city)).filter(([id])=>city!=='atl'||!blenderHeroes.has(id)).map(([id, site]) => ({ id, site, geometry: city==='atl'?landmarkGeometry(id):city==='nyc'?nycGeometry(id):bayGeometry(id) })), [city])
+  return <group>{city==='atl'&&Object.entries(sitesFor(city)).filter(([id])=>blenderHeroes.has(id)).map(([id,s])=><Suspense key={id} fallback={null}><BlenderLandmark id={id} x={s.x} z={s.z} angle={s.angle}/></Suspense>)}{buildings.map(({ id, site, geometry }) => <mesh key={id} name={id} position={[site.x, 0, site.z]} rotation={[0, site.angle ?? 0, 0]} geometry={geometry} castShadow receiveShadow raycast={noPick} onUpdate={m => {m.updateMatrix();m.matrixAutoUpdate=false}}><meshStandardMaterial vertexColors roughness={.72} metalness={id === 'benz' ? .3 : .04} /></mesh>)}</group>
 }
+function Home({city}:{city:CityId}){const home=useStore(s=>s.sim?.home),site=homeSite(city,home),x=site?.x,z=site?.z,placements=useMemo(()=>x!==undefined&&z!==undefined?[{x,y:0,z,sx:3.4,sy:3,sz:3,angle:0,color:'#ffffff'}]:[],[x,z]);return site?<Suspense fallback={null}><group name="home"><KitInstances url="/models/world/suburban/building-type-a.glb" placements={placements}/></group></Suspense>:null}
 function City({ onHover }: { onHover: (name: string | null, x?: number, y?: number) => void }) {
   const { camera, gl, invalidate, size, scene, setDpr } = useThree()
   const controls = useRef<Controls>(null)
+  const city=useStore(s=>s.city),homeCity=useStore(s=>s.sim?.home.city),homeNeighborhood=useStore(s=>s.sim?.home.neighborhood),home=useMemo(()=>homeCity&&homeNeighborhood?{city:homeCity,neighborhood:homeNeighborhood,rent:0}:undefined,[homeCity,homeNeighborhood]),atlSites=sitesFor(city)
   const focus = useStore(s => s.focus), theme = useStore(s => s.sceneTheme), hour = useStore(s => s.clock?.hour ?? 11)
   const night = theme === 'night' || theme === 'auto' && (hour < 6 || hour >= 19)
   const destination = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)
@@ -55,39 +62,41 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
       if(fits)break;factor*=1.06
     }
     return {eye:preview.position.clone(),target}
-  }, [camera])
+  }, [camera,atlSites])
   const view = useCallback((id: string | null, immediate = false) => {
-    const site = id ? atlSites[id] : null
-    const distance = site ? Math.max(12, site.size * .95) * 1.3 * Math.max(1, .85 / (size.width / size.height)) : 0
+    const site = id==='home'?homeSite(city,home):id ? atlSites[id] : null
+    const distance = site ? Math.max(12, site.size * .95, site.height*1.1) * 1.3 * Math.max(1, .85 / (size.width / size.height)) : 0
     const next = site ? { target: new THREE.Vector3(site.x, site.height * .5, site.z), eye: new THREE.Vector3(site.x + distance * .7, site.height * .5 + distance * .75, site.z + distance) } : overview()
     if(site){
       // Pick an unobstructed approach, including nearby landmarks and tall instanced filler.
       const obstacles: THREE.Box3[]=[],matrix=new THREE.Matrix4(),instance=new THREE.Matrix4()
-      // The merged skyline contains three separate towers; avoid each footprint rather than its city-wide bounds.
-      for(const [x,y,z,w,h,d] of [[-7,16,-30,4.5,32,4.5],[-5,11,13,4.6,22,4.6],[11,11,-6,6,22,5]])obstacles.push(new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(x,y,z),new THREE.Vector3(w,h,d)))
       scene.updateMatrixWorld(true)
       scene.traverse(object=>{
-        if(!(object instanceof THREE.Mesh)||object.name===id)return
-        if(!(object instanceof THREE.InstancedMesh)&&!Object.hasOwn(atlSites,object.name))return
+        if(!(object instanceof THREE.Mesh))return
+        let owner:THREE.Object3D|null=object
+        while(owner&&!Object.hasOwn(atlSites,owner.name))owner=owner.parent
+        if(owner?.name===id)return
+        if(!(object instanceof THREE.InstancedMesh)&&!owner)return
         if(!object.geometry.boundingBox)object.geometry.computeBoundingBox()
         const bounds=object.geometry.boundingBox!
         if(object instanceof THREE.InstancedMesh){for(let i=0;i<object.count;i++){object.getMatrixAt(i,instance);matrix.multiplyMatrices(object.matrixWorld,instance);const box=bounds.clone().applyMatrix4(matrix);if(box.max.y-box.min.y>6)obstacles.push(box)}}
         else obstacles.push(bounds.clone().applyMatrix4(object.matrixWorld))
       })
       let bestScore=Infinity
-      for(const angle of [.61,0,-.61,1.2,-1.2,Math.PI/2,-Math.PI/2,Math.PI]){
+      const angles=id==='benz'?[-Math.PI/2,-1.2,-.61,.61,0,1.2,Math.PI/2,Math.PI]:id==='piedmont'?[Math.PI/2,1.2,.61,0,-.61,-1.2,-Math.PI/2,Math.PI]:[.61,0,-.61,1.2,-1.2,Math.PI/2,-Math.PI/2,Math.PI]
+      for(const angle of angles){
         const eye=new THREE.Vector3(site.x+Math.sin(angle)*distance*1.22,site.height*.5+distance*.75,site.z+Math.cos(angle)*distance*1.22)
         let score=0
-        for(const height of [.35,.75]){const target=new THREE.Vector3(site.x,site.height*height,site.z),ray=new THREE.Ray(eye,target.clone().sub(eye).normalize());for(const box of obstacles){const hit=ray.intersectBox(box,new THREE.Vector3());if(hit&&hit.distanceTo(eye)<eye.distanceTo(target))score++}}
+        for(const [dx,dz] of [[0,0],[-.23,-.23],[.23,-.23],[-.23,.23],[.23,.23]])for(const height of [.2,.65]){const target=new THREE.Vector3(site.x+dx*site.size,site.height*height,site.z+dz*site.size),ray=new THREE.Ray(eye,target.clone().sub(eye).normalize());for(const box of obstacles){const hit=ray.intersectBox(box,new THREE.Vector3());if(hit&&hit.distanceTo(eye)<eye.distanceTo(target))score++}}
         if(score<bestScore){bestScore=score;next.eye=eye}
       }
     }
     destination.current=null
     if(immediate) {camera.position.copy(next.eye);controls.current?.target.copy(next.target);controls.current?.update();invalidate()} else {destination.current=next;invalidate()}
-  }, [camera,invalidate,overview,scene,size.width,size.height])
+  }, [camera,invalidate,overview,scene,size.width,size.height,atlSites,city,home])
   useEffect(() => {view(null,true)}, [view])
   useEffect(() => {if(focus){view(focus);useStore.getState().setFocus(null)}}, [focus,view])
-  useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=new THREE.Fog(night?'#223752':'#d7e0dd',500,1100);invalidate()}, [gl,scene,night,invalidate])
+  useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=new THREE.Fog(night?'#223752':'#d7e0dd',500,1100);invalidate()}, [gl,scene,night,city,invalidate])
   useEffect(() => {
     let frame=0
     const tick=()=>{if(!document.hidden)invalidate();frame=requestAnimationFrame(tick)}
@@ -102,19 +111,18 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   })
   useEffect(()=>{
     if(!import.meta.env.DEV)return
-    window.__metroScene={refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id) as THREE.Mesh;return[id,m.geometry.getAttribute('position').count/3]})),metrics:()=>{
+    window.__metroScene={refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id);let count=0;m?.traverse(o=>{if(o instanceof THREE.Mesh)count+=(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3});return[id,count]})),metrics:()=>{
       const times=[...timings.current].sort((a,b)=>a-b),context=gl.getContext(),debug=context.getExtension('WEBGL_debug_renderer_info')
       return{calls:gl.info.render.calls,triangles:gl.info.render.triangles,fps:times.length?1000/(times.reduce((a,b)=>a+b,0)/times.length):0,p95Ms:times[Math.floor(times.length*.95)]??0,renderer:debug?context.getParameter(debug.UNMASKED_RENDERER_WEBGL):'unknown'}
     }}
     return()=>{delete window.__metroScene}
-  },[camera,gl,scene,size.width,size.height,view,invalidate])
+  },[camera,gl,scene,size.width,size.height,view,invalidate,atlSites])
   return <>
-    <Sky night={night}/><hemisphereLight args={[night?'#9bb0d1':'#d6e6ef',night?'#3a4d63':'#9da895',1.7]}/>
-    <directionalLight position={[-55,90,45]} intensity={night?.65:2.1} color={night?'#8aa7df':'#fffaf0'} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-100} shadow-camera-right={100} shadow-camera-top={100} shadow-camera-bottom={-100} shadow-camera-near={1} shadow-camera-far={230} shadow-bias={-.0003} shadow-normalBias={.12}/>
-    <mesh rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><planeGeometry args={[2000,2000]}/><meshStandardMaterial color={night?'#647782':'#9bad86'} roughness={1}/></mesh>
-    <Terrain night={night}/>
-    <Fabric night={night}/><Architecture/><Lake night={night}/>{!pinsHidden&&<Pins onHover={onHover}/>}
-    <OrbitControls ref={controls} makeDefault target={worldTarget} minDistance={9} maxDistance={650} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null}} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-75,75);c.target.z=THREE.MathUtils.clamp(c.target.z,-85,90)}invalidate()}}/>
+    <Sky night={night}/><hemisphereLight args={[night?'#9bb0d1':'#d6e6ef',night?'#3a4d63':'#afc8dc',1.7]}/>
+    <directionalLight position={[-55,90,45]} intensity={night?.65:2.1} color={night?'#8aa7df':'#ffffff'} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-100} shadow-camera-right={100} shadow-camera-top={100} shadow-camera-bottom={-100} shadow-camera-near={1} shadow-camera-far={230} shadow-bias={-.0003} shadow-normalBias={.12}/>
+    {city==='atl'?<><mesh rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><planeGeometry args={[2000,2000]}/><meshStandardMaterial color={night?'#647782':'#8ebd75'} roughness={1}/></mesh><Terrain night={night}/><Suspense fallback={null}><Fabric night={night}/></Suspense></>:<MetropolitanFabric city={city} night={night}/>}
+    <Architecture key={`architecture-${city}`} city={city}/><Home city={city}/><Lake night={night} city={city}/>{!pinsHidden&&<Pins key={`pins-${city}`} onHover={onHover}/>}
+    <OrbitControls ref={controls} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null}} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
   </>
 }
 export default function CityScene() {

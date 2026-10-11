@@ -67,3 +67,118 @@ Every initial weak model was reworked through the allowed three rounds. Remainin
 Independent M2 findings prompted targeted fixes after the three full rounds: taller Ponce sign tower (4,800 triangles), vertical FOX sign (4,060), TECH letters, white High panel grid and rectangular skylights, fan-shaped Truist tiers with diamond/base paths/outfield wall, continuous city-wide BeltLine, and three distinct downtown skyline silhouettes. Targeted images are in evidence/m3/m2-audit. Fox now remains fully visible between nearby towers. High verdict revised to No above: the independent finding was fair, and the corrected facade still does not earn a confident Yes. Truist reads as baseball but remains No for exact stadium; Piedmont remains No despite skyline framing. Ponce, Fox and Tech retain Yes in the Atlanta map context. These judgments are visual self-review, not a recognition study.
 
 Scene audit measurements supersede the older M2 performance figures: 34–35 normal calls, 118,125 day / 128,877 night triangles; sampled static shadow refresh peak 61 calls / 217,272 triangles. Phone overview now contains all sites with decluttered pins; far fog reduced, night is blue with lit windows and street glows. Final night-phone and Fox captures were inspected after fixing sky background ordering and skyline occlusion.
+
+## New York sheets — written before modelling
+
+Heroes: empire, oneWtc, brooklynBridge, liberty, grandCentral, met. Primary references: [Empire architecture](https://www.esbnyc.com/about/architecture-design), [SOM One WTC](https://www.som.com/projects/one-world-trade-center/), [NYC bridge](https://www.nyc.gov/html/dot/html/infrastructure/brooklyn-bridge.shtml), [NPS Liberty](https://home.nps.gov/npnh/learn/news/fact-sheet-stli.htm). These support the stepped Art Deco shaft, eight triangular glass faces, stone arches/cables and seven-ray crown/raised torch. Other massing below is an artistic architectural interpretation, not measured documentation. Synthetic hospital/venue names intentionally have no exact real-world facade.
+
+| ID | Shape / proportions | Signature features | Colours |
+|---|---|---|---|
+| timesSquare | Narrow wedge tower within canyon | Rounded corner screens, stepped crown, diagonal Broadway plaza, abstract light panels | Grey, warm cream, teal/amber screens |
+| centralPark | Long rectangle, about 3:1 | Reservoir, winding paths, lawns, dense tree border, terrace | Sage, teal, pale stone |
+| empire | Tall stepped shaft, height 5x base width | Broad base, repeated setbacks, vertical ribs, tapered mast, antenna | Limestone, silver, blue-grey |
+| grandCentral | Low broad classical hall | Three arched windows, column pairs, clock sculpture, green pitched barrel roof | Cream stone, bronze/green |
+| msg | Squat cylindrical drum | Flat radial roof, horizontal ribbons, entry podium | Silver, pale concrete, blue |
+| broadway | Three narrow theater fronts | Ornate cornices, projecting lit marquees, tall blade signs, awnings | Brick, cream, amber |
+| met | Broad symmetrical Beaux-Arts block | Three arched portals, paired columns, long stairs, central pediment | Pale limestone, dark bronze |
+| apollo | Narrow brick theater | Tall red vertical sign, cream central window surround, curved marquee | Red brick, cream, red |
+| columbia | Domed low rotunda and court | Low Library dome, columned portico, long stair, flanking blocks | Buff stone, pale green dome |
+| highLine | Long elevated rail viaduct | Steel legs, planted walking deck, rail strips, seating bays | Rust charcoal, green, pale path |
+| wallStreet | Dense classical street ensemble | NYSE pediment and columns, deep tower canyon, small bronze bull | Stone, glass grey, bronze |
+| oneWtc | Tall faceted shaft | Square pedestal, eight triangular faces, rotated square crown, needle mast, two pools | Cool blue glass, silver, dark pools |
+| brooklynBridge | Long suspension span | Twin stone Gothic portal towers, paired arches, draped main cables, diagonal stays, raised walkway | Sandstone, charcoal steel, timber |
+| dumbo | Brick warehouse street canyon | Cobblestone lane, repetitive arched windows, steel bridge arch behind | Russet, slate blue, grey |
+| williamsburgVenue | Low brick hall | Tall dark stage block, vertical blade sign, glazed entry, roof plant | Brick, charcoal, cream |
+| chinatown | Dense low walk-ups | Fire escapes, green curved gateway, red lantern line, shop awnings | Ochre, brick, green/red |
+| fifthAve | Tall stone retail frontage | Large framed windows, striped awnings, stepped roof, street trees | Limestone, black, blue glass |
+| cityHall | Wide classical pavilion | Central cupola, columned entry, two projecting wings, stairs | Pale stone, copper green |
+| liberty | Figure over tall pedestal, about 3:1 | Star island base, tapered pedestal, draped robe, seven rays, raised right torch, left tablet | Verdigris, gold flame, buff stone |
+| yankee | Broad open baseball bowl | Fan field, tall cream outer arcade, roof frieze, blue seating | Limestone, navy, green/tan |
+| coney | Low beachfront amusement strip | Ferris wheel, wooden coaster trestle, boardwalk, beach bands | Cream wood, red, teal, sand |
+| presbyterian | Synthetic medical tower | Stepped clinical wings, glass entry, horizontal bands, red cross | Cream, cool glass, red |
+| nycAirport | Low sweeping terminal | TWA-inspired wing roof, long concourses, control tower, runways and aircraft | White, dark asphalt, blue glass |
+
+## Bay Area sheets — written before modelling
+
+Heroes: goldenGate, ferryBuilding, salesforce, alcatraz, paintedLadies, sfCityHall. Primary references: [Bridge colour/Art Deco](https://www.goldengate.org/bridge/history-research/bridge-features/color-art-deco-styling/), [Ferry clock tower](https://www.ferrybuildingmarketplace.com/about/), [Victorians](https://www.sftravel.com/things-to-do/attractions/iconic-sf/painted-ladies), [NPS Alcatraz](https://www.nps.gov/alca/index.htm). Proportions below are compressed for a playable map. Real names are labels, with no corporate logo artwork.
+
+| ID | Shape / proportions | Signature features | Colours |
+|---|---|---|---|
+| goldenGate | Long thin suspension bridge, towers ~1/3 span | Two open ribbed towers, diminishing portals, sagging cables, vertical suspenders, truss deck, Marin headland | International orange, charcoal, green hills |
+| ferryBuilding | Long low hall under slender tower | Clock faces, stepped campanile, arcade, pitched roof, waterside piers | Warm cream, terracotta, pale clock |
+| salesforce | Very tall rounded tapered obelisk | Bulging glass shaft, rounded crown, dense vertical fins, horizontal floor lines, roof park | Cool blue glass, silver |
+| pier39 | Timber piers with low shops | Long wooden deck, pitched roof sheds, sea-lion docks, carousel canopy | Warm timber, blue roofs, brown seals |
+| alcatraz | Rocky oval island topped by long prison | Cream cellhouse, water tower, white lighthouse, stacked dock buildings, steep shoreline | Grey rock, cream, rust, white |
+| ggPark | Long low landscaped rectangle | Conservatory dome/wings, Japanese pagoda, paths, ponds and trees | Green, white glass, red timber |
+| dolores | Sloping lawn square | Two palm rows, tennis courts, paths, Mission church edge | Sage, brick, tan paths |
+| missionEats | Colourful low storefront strip | Flat cornices, murals, red awnings, patio tables | Ochre, turquoise, red |
+| paintedLadies | Six narrow stepped Victorian houses | Triangular gables, bay windows, ornate white trim, porches/stairs, sloping green | Pastel blue/pink/cream/lilac/green |
+| chaseCenter | Low broad asymmetrical arena | White wraparound ribbons, oval roof, glazed entry, raised plaza | White, silver, dark blue |
+| oraclePark | Waterfront baseball park | Brick arcade, fan-shaped field, green seating, tall light poles, cove edge | Brick, cream, dark green |
+| sfChinatown | Dense low street and gateway | Green tiled gateway, dragon roof corners, red pillars/lanterns, awnings | Green, red, ochre |
+| sfCityHall | Wide classical wings and giant dome | Tall ribbed dome, gold trim, columned drum, pediment, plaza | Pale stone, copper grey, gold |
+| fillmore | Compact ornate brick hall | Central tall window, projecting marquee, cornice and recessed entry | Red brick, cream, charcoal |
+| berkeleyCampus | Tall slender campanile and court | Square Sather tower, open belfry, pyramid roof, low classical halls | Pale limestone, red tile, green |
+| lakeMerritt | Curved lagoon in green lawn | Irregular lake, pergola columns, path loop, boathouse | Teal, cream, sage |
+| oaklandFox | Broad ornate theater front | Twin small domed towers, vertical FOX sign, arched central portal, marquee | Ochre, terracotta, teal |
+| stanford | Low red-tile quad plus tall tower | Hoover tower, arcaded courtyard, Mission church gable, palm approach | Sandstone, terracotta, green |
+| sandHill | Low offices in wooded landscape | Pitched tile roofs, broad glass fronts, courtyards, tall pines | Sand, brown tile, dark glass |
+| techCampus | Large circular low ring | Open green courtyard, continuous glass ribbons, roof solar strips, tree border | Silver, blue glass, green |
+| ucsf | Synthetic medical complex on hill | Terraced clinical blocks, long glazing strips, emergency cross, tall core | White, cool glass, red |
+| bayAirport | Terminal beside long water-edge runways | Oval central roof, parallel runways, tall control tower, concourse fingers, planes | White, grey, teal water |
+# Owner-directed Blender rebuild — reference sheets before modelling (2026-10-11)
+
+The owner rejected the previous procedural scene. Earlier self-review verdicts are superseded for the three places below. Reference photos are study evidence only, never game textures. Blender exports are authored locally. The map is compressed geographically; shape ratios within each landmark take priority over the old site squares.
+
+## Mercedes-Benz Stadium — revised sheet
+- Reference: [HOK architecture and street exterior](https://www.hok.com/projects/view/mercedes-benz-stadium/), its images Mercedes-Benz-1.jpg (street west glazing), -2.jpg (interior halo), -4.jpg (day exterior); [roof aerial](https://www.cladglobal.com/architecture_design_news?codeid=338506). Retrieved photos in evidence/art-rebuild. HOK identifies eight 220-foot petals and a 16-story window; dimensions in this sheet are artistic ratios, not surveyed construction plans.
+- Footprint roughly 1.2:1, broad angular mass; main facade height about one fifth of width, roof tips rise another tenth. Eight folded triangular roof wings slope inward/up, eight distinct ribbed ETFE moving petals rotate visually around an open central octagon. Do not make a level roof rim or vertical octagonal drum.
+- Signature features: aperture opening; alternating dark standing-seam metal / pale translucent ETFE triangles; diagonal folds carried down facade; very large triangular west glass wall with dense mullions; red seating bowl, green pitch and luminous interior halo visible through opening. No corporate logo.
+- Palette: silver white ETFE, charcoal slate metal, cool blue glass, white structural ribs, muted crimson seats, bright field green. Target below 12k triangles / at most four material batches.
+- Matching views: aerial from south-west with aperture fully visible; low west street view against HOK exterior. Compare roof blade overlap, uneven upper silhouette and full-height triangular glazing before acceptance.
+
+## Centennial Olympic Park — revised sheet
+- References: [landscape architect aerial](https://dtjdesign.com/project/centennial-olympic-park/), [landscape contractor plaza photo](https://gibsonlandscape.com/works/centennial-olympic-park/), [official site map](https://www.gwcc.com/docs/GWCC-Floor-Plan-Booklet-10.22.25.pdf), [official fountain description](https://www.gwcca.org/fountain-of-rings/), [Hermes towers](https://www.gwcca.org/landmarks-and-features/). Photos saved in evidence/art-rebuild; OpenStreetMap ways/nodes retrieved for actual park, neighbouring buildings and roads.
+- Long north-south urban park, about twice as long as broad. North Great Lawn; south brick-paved Centennial Plaza. Fountain is a zero-depth splash area: five overlapping circular nozzle tracks flat in plaza, water jets vertical. Eight tall slender Hermes towers surround plaza. Flag rows, pale square paving bands and regular tree avenues.
+- SkyView is across the south edge street, a white upright wheel with enclosed gondolas, no wheel in the lawn. Aquarium northwest, World of Coca-Cola northeast, GWCC west and State Farm Arena southwest form close skyline context. Existing canonical neighbours remain individually selectable; supplementary context carries no extra destination.
+- Palette: vivid green lawn, red/buff brick, white paving stripes and wheel, silver towers, pale blue water jets. Target <12k triangles including trees and wheel. Matching aerial from southern plaza toward lawn; reference shows wheel left and plaza foreground.
+
+## Piedmont Park — revised sheet
+- References: [official park map](https://piedmontpark.org/wp-content/uploads/2021/06/Map-2021-3.pdf), [official Lake Clara Meer plan](https://piedmont-park.b-cdn.net/Piedmont%20file%20optimized/Featured%20Area_Lake%20Clara%20Meer.pdf), aerial photos at [Sentral](https://sentral.com/sentral-stories/what-its-like-living-in-atlanta) and [Expedia Georgia](https://www.expedia.com/Georgia.d212.Destination-Travel-Guides). Retrieved aerial/lake images saved in evidence/art-rebuild. Need a ground-level lake view in addition before final acceptance.
+- Irregular wooded park broader in north, with Lake Clara Meer south/east of the Active Oval. Lake has a broad south basin, narrow north arm, indented east bank, wooded small island, a natural shoreline rather than a circular border. Meadow northeast/east; oval sports grounds west/northwest. Paths bend with contours and shore; bridge/boathouse at southwest lake edge.
+- Signature features: large empty meadow, kidney/finger-shaped reflective lake, winding light paths, Active Oval with two baseball diamonds, perimeter canopy with open field centre, Midtown towers directly west as skyline backdrop. Use kit tree geometry in baked park mesh and actual kit towers in the adjacent fabric; no generic round pond.
+- Palette: fresh lawn green, deep green foliage, turquoise-blue lake, tan paths, cream/stone pavilion. Matching aerial looking west over lake toward Midtown; include low lake-side view. Target <12k triangles. Formal stranger recognition remains untested; no automatic Yes.
+
+## Remaining Atlanta heroes — Blender revision sheets before modelling
+
+Photographs retrieved and inspected in evidence/art-rebuild/references-atl; source manifest records each URL and HTTP failure. Additional Jamestown street and Meier street views supplement the contact sheet. Inferences below come from visible architecture, with artistic compressed dimensions.
+
+| Hero | Proportions and signature geometry | Materials and matching views |
+|---|---|---|
+| capitol | Symmetric cross of four pale limestone wings; dome/drum together as tall as the four-storey base. Front pediment above six tall Corinthian-style columns, broad stairs; arched top-floor windows; tall colonnaded drum; gold bulb/hemisphere rising to lantern and tiny Miss Freedom silhouette. Cornices and corner pilasters articulate all wings. | Cream limestone, slate roof, lustrous gold dome. [Georgia DOR west view](https://dor.georgia.gov/), [NGE aerial](https://www.georgiaencyclopedia.org/articles/arts-culture/georgia-state-capitol/). Aerial southwest plus low front three-quarter. |
+| fox | Deep auditorium behind low street palace; main onion dome near frontage, smaller domed towers. Facade is light tan/buff horizontal striping, not predominantly red brick. Horseshoe arches, crenellated cornice, tall slender minaret. Red vertical FOX sign and projecting lit marquee are the strongest street cues. Dome has turquoise/brown geometric ribs, not plain copper sphere. | Buff/cream masonry, red sign, turquoise/brown dome pattern. [GPB dome restoration photos](https://www.gpb.org/news/2024/01/23/atlantas-fox-theatre-completes-renovation-on-onion-dome), [Marriott street photo](https://www.marriott.com/en-us/hotels/atlle-element-atlanta-midtown/photos/). Aerial roof + low sign/front. |
+| ponce | Eight-storey broad red-brick industrial U around central court, long rear bar and projecting wings. Taller square corner tower with pale top storey and pyramidal roof; dense multi-pane steel windows in vertical masonry bays; arched food hall portals; vertical PONCE place-name sign and rooftop place-name lettering; roof recreation deck. The old model's isolated central slab misses the U. | Warm red/orange brick, cream bands and tower crown, blue-grey glass, slate roofs, green rooftop play area. [Owner aerial/history](https://www.poncecitymarket.com/history), [Jamestown street/roof](https://www.jamestownlp.com/properties/ponce-city-market). Match southwest aerial into court and street tower. |
+| high | Meier building is an L-shaped white mass with a quarter-circle atrium cut from one quadrant, not a full cylindrical tower. Curved glazed ramp/atrium, white porcelain panel grid, projecting sloped entrance ramp. Piano wings flank open piazza: white vertically ribbed galleries with tightly repeated north-light roof scoops and glass links. | Crisp white, cool pale glazing, light concrete; low black/white abstract sculpture built as simple original shapes. [Metal-Era aerial](https://www.metalera.com/metal-era-learning-center/project-profile-high-museum-of-art), [Meier street photos](https://architecture-history.org/architects/architects/MEIER/OBJ/1980-1983%2CHigh%20Museum%20of%20Art%2C%20Atlanta%2C%20USA.html). Aerial over scoops + front atrium. |
+| aquarium | Long low exhibit halls with broad pale sloped roof, prominent deep-blue sail/ship-like front; rounded white-roof entry pavilion in front; sweeping curved blue band below white cornice; raised angular blue blade continuing over main hall. Glass skylight rectangles and curved planted arrival paths. Old pale hemisphere is wrong. | Vivid ocean blue, silver/white roof, aqua glass, charcoal roof equipment. [Alucobond supplier architecture](https://www.alucobondusa.com/blog/georgia-aquarium/); aerial/street photos in manifest. Match southeast aerial and low blue entry facade. |
+
+- Target each <12,000 triangles / <=4 material batches. Other heroes keep their earlier specification IDs and gameplay; these exports replace geometry only.
+
+## Atlanta Blender checkpoint — visual self-review
+
+Final integrated day/night evidence: evidence/art-rebuild/atl-final (1280x800, 667x375 and 375x812). Before/after comparisons are named benz-comparison.png, centennial-comparison.png and piedmont-comparison.png. Export/reference comparisons are in photo-comparisons. Camera directions correspond approximately; these are artistic, compressed models, not photogrammetric camera calibration. Ground views supplement aerial study. No independent stranger recognition test has run.
+
+| Place | One-second naming judgment in the Atlanta map | Export triangles / batches | Remaining visible simplification |
+|---|---|---|---|
+| Mercedes-Benz Stadium | Yes: eight aperture petals, folded sloping perimeter and huge west glazing now distinguish it immediately. | 2,856 / 2 | Opening and seating are exaggerated for readability; ETFE is opaque pale material with rib geometry. |
+| Centennial Olympic Park | Yes: flat five-ring jets, brick lawn grid and SkyView across the south street provide the combined identity. | 3,609 / 2 | GWCC and Coca-Cola context are simplified masses; Aquarium/Arena remain separate destinations. |
+| Piedmont Park | Yes in Atlanta context: natural irregular lake, meadow, Active Oval, stone bridge and west-side crowned Midtown towers replace the generic round pond. | 10,383 / 2 | Only three context towers, compressed shoreline and simplified kit canopy; identity is weaker without the skyline context. |
+| Georgia State Capitol | Yes: tall gold dome/colonnaded drum, six-column pediment and pale cross-wing composition. | 4,266 / 1 | Small statuary and Corinthian capitals are symbolic low-poly forms. |
+| Fox Theatre | Yes: buff striped palace, patterned onion dome, red FOX blade and projecting marquee. | 2,788 / 1 | Dome pattern is geometric colour facets; deep auditorium has restrained detail. |
+| Ponce City Market | Yes: broad industrial U, dense window bays, pale pyramidal corner tower and roof lettering. | 4,360 / 1 | Roof recreation and food-hall frontage are compressed. |
+| High Museum | Yes for a viewer familiar with its architecture: white Meier curved atrium/ramp, panel grid and Piano roof scoops. | 4,198 / 1 | The campus piazza and gallery wings are compressed; no signage used to force recognition. |
+| Georgia Aquarium | Yes: broad white hall, angular blue sail and curved blue arrival pavilion. | 1,553 / 1 | Roof equipment and entry landscape are abbreviated. |
+
+These judgments replace previous procedural hero verdicts, not owner acceptance. Existing nonhero weaknesses such as exact Truist identity remain recorded above. City layout still has sparse areas and abrupt road terminations; the new kits improve detail but do not establish a finished city street network.
+
+Palette evidence: palette-comparison.png uses the reference landing view and Metro Centennial at comparable local building scale. A simple HSV green-pixel diagnostic (palette.json) measured reference median saturation .283 / value .718, old Metro .207 / .710, revised Metro .289 / .761. The revised scene is slightly brighter, with saturation close to the reference and no olive light tint. Different framing/UI prevent a precise whole-image colour equivalence claim.
+
