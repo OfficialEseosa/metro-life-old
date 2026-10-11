@@ -16,6 +16,8 @@ import { blenderHeroes } from './hero-ids'
 import { useNightLighting } from '../lighting'
 import { Pins } from './pins'
 import { WorldActivity, PlayerMarker } from './activity'
+import { EconomyScene } from './economy'
+import { plotSite, boardSites } from './economy-sites'
 
 declare global {
   interface Window { __metroScene?: { status:()=>{kits:{count:number;visible:boolean;parentVisible:boolean}[];terrain:{visible:boolean;color:string;emissive:string}|null;frameloop:string;frame:number}; refreshShadows:()=>void; focus: (id: string | null) => void; theme: (value: 'day' | 'night') => void; metrics: () => { calls: number; triangles: number; fps: number; p95Ms: number; renderer: string }; hidePins: (hidden: boolean) => void; project: (id: string) => { x: number; y: number }; geometry: () => Record<string, number> } }
@@ -78,7 +80,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
     return {eye:preview.position.clone(),target}
   }, [camera,atlSites,insets,size.width,size.height])
   const view = useCallback((id: string | null, immediate = false, welcome = false) => {
-    const site = id==='home'?homeSite(city,home):id ? atlSites[id] : null
+    const site = id==='home'||id==='homes'?homeSite(city,home):id==='plots'?plotSite(city):id?.startsWith('billboard-')?boardSites(city,city==='atl'?20:city==='nyc'?24:22)[Number(id.split('-')[1])-1]:id ? atlSites[id] : null
     const distance = site ? Math.max(22, site.size * 1.18, site.height*1.1) * 1.3 * Math.max(1, .85 / (Math.max(120,size.width-insets.left-insets.right) / Math.max(160,size.height-insets.top-insets.bottom))) * size.height/Math.max(size.height*.35,size.height-insets.top-insets.bottom) : 0
     const next = site ? { target: new THREE.Vector3(site.x, site.height * .5, site.z), eye: new THREE.Vector3(site.x + distance * .7, site.height * .5 + distance * .75, site.z + distance) } : overview()
     // A first phone view favours readable neighbourhoods; the overview button still fits every stop.
@@ -88,7 +90,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
       const obstacles: THREE.Box3[]=[],matrix=new THREE.Matrix4(),instance=new THREE.Matrix4()
       scene.updateMatrixWorld(true)
       scene.traverse(object=>{
-        if(!(object instanceof THREE.Mesh))return
+        if(!(object instanceof THREE.Mesh)||object.name==='billboards'||object.name==='billboard-frames')return
         let owner:THREE.Object3D|null=object
         while(owner&&!Object.hasOwn(atlSites,owner.name))owner=owner.parent
         if(owner?.name===id)return
@@ -99,7 +101,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
         else obstacles.push(bounds.clone().applyMatrix4(object.matrixWorld))
       })
       let bestScore=Infinity
-      const angles=['arena','grandCentral','met','ferryBuilding','paintedLadies','sfCityHall','apollo','broadway','williamsburgVenue','chinatown','sfChinatown','fifthAve','cityHall','dumbo','fillmore','oaklandFox','missionEats','wallStreet'].includes(id??'')?[0,-.61,.61]:id==='benz'?[-Math.PI/2,-1.2,-.61,.61,0,1.2,Math.PI/2,Math.PI]:id==='piedmont'?[Math.PI/2,1.2,.61,0,-.61,-1.2,-Math.PI/2,Math.PI]:[.61,0,-.61,1.2,-1.2,Math.PI/2,-Math.PI/2,Math.PI]
+      const angles=id?.startsWith('billboard-')?[0,-.61,.61]:['arena','grandCentral','met','ferryBuilding','paintedLadies','sfCityHall','apollo','broadway','williamsburgVenue','chinatown','sfChinatown','fifthAve','cityHall','dumbo','fillmore','oaklandFox','missionEats','wallStreet'].includes(id??'')?[0,-.61,.61]:id==='benz'?[-Math.PI/2,-1.2,-.61,.61,0,1.2,Math.PI/2,Math.PI]:id==='piedmont'?[Math.PI/2,1.2,.61,0,-.61,-1.2,-Math.PI/2,Math.PI]:[.61,0,-.61,1.2,-1.2,Math.PI/2,-Math.PI/2,Math.PI]
       for(const angle of angles)for(const elevation of [.75,1.05,1.4]){
         const eye=new THREE.Vector3(site.x+Math.sin(angle)*distance*1.22,site.height*.5+distance*elevation,site.z+Math.cos(angle)*distance*1.22)
         let score=0
@@ -111,7 +113,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
     destination.current=null
     if(immediate||matchMedia('(prefers-reduced-motion: reduce)').matches) {camera.position.copy(next.eye);controls.current?.target.copy(next.target);controls.current?.update();useStore.getState().setCameraMoving(false);invalidate()} else {destination.current=next;useStore.getState().setCameraMoving(true);invalidate()}
   }, [camera,invalidate,overview,scene,size.width,size.height,atlSites,city,home,playing,insets])
-  useEffect(() => {const s=useStore.getState();view(s.panel==='location'?s.selectedLoc:null,!s.sim,true)}, [view])
+  useEffect(() => {const s=useStore.getState();view(s.panel==='location'?s.selectedLoc:s.panel==='plots'?'plots':s.panel==='billboard'?`billboard-${s.selectedSlot??1}`:s.panel==='homes'?'home':s.panel==='mayor'?(city==='atl'?'capitol':city==='nyc'?'cityHall':'sfCityHall'):null,!s.sim,true)}, [view,city])
   useEffect(() => {if(focus){view(focus);useStore.getState().setFocus(null)}}, [focus,view])
   useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=new THREE.Fog(night?'#223752':'#d7e0dd',500,1100);invalidate()}, [gl,scene,night,city,invalidate])
   useEffect(() => {const wake=()=>{lastFrame.current=0;invalidate()};document.addEventListener('visibilitychange',wake);return()=>document.removeEventListener('visibilitychange',wake)},[invalidate])
@@ -123,18 +125,18 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   })
   useEffect(()=>{
     if(!import.meta.env.DEV)return
-    window.__metroScene={status:()=>{const kits:{name?:string;triangles:number;shadow:boolean;count:number;visible:boolean;parentVisible:boolean}[]=[];scene.traverse(o=>{if(o instanceof THREE.InstancedMesh)kits.push({name:o.parent?.name,triangles:(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3*o.count,shadow:o.castShadow,count:o.count,visible:o.visible,parentVisible:o.parent?.visible??true})});const ground=scene.getObjectByName('terrain') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>|undefined;return{kits,terrain:ground?{visible:ground.visible,color:ground.material.color.getHexString(),emissive:ground.material.emissive.getHexString()}:null,camera:{eye:camera.position.toArray(),target:controls.current?.target.toArray(),offset:(camera as THREE.PerspectiveCamera).view},insets,frameloop,frame:gl.info.render.frame}},refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=atlSites[id],v=new THREE.Vector3(s.x,s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id);let count=0;m?.traverse(o=>{if(o instanceof THREE.Mesh)count+=(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3});return[id,count]})),metrics:()=>{
+    window.__metroScene={status:()=>{const kits:{name?:string;triangles:number;shadow:boolean;count:number;visible:boolean;parentVisible:boolean}[]=[];scene.traverse(o=>{if(o instanceof THREE.InstancedMesh)kits.push({name:o.parent?.name,triangles:(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3*o.count,shadow:o.castShadow,count:o.count,visible:o.visible,parentVisible:o.parent?.visible??true})});const ground=scene.getObjectByName('terrain') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>|undefined;const plot=scene.getObjectByName('plots-field') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshBasicMaterial>|undefined;return{plotTexture:plot?{url:(plot.material.map?.image as HTMLImageElement|undefined)?.src,width:(plot.material.map?.image as HTMLImageElement|undefined)?.width,version:plot.material.map?.version}:null,kits,terrain:ground?{visible:ground.visible,color:ground.material.color.getHexString(),emissive:ground.material.emissive.getHexString()}:null,camera:{eye:camera.position.toArray(),target:controls.current?.target.toArray(),offset:(camera as THREE.PerspectiveCamera).view},insets,frameloop,frame:gl.info.render.frame}},refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const s=id==='plots'?plotSite(city):id.startsWith('billboard-')?boardSites(city,city==='atl'?20:city==='nyc'?24:22)[Number(id.slice(10))-1]:atlSites[id],v=new THREE.Vector3(s.x,id==='plots'?.3:id.startsWith('billboard-')?3.25:s.height+2,s.z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id);let count=0;m?.traverse(o=>{if(o instanceof THREE.Mesh)count+=(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3});return[id,count]})),metrics:()=>{
       const times=[...timings.current].sort((a,b)=>a-b),context=gl.getContext(),debug=context.getExtension('WEBGL_debug_renderer_info')
       return{calls:gl.info.render.calls,triangles:gl.info.render.triangles,fps:times.length?1000/(times.reduce((a,b)=>a+b,0)/times.length):0,p95Ms:times[Math.floor(times.length*.95)]??0,renderer:debug?context.getParameter(debug.UNMASKED_RENDERER_WEBGL):'unknown'}
     }}
     return()=>{delete window.__metroScene}
-  },[camera,gl,scene,size.width,size.height,view,invalidate,atlSites,frameloop,insets])
+  },[camera,gl,scene,size.width,size.height,view,invalidate,atlSites,frameloop,insets,city])
   return <>
     <Sky night={night}/><hemisphereLight args={[night?'#9bb0d1':'#d6e6ef',night?'#3a4d63':'#afc8dc',1.7]}/>
     <directionalLight position={[-55,90,45]} intensity={night?.65:2.1} color={night?'#8aa7df':'#ffffff'} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-100} shadow-camera-right={100} shadow-camera-top={100} shadow-camera-bottom={-100} shadow-camera-near={1} shadow-camera-far={230} shadow-bias={-.0003} shadow-normalBias={.12}/>
     {city==='atl'?<><mesh name="ground" position={[0,-.05,0]} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><planeGeometry args={[2000,2000]}/><meshStandardMaterial color={night?'#598065':'#8ebd75'} emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><Terrain night={night}/><Fabric night={night}/></>:<MetropolitanFabric city={city} night={night}/>}
     <Architecture key={`architecture-${city}`} city={city}/><Home city={city}/><Lake night={night} city={city}/>{!pinsHidden&&<Pins key={`pins-${city}`} onHover={onHover}/>}
-    <WorldActivity/><OrbitControls ref={controls} enabled={!beat&&!['play','setup','signup','login','worlds'].includes(panel??'')} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null;useStore.getState().setCameraMoving(true)}} onEnd={()=>useStore.getState().setCameraMoving(false)} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
+    <EconomyScene night={night}/><WorldActivity/><OrbitControls ref={controls} enabled={!beat&&!['play','setup','signup','login','worlds'].includes(panel??'')} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null;useStore.getState().setCameraMoving(true)}} onEnd={()=>useStore.getState().setCameraMoving(false)} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
   </>
 }
 export default function CityScene() {

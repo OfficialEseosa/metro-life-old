@@ -19,7 +19,7 @@ public class ApiController {
     @GetMapping("/world") ObjectNode world(){return content.world;}
     @GetMapping("/version") Map<String,String> version(){return Map.of("build","metro-life-m1");}
     @GetMapping("/stats") ObjectNode stats(){return game.stats();}
-    @GetMapping("/daily") ObjectNode daily(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="atl")String city){return game.daily(token,city);}
+    @GetMapping("/daily") ObjectNode daily(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.daily(token,game.defaultCity(token,city));}
     @GetMapping("/auth/me") ObjectNode me(@CookieValue(name="ml_session",required=false)String token){return game.me(token);}
     @PostMapping("/auth/{kind:guest|signup|login}") ObjectNode auth(@PathVariable String kind,@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){GameService.AuthResult result=switch(kind){case "guest"->game.guest(token,body);case "signup"->game.signup(token,body);default->game.login(token,body);};cookie(req,res,result.token());ObjectNode out=game.object();out.set("user",result.user());return out;}
     @PostMapping("/auth/logout") ObjectNode logout(@CookieValue(name="ml_session",required=false)String token,HttpServletRequest req,HttpServletResponse res){cookie(req,res,"");return game.logout(token);}
@@ -32,9 +32,20 @@ public class ApiController {
     @PostMapping("/act") ObjectNode act(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.act(token,body);}
     @PostMapping("/aspiration") ObjectNode aspiration(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.setAspiration(token,body);}
     @PostMapping("/story/choose") ObjectNode choose(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.chooseStory(token,body);}
-    @GetMapping("/jobs") ObjectNode jobs(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="atl")String city){return game.jobs(token,city);}
+    @GetMapping("/jobs") ObjectNode jobs(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.jobs(token,game.defaultCity(token,city));}
     @PostMapping("/jobs/apply") ObjectNode apply(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.applyJob(token,body);}
     @PostMapping("/jobs/quit") ObjectNode quit(@CookieValue(name="ml_session",required=false)String token){return game.quitJob(token);}
+    @GetMapping("/mayor") ObjectNode mayor(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.mayor(token,game.defaultCity(token,city));}
+    @PostMapping("/mayor/{kind:vote|run|policy|announce}") ObjectNode civic(@PathVariable String kind,@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.mayorAction(token,kind,body);}
+    @GetMapping("/plots") ObjectNode plots(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.plots(token,game.defaultCity(token,city));}
+    @PostMapping("/plots") ObjectNode buyPlot(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.buyPlot(token,body);}
+    @GetMapping("/billboards") ObjectNode boards(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.billboards(token,game.defaultCity(token,city));}
+    @PostMapping("/billboards") ObjectNode book(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.bookBillboard(token,body);}
+    @GetMapping("/homes") ObjectNode homes(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.homes(token,game.defaultCity(token,city));}
+    @PostMapping("/home/move") ObjectNode move(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.moveHome(token,body);}
+    @GetMapping(value="/plots/atlas.png",produces="image/png") ResponseEntity<byte[]> atlas(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city,@RequestParam(defaultValue="")String world){return ResponseEntity.ok().header("Cache-Control","private, no-cache").body(game.atlas(token,game.defaultCity(token,city),world));}
+    @GetMapping(value="/{kind:plots|billboards}/{id}/image",produces="image/png") ResponseEntity<byte[]> art(@PathVariable String kind,@PathVariable String id,@CookieValue(name="ml_session",required=false)String token){return ResponseEntity.ok().header("Cache-Control","private, max-age=60").body(game.art(token,kind,id));}
+
 }
 
 @RestControllerAdvice

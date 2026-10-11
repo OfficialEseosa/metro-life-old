@@ -14,6 +14,7 @@ import type {
   ServerEvent,
   Sim,
   Stats,
+  Rect,
   User,
   World,
   WorldInfo,
@@ -78,6 +79,8 @@ type State = {
   panel: Panel
   selectedLoc: string | null
   selectedSlot: number | null
+  plotSelection: Rect | null
+  setPlotSelection: (rect:Rect) => void
   /** set by the UI to make the scene camera fly to a landmark id, "plots", "homes" or "home"; the scene clears it */
   focus: string | null
   /** last action result, for a toast; the UI clears it */
@@ -164,6 +167,7 @@ export const useStore = create<State>((set, get) => {
     panel: null,
     selectedLoc: null,
     selectedSlot: null,
+    plotSelection:null,setPlotSelection:plotSelection=>set({plotSelection}),
     focus: null,
     lastResult: null,
 
@@ -176,27 +180,27 @@ export const useStore = create<State>((set, get) => {
     syncSession: async () => {
       const me = await safe(api.me())
       const city = me?.sim?.city ?? get().city
-      set({ user: me?.user ?? null, worldInfo: me?.world ?? null, sim: me?.sim ?? null, clock: me?.clock ?? null, city })
+      set({ user: me?.user ?? null, worldInfo: me?.world ?? null, sim: me?.sim ?? null, clock: me?.clock ?? null, city, mayor:null,plots:null,billboards:null,homes:null,plotSelection:null })
       // Civic and live resources become available in M6/M7; do not poll absent routes.
       if (realtimeEnabled) reconnect()
-      await get().refresh('daily')
+      await get().refresh('daily','mayor','plots','billboards')
     },
 
     setCity: async (city) => {
       if (city === get().city) return
-      set({ city, daily: null, mayor: null, plots: null, billboards: null, homes: null, players: [], chat: [], selectedLoc: null, selectedSlot: null, panel:null,focus:'overview' })
+      set({ city, daily: null, mayor: null, plots: null, billboards: null, homes: null, players: [], chat: [], selectedLoc: null, selectedSlot: null,plotSelection:null, panel:null,focus:'overview' })
       socket?.send({ type: 'view', city })
-      await get().refresh('daily')
+      await get().refresh('daily','mayor','plots','billboards')
     },
 
     refresh: async (...what) => {
-      const city = get().city
+      const city = get().city,worldId=get().worldInfo?.id
       const jobs: Promise<void>[] = []
       const put = <K extends keyof State>(key: K, p: Promise<State[K] | null>) =>
         jobs.push(
           p.then((v) => {
             // drop the result if the user switched city meanwhile
-            if (get().city === city && v !== null) set({ [key]: v } as Pick<State, K>)
+            if (get().city === city && get().worldInfo?.id===worldId && v !== null) set({ [key]: v } as Pick<State, K>)
           }),
         )
       for (const w of what) {

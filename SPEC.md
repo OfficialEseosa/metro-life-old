@@ -91,8 +91,26 @@ plots grid `cols x rows` cells with origin top-left, x right, y down).
 - **Mayor**: one per city per world, elected by term (3 game days). Vote, run (needs Charisma 2), campaign
   actions add votes. The mayor sets a weekly policy (from `shared/world.json`, small gameplay modifier) and
   can post an announcement.
+  A term closes at midnight on days 4, 7, 10, etc. One vote per resident per term; ties go to the first
+  candidate registered, and a ballot with zero votes elects nobody. Running is free. A registered candidate's
+  canonical Campaign activity adds one support vote at completion, at most once per game day. Policies may
+  be chosen once per term and end with the term: transit makes non-flight airport rides free; parks extend
+  to midnight; smallbiz adds 5% work pay; arts extends culture hours to midnight and removes after-18:00
+  non-job costs; housing cuts daily rent by 20%; nightlife extends hours to 04:00. Announcements are plain
+  text, 3–140 characters, without links, at most once per game hour.
 - **Social**: at the same landmark you can wave, hang out (+social for both) or gift cash. City chat per world.
-- **Plots** (ad grid, one field per city) and **billboards** (slots per city): bought with in-game cash.
+- **Plots**: rectangles of 1–12 cells in each dimension, $35 per cell for seven game days, with atomic
+  bounds/overlap validation. One generated atlas PNG per city/world; no per-cell meshes or image requests.
+  Booking is immediate under the server lock, so `holds` is empty. Titles use 3–48 plain-text characters;
+  links are optional HTTP(S). No external artwork uploads or real payments.
+- **Billboards**: $300 for three game days, exclusive sequential bookings, maximum four outstanding per
+  slot. A resident cannot book the same slot twice while a booking is active/queued. Response `ad.startsAt`
+  discloses a future booking; reads expose current ad, queued count and the next available timestamp.
+- **Homes and rent**: moving requires being in the destination city and costs one day's rent, shown before
+  acceptance. Daily rent first falls due at the next midnight. Unpaid amounts persist as public `rentDebt`;
+  available funds repay them automatically without making cash negative. Accepted activity costs are reserved
+  while rent settles. Purchases, move fees and actual rent payments update `moneyToday.spent`; aspiration
+  rewards update income. All civic and property mutations require a sim and no pending activity/story.
 
 ## API (JSON; cookie session `ml_session`; errors `{ "error": "message" }` with 4xx; 401 = "Please log in")
 

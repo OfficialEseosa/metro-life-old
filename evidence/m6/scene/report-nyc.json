@@ -1,0 +1,131 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "nyc",
+      "theme": "day",
+      "metrics": {
+        "calls": 43,
+        "triangles": 228658,
+        "fps": 59.80265125087212,
+        "p95Ms": 17.69999998807907,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "peak": {
+        "calls": 67,
+        "triangles": 280022,
+        "fps": 59.80265125087212,
+        "p95Ms": 17.69999998807907,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "nyc",
+      "theme": "night",
+      "metrics": {
+        "calls": 43,
+        "triangles": 228658,
+        "fps": 59.80265125087212,
+        "p95Ms": 17.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "peak": {
+        "calls": 67,
+        "triangles": 280022,
+        "fps": 59.80384339359771,
+        "p95Ms": 17.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "nyc",
+      "raycastUv": true,
+      "picked": {
+        "x": 28,
+        "y": 15,
+        "w": 2,
+        "h": 2
+      },
+      "texture": {
+        "url": "http://127.0.0.1:5173/api/plots/atlas.png?city=nyc&world=fda6238d-de33-4289-94f7-96eeaf042e7b&v=0",
+        "width": 1344,
+        "version": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "nyc",
+      "theme": "day",
+      "metrics": {
+        "calls": 43,
+        "triangles": 228658,
+        "fps": 59.997600095960394,
+        "p95Ms": 18.100000008940697,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "peak": {
+        "calls": 67,
+        "triangles": 280022,
+        "fps": 59.997600095960394,
+        "p95Ms": 18.100000008940697,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "nyc",
+      "theme": "night",
+      "metrics": {
+        "calls": 43,
+        "triangles": 228658,
+        "fps": 60.00480038410225,
+        "p95Ms": 17.700000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "peak": {
+        "calls": 67,
+        "triangles": 280022,
+        "fps": 60.03001500750375,
+        "p95Ms": 17.599999994039536,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "nyc",
+      "raycastUv": true,
+      "picked": {
+        "x": 28,
+        "y": 15,
+        "w": 2,
+        "h": 2
+      },
+      "texture": {
+        "url": "http://127.0.0.1:5173/api/plots/atlas.png?city=nyc&world=8e59ae8a-ed5e-49cc-976d-28abba8fea90&v=0",
+        "width": 1344,
+        "version": 1
+      }
+    }
+  ],
+  "errors": []
+}

@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { atlSites } from './cities/atl'
 import { KitInstances } from './kit-models'
 import osm from './atl-osm.json'
+import { outsidePlots, outsideBoards } from './economy-sites'
 
 const noPick = () => {}
 export type Placement = { x: number; y: number; z: number; sx: number; sy: number; sz: number; angle: number; color: string; pitch?:number }
@@ -29,7 +30,7 @@ function fabricData(){
  let seed=421;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
  const homes:Placement[]=[],blocks:Placement[]=[],towers:Placement[]=[],trees:Placement[]=[],lamps:Placement[]=[],cars:Placement[]=[]
  const p=(x:number,z:number,sx=1,sy=1,sz=1,color='#ffffff',angle=0):Placement=>({x,y:0,z,sx,sy,sz,color,angle})
- const clear=(x:number,z:number,margin=3)=>Object.values(atlSites).every(s=>Math.hypot(s.x-x,s.z-z)>s.size*.5+margin)
+ const clear=(x:number,z:number,margin=3)=>outsidePlots('atl',x,z,margin)&&outsideBoards('atl',x,z,margin)&&Object.values(atlSites).every(s=>Math.hypot(s.x-x,s.z-z)>s.size*.5+margin)
  for(let z=-64;z<=64;z+=9)for(let x=-63;x<=63;x+=9){
   const px=x+(rand()-.5)*2,pz=z+(rand()-.5)*2;if(!clear(px,pz)||Math.abs(px)<5||Math.abs(px%20)<3||Math.abs(pz%20)<3)continue
   const central=Math.abs(px)<20&&pz>-45&&pz<40,buckhead=pz<-48&&px>-5&&px<35,oldFourth=px>22&&px<45&&pz>-25&&pz<35,west=px<-25&&pz>10
@@ -54,7 +55,7 @@ function kitFabric(){
  source.lamps.forEach(p=>add('kaykit/streetlight.gltf',{...p,sx:.8,sy:2.5,sz:.25,color:'#ffffff'}))
  source.cars.forEach((p,i)=>add(`kaykit/car_${i%2?'hatchback':'sedan'}.gltf`,{...p,sx:.7,sy:.6,sz:1.3,color:'#ffffff',angle:i%2?0:Math.PI}))
  const park=(x:number,z:number)=>(x>5&&x<35&&z>-55&&z<-16)||(x>-28&&x<0&&z>-15&&z<23)
- const clearRoad=(x:number,z:number)=>!park(x,z)&&Object.entries(atlSites).every(([id,s])=>id==='beltline'||Math.hypot(x-s.x,z-s.z)>s.size*.47+1)
+ const clearRoad=(x:number,z:number)=>outsidePlots('atl',x,z,3)&&!park(x,z)&&Object.entries(atlSites).every(([id,s])=>id==='beltline'||Math.hypot(x-s.x,z-s.z)>s.size*.47+1)
  const tile=(x:number,z:number,angle:number,type='straight')=>{if(clearRoad(x,z)&&!(x>-46&&x<0&&z>-20&&z<53))add(`kaykit/road_${type}.gltf`,{x,y:.02,z,sx:3.4,sy:.1,sz:4,angle,color:'#ffffff'})}
  for(let x=-60;x<=60;x+=20)for(let z=-68;z<=68;z+=4)if(z%20!==0)tile(x,z,0)
  for(let z=-60;z<=60;z+=20)for(let x=-64;x<=64;x+=4)if(x%20!==0)tile(x,z,Math.PI/2)

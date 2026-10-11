@@ -35,6 +35,7 @@ public class Content {
             home.add(action("shower","Take a shower","rest","droplets",15,0,0,Map.of("energy",18,"fun",12),Map.of()));
             home.add(action("invite","Invite a friend over","social","users",30,0,0,Map.of("social",35,"fun",10),Map.of("charisma",18)));
         }
+        String[] effects={"Non-flight airport rides cost $0.","Parks stay open until midnight.","Work activities pay 5% more.","Culture activities are free after 18:00 and open until midnight.","Daily rent is reduced by 20%.","Nightlife venues stay open until 04:00."};int policyIndex=0;for(JsonNode policy:world.path("policies"))((ObjectNode)policy).put("effect",effects[policyIndex++]);
         ArrayNode skills=world.putArray("skills"); String[] icons={"dumbbell","cooking-pot","music","cpu","messages-square","palette","chart-no-axes-combined"};
         for(int i=0;i<SKILLS.length;i++) skills.addObject().put("id",SKILLS[i]).put("label",title(SKILLS[i])).put("icon",icons[i]);
         ArrayNode careers=world.putArray("careers");

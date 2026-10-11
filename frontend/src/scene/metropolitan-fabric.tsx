@@ -9,6 +9,7 @@ import { nycEast,nycLand } from './cities/nyc'
 import { bayWest,bayEast,bayMarin } from './cities/bay'
 import { suspension } from './metropolitan-models'
 import osm from './city-osm.json'
+import { outsidePlots, outsideBoards } from './economy-sites'
 const noPick=()=>{}
 function inside(x:number,z:number,poly:number[][]){let yes=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])yes=!yes}return yes}
 function land(b:Builder,poly:number[][],color:string){const s=new THREE.Shape();poly.forEach(([x,z],i)=>i?s.lineTo(x,-z):s.moveTo(x,-z));s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:.8,bevelEnabled:true,bevelSize:.7,bevelThickness:.2,bevelSegments:1});g.rotateX(-Math.PI/2);b.add(g,color,0,-.95,0)}
@@ -19,7 +20,7 @@ function dataFor(city:'nyc'|'bay'){
  const homes:Placement[]=[],blocks:Placement[]=[],towers:Placement[]=[],brownstones:Placement[]=[],victorianRows:Placement[]=[],trees:Placement[]=[],cars:Placement[]=[],roads:Placement[]=[]
  const isLand=(x:number,z:number)=>polys.some(poly=>inside(x,z,poly))
  const footprints:Record<string,[number,number]>={empire:[14,11],oneWtc:[19,19],grandCentral:[21,15],met:[29,20],cityHall:[18,12],centralPark:[25,34],brooklynBridge:[10,43],goldenGate:[10,64],ferryBuilding:[27,12],salesforce:[15,22],sfCityHall:[30,18],paintedLadies:[20,14],ggPark:[25,13],dolores:[18,14],highLine:[4,21]}
- const clearSite=(x:number,z:number,pad:number)=>Object.entries(sites).every(([id,s])=>{const a=s.angle??0,dx=x-s.x,dz=z-s.z,lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a),[w,d]=footprints[id]??[s.size*.9,s.size*.9];return Math.abs(lx)>w*.5+pad||Math.abs(lz)>d*.5+pad})
+ const clearSite=(x:number,z:number,pad:number)=>outsidePlots(city,x,z,pad)&&outsideBoards(city,x,z,pad)&&Object.entries(sites).every(([id,s])=>{const a=s.angle??0,dx=x-s.x,dz=z-s.z,lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a),[w,d]=footprints[id]??[s.size*.9,s.size*.9];return Math.abs(lx)>w*.5+pad||Math.abs(lz)>d*.5+pad})
  const baseHill=(x:number,z:number)=>{
   if(city!=='bay'||x>-30||z<-43||z>70)return 0
   let height=9*Math.exp(-((x+76)**2+(z+22)**2)/600)+6*Math.exp(-((x+55)**2+(z-49)**2)/500)

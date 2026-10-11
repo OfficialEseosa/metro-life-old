@@ -1,0 +1,31 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "earnedCharisma": true,
+      "runVoteCampaign": true,
+      "plotPurchaseAndAtlas": true,
+      "boardPurchaseAndQueue": true,
+      "homeMove": true,
+      "reload": true,
+      "conflict": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "earnedCharisma": true,
+      "runVoteCampaign": true,
+      "plotPurchaseAndAtlas": true,
+      "boardPurchaseAndQueue": true,
+      "homeMove": true,
+      "reload": true,
+      "conflict": true
+    }
+  ],
+  "errors": []
+}

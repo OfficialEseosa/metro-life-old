@@ -169,6 +169,7 @@ export type Sim = {
   loc: string | null
   home: { city: CityId; neighborhood: string; rent: number }
   cash: number
+  rentDebt?: number
   moneyToday?: { income: number; spent: number }
   xp: number
   level: number
@@ -248,6 +249,7 @@ export type MayorState = {
   candidates: Candidate[]
   myVote: string | null
   running: boolean
+  campaignReady: boolean
   /** true when allowed, otherwise the reason */
   canRun: true | string
   canVote: true | string
@@ -272,7 +274,7 @@ export type Plots = {
   atlasCell: number
 }
 
-export type BillboardAd = { id: string; title: string; link: string; image: string; owner: string; endsAt: number }
+export type BillboardAd = { id: string; title: string; link: string; image: string; owner: string; endsAt: number; startsAt?: number }
 export type BillboardSlot = { slot: number; ad: BillboardAd | null; queue: number; freeFrom: number }
 export type Billboards = { city: CityId; days: number; price: number; slots: BillboardSlot[] }
 

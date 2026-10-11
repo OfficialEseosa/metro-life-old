@@ -116,7 +116,7 @@ class CoreTests {
         assertEquals(165,completed.path("moneyToday").path("income").asInt());assertEquals(0,completed.path("moneyToday").path("spent").asInt());
         JsonNode cooking=restarted.act(token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"cook\"}"));now=cooking.path("sim").path("busyUntil").asLong();
         JsonNode meal=restarted.getSim(token).path("sim");assertEquals(210,meal.path("moneyToday").path("income").asInt());assertEquals(12,meal.path("moneyToday").path("spent").asInt());
-        now+=24*60000;JsonNode nextDay=restarted.getSim(token).path("sim");assertEquals(0,nextDay.path("moneyToday").path("income").asInt());assertEquals(0,nextDay.path("moneyToday").path("spent").asInt());
+        now+=24*60000;JsonNode nextDay=restarted.getSim(token).path("sim");assertEquals(0,nextDay.path("moneyToday").path("income").asInt());assertEquals(65,nextDay.path("moneyToday").path("spent").asInt());
     }
     @Test void criticalNeedsBlockWorkAndLowMoodPayStillSettlesAtCompletion()throws Exception{
         worldAndSim();game.applyJob(token,json("{\"jobId\":\"tech-1\"}"));ObjectNode s=game.sim(game.session(token,true));s.withObject("needs").put("energy",0);
@@ -126,8 +126,8 @@ class CoreTests {
     }
     @Test void actionAcrossMidnightPaysTodaysLedgerWithoutRestoringOldDailyGoals()throws Exception{
         worldAndSim();now+=15*60000-1000;JsonNode started=game.act(token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"cook\"}"));long end=started.path("sim").path("busyUntil").asLong();
-        now+=1200;JsonNode midnight=game.getSim(token).path("sim");assertEquals(2500,midnight.path("cash").asInt());
-        now=end;JsonNode paid=game.getSim(token).path("sim");assertEquals(2533,paid.path("cash").asInt());assertEquals(45,paid.path("moneyToday").path("income").asInt());assertEquals(12,paid.path("moneyToday").path("spent").asInt());
+        now+=1200;JsonNode midnight=game.getSim(token).path("sim");assertEquals(2435,midnight.path("cash").asInt());
+        now=end;JsonNode paid=game.getSim(token).path("sim");assertEquals(2468,paid.path("cash").asInt());assertEquals(45,paid.path("moneyToday").path("income").asInt());assertEquals(77,paid.path("moneyToday").path("spent").asInt());
         for(JsonNode goal:paid.path("daily"))assertFalse(goal.path("done").asBoolean());
     }
 }
