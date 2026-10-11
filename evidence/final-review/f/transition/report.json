@@ -1,0 +1,25 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "world": "6a466f55-ed34-4565-b0c8-b221bab64969",
+      "atlas": "/api/plots/atlas.png?city=atl&world=6a466f55-ed34-4565-b0c8-b221bab64969&v=0",
+      "publicImages": [],
+      "stalePublicResourceDropped": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "world": "155510bd-900a-41f2-9cea-6c7851dccf8d",
+      "atlas": "/api/plots/atlas.png?city=atl&world=155510bd-900a-41f2-9cea-6c7851dccf8d&v=0",
+      "publicImages": [],
+      "stalePublicResourceDropped": true
+    }
+  ],
+  "errors": []
+}

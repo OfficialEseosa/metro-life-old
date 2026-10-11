@@ -1,0 +1,35 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "fixedPrimary": true,
+      "storyNoFalseClose": true,
+      "choicesWithinViewport": true,
+      "storyChaptersSpacedByElsewhereActivity": true,
+      "showerEnergy": {
+        "before": 79.2,
+        "after": 97.1
+      },
+      "noticeHiddenDuringStory": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "fixedPrimary": true,
+      "storyNoFalseClose": true,
+      "choicesWithinViewport": true,
+      "storyChaptersSpacedByElsewhereActivity": true,
+      "showerEnergy": {
+        "before": 79.2,
+        "after": 97.1
+      },
+      "noticeHiddenDuringStory": true
+    }
+  ],
+  "errors": []
+}

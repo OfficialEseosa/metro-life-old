@@ -93,6 +93,7 @@ type State = {
   load: () => Promise<void>
   /** re-read session, world info, sim and clock (after login, world switch, etc.), then the city data */
   syncSession: () => Promise<void>
+  changeSession: (change: () => Promise<unknown>) => Promise<void>
   setCity: (city: CityId) => Promise<void>
   refresh: (...what: CityData[]) => Promise<void>
   setSim: (sim: Sim | null) => void
@@ -113,7 +114,7 @@ let panelTrigger:HTMLElement|null=null
 export const getPanelTrigger=()=>panelTrigger
 function rememberTrigger(){const active=document.activeElement;if(active instanceof HTMLElement&&active.matches('button')&&!active.closest('.sheet'))panelTrigger=active}
 const realtimeEnabled = true
-let socketEpoch=0,presenceRevision=0
+let socketEpoch=0,presenceRevision=0,resourceRevision=0,sessionChanging=false
 export const mergeChat=(current:ChatMessage[],incoming:ChatMessage[])=>[...new Map([...current,...incoming].map(m=>[m.id,m])).values()].sort((a,b)=>a.at-b.at||a.id.localeCompare(b.id)).slice(-50)
 
 export const useStore = create<State>((set, get) => {
@@ -190,11 +191,21 @@ export const useStore = create<State>((set, get) => {
       return loading
     },
 
+    changeSession: async (change) => {
+      const panel=get().panel
+      sessionChanging=true;resourceRevision++;socketEpoch++;socket?.close();socket=null
+      set({plots:null,billboards:null,players:[],chat:[],connected:false})
+      // Let layout-effect image cleanup abort old-world requests before changing the cookie.
+      await new Promise<void>(resolve=>setTimeout(resolve,0))
+      try{await change();await get().syncSession()}catch(error){await get().syncSession();set({panel});throw error}
+    },
+
     syncSession: async () => {
       const me = await safe(api.me())
       const city = me?.sim?.city ?? get().city
       if(resultTimer)clearTimeout(resultTimer);resultTimer=null;presenceRevision++
       set({ user: me?.user ?? null, worldInfo: me?.world ?? null, sim: me?.sim ?? null, clock: me?.clock ?? null, city,players:[],chat:[],socialNotice:'', mayor:null,plots:null,billboards:null,homes:null,plotSelection:null,lastResult:null,selectedLoc:null,selectedSlot:null,searchOpen:false,rewardAnchor:null,focus:null,panel:null,acting:false })
+      sessionChanging=false;resourceRevision++
       // Civic and live resources become available in M6/M7; do not poll absent routes.
       if (realtimeEnabled) reconnect()
       await get().refresh('daily','mayor','plots','billboards')
@@ -208,13 +219,14 @@ export const useStore = create<State>((set, get) => {
     },
 
     refresh: async (...what) => {
-      const city = get().city,worldId=get().worldInfo?.id,presenceAtStart=presenceRevision
+      if(sessionChanging)return
+      const city = get().city,worldId=get().worldInfo?.id,presenceAtStart=presenceRevision,revision=resourceRevision
       const jobs: Promise<void>[] = []
       const put = <K extends keyof State>(key: K, p: Promise<State[K] | null>) =>
         jobs.push(
           p.then((v) => {
             // drop the result if the user switched city meanwhile
-            if(get().city!==city||get().worldInfo?.id!==worldId||v===null)return
+            if(sessionChanging||revision!==resourceRevision||get().city!==city||get().worldInfo?.id!==worldId||v===null)return
             if(key==='chat'){set(s=>({chat:mergeChat(s.chat,v as ChatMessage[])}));return}
             if(key==='players'&&presenceRevision!==presenceAtStart)return
             set({[key]:v} as Pick<State,K>)

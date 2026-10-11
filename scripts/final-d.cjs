@@ -1,6 +1,6 @@
 const fs=require('fs'),path=require('path'),assert=require('assert/strict');
 const {chromium}=require('C:/Users/rapha/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
-const out=path.resolve('evidence/final-review/d'),url='http://127.0.0.1:5173';fs.mkdirSync(out,{recursive:true});
+const out=path.resolve(process.env.METRO_EVIDENCE||'evidence/final-review/d'),url='http://127.0.0.1:5173';fs.mkdirSync(out,{recursive:true});
 (async()=>{const b=await chromium.launch({headless:true,executablePath:'C:/Users/rapha/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe',args:['--use-angle=d3d11']});const report={views:[],errors:[]};try{for(const viewport of[{width:1280,height:800},{width:375,height:812}]){
  const c=await b.newContext({viewport}),p=await c.newPage();p.on('pageerror',e=>report.errors.push(e.message));const post=async(route,data,ctx=c)=>{const r=await ctx.request.post(url+'/api/'+route,{data});assert(r.ok(),await r.text());return r.json()};
  await post('auth/guest',{});await post('worlds',{mode:'solo',name:'Final scene review'});await post('sim/setup',{city:'atl',neighborhood:'midtown',aspiration:'founder'});await p.goto(url);await p.waitForFunction(()=>!!window.__metroScene);await p.evaluate(async()=>{const u=performance.getEntriesByType('resource').map(e=>e.name).find(u=>u.includes('/src/store.ts'));window.store=(await import(u)).useStore});await p.getByText('41 online',{exact:true}).waitFor();await p.waitForTimeout(1500);

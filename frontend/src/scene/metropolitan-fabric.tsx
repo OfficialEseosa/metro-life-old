@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { Builder } from './geometry'
 import { KitInstances } from './kit-models'
 import type { Placement } from './fabric'
-import { sitesFor } from './cities'
+import { homeSitesFor, outsideHomes, sitesFor } from './cities'
 import { nycEast,nycLand } from './cities/nyc'
 import { bayWest,bayEast,bayMarin } from './cities/bay'
 import { suspension } from './metropolitan-models'
@@ -20,11 +20,12 @@ function dataFor(city:'nyc'|'bay'){
  const homes:Placement[]=[],blocks:Placement[]=[],towers:Placement[]=[],brownstones:Placement[]=[],victorianRows:Placement[]=[],trees:Placement[]=[],cars:Placement[]=[],roads:Placement[]=[]
  const isLand=(x:number,z:number)=>polys.some(poly=>inside(x,z,poly))
  const footprints:Record<string,[number,number]>={empire:[14,11],oneWtc:[19,19],grandCentral:[21,15],met:[29,20],cityHall:[18,12],centralPark:[25,34],brooklynBridge:[10,43],goldenGate:[10,64],ferryBuilding:[27,12],salesforce:[15,22],sfCityHall:[30,18],paintedLadies:[20,14],ggPark:[25,13],dolores:[18,14],highLine:[4,21]}
- const clearSite=(x:number,z:number,pad:number)=>outsidePlots(city,x,z,pad)&&outsideBoards(city,x,z,pad)&&Object.entries(sites).every(([id,s])=>{const a=s.angle??0,dx=x-s.x,dz=z-s.z,lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a),[w,d]=footprints[id]??[s.size*.9,s.size*.9];return Math.abs(lx)>w*.5+pad||Math.abs(lz)>d*.5+pad})
+ const clearSite=(x:number,z:number,pad:number)=>outsideHomes(city,x,z,pad)&&outsidePlots(city,x,z,pad)&&outsideBoards(city,x,z,pad)&&Object.entries(sites).every(([id,s])=>{const a=s.angle??0,dx=x-s.x,dz=z-s.z,lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a),[w,d]=footprints[id]??[s.size*.9,s.size*.9];return Math.abs(lx)>w*.5+pad||Math.abs(lz)>d*.5+pad})
  const baseHill=(x:number,z:number)=>{
   if(city!=='bay'||x>-30||z<-43||z>70)return 0
   let height=9*Math.exp(-((x+76)**2+(z+22)**2)/600)+6*Math.exp(-((x+55)**2+(z-49)**2)/500)
   for(const s of Object.values(sites))height*=Math.min(1,Math.max(0,(Math.hypot(x-s.x,z-s.z)-s.size*.53)/10))
+  for(const s of homeSitesFor(city))height*=Math.min(1,Math.max(0,(Math.hypot(x-s.x,z-s.z)-5)/5))
   return height
  }
  if(city==='bay')for(const z of[-32,-20,-8,4,16,28,40,52,64])for(const x of[-81,-72,-63,-54,-45,-36]){

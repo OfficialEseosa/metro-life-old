@@ -1,0 +1,32 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "compiledAssets": true,
+      "noDevelopmentSceneHook": true,
+      "privateJoinCode": true,
+      "twoProfilesChatPresence": true,
+      "privateHomesSeparate": true,
+      "jobPay": true,
+      "reload": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "compiledAssets": true,
+      "noDevelopmentSceneHook": true,
+      "privateJoinCode": true,
+      "twoProfilesChatPresence": true,
+      "privateHomesSeparate": true,
+      "jobPay": true,
+      "reload": true
+    }
+  ],
+  "errors": [],
+  "modelRequests": 360
+}

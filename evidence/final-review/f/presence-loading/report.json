@@ -1,0 +1,23 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "heldRealPresenceFrame": true,
+      "noFalseZero": true,
+      "residentsAfterSnapshot": 40
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "heldRealPresenceFrame": true,
+      "noFalseZero": true,
+      "residentsAfterSnapshot": 40
+    }
+  ],
+  "errors": []
+}

@@ -1,6 +1,6 @@
 const fs=require('fs'),path=require('path'),assert=require('assert/strict');
 const {chromium}=require('C:/Users/rapha/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
-const out=path.resolve('evidence/final-review/a'),url='http://127.0.0.1:5173';fs.mkdirSync(out,{recursive:true});
+const out=path.resolve(process.env.METRO_EVIDENCE||'evidence/final-review/a'),url='http://127.0.0.1:5173';fs.mkdirSync(out,{recursive:true});
 (async()=>{const browser=await chromium.launch({headless:true,executablePath:'C:/Users/rapha/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe',args:['--use-angle=d3d11']});const report={views:[],errors:[]};try{
 for(const viewport of [{width:1280,height:800},{width:375,height:812}])for(const skew of [10000,-120000]){
  const context=await browser.newContext({viewport}),p=await context.newPage();p.on('pageerror',e=>report.errors.push(e.message));

@@ -38,3 +38,9 @@ Primary actions now sit below the scrolling body, with an opaque cream divider. 
 Scene loading is lazy and visible, and the top bar exposes reconnect status. Search focuses its input and restores keyboard focus on Escape; modal traps and reduced motion are checked in the M8 browser flow. Async chat/resource/sim responses verify world/city before applying, and pending requests have a15-second timeout. New resident/kit geometry and materials dispose on unmount; scene motion still uses instance refs rather than frame-driven React state. No additional component library, remote font or postprocessing pass was introduced.
 
 Physical phone, virtual keyboard, screen reader, human sound/haptic quality and long-session memory remain unchecked. Final results and current run addresses are in PLAN.md and final-report.md.
+
+## Final owner review additions
+
+Sound storage is guarded. Client deadlines use a server epoch anchored to performance.now; old polls are rejected across mutations and location actions share one synchronous submit guard. Session mutations close old sockets and invalidate resource generations before cookie changes; plot fetches and billboard images cancel during layout cleanup. Rejected account requests restore their panel after resync. Chat merges by immutable id, and presence fetches cannot overwrite newer socket frames. A new city shows a loading label until its residents arrive rather than claiming zero online.
+
+Resident/booking sizing uses existing instance buffers, city geometries explicitly dispose, and lighting subscribes to a boolean rather than every clock tick. Rendering requests frames only during loading, camera/crowd movement, visible water or activities. No frame-driven React HUD state, extra animation library or postprocessing pass was added. Final browser proof and practical limits are indexed in final-review.md.

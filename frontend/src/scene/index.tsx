@@ -21,15 +21,15 @@ import { EconomyScene } from './economy'
 import { plotSite, boardSites } from './economy-sites'
 
 declare global {
-  interface Window { __metroScene?: { status:()=>{kits:{count:number;visible:boolean;parentVisible:boolean}[];terrain:{visible:boolean;color:string;emissive:string}|null;frameloop:string;frame:number}; tilt:(angle:number)=>void; flight:(id:string|null)=>void; resetMetrics:()=>void; refreshShadows:()=>void; focus: (id: string | null) => void; theme: (value: 'day' | 'night') => void; metrics: () => { calls: number; triangles: number; fps: number; p95Ms: number; renderer: string }; hidePins: (hidden: boolean) => void; project: (id: string) => { x: number; y: number }; geometry: () => Record<string, number> } }
+  interface Window { __metroScene?: { status:()=>{kits:{count:number;visible:boolean;parentVisible:boolean}[];terrain:{visible:boolean;color:string;emissive:string}|null;frameloop:string;frame:number}; tilt:(angle:number)=>void; flight:(id:string|null)=>void; resetMetrics:()=>void; refreshShadows:()=>void; focus: (id: string | null) => void; theme: (value: 'day' | 'night') => void; metrics: () => { calls: number; triangles: number; fps: number; p95Ms: number; renderer: string; dpr:number }; hidePins: (hidden: boolean) => void; project: (id: string) => { x: number; y: number }; geometry: () => Record<string, number> } }
 }
 const noPick = () => {}
 const worldTarget = new THREE.Vector3(0, 0, 5)
 // Own the ambient clock outside asset Suspense so loading never depends on input.
 function AmbientTicker(){
- const invalidate=useThree(s=>s.invalidate),setFrameloop=useThree(s=>s.setFrameloop),active=useProgress(s=>s.active)
+ const invalidate=useThree(s=>s.invalidate),setFrameloop=useThree(s=>s.setFrameloop)
  useLayoutEffect(()=>{const visibility=()=>{setFrameloop(document.hidden?'never':'demand');if(!document.hidden)invalidate()};visibility();document.addEventListener('visibilitychange',visibility);return()=>document.removeEventListener('visibilitychange',visibility)},[invalidate,setFrameloop])
- useEffect(()=>{if(!active)return;const timer=setInterval(()=>{if(!document.hidden)invalidate()},100);return()=>clearInterval(timer)},[active,invalidate])
+ useEffect(()=>{let timer:ReturnType<typeof setInterval>|undefined;const update=()=>{if(timer)clearInterval(timer);timer=undefined;if(useProgress.getState().active)timer=setInterval(()=>{if(!document.hidden)invalidate()},100)};const off=useProgress.subscribe(update);update();return()=>{off();if(timer)clearInterval(timer)}},[invalidate])
  return null
 }
 function Terrain({night}:{night:boolean}){const geometry=useMemo(()=>{const g=new THREE.PlaneGeometry(1200,1200,64,64),p=g.getAttribute('position');for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.hypot(x,z),rise=THREE.MathUtils.smoothstep(r,100,210)*(Math.sin(x*.022)*Math.cos(z*.019)*7+8);p.setZ(i,rise)}g.computeVertexNormals();return g},[]);useEffect(()=>()=>geometry.dispose(),[geometry]);return <mesh name="terrain" geometry={geometry} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><meshStandardMaterial color={night?'#598065':'#8ebd75'} emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh>}
@@ -109,7 +109,8 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
         if(score<bestScore){bestScore=score;next.eye=eye}
       }
     }
-    destination.current=null;timings.current=[];lastFrame.current=0
+    // A new flight starts a fresh frame interval; the previous interval may be idle.
+    destination.current=null;lastFrame.current=0
     if(immediate||matchMedia('(prefers-reduced-motion: reduce)').matches) {camera.position.copy(next.eye);controls.current?.target.copy(next.target);controls.current?.update();useStore.getState().setCameraMoving(false);invalidate()} else {destination.current=next;useStore.getState().setCameraMoving(true);invalidate()}
   }, [camera,invalidate,overview,scene,size.width,size.height,atlSites,city,home,playing,insets])
   const latestView=useRef(view);useLayoutEffect(()=>{latestView.current=view},[view])
@@ -119,16 +120,16 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   useEffect(() => {const wake=()=>{lastFrame.current=0;invalidate()};document.addEventListener('visibilitychange',wake);return()=>document.removeEventListener('visibilitychange',wake)},[invalidate])
   useFrame((_,dt)=>{
     const fog=scene.fog as THREE.Fog|null,range=camera.position.distanceTo(controls.current?.target??worldTarget);if(fog){fog.near=Math.max(500,range*1.1);fog.far=Math.max(1100,range*2.2)}
-    const time=performance.now();if(lastFrame.current&&time-lastFrame.current<250){timings.current.push(time-lastFrame.current);if(timings.current.length>300)timings.current.shift()}lastFrame.current=time
-    if(timings.current.length===300&&gl.getPixelRatio()>1&&timings.current.reduce((a,b)=>a+b,0)/300>18.5){setDpr(1);timings.current=[]}
+    const time=performance.now();if(destination.current&&lastFrame.current&&time-lastFrame.current<250){timings.current.push(time-lastFrame.current);if(timings.current.length>300)timings.current.shift()}lastFrame.current=destination.current?time:0
+    if(timings.current.length===300&&gl.getPixelRatio()>.86&&timings.current.reduce((a,b)=>a+b,0)/300>1000/58){setDpr(.85);timings.current=[]}
     const d=destination.current,c=controls.current
-    if(d&&c){const t=1-Math.exp(-dt*7);camera.position.lerp(d.eye,t);c.target.lerp(d.target,t);c.update();if(camera.position.distanceTo(d.eye)<.03){destination.current=null;useStore.getState().setCameraMoving(false)}invalidate()}
+    if(d&&c){const t=1-Math.exp(-Math.min(dt,.05)*7);camera.position.lerp(d.eye,t);c.target.lerp(d.target,t);c.update();if(camera.position.distanceTo(d.eye)<.03){destination.current=null;useStore.getState().setCameraMoving(false)}invalidate()}
   })
   useEffect(()=>{
     if(!import.meta.env.DEV)return
     window.__metroScene={status:()=>{const kits:{name?:string;triangles:number;shadow:boolean;count:number;visible:boolean;parentVisible:boolean}[]=[];scene.traverse(o=>{if(o instanceof THREE.InstancedMesh)kits.push({name:o.parent?.name,triangles:(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3*o.count,shadow:o.castShadow,count:o.count,visible:o.visible,parentVisible:o.parent?.visible??true})});const ground=scene.getObjectByName('terrain') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>|undefined;const plot=scene.getObjectByName('plots-field') as THREE.Mesh<THREE.BufferGeometry,THREE.MeshBasicMaterial>|undefined;return{plotTexture:plot?{url:(plot.material.map?.image as HTMLImageElement|undefined)?.src,width:(plot.material.map?.image as HTMLImageElement|undefined)?.width,version:plot.material.map?.version}:null,kits,terrain:ground?{visible:ground.visible,color:ground.material.color.getHexString(),emissive:ground.material.emissive.getHexString()}:null,camera:{eye:camera.position.toArray(),target:controls.current?.target.toArray(),offset:(camera as THREE.PerspectiveCamera).view},insets,residentUpload:(scene.getObjectByName('residents') as THREE.InstancedMesh|undefined)?.instanceMatrix.version,memory:{...gl.info.memory},fog:scene.fog instanceof THREE.Fog?{near:scene.fog.near,far:scene.fog.far}:null,frameloop,frame:gl.info.render.frame}},tilt:angle=>{const target=controls.current?.target??worldTarget,radius=camera.position.distanceTo(target);camera.position.copy(target).add(new THREE.Vector3(Math.sin(angle)*radius*.5,Math.cos(angle)*radius,Math.sin(angle)*radius*.866));controls.current?.update();invalidate()},flight:id=>view(id),resetMetrics:()=>{timings.current=[];lastFrame.current=0},refreshShadows:()=>{gl.shadowMap.needsUpdate=true;invalidate()},focus:id=>view(id,true),theme:value=>useStore.getState().setSceneTheme(value),hidePins:setPinsHidden,project:id=>{const [kind,cell]=id.split(':'),s=kind==='plots'?plotSite(city):kind.startsWith('billboard-')?boardSites(city,city==='atl'?20:city==='nyc'?24:22)[Number(kind.slice(10))-1]:atlSites[kind];let x=s.x,z=s.z;if(kind==='plots'&&cell){const [cx,cy]=cell.split(',').map(Number),cols=city==='atl'?48:56,rows=city==='atl'?28:30;x+=-s.size/2+(cx+.5)/cols*s.size;z+=-s.size*rows/cols/2+(cy+.5)/cols*s.size}const v=new THREE.Vector3(x,kind==='plots'?.3:kind.startsWith('billboard-')?3.25:s.height+2,z).project(camera);return{x:(v.x+1)*size.width/2,y:(1-v.y)*size.height/2}},geometry:()=>Object.fromEntries(Object.keys(atlSites).map(id=>{const m=scene.getObjectByName(id);let count=0;m?.traverse(o=>{if(o instanceof THREE.Mesh)count+=(o.geometry.index?.count??o.geometry.getAttribute('position').count)/3});return[id,count]})),metrics:()=>{
       const times=[...timings.current].sort((a,b)=>a-b),context=gl.getContext(),debug=context.getExtension('WEBGL_debug_renderer_info')
-      return{calls:gl.info.render.calls,triangles:gl.info.render.triangles,fps:times.length?1000/(times.reduce((a,b)=>a+b,0)/times.length):0,p95Ms:times[Math.floor(times.length*.95)]??0,renderer:debug?context.getParameter(debug.UNMASKED_RENDERER_WEBGL):'unknown'}
+      return{calls:gl.info.render.calls,triangles:gl.info.render.triangles,fps:times.length?1000/(times.reduce((a,b)=>a+b,0)/times.length):0,p95Ms:times[Math.floor(times.length*.95)]??0,renderer:debug?context.getParameter(debug.UNMASKED_RENDERER_WEBGL):'unknown',dpr:gl.getPixelRatio()}
     }}
     return()=>{delete window.__metroScene}
   },[camera,gl,scene,size.width,size.height,view,invalidate,atlSites,frameloop,insets,city])
@@ -143,5 +144,5 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
 function SceneLoading(){const {active,progress}=useProgress();return active?<div className="scene-loading" role="status">Bringing the city to life · {Math.round(progress)}%</div>:null}
 export default function CityScene() {
   const [hover,setHover]=useState<{name:string;x:number;y:number}|null>(null)
-  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[1,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><AmbientTicker/><Suspense fallback={null}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Suspense></Canvas><SceneLoading/><PlayerMarker/>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
+  return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[.85,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><AmbientTicker/><Suspense fallback={null}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Suspense></Canvas><SceneLoading/><PlayerMarker/>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>
 }

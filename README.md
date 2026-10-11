@@ -39,11 +39,11 @@ Open http://localhost:8080. Maven packages the compiled frontend and its local a
 
 ## Playing
 
-Start playing → Play solo → choose a city/home/dream → Start my life. Apply for a first job and work a shift. Cash arrives when its progress bar finishes. Search places to eat, learn, relax or meet residents. Viewing another city is free; taking part there requires an airport flight. Home remains in its original city until you move.
+Start playing → Play solo → choose a city/home/dream → Start my life. Choose an entry job, visit its open workplace, apply there and work a shift. Cash arrives when its progress bar finishes. Search places to eat, learn, relax or meet residents. Viewing another city is free; taking part there requires an airport flight. Home remains in its original city until you move.
 
 Drag the map, pinch/scroll to zoom, or use Search. All actions have keyboard-accessible controls. On phones, drag/tap the sheet handle or focus it and press Up/Down for peek, half or full height. Escape closes ordinary panels; story choices need an answer. The lighting button previews the opposite lighting, then returns to the game clock. Sound can be muted. Reduced-motion preferences shorten camera/reward motion.
 
-World contains neighbours, city chat, elections, plots, billboards and homes. To meet a friend, create a private world and enter its eight-character code from a separate browser profile. Meet at the same place before waving, hanging out or sending a gift. City chat and purchases are scoped to that world.
+World contains neighbours, city chat, elections, plots, billboards and homes. To meet a friend, create a private world and enter its eight-character code from a separate browser profile. Meet at the same place before waving, hanging out or sending a gift. Gifts and public votes unlock after one game day (24 real minutes); chat and waves are available immediately. City chat and purchases are scoped to that world.
 
 ## Checks and limits
 
