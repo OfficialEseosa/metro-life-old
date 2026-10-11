@@ -43,3 +43,5 @@
 
 ## Next: M2
 - Read new audits, inspect captured camera/lighting/map code, write landmark architecture sheets before modelling, build and visually verify Atlanta. Existing stale UI type errors must be removed before its frontend can build.
+- Baseline `npx tsc -b`: FAILED with 36 stale v1 HUD errors (Lagos-only store fields and missing panels); known source-scaffold issue scheduled for replacement before scene verification.
+- During M2 canonical ID inventory found sports career referenced `mbs` instead of `benz`; corrected immediately and expanded content test to validate every career workplace against the canonical map before proceeding.

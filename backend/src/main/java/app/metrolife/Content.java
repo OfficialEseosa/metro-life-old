@@ -38,7 +38,7 @@ public class Content {
         ArrayNode skills=world.putArray("skills"); String[] icons={"dumbbell","cooking-pot","music","cpu","messages-square","palette","chart-no-axes-combined"};
         for(int i=0;i<SKILLS.length;i++) skills.addObject().put("id",SKILLS[i]).put("label",title(SKILLS[i])).put("icon",icons[i]);
         ArrayNode careers=world.putArray("careers");
-        String[] workplaces={"techVillage","fox","mbs","ponce","techVillage","high","capitol","grady"};
+        String[] workplaces={"techVillage","fox","benz","ponce","techVillage","high","capitol","grady"};
         String[] careerSkills={"tech","music","fitness","cooking","business","creativity","charisma","fitness"};
         String[][] titles={{"Support Associate","Developer","Senior Engineer","Technical Lead","CTO"},{"Stage Assistant","Session Musician","Touring Artist","Headliner","Music Director"},{"Team Assistant","Trainer","Athlete","Team Captain","Champion"},{"Kitchen Porter","Line Cook","Sous Chef","Head Chef","Restaurateur"},{"Office Assistant","Analyst","Advisor","Portfolio Manager","Partner"},{"Gallery Assistant","Studio Artist","Curator","Art Director","Creative Director"},{"Community Aide","Organizer","Policy Analyst","Chief of Staff","City Director"},{"Care Assistant","Health Educator","Clinician","Department Lead","Medical Director"}};
         for(int t=0;t<TRACKS.length;t++) {

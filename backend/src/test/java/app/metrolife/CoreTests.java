@@ -66,6 +66,7 @@ class CoreTests {
     }
     @Test void canonicalContentExpandsEveryActionAndDefinesCompleteShapes(){
         assertEquals(3,content.world.path("cities").size());assertEquals(8,content.world.path("careers").size());assertEquals(7,content.world.path("aspirations").size());
+        for(JsonNode career:content.world.path("careers"))for(JsonNode level:career.path("levels"))assertNotNull(content.landmark(level.path("city").asText(),level.path("loc").asText()));
         for(JsonNode city:content.world.path("cities")){assertEquals(4,city.path("homeActions").size());for(JsonNode loc:city.path("landmarks"))for(JsonNode action:loc.path("actions")){assertTrue(action.has("durationMin"));assertTrue(action.path("needs").isObject());assertFalse(action.path("id").asText().isEmpty());}for(JsonNode n:city.path("neighborhoods"))assertTrue(n.path("rent").asInt()>0);}
     }
 }
