@@ -1,9 +1,10 @@
+import venues from '../../shared/venues.json'
 import rooms from '../../shared/interiors.json'
 import data from '../../shared/navigation.json'
 import type { CityId, Sim, World } from './api/types'
 export type Position={x:number;z:number;face:number;place:string;room:string|null}
 export const interiors=rooms
-export function interiorType(world:World|null,city:CityId,loc:string){if(loc==='home')return 'home';const place=world?.cities.find(c=>c.id===city)?.landmarks.find(l=>l.id===loc);return place?.actions.some(a=>a.requires?.job)?'work':undefined}
+export function interiorType(world:World|null,city:CityId,loc:string){if(loc==='home')return 'home';if(venues[city].cafe===loc)return 'cafe';if(venues[city].club===loc)return 'club';const place=world?.cities.find(c=>c.id===city)?.landmarks.find(l=>l.id===loc);return place?.actions.some(a=>a.requires?.job)?'work':undefined}
 export function roomType(room:string|null|undefined){return room?.split(':')[0] as keyof typeof interiors|undefined}
 export function nearbyStation(p:Position){const type=roomType(p.room);if(!type)return;const room=interiors[type];if(Math.hypot(p.x-room.exit.x,p.z-room.exit.z)<1.5)return {id:'exit',name:type==='home'?'Leave home':'Leave building',action:'exit',x:room.exit.x,z:room.exit.z,face:0};return room.stations.filter(s=>Math.hypot(s.x-p.x,s.z-p.z)<1.45).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0]}
 export const navigation=data.cities

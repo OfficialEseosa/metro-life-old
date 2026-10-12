@@ -188,6 +188,7 @@ export type Sim = {
   busyUntil: number | null
   /** Server start time for stable progress across refresh/reconnect. */
   busyStartedAt?: number | null
+  busyKind?: string | null
   busyLabel: string | null
   /** a story beat waiting for a choice */
   stories?: { id: string; title: string; city: CityId; loc: string; completedBeats: number; total: number; status: 'waiting' | 'choice' | 'complete'; canContinue: boolean }[]

@@ -1,0 +1,14 @@
+{
+  "atl": {
+    "cafe": "krog",
+    "club": "l5p"
+  },
+  "nyc": {
+    "cafe": "chinatown",
+    "club": "williamsburgVenue"
+  },
+  "bay": {
+    "cafe": "ferryBuilding",
+    "club": "oaklandFox"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "bay",
+      "food": {
+        "before": 2500,
+        "after": 2482
+      },
+      "dance": {
+        "before": 2482,
+        "after": 2472
+      },
+      "performance": {
+        "before": 2472,
+        "after": 2612
+      },
+      "walkUpCompany": true,
+      "waveHangout": true,
+      "newPlayerGiftBlocked": true,
+      "animated": true,
+      "completionOnly": true,
+      "metrics": {
+        "calls": 5,
+        "triangles": 4448,
+        "fps": 60.04690358997474,
+        "p95Ms": 17.600000008940697,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "bay",
+      "food": {
+        "before": 2500,
+        "after": 2482
+      },
+      "dance": {
+        "before": 2482,
+        "after": 2472
+      },
+      "performance": {
+        "before": 2472,
+        "after": 2612
+      },
+      "walkUpCompany": true,
+      "waveHangout": true,
+      "newPlayerGiftBlocked": true,
+      "animated": true,
+      "completionOnly": true,
+      "metrics": {
+        "calls": 4,
+        "triangles": 4196,
+        "fps": 60.07468744916435,
+        "p95Ms": 17.599999994039536,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    }
+  ],
+  "errors": [],
+  "fixture": "Isolated 8081/5174 save: world clock starts at 18:00 to exercise open nightlife. Age, cash, skills, movement and all actions are unchanged."
+}

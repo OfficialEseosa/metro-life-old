@@ -1,6 +1,6 @@
 const {chromium}=require('C:/Users/rapha/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'),fs=require('fs'),path=require('path'),assert=require('assert');
 const {attach,walk,walkTo,interact}=require('./playable-browser.cjs'),nav=require('../shared/navigation.json').cities;
-const out=path.resolve('evidence/playable/p3'),url='http://127.0.0.1:5173';fs.mkdirSync(out,{recursive:true});
+const out=path.resolve(process.env.METRO_EVIDENCE||'evidence/playable/p3'),url='http://127.0.0.1:5173';fs.mkdirSync(out,{recursive:true});
 (async()=>{const b=await chromium.launch({headless:true,executablePath:'C:/Users/rapha/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe',args:['--use-angle=d3d11']});const report={views:[],errors:[]};try{
  for(const viewport of[{width:1280,height:800},{width:375,height:812}])for(const city of(process.env.METRO_CITIES?.split(',')||['atl','nyc','bay'])){
   const phone=viewport.width<700,c=await b.newContext({viewport}),p=await c.newPage(),loc=city==='atl'?'techVillage':city==='nyc'?'dumbo':'techCampus';p.on('pageerror',e=>report.errors.push(e.message));p.on('console',m=>{if(m.type()==='error')report.errors.push(m.text())});p.on('response',async r=>{if(r.status()>=400)console.log('HTTP failure',r.url(),r.status(),await r.text().catch(()=>''))});

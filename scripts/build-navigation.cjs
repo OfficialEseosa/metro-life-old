@@ -17,7 +17,7 @@ for(const city of ['atl','nyc','bay']){
   const place=world.cities.find(c=>c.id===city).landmarks.find(l=>l.id===id);
   const solid=!['park','waterfront'].includes(place.category)&&!['beltline','brooklynBridge','goldenGate','coney','liberty','alcatraz','pier39','highLine'].includes(id);
   const [w,d]=dimensions[id]??[s.size*.75,s.size*.65];
-  if(solid)boxes.push({x:s.x,z:s.z,w,d,h:s.height,a:s.angle??0});
+  if(solid)boxes.push({id,x:s.x,z:s.z,w,d,h:s.height,a:s.angle??0});
   // A doorway on the front edge; parks use a path entrance rather than an obstacle.
   const distance=solid?d/2+1.1:s.size*.32,angle=s.angle??0;
   doors[id]={x:s.x+Math.sin(angle)*distance,z:s.z+Math.cos(angle)*distance,name:place.name};

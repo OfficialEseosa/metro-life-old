@@ -1,0 +1,51 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "bay",
+      "walkedPath": null,
+      "shortcut": true,
+      "before": 2500,
+      "paid": 2665,
+      "animatedTyping": true,
+      "deskApplication": true,
+      "completionOnly": true,
+      "noListMenu": true,
+      "metrics": {
+        "calls": 4,
+        "triangles": 3172,
+        "fps": 60.12814194184328,
+        "p95Ms": 18,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "bay",
+      "walkedPath": null,
+      "shortcut": true,
+      "before": 2500,
+      "paid": 2665,
+      "animatedTyping": true,
+      "deskApplication": true,
+      "completionOnly": true,
+      "noListMenu": true,
+      "metrics": {
+        "calls": 4,
+        "triangles": 3172,
+        "fps": 60.342269265545056,
+        "p95Ms": 17.599999994039536,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    }
+  ],
+  "errors": []
+}
