@@ -11,6 +11,7 @@ export function useGameFeedback(){
   },[])
   useEffect(()=>{
     if(!until)return
+    useStore.setState({socialNotice:'',lastResult:null})
     let cancelled=false,timer:ReturnType<typeof setTimeout>
     const settle=async()=>{try{
       const r=await api.sim(),state=useStore.getState()

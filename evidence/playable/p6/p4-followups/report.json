@@ -1,0 +1,198 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "atl",
+      "food": {
+        "before": 2500,
+        "after": 2482
+      },
+      "dance": {
+        "before": 2482,
+        "after": 2472
+      },
+      "performance": {
+        "before": 2472,
+        "after": 2612
+      },
+      "walkUpCompany": true,
+      "waveHangout": true,
+      "newPlayerGiftBlocked": true,
+      "animated": true,
+      "completionOnly": true,
+      "metrics": {
+        "calls": 6,
+        "triangles": 4362,
+        "fps": 59.91447891819205,
+        "p95Ms": 17.799999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "nyc",
+      "food": {
+        "before": 2500,
+        "after": 2482
+      },
+      "dance": {
+        "before": 2482,
+        "after": 2472
+      },
+      "performance": {
+        "before": 2472,
+        "after": 2612
+      },
+      "walkUpCompany": true,
+      "waveHangout": true,
+      "newPlayerGiftBlocked": true,
+      "animated": true,
+      "completionOnly": true,
+      "metrics": {
+        "calls": 5,
+        "triangles": 3858,
+        "fps": 60.04991161466261,
+        "p95Ms": 18,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "bay",
+      "food": {
+        "before": 2500,
+        "after": 2482
+      },
+      "dance": {
+        "before": 2482,
+        "after": 2472
+      },
+      "performance": {
+        "before": 2472,
+        "after": 2612
+      },
+      "walkUpCompany": true,
+      "waveHangout": true,
+      "newPlayerGiftBlocked": true,
+      "animated": true,
+      "completionOnly": true,
+      "metrics": {
+        "calls": 6,
+        "triangles": 4362,
+        "fps": 59.9970001499478,
+        "p95Ms": 18.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "atl",
+      "food": {
+        "before": 2500,
+        "after": 2482
+      },
+      "dance": {
+        "before": 2482,
+        "after": 2472
+      },
+      "performance": {
+        "before": 2472,
+        "after": 2612
+      },
+      "walkUpCompany": true,
+      "waveHangout": true,
+      "newPlayerGiftBlocked": true,
+      "animated": true,
+      "completionOnly": true,
+      "metrics": {
+        "calls": 6,
+        "triangles": 4362,
+        "fps": 60.13181734636956,
+        "p95Ms": 17.700000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "nyc",
+      "food": {
+        "before": 2500,
+        "after": 2482
+      },
+      "dance": {
+        "before": 2482,
+        "after": 2472
+      },
+      "performance": {
+        "before": 2472,
+        "after": 2612
+      },
+      "walkUpCompany": true,
+      "waveHangout": true,
+      "newPlayerGiftBlocked": true,
+      "animated": true,
+      "completionOnly": true,
+      "metrics": {
+        "calls": 6,
+        "triangles": 4110,
+        "fps": 60.12024048086743,
+        "p95Ms": 22.700000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "bay",
+      "food": {
+        "before": 2500,
+        "after": 2482
+      },
+      "dance": {
+        "before": 2482,
+        "after": 2472
+      },
+      "performance": {
+        "before": 2472,
+        "after": 2612
+      },
+      "walkUpCompany": true,
+      "waveHangout": true,
+      "newPlayerGiftBlocked": true,
+      "animated": true,
+      "completionOnly": true,
+      "metrics": {
+        "calls": 6,
+        "triangles": 4362,
+        "fps": 60.124996703767934,
+        "p95Ms": 20.900000005960464,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    }
+  ],
+  "errors": [],
+  "fixture": "Isolated 8081/5174 save: world clock starts at 18:00 to exercise open nightlife. Age, cash, skills, movement and all actions are unchanged."
+}

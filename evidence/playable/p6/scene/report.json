@@ -1,0 +1,419 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "atl",
+      "theme": "day",
+      "metrics": {
+        "calls": 57,
+        "triangles": 170032,
+        "fps": 60.064870059377725,
+        "p95Ms": 20.700000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 86,
+        "triangles": 244190,
+        "fps": 60.064870059377725,
+        "p95Ms": 20.700000002980232,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "atl",
+      "theme": "night",
+      "metrics": {
+        "calls": 57,
+        "triangles": 170284,
+        "fps": 59.8050355840317,
+        "p95Ms": 19.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 86,
+        "triangles": 244442,
+        "fps": 59.8050355840317,
+        "p95Ms": 19.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "atl",
+      "raycastUv": true,
+      "picked": {
+        "x": 24,
+        "y": 14,
+        "w": 2,
+        "h": 2
+      },
+      "texture": {
+        "url": "blob:http://127.0.0.1:5173/505eb36e-7056-42bc-a88c-da64b1c90237",
+        "width": 1152,
+        "version": 3
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "nyc",
+      "theme": "day",
+      "metrics": {
+        "calls": 48,
+        "triangles": 230450,
+        "fps": 59.999999999821185,
+        "p95Ms": 17.899999991059303,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 72,
+        "triangles": 281526,
+        "fps": 59.999999999821185,
+        "p95Ms": 17.899999991059303,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "nyc",
+      "theme": "night",
+      "metrics": {
+        "calls": 48,
+        "triangles": 230198,
+        "fps": 60.08411776487082,
+        "p95Ms": 17.799999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 72,
+        "triangles": 281274,
+        "fps": 60.08411776487082,
+        "p95Ms": 17.799999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "nyc",
+      "raycastUv": true,
+      "picked": {
+        "x": 28,
+        "y": 15,
+        "w": 2,
+        "h": 2
+      },
+      "texture": {
+        "url": "blob:http://127.0.0.1:5173/7cc57d00-9214-4960-a5f6-463fa05d42fd",
+        "width": 1344,
+        "version": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "bay",
+      "theme": "day",
+      "metrics": {
+        "calls": 50,
+        "triangles": 220157,
+        "fps": 59.946048556299324,
+        "p95Ms": 18.900000005960464,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 73,
+        "triangles": 283155,
+        "fps": 59.946048556299324,
+        "p95Ms": 18.900000005960464,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "bay",
+      "theme": "night",
+      "metrics": {
+        "calls": 50,
+        "triangles": 220157,
+        "fps": 60.145552236519926,
+        "p95Ms": 18.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 73,
+        "triangles": 283155,
+        "fps": 60.145552236519926,
+        "p95Ms": 18.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "bay",
+      "raycastUv": true,
+      "picked": {
+        "x": 28,
+        "y": 15,
+        "w": 2,
+        "h": 2
+      },
+      "texture": {
+        "url": "blob:http://127.0.0.1:5173/8313917d-2fb7-4299-bb51-9b2dc23eaad9",
+        "width": 1344,
+        "version": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "atl",
+      "theme": "day",
+      "metrics": {
+        "calls": 57,
+        "triangles": 170032,
+        "fps": 59.96282304978061,
+        "p95Ms": 20.599999994039536,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 86,
+        "triangles": 244190,
+        "fps": 59.96282304978061,
+        "p95Ms": 20.599999994039536,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "atl",
+      "theme": "night",
+      "metrics": {
+        "calls": 57,
+        "triangles": 170284,
+        "fps": 59.87187418902137,
+        "p95Ms": 21.299999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 86,
+        "triangles": 244442,
+        "fps": 59.87187418902137,
+        "p95Ms": 21.299999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "atl",
+      "raycastUv": true,
+      "picked": {
+        "x": 24,
+        "y": 13,
+        "w": 2,
+        "h": 2
+      },
+      "texture": {
+        "url": "blob:http://127.0.0.1:5173/a744bff0-1b09-414c-86ec-e3b214368a48",
+        "width": 1152,
+        "version": 3
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "nyc",
+      "theme": "day",
+      "metrics": {
+        "calls": 48,
+        "triangles": 230450,
+        "fps": 60.00120002392895,
+        "p95Ms": 18,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 72,
+        "triangles": 281526,
+        "fps": 60.00120002392895,
+        "p95Ms": 18,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "nyc",
+      "theme": "night",
+      "metrics": {
+        "calls": 48,
+        "triangles": 230198,
+        "fps": 60.10458197248884,
+        "p95Ms": 18,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 72,
+        "triangles": 281274,
+        "fps": 60.10458197248884,
+        "p95Ms": 18,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "nyc",
+      "raycastUv": true,
+      "picked": {
+        "x": 28,
+        "y": 15,
+        "w": 2,
+        "h": 2
+      },
+      "texture": {
+        "url": "blob:http://127.0.0.1:5173/22498bc3-f19d-4a04-9734-6992168fed2e",
+        "width": 1344,
+        "version": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "bay",
+      "theme": "day",
+      "metrics": {
+        "calls": 50,
+        "triangles": 220157,
+        "fps": 59.96522017240723,
+        "p95Ms": 18.400000005960464,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 73,
+        "triangles": 283155,
+        "fps": 59.96522017240723,
+        "p95Ms": 18.400000005960464,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "bay",
+      "theme": "night",
+      "metrics": {
+        "calls": 50,
+        "triangles": 220157,
+        "fps": 60.03361882650706,
+        "p95Ms": 18.799999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "peak": {
+        "calls": 73,
+        "triangles": 283155,
+        "fps": 60.03361882650706,
+        "p95Ms": 18.799999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "measurement": "Real focus/overview camera flights; idle frames intentionally sleep"
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "bay",
+      "raycastUv": true,
+      "picked": {
+        "x": 28,
+        "y": 14,
+        "w": 2,
+        "h": 2
+      },
+      "texture": {
+        "url": "blob:http://127.0.0.1:5173/2f6efcc9-3120-48ae-9fa4-8c30cce25545",
+        "width": 1344,
+        "version": 1
+      }
+    }
+  ],
+  "errors": []
+}

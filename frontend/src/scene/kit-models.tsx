@@ -1,14 +1,15 @@
 /* oxlint-disable react/immutability -- shared Three.js buffers and instance matrices are renderer resources. */
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { useThree } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import type { Placement } from './fabric'
 
+export type DriveRoute={x:number;z:number;ex:number;ez:number;y:number;ey:number}
 const noPick=()=>{}
 /** Bake the glTF hierarchy once, keeping its atlas and normals, then instance each material batch. */
-export function KitInstances({url,placements,shadow=true,night=false}:{url:string;placements:Placement[];shadow?:boolean;night?:boolean}){
+export function KitInstances({url,placements,shadow=true,night=false,drive}:{url:string;placements:Placement[];shadow?:boolean;night?:boolean;drive?:DriveRoute[]}){
  const {scene}=useGLTF(url)
  const {gl,invalidate}=useThree()
  useLayoutEffect(()=>{gl.shadowMap.needsUpdate=true;invalidate()},[scene,gl,invalidate])
@@ -41,20 +42,27 @@ export function KitInstances({url,placements,shadow=true,night=false}:{url:strin
    return{geometry,material}})
  },[scene,url])
  useEffect(()=>()=>{for(const batch of batches){batch.geometry.dispose();batch.material.dispose()}},[batches])
- return <group name={`kit:${url}`}>{batches.map((batch,i)=><KitBatch key={i} {...batch} placements={placements} shadow={shadow} night={night}/>)}</group>
+ return <group name={`kit:${url}`}>{batches.map((batch,i)=><KitBatch key={i} {...batch} placements={placements} shadow={shadow} night={night} drive={drive}/>)}</group>
 }
-function KitBatch({geometry,material,placements,shadow,night}:{geometry:THREE.BufferGeometry;material:THREE.MeshStandardMaterial;placements:Placement[];shadow:boolean;night:boolean}){
+function KitBatch({geometry,material,placements,shadow,night,drive}:{geometry:THREE.BufferGeometry;material:THREE.MeshStandardMaterial;placements:Placement[];shadow:boolean;night:boolean;drive?:DriveRoute[]}){
  const ref=useRef<THREE.InstancedMesh>(null)
+ const {invalidate}=useThree(),dummy=useMemo(()=>new THREE.Object3D(),[])
+ useEffect(()=>{if(!drive)return;const timer=setInterval(()=>{if(!document.hidden)invalidate()},1000/30);return()=>clearInterval(timer)},[drive,invalidate])
+ useFrame(({clock})=>{if(!drive||!ref.current)return;drive.forEach((r,i)=>{const dx=r.ex-r.x,dz=r.ez-r.z,length=Math.hypot(dx,dz),t=((clock.elapsedTime*(2.4+i*.15)+i*7)%(2*length))/length,back=t>1,f=back?2-t:t,p=placements[i];dummy.position.set(r.x+dx*f,r.y+(r.ey-r.y)*f,r.z+dz*f);dummy.rotation.set(0,Math.atan2(dx,dz)+(back?Math.PI:0),0);dummy.scale.set(p.sx,p.sy,p.sz);dummy.updateMatrix();ref.current!.setMatrixAt(i,dummy.matrix)});ref.current.instanceMatrix.needsUpdate=true;ref.current.computeBoundingSphere()})
+
  useLayoutEffect(()=>{const m=ref.current!,d=new THREE.Object3D();placements.forEach((p,i)=>{d.position.set(p.x,p.y,p.z);d.rotation.set(p.pitch??0,p.angle,0);d.scale.set(p.sx,p.sy,p.sz);d.updateMatrix();m.setMatrixAt(i,d.matrix);m.setColorAt(i,new THREE.Color(p.color))});m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.computeBoundingSphere();m.updateMatrix();m.matrixAutoUpdate=false},[placements])
  useLayoutEffect(()=>{material.emissive.set(night?'#243c50':'#000000');material.emissiveIntensity=night?.12:0;if(material.userData.windowNight)material.userData.windowNight.value=night?1:0},[material,night])
- return <instancedMesh ref={ref} args={[geometry,material,placements.length]} castShadow={shadow} receiveShadow raycast={noPick}/>
+ return <instancedMesh name={drive?"driving-cars":undefined} ref={ref} args={[geometry,material,placements.length]} castShadow={shadow} receiveShadow raycast={noPick}/>
 }
 
 /** Authoring units are scene units. Exported hierarchy contains <=4 merged material meshes. */
 export function BlenderLandmark({id,x,z,angle=0}:{id:string;x:number;z:number;angle?:number}){
  const {scene}=useGLTF(`/models/landmarks/${id}.glb`)
- const {gl,invalidate}=useThree()
+ const {gl,invalidate}=useThree(),fountainTime=useMemo(()=>({value:0}),[])
+ useFrame(({clock})=>{fountainTime.value=clock.elapsedTime})
+ useEffect(()=>{if(id!=='centennial')return;const timer=setInterval(()=>{if(!document.hidden)invalidate()},1000/30);return()=>clearInterval(timer)},[id,invalidate])
  useLayoutEffect(()=>{gl.shadowMap.needsUpdate=true;invalidate()},[scene,gl,invalidate])
- const model=useMemo(()=>{const root=scene.clone(true);root.name=id;root.traverse(o=>{if(o instanceof THREE.Mesh){const water=/lake|jets/.test(o.name);o.castShadow=!water;o.receiveShadow=!water;o.raycast=noPick;o.updateMatrix();o.matrixAutoUpdate=false}});root.position.set(x,0,z);root.rotation.y=angle;root.updateMatrix();root.matrixAutoUpdate=false;return root},[scene,id,x,z,angle])
+ const model=useMemo(()=>{const root=scene.clone(true);root.name=id;root.traverse(o=>{if(o instanceof THREE.Mesh){const water=/lake|jets/.test(o.name);if(id==='centennial'&&/jets/.test(o.name)){const material=(o.material as THREE.MeshStandardMaterial).clone();material.transparent=true;material.opacity=.78;material.depthWrite=false;material.roughness=.18;material.onBeforeCompile=shader=>{shader.uniforms.fountainTime=fountainTime;shader.vertexShader='uniform float fountainTime;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nfloat pulse=.82+.18*sin(fountainTime*2.4+position.x*1.7+position.z*2.1);transformed.y=.15+(position.y-.15)*pulse;transformed.x+=max(0.,position.y-.15)*.035*sin(fountainTime*4.+position.z);')};material.customProgramCacheKey=()=> 'metro-fountain-pulse-v1';o.material=material;}o.castShadow=!water;o.receiveShadow=!water;o.raycast=noPick;o.updateMatrix();o.matrixAutoUpdate=false}});root.position.set(x,0,z);root.rotation.y=angle;root.updateMatrix();root.matrixAutoUpdate=false;return root},[scene,id,x,z,angle,fountainTime])
+ useEffect(()=>()=>{if(id==='centennial')model.traverse(o=>{if(o instanceof THREE.Mesh&&/jets/.test(o.name))(o.material as THREE.Material).dispose()})},[id,model])
  return <primitive object={model}/>
 }

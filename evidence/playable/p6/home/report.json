@@ -1,0 +1,117 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "accepted": {
+        "cash": 2500,
+        "p": {
+          "x": -2.6677214664526616,
+          "z": 0.2195785335473362,
+          "face": -1.05,
+          "place": "home",
+          "city": "atl",
+          "room": "home:e8c2c5de-6bff-4036-8da7-c49bb850f894"
+        },
+        "until": 1791789553778
+      },
+      "paid": 2533,
+      "metrics": {
+        "calls": 4,
+        "triangles": 3536,
+        "fps": 60.09408171814376,
+        "p95Ms": 17.69999998807907,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "actionMetrics": [
+        {
+          "calls": 5,
+          "triangles": 3776,
+          "fps": 60.55524501550128,
+          "p95Ms": 17.5,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "dpr": 1
+        },
+        {
+          "calls": 4,
+          "triangles": 3536,
+          "fps": 60.19196355916807,
+          "p95Ms": 18.100000008940697,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "dpr": 1
+        },
+        {
+          "calls": 4,
+          "triangles": 3764,
+          "fps": 60.1254792609885,
+          "p95Ms": 17.799999997019768,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "dpr": 1
+        }
+      ],
+      "reloadInside": true,
+      "walkCookSleepShowerLeave": true,
+      "noActionList": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "accepted": {
+        "cash": 2500,
+        "p": {
+          "x": -2.6365678023534556,
+          "z": 0.310126776176877,
+          "face": -1.05,
+          "place": "home",
+          "city": "atl",
+          "room": "home:7177136e-0a93-4fe0-a902-2a733455f177"
+        },
+        "until": 1791789583641
+      },
+      "paid": 2533,
+      "metrics": {
+        "calls": 4,
+        "triangles": 3536,
+        "fps": 60.03791868534422,
+        "p95Ms": 17.799999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "actionMetrics": [
+        {
+          "calls": 5,
+          "triangles": 3776,
+          "fps": 60.11207335710647,
+          "p95Ms": 17.5,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "dpr": 1
+        },
+        {
+          "calls": 3,
+          "triangles": 3524,
+          "fps": 60.0896860986547,
+          "p95Ms": 17.399999991059303,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "dpr": 1
+        },
+        {
+          "calls": 5,
+          "triangles": 3776,
+          "fps": 60.05863993164808,
+          "p95Ms": 18,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "dpr": 1
+        }
+      ],
+      "reloadInside": true,
+      "walkCookSleepShowerLeave": true,
+      "noActionList": true
+    }
+  ],
+  "errors": []
+}

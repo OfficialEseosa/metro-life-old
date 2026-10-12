@@ -288,3 +288,6 @@ All twelve new-city heroes are recognizable in context and under12k/one material
 | bayAirport | No exact airport | 640 | The oval terminal, control tower, fingers and water-edge runways read as SFO in map context; alone they remain a generic airport. |
 
 The compact layouts deliberately enlarge heroes and compress distance. Brooklyn and East Bay still have overly uniform street spacing and empty lots. Real OSM bearings are used near successful extracts, not a complete surveyed street reconstruction. Night terrain and architecture are readable, but warm window/light detail is weaker than Atlanta and remains a polish item.
+
+### Centennial playable follow-up (P6)
+The owner identified white jets on grid paving as a running track. Rebuilt only this centrepiece as a flush wet-stone plaza inside broad brick edges; five interlocking dark ring grates, low splash discs and tapered aqua jets replace upright white rods. Exported model5927triangles/2materialbatches, same-angle Blender comparisons and fresh1280x800/375x812 game captures in evidence/playable/p6. Existing OSM boundary, lawn, paths, flags, lighting towers and SkyView retained. Other generic landmarks remain the documented weakness; no new hero work in this playable round.

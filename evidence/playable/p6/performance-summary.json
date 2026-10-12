@@ -1,0 +1,28 @@
+{
+  "fpsMin": 59.8050355840317,
+  "fpsMax": 60.145552236519926,
+  "p95MaxMs": 21.299999997019768,
+  "dpr": [
+    1
+  ],
+  "cities": {
+    "atl": {
+      "calls": 57,
+      "triangles": 170284,
+      "peakCalls": 86,
+      "peakTriangles": 244442
+    },
+    "nyc": {
+      "calls": 52,
+      "triangles": 235312,
+      "peakCalls": 77,
+      "peakTriangles": 287562
+    },
+    "bay": {
+      "calls": 54,
+      "triangles": 222067,
+      "peakCalls": 78,
+      "peakTriangles": 286239
+    }
+  }
+}

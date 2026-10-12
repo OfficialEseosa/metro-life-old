@@ -65,7 +65,7 @@ export function dataFor(city:'nyc'|'bay'){
   }else type.push(p(px,ground,pz,w,visibleHeight,d,color))
   if(rand()>.6)cars.push(p(x-4,.5,z,.65,.4,1.2,['#e6c98e','#b0806f','#b7cbc6'][Math.floor(rand()*3)]))
  }
- const rowCount=brownstones.length/3,selectedBrownstones=brownstones.filter((_,i)=>{const row=Math.floor(i/3);return Math.floor((row+1)*32/rowCount)>Math.floor(row*32/rowCount)})
+ const rowCount=brownstones.length/3,selectedBrownstones=brownstones.filter((_,i)=>{const row=Math.floor(i/3);return Math.floor((row+1)*24/rowCount)>Math.floor(row*24/rowCount)})
  for(const home of selectedBrownstones)b.box(home.x,home.y+.25,home.z+2.1,.7,.5,.7,'#927964')
  for(let i=0;i<470;i++){const x=rand()*210-95,z=rand()*220-98;if(!isLand(x,z)||!clearSite(x,z,.8))continue;const inPark=city==='nyc'&&x>-33&&x<-7&&z>-65&&z<-27;if(city==='nyc'&&!inPark&&rand()>.22)continue;const s=.6+rand()*.6;trees.push(p(x,hill(x,z),z,s,s,s,['#76946b','#879d76','#64866c'][Math.floor(rand()*3)]))}
  // Retain surveyed bearings around the successful OSM extracts. Larger landmark
@@ -99,13 +99,13 @@ export function MetropolitanFabric({city,night}:{city:'nyc'|'bay';night:boolean}
  useEffect(()=>()=>{data.land.dispose();data.streets.dispose()},[data])
  const groups=useMemo(()=>metropolitanGroups(data,city),[data,city])
  useLayoutEffect(()=>{Object.keys(groups).forEach(url=>useGLTF.preload(`/models/${url}`))},[groups])
- return <group><mesh name="terrain" geometry={data.land} matrixAutoUpdate={false} receiveShadow raycast={noPick}><meshStandardMaterial vertexColors emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><mesh geometry={data.streets} matrixAutoUpdate={false} receiveShadow castShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={.85}/></mesh>{Object.entries(groups).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={'/models/'+url} placements={placements} night={night} shadow={false}/></Suspense>)}</group>
+ return <group><mesh name="terrain" geometry={data.land} matrixAutoUpdate={false} receiveShadow raycast={noPick}><meshStandardMaterial vertexColors emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><mesh geometry={data.streets} matrixAutoUpdate={false} receiveShadow castShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={.85}/></mesh>{Object.entries(groups).filter(([url])=>!url.includes('car_')).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={'/models/'+url} placements={placements} night={night} shadow={false}/></Suspense>)}</group>
 }
 
 export function metropolitanGroups(data:ReturnType<typeof dataFor>,city:'nyc'|'bay'){
   const result:Record<string,Placement[]>={},add=(url:string,p:Placement)=>{(result[url]??=[]).push(p)},sample=(p:Placement[],n:number)=>p.filter((_,i)=>Math.floor((i+1)*n/p.length)>Math.floor(i*n/p.length)),soft=(p:Placement)=>({...p,color:'#'+new THREE.Color(p.color).lerp(new THREE.Color('#ffffff'),.4).getHexString(),angle:Math.round((p.x+p.z)/8)%4*Math.PI/2})
   sample(data.homes,city==='bay'?60:20).forEach((p,i)=>add(city==='bay'&&i%9===0?'world/suburban/building-type-c.glb':'kaykit/building_'+['A','B'][i%2]+'_withoutBase.gltf',soft(p)))
-  sample(data.blocks,city==='bay'?72:40).forEach((p,i)=>add('kaykit/building_'+(city==='bay'?['A','C','D']:['C','D','E'])[i%3]+'_withoutBase.gltf',soft(p)))
+  sample(data.blocks,city==='bay'?54:40).forEach((p,i)=>add('kaykit/building_'+(city==='bay'?['A','C','D']:['C','D','E'])[i%3]+'_withoutBase.gltf',soft(p)))
   sample(data.towers,city==='bay'?14:42).forEach((p,i)=>add('world/commercial/building-skyscraper-'+['a','b','e'][i%3]+'.glb',{...soft(p),sy:Math.min(p.sy,24),angle:p.angle}))
   data.brownstones.forEach(p=>add('kaykit/building_C_withoutBase.gltf',{...p,color:'#'+new THREE.Color(p.color).lerp(new THREE.Color('#ffffff'),.15).getHexString()}))
   data.victorianRows.forEach(p=>add('landmarks/painted-row-lod.glb',p))

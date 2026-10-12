@@ -39,9 +39,11 @@ Open http://localhost:8080. Maven packages the compiled frontend and its local a
 
 ## Playing
 
-Start playing → Play solo → choose a city/home/dream → Start my life. Choose an entry job, visit its open workplace, apply there and work a shift. Cash arrives when its progress bar finishes. Search places to eat, learn, relax or meet residents. Viewing another city is free; taking part there requires an airport flight. Home remains in its original city until you move.
+Start playing → Play solo → choose a city/home/dream → Start my life. You arrive at your front door. WASD or arrows walk, Shift runs, E or Enter interacts, and Escape backs out. On phones, drag the thumb joystick at bottom left and tap the contextual action at bottom right. Walk to the door to enter your home, and approach the stove, bed, shower or couch to use it.
 
-Drag the map, pinch/scroll to zoom, or use Search. All actions have keyboard-accessible controls. On phones, drag/tap the sheet handle or focus it and press Up/Down for peek, half or full height. Escape closes ordinary panels; story choices need an answer. The lighting button previews the opposite lighting, then returns to the game clock. Sound can be muted. Reduced-motion preferences shorten camera/reward motion.
+Walk to an open workplace, enter, approach its desk and apply for an entry role. Work a shift there: the character types while progress runs, and cash arrives only on completion. Cafes have meals at counters/tables; music venues have a dance floor and stage. People in the same public room can wave, hang out or gift by walking up to one another. Private homes stay private.
+
+The overview button zooms out; moving returns to the close following camera. Drag/pinch/scroll still explore the map. Search and Travel here provide an optional timed shortcut within a city; cross-city travel requires walking to the airport or visiting it through the shortcut and taking a flight. Panels remain available through the dock and More activities at public furniture. On phones the sheet handle supports peek, half and full height; focus it and press Up/Down for keyboard control. Story choices need an answer. The lighting button previews day/night, then follows the game clock; sound can be muted and reduced motion is respected.
 
 World contains neighbours, city chat, elections, plots, billboards and homes. To meet a friend, create a private world and enter its eight-character code from a separate browser profile. Meet at the same place before waving, hanging out or sending a gift. Gifts and public votes unlock after one game day (24 real minutes); chat and waves are available immediately. City chat and purchases are scoped to that world.
 

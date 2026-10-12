@@ -126,19 +126,25 @@ def centennial():
   xs=[p[0] for p in points];ys=[p[1] for p in points];w=max(xs)-min(xs);d=max(ys)-min(ys)
   b.poly([((x-(max(xs)+min(xs))/2)*14/w,-(y-(max(ys)+min(ys))/2)*25/d+1.5) for x,y in points],.02,'#70ba65')
  else:b.poly([(-7,-11),(7,-11),(7,12),(5,14),(-6,14),(-7,10)],.02,'#70ba65')
- b.box(0,-6,.05,13,9,.08,'#bb735d')
- # Square brick paving bands; long lawn crossed by paths.
- for x in [-6,-3,0,3,6]:b.path([(x,-10),(x,-2)],.12,'#e7d5c2',.105)
- for y in [-10,-7.5,-5,-2.5]:b.path([(-6.5,y),(6.5,y)],.12,'#e7d5c2',.105)
+ # Broad brick perimeter surrounds a flush wet-stone splash plaza, without track lanes.
+ b.box(0,-6,.05,13,9,.08,'#b67b64')
+ b.box(0,-6,.105,10.7,6.1,.025,'#c3b9a9')
+ for y in [-9.3,-2.7]:b.path([(-6.5,y),(6.5,y)],.28,'#e2d0b4',.13)
  for x in [-6,6]:b.path([(x,-11),(x,13)],.65,'#cc8e71',.08)
  for y in [0,6,12]:b.path([(-7,y),(7,y)],.65,'#cc8e71',.08)
  b.path([(-6,0),(6,12)],.5,'#d09b7b');b.path([(6,0),(-6,12)],.5,'#d09b7b')
- b.box(0,-6,.11,8.6,4.2,.04,'#d2b3a1')
- for x,y in [(-2.4,-5.4),(0,-5.4),(2.4,-5.4),(-1.2,-6.7),(1.2,-6.7)]:
-  b.ring(x,y,.143,1.3,1.3,.075,'#f3e8d4',40)
-  for j in range(20):
-   a=j*math.pi/10;px=x+1.3*math.cos(a);py=y+1.3*math.sin(a)
-   water.line((px,py,.15),(px,py,.45+.45*(.5+.5*math.sin(j*1.3))),.025,'#b8efff',4)
+ b.box(0,-6,.125,8.8,4.5,.015,'#8eaaa9')
+ for ring,(x,y) in enumerate([(-2.4,-5.4),(0,-5.4),(2.4,-5.4),(-1.2,-6.7),(1.2,-6.7)]):
+  b.ring(x,y,.145,1.3,1.3,.085,'#477a84',40)
+  for j in range(12):
+   a=j*math.pi/6;px=x+1.3*math.cos(a);py=y+1.3*math.sin(a)
+   b.ring(px,py,.15,.075,.075,.03,'#4c6064',6)
+   height=.32+.4*(.5+.5*math.sin(j*1.3+ring));lean=.12
+   # Tapering water arc with blue body, pale crest and a broad low splash.
+   for step in range(3):
+    t=step/3;u=(step+1)/3;A=(px+lean*t*t,py,.16+height*t);B=(px+lean*u*u,py,.16+height*u)
+    water.line(A,B,.045*(1-t*.65),'#80d3e1' if step<2 else '#c5f5f2',4)
+   water.ring(px,py,.155,.15,.12,.1,'#9bdfdf',8)
  for x in [-5.8,5.8]:
   for y in [-9.5,-6.5,-3.5,.5]:
    b.line((x,y,0),(x,y,3.8),.045,'#d8d9cf',6);b.ring(x,y,3.5,.28,.28,.06,'#f5edda',12)
@@ -156,7 +162,7 @@ def centennial():
  # GWCC west, Coca-Cola museum northeast, no marks/logos. Actual canonical neighbours in scene.
  for y in [-3,2,7]:b.box(-11,y,1.2,5,4,2.4,'#b7c9d0');b.box(-11,y,2.5,5.3,4.2,.2,'#e4e9e7')
  b.box(4,16,1.25,6,4,2.5,'#c3d9b6');b.box(4,16,2.55,6.3,4.3,.15,'#d7e4e1');b.box(3,13.9,1.4,3,.08,2.4,'#78b8c9')
- b.finish('centennial-landscape');water.finish('centennial-jets',True)
+ b.finish('centennial-landscape');water.finish('centennial-jets')
 def piedmont():
  b=Build();water=Build();r=random.Random(83)
  boundary=[(-13,-17),(9,-17),(14,-11),(13,6),(10,17),(-4,19),(-13,13)]
