@@ -17,6 +17,8 @@ import { useNightLighting } from '../lighting'
 import { Pins } from './pins'
 import { WorldActivity, PlayerMarker } from './activity'
 import { Residents } from './residents'
+import { Walking } from './walking'
+import { motion } from '../walking'
 import { EconomyScene } from './economy'
 import { plotSite, boardSites } from './economy-sites'
 
@@ -79,6 +81,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
     return {eye:preview.position.clone(),target}
   }, [camera,atlSites,insets,size.width,size.height])
   const view = useCallback((id: string | null, immediate = false, welcome = false) => {
+    motion.follow=false
     const site = id==='home'||id==='homes'?homeSite(city,home):id==='plots'?plotSite(city):id?.startsWith('billboard-')?boardSites(city,city==='atl'?20:city==='nyc'?24:22)[Number(id.split('-')[1])-1]:id ? atlSites[id] : null
     const distance = site ? Math.max(22, site.size * 1.18, site.height*1.1) * 1.3 * Math.max(1, .85 / (Math.max(120,size.width-insets.left-insets.right) / Math.max(160,size.height-insets.top-insets.bottom))) * size.height/Math.max(size.height*.35,size.height-insets.top-insets.bottom) : 0
     const next = site ? { target: new THREE.Vector3(site.x, site.height * .5, site.z), eye: new THREE.Vector3(site.x + distance * .7, site.height * .5 + distance * .75, site.z + distance) } : overview()
@@ -114,13 +117,13 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
     if(immediate||matchMedia('(prefers-reduced-motion: reduce)').matches) {camera.position.copy(next.eye);controls.current?.target.copy(next.target);controls.current?.update();useStore.getState().setCameraMoving(false);invalidate()} else {destination.current=next;useStore.getState().setCameraMoving(true);invalidate()}
   }, [camera,invalidate,overview,scene,size.width,size.height,atlSites,city,home,playing,insets])
   const latestView=useRef(view);useLayoutEffect(()=>{latestView.current=view},[view])
-  useEffect(() => {const s=useStore.getState();latestView.current(s.panel==='location'?s.selectedLoc:s.panel==='plots'?'plots':s.panel==='billboard'?`billboard-${s.selectedSlot??1}`:s.panel==='homes'?'home':s.panel==='mayor'?(city==='atl'?'capitol':city==='nyc'?'cityHall':'sfCityHall'):null,!s.sim,true)}, [city])
-  useEffect(() => {if(focus){view(focus);useStore.getState().setFocus(null)}}, [focus,view])
+  useEffect(() => {const s=useStore.getState();if(s.sim?.city===city&&!s.panel){motion.follow=true;destination.current=null;invalidate();return}latestView.current(s.panel==='location'?s.selectedLoc:s.panel==='plots'?'plots':s.panel==='billboard'?`billboard-${s.selectedSlot??1}`:s.panel==='homes'?'home':s.panel==='mayor'?(city==='atl'?'capitol':city==='nyc'?'cityHall':'sfCityHall'):null,!s.sim,true)}, [city,invalidate])
+  useEffect(() => {if(focus){motion.follow=false;view(focus);useStore.getState().setFocus(null)}}, [focus,view])
   useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=new THREE.Fog(night?'#223752':'#d7e0dd',500,1100);invalidate()}, [gl,scene,night,city,invalidate])
   useEffect(() => {const wake=()=>{lastFrame.current=0;invalidate()};document.addEventListener('visibilitychange',wake);return()=>document.removeEventListener('visibilitychange',wake)},[invalidate])
   useFrame((_,dt)=>{
     const fog=scene.fog as THREE.Fog|null,range=camera.position.distanceTo(controls.current?.target??worldTarget);if(fog){fog.near=Math.max(500,range*1.1);fog.far=Math.max(1100,range*2.2)}
-    const time=performance.now();if(destination.current&&lastFrame.current&&time-lastFrame.current<250){timings.current.push(time-lastFrame.current);if(timings.current.length>300)timings.current.shift()}lastFrame.current=destination.current?time:0
+    const time=performance.now();if((destination.current||motion.moving)&&lastFrame.current&&time-lastFrame.current<250){timings.current.push(time-lastFrame.current);if(timings.current.length>300)timings.current.shift()}lastFrame.current=destination.current||motion.moving?time:0
     if(timings.current.length===300&&gl.getPixelRatio()>.86&&timings.current.reduce((a,b)=>a+b,0)/300>1000/58){setDpr(.85);timings.current=[]}
     const d=destination.current,c=controls.current
     if(d&&c){const t=1-Math.exp(-Math.min(dt,.05)*7);camera.position.lerp(d.eye,t);c.target.lerp(d.target,t);c.update();if(camera.position.distanceTo(d.eye)<.03){destination.current=null;useStore.getState().setCameraMoving(false)}invalidate()}
@@ -138,10 +141,10 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
     <directionalLight position={[-55,90,45]} intensity={night?.65:2.1} color={night?'#8aa7df':'#ffffff'} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-100} shadow-camera-right={100} shadow-camera-top={100} shadow-camera-bottom={-100} shadow-camera-near={1} shadow-camera-far={230} shadow-bias={-.0003} shadow-normalBias={.12}/>
     {city==='atl'?<><mesh name="ground" position={[0,-.05,0]} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><planeGeometry args={[2000,2000]}/><meshStandardMaterial color={night?'#598065':'#8ebd75'} emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><Terrain night={night}/><Fabric night={night}/></>:<MetropolitanFabric key={city} city={city} night={night}/>}
     <Architecture key={`architecture-${city}`} city={city}/><Home city={city}/><Lake night={night} city={city}/>{!pinsHidden&&<Pins key={`pins-${city}`} onHover={onHover}/>}
-    <EconomyScene night={night}/><Residents/><WorldActivity/><OrbitControls ref={controls} enabled={!beat&&panel!=='plots'&&!['play','setup','signup','login','worlds'].includes(panel??'')} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null;useStore.getState().setCameraMoving(true)}} onEnd={()=>useStore.getState().setCameraMoving(false)} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
+    <Walking controls={controls} cancelFlight={()=>{destination.current=null}}/><EconomyScene night={night}/><Residents/><WorldActivity/><OrbitControls ref={controls} enabled={!beat&&panel!=='plots'&&!['play','setup','signup','login','worlds'].includes(panel??'')} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate={false} enableDamping={false} mouseButtons={{LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}} touches={{ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null;motion.follow=false;useStore.getState().setCameraMoving(true)}} onEnd={()=>useStore.getState().setCameraMoving(false)} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
   </>
 }
-function SceneLoading(){const {active,progress}=useProgress();return active?<div className="scene-loading" role="status">Bringing the city to life · {Math.round(progress)}%</div>:null}
+function SceneLoading(){const {active,progress}=useProgress();return active?<div className="scene-loading" role="status">Bringing the city to life Â· {Math.round(progress)}%</div>:null}
 export default function CityScene() {
   const [hover,setHover]=useState<{name:string;x:number;y:number}|null>(null)
   return <div className="city-canvas"><Canvas frameloop="demand" shadows="soft" dpr={[.85,1.25]} camera={{position:[95,108,130],fov:40,near:.1,far:2000}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} onCreated={({raycaster})=>{raycaster.params.Points.threshold=1.5}}><AmbientTicker/><Suspense fallback={null}><City onHover={(name,x=0,y=0)=>setHover(name?{name,x,y}:null)}/></Suspense></Canvas><SceneLoading/><PlayerMarker/>{hover&&<div className="map-tooltip" style={{left:Math.min(hover.x+14,innerWidth-220),top:Math.max(70,hover.y-40)}}>{hover.name}</div>}</div>

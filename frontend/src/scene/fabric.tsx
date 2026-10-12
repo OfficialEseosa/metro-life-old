@@ -1,3 +1,4 @@
+/* oxlint-disable react/only-export-components -- Layout exports feed the shared navigation generator. */
 import { Suspense, useLayoutEffect, useMemo, useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
@@ -44,7 +45,7 @@ function fabricData(){
  return{homes,blocks,towers,trees,lamps,cars}
 }
 
-function kitFabric(){
+export function kitFabric(){
  const source=fabricData(),groups:Record<string,Placement[]>={}
  const add=(url:string,p:Placement)=>{(groups[url]??=[]).push(p)}
  const sample=(items:Placement[],n:number)=>items.filter((_,i)=>Math.floor((i+1)*n/items.length)>Math.floor(i*n/items.length))

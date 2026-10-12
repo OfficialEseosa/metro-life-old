@@ -1,0 +1,74 @@
+[
+  {
+    "name": "app.metrolife.AuthConcurrencyTests",
+    "tests": "3",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.578"
+  },
+  {
+    "name": "app.metrolife.CivicEconomyTests",
+    "tests": "9",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.714"
+  },
+  {
+    "name": "app.metrolife.CommunityTests",
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.517"
+  },
+  {
+    "name": "app.metrolife.CoreTests",
+    "tests": "12",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.58"
+  },
+  {
+    "name": "app.metrolife.FinalRulesTests",
+    "tests": "8",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.214"
+  },
+  {
+    "name": "app.metrolife.HttpContractTests",
+    "tests": "2",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "3.653"
+  },
+  {
+    "name": "app.metrolife.LiveWireTests",
+    "tests": "3",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.757"
+  },
+  {
+    "name": "app.metrolife.NavigationTests",
+    "tests": "4",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.135"
+  },
+  {
+    "name": "app.metrolife.ProgressionTests",
+    "tests": "6",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.417"
+  }
+]

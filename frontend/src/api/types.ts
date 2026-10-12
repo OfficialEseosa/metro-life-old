@@ -160,6 +160,7 @@ export type Goal = {
 }
 
 export type Sim = {
+  position?: import('../navigation').Position
   /** Server epoch when this life began; civic/gift eligibility after one game day. */
   createdAt: number
   userId: string
@@ -219,6 +220,7 @@ export type StoryOutcome = { win: boolean; text: string; deltas: Deltas; next: S
 // ---- people ---------------------------------------------------------------
 
 export type Player = {
+  position?: import('../navigation').Position
   id: string
   username: string
   look: Look

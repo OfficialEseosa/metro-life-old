@@ -22,7 +22,7 @@ public class GameService {
     private final AuthAttempts authAttempts=new AuthAttempts();
     java.util.function.Function<String,String> hashPassword=Passwords::hash;
     java.util.function.BiPredicate<String,String> verifyPassword=Passwords::verify;
-    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.visits=store.data.path("visits").asLong();this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this);this.community=new Community(this); }
+    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.visits=store.data.path("visits").asLong();this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this);this.community=new Community(this);navigation=new Navigation(this); }
     long now() { return time.getAsLong(); }
     ObjectNode object() { return mapper.createObjectNode(); }
     ObjectNode table(String name) { return (ObjectNode)store.data.get(name); }
@@ -138,12 +138,13 @@ public class GameService {
         }
         throw new ApiException(404,"That private world code was not found");
     }
+    Navigation navigation;
     synchronized ObjectNode selectWorld(String token,JsonNode body) {
         ObjectNode session=session(token,true),w=(ObjectNode)table("worlds").get(body.path("worldId").asText());
         require(w!=null&&belongs(w,session.path("userId").asText()),403,"Join this world with its private code first");select(session,w);store.save();
         ObjectNode out=object();out.set("world",worldInfo(w));ObjectNode s=(ObjectNode)table("sims").get(simKey(session));if(s==null)out.putNull("sim");else {decay(s,w);out.set("sim",publicSim(s));store.save();}return out;
     }
-    ObjectNode publicSim(ObjectNode s) {ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
+    ObjectNode publicSim(ObjectNode s) {navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
     String friendlyName(){
         String[] first={"Avery","Riley","Jordan","Casey","Morgan","Taylor","Alex","Jamie","Quinn","Rowan","Sage","Skyler","Reese","Parker","Cameron","Blair"};
         String[] last={"Brooks","Vale","Reed","Lane","Park","Ellis","Hayes","Quill","Blake","Bell","Stone","Wells","Banks","Hill","West","Hart"};
@@ -170,6 +171,7 @@ public class GameService {
         for(int i=0;i<3;i++){ObjectNode g=goals.addObject().put("id",ids[i]).put("text",texts[i]).put("icon",icons[i]).put("progress",0).put("target",i==0?3:1).put("done",false);g.putObject("reward").put("cash",45).put("xp",25);}
     }
     ObjectNode simResponse(ObjectNode s,ObjectNode w) {ObjectNode out=object();out.set("sim",publicSim(s));out.set("clock",clock(w));return out;}
+    synchronized ObjectNode movePosition(String token,JsonNode body){return navigation.move(token,body);}
     synchronized ObjectNode getSim(String token) {ObjectNode session=session(token,true),s=sim(session),w=world(session);decay(s,w);return simResponse(s,w);}
     void decay(ObjectNode s,ObjectNode w) {
         civic.tick(w);property.syncPlots(s,w);int day=clock(w).path("day").asInt(),elapsed=Math.max(0,day-s.path("lastDay").asInt());if(elapsed>0){resetDaily(s);property.rent(s,w,elapsed);s.put("lastDay",day);}

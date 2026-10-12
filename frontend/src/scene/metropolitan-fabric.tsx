@@ -1,3 +1,4 @@
+/* oxlint-disable react/only-export-components -- Layout exports feed the shared navigation generator. */
 import { Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
@@ -13,7 +14,7 @@ import { outsidePlots, outsideBoards } from './economy-sites'
 const noPick=()=>{}
 function inside(x:number,z:number,poly:number[][]){let yes=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])yes=!yes}return yes}
 function land(b:Builder,poly:number[][],color:string){const s=new THREE.Shape();poly.forEach(([x,z],i)=>i?s.lineTo(x,-z):s.moveTo(x,-z));s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:.8,bevelEnabled:true,bevelSize:.7,bevelThickness:.2,bevelSegments:1});g.rotateX(-Math.PI/2);b.add(g,color,0,-.95,0)}
-function dataFor(city:'nyc'|'bay'){
+export function dataFor(city:'nyc'|'bay'){
  const b=new Builder(),shore=new Builder(),sites=sitesFor(city),polys=city==='nyc'?[nycLand,nycEast]:[bayWest,bayEast,bayMarin]
  let seed=city==='nyc'?57:89;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
  const p=(x:number,y:number,z:number,sx:number,sy:number,sz:number,color:string,angle=0):Placement=>({x,y,z,sx,sy,sz,color,angle})
@@ -96,7 +97,12 @@ function dataFor(city:'nyc'|'bay'){
 export function MetropolitanFabric({city,night}:{city:'nyc'|'bay';night:boolean}){
  const data=useMemo(()=>dataFor(city),[city])
  useEffect(()=>()=>{data.land.dispose();data.streets.dispose()},[data])
- const groups=useMemo(()=>{
+ const groups=useMemo(()=>metropolitanGroups(data,city),[data,city])
+ useLayoutEffect(()=>{Object.keys(groups).forEach(url=>useGLTF.preload(`/models/${url}`))},[groups])
+ return <group><mesh name="terrain" geometry={data.land} matrixAutoUpdate={false} receiveShadow raycast={noPick}><meshStandardMaterial vertexColors emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><mesh geometry={data.streets} matrixAutoUpdate={false} receiveShadow castShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={.85}/></mesh>{Object.entries(groups).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={'/models/'+url} placements={placements} night={night} shadow={false}/></Suspense>)}</group>
+}
+
+export function metropolitanGroups(data:ReturnType<typeof dataFor>,city:'nyc'|'bay'){
   const result:Record<string,Placement[]>={},add=(url:string,p:Placement)=>{(result[url]??=[]).push(p)},sample=(p:Placement[],n:number)=>p.filter((_,i)=>Math.floor((i+1)*n/p.length)>Math.floor(i*n/p.length)),soft=(p:Placement)=>({...p,color:'#'+new THREE.Color(p.color).lerp(new THREE.Color('#ffffff'),.4).getHexString(),angle:Math.round((p.x+p.z)/8)%4*Math.PI/2})
   sample(data.homes,city==='bay'?60:20).forEach((p,i)=>add(city==='bay'&&i%9===0?'world/suburban/building-type-c.glb':'kaykit/building_'+['A','B'][i%2]+'_withoutBase.gltf',soft(p)))
   sample(data.blocks,city==='bay'?72:40).forEach((p,i)=>add('kaykit/building_'+(city==='bay'?['A','C','D']:['C','D','E'])[i%3]+'_withoutBase.gltf',soft(p)))
@@ -107,7 +113,4 @@ export function MetropolitanFabric({city,night}:{city:'nyc'|'bay';night:boolean}
   data.cars.filter((_,i)=>i%(city==='bay'?30:12)===0).forEach((p,i)=>add('kaykit/car_'+(i%2?'sedan':'hatchback')+'.gltf',{...p,sx:.7,sy:.55,sz:1.3,color:'#ffffff'}))
   data.roads.forEach((p,i)=>{add('kaykit/road_straight.gltf',p);if(i%28===0)add('kaykit/streetlight.gltf',{...p,x:p.x+1.5,sx:.8,sy:2.5,sz:.25,pitch:0})})
   return result
- },[data,city])
- useLayoutEffect(()=>{Object.keys(groups).forEach(url=>useGLTF.preload(`/models/${url}`))},[groups])
- return <group><mesh name="terrain" geometry={data.land} matrixAutoUpdate={false} receiveShadow raycast={noPick}><meshStandardMaterial vertexColors emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><mesh geometry={data.streets} matrixAutoUpdate={false} receiveShadow castShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={.85}/></mesh>{Object.entries(groups).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={'/models/'+url} placements={placements} night={night} shadow={false}/></Suspense>)}</group>
 }

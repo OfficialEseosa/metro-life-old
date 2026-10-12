@@ -74,6 +74,7 @@ export const api = {
   joinWorld: (code: string) => req<{ world: WorldInfo }>('POST', '/api/worlds/join', { code }),
   selectWorld: (worldId: string) => req<{ world: WorldInfo; sim: Sim | null }>('POST', '/api/worlds/select', { worldId }),
 
+  move: (city:CityId,p:import('../navigation').Position) => req<{position:import('../navigation').Position}>('POST','/api/move',{city,...p}),
   sim: () => req<{ sim: Sim; clock: Clock }>('GET', '/api/sim'),
   setupSim: (setup: { city: CityId; neighborhood: string; aspiration: string; look?: Partial<Look> }) =>
     req<{ sim: Sim }>('POST', '/api/sim/setup', setup),
