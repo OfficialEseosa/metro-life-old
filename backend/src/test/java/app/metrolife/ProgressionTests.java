@@ -14,7 +14,7 @@ class ProgressionTests {
     ObjectNode sim(){return game.sim(game.session(token,true));}
     @BeforeEach void setup()throws Exception{
         content=new Content(mapper);store=new JsonStore(mapper,dir.resolve("save.json").toString());game=new GameService(store,content,mapper);game.time=()->now;
-        token=game.guest(null,json("{}")).token();game.createWorld(token,json("{\"name\":\"Progression\",\"mode\":\"solo\"}"));game.setup(token,json("{\"city\":\"atl\",\"neighborhood\":\"midtown\",\"aspiration\":\"founder\"}"));
+        token=game.guest(null,json("{}")).token();ActivityFixture.setup(game,token,json("{\"city\":\"atl\",\"neighborhood\":\"midtown\",\"aspiration\":\"founder\"}"));
     }
     JsonNode hire(JsonNode body){String track=body.path("jobId").asText().split("-")[0];sim().put("loc",Content.workplace(sim().path("city").asText(),track));game.world(game.session(token,true)).put("startedAt",now-4*60000);return ActivityFixture.apply(game,token,body);}
     void refresh(){for(String n:Content.NEEDS)sim().withObject("needs").put(n,100);sim().put("updatedAt",now);}
@@ -32,7 +32,7 @@ class ProgressionTests {
                 for(String skill:Content.SKILLS)sim().withObject("skills").withObject(skill).put("level",10);
                 JsonNode accepted=shift(track);assertEquals(level,accepted.path("sim").path("job").path("level").asInt());assertTrue(accepted.path("result").path("promoted").isTextual());
                 now=accepted.path("sim").path("busyUntil").asLong()-1;assertEquals(level,game.getSim(token).path("sim").path("job").path("level").asInt());now++;
-                JsonNode promoted=game.getSim(token).path("sim");assertEquals(level+1,promoted.path("job").path("level").asInt());assertEquals(0,promoted.path("job").path("shifts").asInt());assertEquals(75+(level+1)*45,promoted.path("job").path("payPerHour").asInt());assertTrue(promoted.path("pendingBeat").isNull());
+                JsonNode promoted=game.getSim(token).path("sim");assertEquals(level+1,promoted.path("job").path("level").asInt());assertEquals(0,promoted.path("job").path("shifts").asInt());assertEquals(new int[]{70,100,140,190,250}[level],promoted.path("job").path("payPerHour").asInt());assertTrue(promoted.path("pendingBeat").isNull());
             }
             JsonNode cap=shift(track);now=cap.path("sim").path("busyUntil").asLong();assertEquals(5,game.getSim(token).path("sim").path("job").path("level").asInt());game.quitJob(token);
         }
@@ -50,7 +50,7 @@ class ProgressionTests {
         game.setAspiration(token,json("{\"aspiration\":\"athlete\"}"));game.setAspiration(token,json("{\"aspiration\":\"founder\"}"));assertEquals(2,sim().path("aspiration").path("step").asInt());game.progression.evaluate(sim(),mapper.createArrayNode());assertEquals(2950,sim().path("cash").asInt());
         assertEquals(400,assertThrows(ApiException.class,()->game.setAspiration(token,json("{\"aspiration\":\"forged\"}"))).status);
         game.store.save();GameService restarted=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),content,mapper);restarted.time=()->now;assertEquals(2,restarted.getSim(token).path("sim").path("aspiration").path("step").asInt());
-        game.createWorld(token,json("{\"name\":\"Other life\",\"mode\":\"solo\"}"));game.setup(token,json("{\"city\":\"atl\",\"neighborhood\":\"midtown\",\"aspiration\":\"founder\"}"));assertEquals(0,sim().path("aspiration").path("step").asInt());assertEquals(2500,sim().path("cash").asInt());
+        assertEquals(409,assertThrows(ApiException.class,()->ActivityFixture.setup(game,token,json("{\"city\":\"atl\",\"neighborhood\":\"midtown\",\"aspiration\":\"founder\"}"))).status);assertEquals(2,sim().path("aspiration").path("step").asInt());
         assertEquals(7,content.world.path("aspirations").size());var text=new java.util.HashSet<String>();for(JsonNode a:content.world.path("aspirations")){assertEquals(6,a.path("milestones").size());text.add(a.path("milestones").toString());}assertEquals(7,text.size());
     }
     @Test void activityTriggersAndDreamRewardsWaitForCompletionThenStorySurvivesRestart()throws Exception{

@@ -20,7 +20,6 @@ import type {
   StoryOutcome,
   User,
   World,
-  WorldInfo,
 } from './types'
 import { syncServerTime } from '../server-time'
 
@@ -64,21 +63,16 @@ export const api = {
 
   me: () => req<Me>('GET', '/api/auth/me'),
   guest: (username?: string) => req<{ user: User }>('POST', '/api/auth/guest', { username }),
-  signup: (username: string, password: string, look?: Partial<Look>) =>
-    req<{ user: User }>('POST', '/api/auth/signup', { username, password, look }),
-  login: (username: string, password: string) => req<{ user: User }>('POST', '/api/auth/login', { username, password }),
-  logout: () => req<{ ok: true }>('POST', '/api/auth/logout'),
-
-  worlds: () => req<{ worlds: WorldInfo[]; current: string | null }>('GET', '/api/worlds'),
-  createWorld: (name: string, mode: 'solo' | 'private') => req<{ world: WorldInfo }>('POST', '/api/worlds', { name, mode }),
-  joinWorld: (code: string) => req<{ world: WorldInfo }>('POST', '/api/worlds/join', { code }),
-  selectWorld: (worldId: string) => req<{ world: WorldInfo; sim: Sim | null }>('POST', '/api/worlds/select', { worldId }),
+  newLife: () => req<{user:User}>('POST','/api/life/new',{confirm:true}),
+  finishIntro: () => req<{sim:Sim}>('POST','/api/intro/complete'),
+  payFirstRent: () => req<{sim:Sim}>('POST','/api/home/rent'),
+  outfit: (style:string) => req<{sim:Sim}>('POST','/api/sim/outfit',{style}),
 
   travel: (city:CityId,loc:string) => req<{sim:Sim}>('POST','/api/travel',{city,loc}),
   door: (loc:string,enter:boolean) => req<{sim:Sim}>('POST','/api/door',{loc,enter}),
   move: (city:CityId,p:import('../navigation').Position) => req<{position:import('../navigation').Position}>('POST','/api/move',{city,...p}),
   sim: () => req<{ sim: Sim; clock: Clock }>('GET', '/api/sim'),
-  setupSim: (setup: { city: CityId; neighborhood: string; aspiration: string; look?: Partial<Look> }) =>
+  setupSim: (setup: { username:string;pronouns: 'she'|'he'|'they';city: CityId; neighborhood: string; aspiration: string; look?: Partial<Look> }) =>
     req<{ sim: Sim }>('POST', '/api/sim/setup', setup),
   act: (city: CityId, loc: string, action: string) =>
     req<{ sim: Sim; result: ActResult }>('POST', '/api/act', { city, loc, action }),

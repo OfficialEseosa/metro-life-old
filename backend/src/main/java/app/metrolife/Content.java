@@ -21,6 +21,7 @@ public class Content {
             if(in==null) throw new IOException("Canonical world content missing");
             world=(ObjectNode)mapper.readTree(in);
         }
+        world.put("startingCash",150);
         for(JsonNode c:world.withArray("cities")) {
             ObjectNode city=(ObjectNode)c; int n=0;
             for(JsonNode nh:city.withArray("neighborhoods")) ((ObjectNode)nh).put("rent",(city.path("id").asText().equals("atl")?65:110)+15*n++);
@@ -31,7 +32,7 @@ public class Content {
             }
             ArrayNode home=city.putArray("homeActions");
             home.add(action("sleep","Get some sleep","rest","moon",60,0,0,Map.of("energy",48,"hunger",-5),Map.of()));
-            home.add(action("cook","Cook a fresh meal","food","cooking-pot",30,12,0,Map.of("hunger",38,"fun",5),Map.of("cooking",24)));
+            home.add(action("cook","Cook a fresh meal","food","cooking-pot",30,0,0,Map.of("hunger",38,"fun",5),Map.of("cooking",24)));
             home.add(action("shower","Take a shower","rest","droplets",15,0,0,Map.of("energy",18,"fun",12),Map.of()));
             home.add(action("invite","Invite a friend over","social","users",30,0,0,Map.of("social",35,"fun",10),Map.of("charisma",18)));
         }
@@ -46,14 +47,14 @@ public class Content {
             ObjectNode career=careers.addObject().put("track",TRACKS[t]).put("label",title(TRACKS[t])).put("icon",t==7?"heart-pulse":"briefcase");
             ArrayNode levels=career.putArray("levels");
             for(int level=1;level<=5;level++) {
-                ObjectNode row=levels.addObject().put("level",level).put("title",titles[t][level-1]).put("city","atl").put("loc",workplaces[t]).put("payPerHour",75+level*45).put("shiftsToPromote",3+level);
+                ObjectNode row=levels.addObject().put("level",level).put("title",titles[t][level-1]).put("city","atl").put("loc",workplaces[t]).put("payPerHour",new int[]{70,100,140,190,250}[level-1]).put("shiftsToPromote",3+level);
                 row.putObject("requires").putObject("skills").put(careerSkills[t],(level-1)*2);
             }
             ObjectNode shift=action("shift-"+TRACKS[t],"Work a shift","work","briefcase",60,0,120,Map.of("energy",-10,"hunger",-7,"fun",-3),Map.of(careerSkills[t],75));
             shift.putObject("requires").put("job",TRACKS[t]);ArrayNode workplaceActions=landmark("atl",workplaces[t]).withArray("actions");boolean existingShift=false;for(JsonNode existing:workplaceActions)if(existing.path("label").asText().equals("Work a shift")&&existing.path("requires").path("job").asText().equals(TRACKS[t]))existingShift=true;if(!existingShift)workplaceActions.add(shift);
             for(String other:new String[]{"nyc","bay"}){ArrayNode actions=landmark(other,workplace(other,TRACKS[t])).withArray("actions");boolean exists=false;for(JsonNode a:actions)if(a.path("requires").path("job").asText().equals(TRACKS[t]))exists=true;if(!exists)actions.add(shift.deepCopy());}
         }
-        for(JsonNode city:world.path("cities"))for(JsonNode place:city.path("landmarks")){boolean workplace=false;for(String track:TRACKS)if(workplace(city.path("id").asText(),track).equals(place.path("id").asText()))workplace=true;if(workplace)((ObjectNode)place).withArray("actions").add(action("visit-workplace","Visit the workplace","rest","footprints",1,0,0,Map.of(),Map.of()).put("xp",0));}
+        for(JsonNode city:world.path("cities"))for(JsonNode place:city.path("landmarks")){boolean workplace=false;for(String track:TRACKS)if(workplace(city.path("id").asText(),track).equals(place.path("id").asText()))workplace=true;if(workplace){((ObjectNode)place).putArray("open").add(0).add(24);((ObjectNode)place).withArray("actions").add(action("visit-workplace","Visit the workplace","rest","footprints",1,0,0,Map.of(),Map.of()).put("xp",0));}}
         ArrayNode aspirations=world.putArray("aspirations");
         for(int i=0;i<ASPIRATIONS.length;i++) {
             ObjectNode aspiration=aspirations.addObject().put("id",ASPIRATIONS[i]).put("label",ASPIRATION_NAMES[i]).put("icon",new String[]{"rocket","mic-vocal","landmark","utensils","trophy","palette","house"}[i]).put("blurb","Build your own path, one good day at a time.");
@@ -74,9 +75,9 @@ public class Content {
         Map<String,Integer> needs=Map.of("fun",20,"energy",-3);
         if(s.startsWith("fly to")) return action("a"+index,label,"travel","plane",90,180,0,Map.of("energy",-8,"fun",5),Map.of()).put("to",s.contains("new york")?"nyc":s.contains("atlanta")?"atl":"bay");
         if(s.matches(".*(work |shift|usher|busk|sell |bartend|intern|ship a feature|trade the open|play a set|dj a set|play an open mic|perform at).*")) {
-            kind="work"; cost=0; pay=95; needs=Map.of("energy",-10,"hunger",-7,"fun",-3);
+            kind="work"; cost=0; pay=22; needs=Map.of("energy",-10,"hunger",-7,"fun",-3);
             skill=s.contains("kitchen")||s.contains("line")?"cooking":cat.equals("music")||cat.equals("nightlife")?"music":"business";
-        } else if(s.matches(".*(eat |meal|dumplings|burrito|chowder|dim sum|food hall|get a slice|grab ).*")) {kind="food";cost=18;needs=Map.of("hunger",35,"fun",7);skill="cooking";}
+        } else if(s.matches(".*(eat |meal|dumplings|burrito|chowder|dim sum|food hall|get a slice|grab ).*")) {kind="food";cost=12;needs=Map.of("hunger",35,"fun",7);skill="cooking";}
         else if(s.matches(".*(class|study|hackathon|co-work|sketch|interview|pitch|raise a seed|start something).*")) {kind="learn";cost=15;needs=Map.of("fun",10,"energy",-5);skill=cat.equals("culture")?"creativity":cat.equals("tech")||cat.equals("education")?"tech":"business";}
         else if(s.matches(".*(run |jog |bike |tennis|swim|shoot around|cycle).*")) {kind="learn";cost=0;needs=Map.of("fun",15,"energy",-8,"hunger",-5);skill="fitness";}
         else if(s.matches(".*(friends|network|club|debate|co-founder|meet |share ).*")) {kind="social";cost=0;needs=Map.of("social",30,"fun",10);skill="charisma";}

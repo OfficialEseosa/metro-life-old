@@ -17,16 +17,15 @@ public class ApiController {
     ApiController(GameService game,Content content){this.game=game;this.content=content;}
     void cookie(HttpServletRequest req,HttpServletResponse res,String token){res.addHeader("Set-Cookie",ResponseCookie.from("ml_session",token).httpOnly(true).secure(req.isSecure()).sameSite("Lax").path("/").maxAge(token.isEmpty()?0:30L*86400).build().toString());res.setHeader("Cache-Control","no-store");}
     @GetMapping("/world") ObjectNode world(){return content.world;}
-    @GetMapping("/version") Map<String,String> version(){return Map.of("build","metro-life-m8");}
+    @GetMapping("/version") Map<String,String> version(){return Map.of("build","metro-life-v2");}
     @GetMapping("/stats") ObjectNode stats(){return game.stats();}
     @GetMapping("/daily") ObjectNode daily(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.daily(token,game.defaultCity(token,city));}
     @GetMapping("/auth/me") ObjectNode me(@CookieValue(name="ml_session",required=false)String token){return game.me(token);}
-    @PostMapping("/auth/{kind:guest|signup|login}") ObjectNode auth(@PathVariable String kind,@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){GameService.AuthResult result=switch(kind){case "guest"->game.guest(token,body);case "signup"->game.signup(token,body,req.getRemoteAddr());default->game.login(token,body,req.getRemoteAddr());};cookie(req,res,result.token());ObjectNode out=game.object();out.set("user",result.user());return out;}
-    @PostMapping("/auth/logout") ObjectNode logout(@CookieValue(name="ml_session",required=false)String token,HttpServletRequest req,HttpServletResponse res){cookie(req,res,"");return game.logout(token);}
-    @GetMapping("/worlds") ObjectNode worlds(@CookieValue(name="ml_session",required=false)String token){return game.worlds(token);}
-    @PostMapping("/worlds") ObjectNode create(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.createWorld(token,body);}
-    @PostMapping("/worlds/join") ObjectNode join(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.joinWorld(token,body);}
-    @PostMapping("/worlds/select") ObjectNode select(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.selectWorld(token,body);}
+    @PostMapping("/auth/guest") ObjectNode guest(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){var r=game.guest(token,body);cookie(req,res,r.token());ObjectNode out=game.object();out.set("user",r.user());return out;}
+    @PostMapping("/life/new") ObjectNode newLife(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){var r=game.newLife(token,body);cookie(req,res,r.token());ObjectNode out=game.object();out.set("user",r.user());return out;}
+    @PostMapping("/intro/complete") ObjectNode intro(@CookieValue(name="ml_session",required=false)String token){return game.finishIntro(token);}
+    @PostMapping("/home/rent") ObjectNode rent(@CookieValue(name="ml_session",required=false)String token){return game.payFirstRent(token);}
+    @PostMapping("/sim/outfit") ObjectNode outfit(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.outfit(token,body);}
     @GetMapping("/sim") ObjectNode sim(@CookieValue(name="ml_session",required=false)String token){return game.getSim(token);}
     @PostMapping("/sim/setup") ObjectNode setup(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.setup(token,body);}
     @PostMapping("/travel") ObjectNode travel(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.travel(token,body);}

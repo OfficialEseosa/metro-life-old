@@ -19,13 +19,28 @@ public class JsonStore {
         Files.createDirectories(this.path.getParent());
         if (Files.exists(this.path)) {
             data = (ObjectNode)mapper.readTree(this.path.toFile());
-            if (data.path("schema").asInt() != 1) throw new IOException("Unsupported save version");
+            if (data.path("schema").asInt() == 1) {
+                Path backup=this.path.resolveSibling(this.path.getFileName()+".before-v2-"+System.currentTimeMillis()+".json");
+                Files.copy(this.path,backup);
+                migrateToSharedCity();save();
+            }
+            if(data.path("schema").asInt()!=2)throw new IOException("Unsupported save version");
         } else {
-            data = mapper.createObjectNode().put("schema", 1).put("visits", 0);
+            data = mapper.createObjectNode().put("schema", 2).put("visits", 0);
             for (String key : new String[]{"users","sessions","worlds","sims"}) data.putObject(key);
             data.withObject("worlds").putObject("public").put("id","public").put("name","Metro Commons").put("mode","public").putNull("code").putNull("ownerId").put("startedAt",System.currentTimeMillis()).putArray("members");
             save();
         }
+    }
+    private void migrateToSharedCity(){
+        ObjectNode worlds=data.withObject("worlds");var mainValue=worlds.get("public");
+        if(!(mainValue instanceof ObjectNode))throw new IllegalStateException("Main public world missing; backup retained");
+        ObjectNode main=(ObjectNode)mainValue.deepCopy();worlds.removeAll();worlds.set("public",main);main.put("mode","public").putNull("code").putNull("ownerId").remove("members");
+        for(String key:new String[]{"civic","property","residents","chats","communityMeta"}){ObjectNode table=data.withObject(key);var retained=table.get("public");table.removeAll();if(retained!=null)table.set("public",retained);}
+        ObjectNode sims=data.withObject("sims");var ids=new java.util.ArrayList<String>();sims.fieldNames().forEachRemaining(ids::add);for(String id:ids)if(!sims.path(id).path("worldId").asText().equals("public"))sims.remove(id);
+        for(var row:data.withObject("sessions"))((ObjectNode)row).put("worldId","public");
+        for(var row:data.withObject("users")){ObjectNode u=(ObjectNode)row;u.put("guest",true).remove(java.util.List.of("passwordHash","lastWorld"));}
+        data.put("schema",2);
     }
     void save() {
         Path tmp = path.resolveSibling(path.getFileName() + ".next");

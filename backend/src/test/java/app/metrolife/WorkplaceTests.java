@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorkplaceTests {
  @TempDir Path dir;ObjectMapper m=new ObjectMapper();GameService g;String token;long now=1000000000;
  ObjectNode sim(){return g.sim(g.session(token,true));}
- @BeforeEach void setup()throws Exception{g=new GameService(new JsonStore(m,dir.resolve("save.json").toString()),new Content(m),m);g.time=()->now;token=g.guest(null,g.object()).token();g.createWorld(token,g.object().put("mode","solo").put("name","Work checks"));g.setup(token,g.object().put("city","atl").put("neighborhood","midtown").put("aspiration","founder"));}
+ @BeforeEach void setup()throws Exception{g=new GameService(new JsonStore(m,dir.resolve("save.json").toString()),new Content(m),m);g.time=()->now;token=g.guest(null,g.object()).token();ActivityFixture.setup(g,token,g.object().put("city","atl").put("neighborhood","midtown").put("aspiration","founder"));}
  void arrive(){sim().put("loc","techVillage");sim().remove("position");g.navigation.position(sim());}
  void enter(){g.door(token,g.object().put("loc","techVillage").put("enter",true));}
  ObjectNode apply(){return g.applyJob(token,g.object().put("jobId","tech-1"));}

@@ -4,7 +4,9 @@ const out=path.resolve(process.env.METRO_EVIDENCE||'evidence/m8/scene'),url='htt
 (async()=>{const b=await chromium.launch({headless:true,executablePath:'C:/Users/rapha/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe',args:['--use-angle=d3d11']});const report={views:[],errors:[]};try{
 for(const viewport of[{width:1280,height:800},{width:375,height:812}]){
  const c=await b.newContext({viewport}),p=await c.newPage();p.on('pageerror',e=>report.errors.push(e.message));p.on('console',m=>{if(m.type()==='error')report.errors.push(m.text())});
- for(const [route,data]of[['auth/guest',{}],['worlds',{name:'Scene checks',mode:'solo'}],['sim/setup',{city:process.argv[2]||'atl',neighborhood:process.argv[2]==='nyc'?'astoria':process.argv[2]==='bay'?'mission':'midtown',aspiration:'mogul'}]]){const r=await c.request.post(url+'/api/'+route,{data});assert(r.ok(),await r.text())}
+ const name='Scene '+Date.now().toString(36).replace(/[0-9]/g,d=>String.fromCharCode(97+Number(d)));
+ for(const [route,data]of[['auth/guest',{}],['sim/setup',{username:name,pronouns:'they',city:process.argv[2]||'atl',neighborhood:process.argv[2]==='nyc'?'astoria':process.argv[2]==='bay'?'mission':'midtown',aspiration:'mogul'}],['intro/complete',undefined],['door',{enter:false}]]){const r=await c.request.post(url+'/api/'+route,{data});assert(r.ok(),await r.text())}
+
  await p.goto(url);await p.waitForTimeout(5000);await p.evaluate(async()=>{const u=performance.getEntriesByType('resource').map(e=>e.name).find(u=>/\/src\/store\.ts(?:\?|$)/.test(u));window.__store=(await import(u)).useStore});
  for(const city of(process.argv[2]?[process.argv[2]]:['atl','nyc','bay'])){
   await p.evaluate(city=>window.__store.getState().setCity(city),city);await p.waitForTimeout(2500);await p.waitForFunction(city=>window.__store.getState().players.filter(p=>p.npc&&p.city===city).length===40,city);

@@ -26,7 +26,7 @@ export type User = {
   createdAt: number
 }
 
-export type WorldMode = 'public' | 'private' | 'solo'
+export type WorldMode = 'public'
 export type WorldInfo = {
   id: string
   name: string
@@ -159,7 +159,13 @@ export type Goal = {
   reward: { cash?: number; xp?: number }
 }
 
+export type FirstDayStep='outside'|'job'|'shift'|'meal'|'neighbour'|'rent'
 export type Sim = {
+  pronouns?:'she'|'he'|'they'
+  introDone?:boolean
+  arrivalDay?:number
+  firstDay?:Record<FirstDayStep,boolean>&{complete:boolean}
+  outfits?:Record<string,boolean>
   position?: import('../navigation').Position
   /** Server epoch when this life began; civic/gift eligibility after one game day. */
   createdAt: number
@@ -170,7 +176,7 @@ export type Sim = {
   city: CityId
   /** landmark id, "home", or null when just arrived */
   loc: string | null
-  home: { city: CityId; neighborhood: string; rent: number }
+  home: { kind?:string; city: CityId; neighborhood: string; rent: number }
   cash: number
   rentDebt?: number
   moneyToday?: { income: number; spent: number }

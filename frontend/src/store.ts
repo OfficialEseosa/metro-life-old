@@ -24,10 +24,9 @@ import type {
 
 export type Panel =
   | null
-  | 'play' // choose solo / online / join with code
-  | 'signup'
-  | 'login'
-  | 'setup' // onboarding: city, neighborhood, aspiration, look
+  | 'creator'
+  | 'city'
+  | 'settings'
   | 'location' // selectedLoc (landmark id or "home")
   | 'sim' // needs, skills, goals, aspiration
   | 'jobs'
@@ -37,7 +36,7 @@ export type Panel =
   | 'plots'
   | 'billboard' // selectedSlot
   | 'homes'
-  | 'worlds'
+
 
 export type CityData = 'daily' | 'mayor' | 'plots' | 'billboards' | 'homes' | 'players' | 'chat'
 
@@ -191,7 +190,7 @@ export const useStore = create<State>((set, get) => {
 
     load: () => {
       if (loading) return loading
-      loading=(async()=>{try{const [world,stats]=await Promise.all([api.world(),api.stats()]);set({world,stats,loadError:null});await get().syncSession()}catch(error){set({loadError:error instanceof Error?error.message:'Could not reach the city. Try again.'})}finally{set({ready:true});loading=null}})()
+      loading=(async()=>{try{const [world,stats]=await Promise.all([api.world(),api.stats()]);set({world,stats,loadError:null});await api.guest();await get().syncSession()}catch(error){set({loadError:error instanceof Error?error.message:'Could not reach the city. Try again.'})}finally{set({ready:true});loading=null}})()
       return loading
     },
 
@@ -201,7 +200,7 @@ export const useStore = create<State>((set, get) => {
       set({plots:null,billboards:null,players:[],chat:[],connected:false})
       // Let layout-effect image cleanup abort old-world requests before changing the cookie.
       await new Promise<void>(resolve=>setTimeout(resolve,0))
-      try{await change();await get().syncSession()}catch(error){await get().syncSession();set({panel});throw error}
+      try{await change();await api.guest();await get().syncSession()}catch(error){await get().syncSession();set({panel});throw error}
     },
 
     syncSession: async () => {

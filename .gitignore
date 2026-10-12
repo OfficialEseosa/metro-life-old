@@ -1,3 +1,4 @@
+.runtime/
 **/node_modules/
 **/target/
 backend/data/

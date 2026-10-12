@@ -1,8 +1,13 @@
 # Metro Life
 
-A browser life sim set in Atlanta, New York and the Bay Area. Play solo, enter the public world, or create a private world and share its code. Start as a guest; save the guest account with a username and password to keep access on another device.
+Install **Java 21 (JDK)**, then run one command from this folder:
 
-Requires Node 22 and Java 21. No accounts, keys or external services are needed to run locally. All assets are included.
+- Windows: double-click `run.cmd`, or run `.\run.cmd`.
+- macOS / Linux: `sh run.sh`.
+
+Open **http://localhost:8080/**. Everyone who opens this server joins the same city. Make your character, arrive at your small studio with $150, and play your first day. Your browser’s guest cookie keeps your life; there is no signup or login.
+
+The first launch downloads pinned, checksum-verified Maven and Java dependencies, then builds once. Later launches reuse the build. The compiled frontend and every model are included; reviewers do **not** need Node or Maven installed. Java and network access for the first dependency download are the only prerequisites. Use `METRO_PORT` to choose another port. Local progress is in `backend/data/metro-life.json`; keep that folder and the browser’s site data. Settings offers a confirmed **Start a new life**.
 
 ## Development
 
@@ -21,13 +26,14 @@ npm run dev -- --host 127.0.0.1
 
 Open http://127.0.0.1:5173. The frontend proxies API and WebSocket traffic to :8080.
 
-## Compiled build
+## Maintainer frontend refresh
 
 Run in this order from the repository root:
 
 ```powershell
 npm --prefix frontend ci
 npm --prefix frontend run build
+java tools/PackFrontend.java
 cd backend
 .\mvnw.cmd package
 java -jar target/backend-0.0.1-SNAPSHOT.jar
@@ -45,12 +51,13 @@ Walk to an open workplace, enter, approach its desk and apply for an entry role.
 
 The overview button zooms out; moving returns to the close following camera. Drag/pinch/scroll still explore the map. Search and Travel here provide an optional timed shortcut within a city; cross-city travel requires walking to the airport or visiting it through the shortcut and taking a flight. Panels remain available through the dock and More activities at public furniture. On phones the sheet handle supports peek, half and full height; focus it and press Up/Down for keyboard control. Story choices need an answer. The lighting button previews day/night, then follows the game clock; sound can be muted and reduced motion is respected.
 
-World contains neighbours, city chat, elections, plots, billboards and homes. To meet a friend, create a private world and enter its eight-character code from a separate browser profile. Meet at the same place before waving, hanging out or sending a gift. Gifts and public votes unlock after one game day (24 real minutes); chat and waves are available immediately. City chat and purchases are scoped to that world.
+Open the same server address in a second browser profile to meet another player. Your home is private to your character; streets, venues and city chat are shared. Gifts and voting unlock after one game day (24 real minutes), and incoming gifts are capped at $50 per day.
 
 ## Checks and limits
 
 ```powershell
 npm --prefix frontend run build
+java tools/PackFrontend.java
 npm --prefix frontend run lint
 cd backend
 .\mvnw.cmd test

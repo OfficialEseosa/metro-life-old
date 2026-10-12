@@ -1,0 +1,9 @@
+{
+  "path": "backend\\data\\backups\\before-v2-20261012-1320.json",
+  "sha256": "333cc1a1e71ace183de6fd2c4bd53fd9e500e8af773ee45e261c75e9f6ed83c7",
+  "schema": 1,
+  "worlds": 411,
+  "sims": 480,
+  "mainWorld": "public",
+  "mainWorldSims": 0
+}
