@@ -1,0 +1,21 @@
+{
+  "evidence_id": "ev_cc2e043b2e3d19196d2764d959d79b3340b449ba7bdb229dfe4375fe6c2dd7fa",
+  "operation": "capture_browser_scenario",
+  "error": null,
+  "isError": false,
+  "statistics": null,
+  "browser": {
+    "mode": "launch",
+    "process_ownership": "provider-owned",
+    "cleanup": "terminated-owned-process",
+    "product": "Chromium",
+    "version": "155.0.4283.45"
+  },
+  "completeness": {
+    "status": "complete",
+    "equality_eligible": true,
+    "missing_sections": [],
+    "truncated_sections": []
+  },
+  "duration_ms": 10902
+}

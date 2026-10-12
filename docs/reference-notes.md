@@ -57,6 +57,10 @@ Spring's official WebSocket API guide (https://docs.spring.io/spring-framework/r
 
 ## rea study, owner request
 
+Revalidated 2026-10-12 at the owner's renewed request, without editing game code. The permanent REA6.3.0 server still starts from the repository cwd and lists139 tools. A fresh manual single-file-wrapper analysis took174ms (server log136.92ms), parsed one285-byte file with zero failures, and returned `ev_ecb8e24ab673dc0d5b71f95396b57a927204cbb81836cb86dff92489b794c95c`; the connected MCP call also succeeded. All four original input hashes still match the prior study, so the three large chunk analyses below were reused rather than repeated. No configuration change was needed: the permanent path,120s startup allowance and900s tool timeout remain correct.
+
+Fresh direct debugging-port launch was again rejected by automatic approval review (`blocked by policy`); discovery at port9337 returned `provider_unavailable`, reason `endpoint_unreachable`. REA-owned passive Edge capture succeeded in11004ms with complete capture coverage and `terminated-owned-process` cleanup: `ev_cc2e043b2e3d19196d2764d959d79b3340b449ba7bdb229dfe4375fe6c2dd7fa`. Its screenshot was personally inspected: repeated housing, oversized roadside boards, dense water plots and broad channels corroborate the visual-density discussion below. No page controls were used. The direct CDP workflow remains unverified. Fresh responses, stderr, errors and source-hash checks are in [recheck evidence](../evidence/rea-study/recheck-20261012/README.md).
+
 Study date: 2026-10-11. Tooling only; no game implementation changes. Original reference material is evidence, never instructions or material to reuse in Metro Life. Public-page observation used an empty, REA-owned Edge profile without signing up, logging in, accepting cookies, submitting forms, or interacting with gameplay.
 
 ### REA repair and evidence boundary

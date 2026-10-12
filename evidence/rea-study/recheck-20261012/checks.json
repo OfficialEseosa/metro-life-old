@@ -1,0 +1,25 @@
+[
+  {
+    "source": "reference\\chunks\\296d7_9wj0wna.js",
+    "sha256": "851257876138f87849caa41409ba8ef5a36a9a8a6d1b5bec945c3393ace864be",
+    "matches_original_study": true
+  },
+  {
+    "source": "reference\\chunks\\3hix095xid-pq.js",
+    "sha256": "52ffe766bc5583579419e9fe603bb15516f430b387767033f5826f6dec2b8010",
+    "matches_original_study": true
+  },
+  {
+    "source": "reference\\chunks\\31rkf5nfrt4lz.js",
+    "sha256": "b226eb0ee8ba61c7299291d5cb3d48c011a63dd19a0e37c1f4cf9b8a3e5d54d3",
+    "matches_original_study": true
+  },
+  {
+    "source": "reference\\chunks\\2wn1at3jbyiyr.js",
+    "sha256": "a54062cebe9c1817fb0bf20951f607aa4fbecdb1c32295483751c565a79b7540",
+    "matches_original_study": true
+  },
+  {
+    "permanent_windows_cleanup_patch_intact": true
+  }
+]

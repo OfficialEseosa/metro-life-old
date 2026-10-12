@@ -1,0 +1,4 @@
+2026-10-12: Direct Edge debugging-port launch was rejected before execution.
+Requested: msedge.exe --remote-debugging-port=9337 --remote-debugging-address=127.0.0.1 --user-data-dir=C:\Users\rapha\tools\rea\edge-readonly-20261012 --no-first-run --no-default-browser-check --new-window https://lagoslife.app
+Tool error: exec_command failed: CreateProcess rejected: blocked by policy
+No approval bypass or alternative shell launch was attempted. Used the available REA-owned browser scenario for passive public-page observation instead.

@@ -1,0 +1,21 @@
+{
+  "evidence_id": "ev_ecb8e24ab673dc0d5b71f95396b57a927204cbb81836cb86dff92489b794c95c",
+  "operation": "analyze_javascript_application",
+  "error": null,
+  "isError": false,
+  "statistics": {
+    "relevant_files": 1,
+    "nested_asar_containers": 0,
+    "text_bytes_read": 285,
+    "invalid_utf8_files": 0,
+    "parsed_javascript_files": 1,
+    "visited_ast_nodes": 75,
+    "findings": 0,
+    "modules": 0,
+    "parse_failures": 0
+  },
+  "browser": null,
+  "completeness": null,
+  "duration_ms": null,
+  "tool_count": 139
+}
