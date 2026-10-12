@@ -65,6 +65,7 @@ export const api = {
   guest: (username?: string) => req<{ user: User }>('POST', '/api/auth/guest', { username }),
   newLife: () => req<{user:User}>('POST','/api/life/new',{confirm:true}),
   finishIntro: () => req<{sim:Sim}>('POST','/api/intro/complete'),
+  finishFirstDay: () => req<{sim:Sim}>('POST','/api/first-day/complete'),
   payFirstRent: () => req<{sim:Sim}>('POST','/api/home/rent'),
   outfit: (style:string) => req<{sim:Sim}>('POST','/api/sim/outfit',{style}),
 

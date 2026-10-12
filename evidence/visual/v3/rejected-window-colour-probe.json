@@ -1,0 +1,42 @@
+[
+  {
+    "model": "building_A_withoutBase.gltf",
+    "windowTrianglesCorrectUV": 20,
+    "windowTrianglesWrongFlip": 4
+  },
+  {
+    "model": "building_B_withoutBase.gltf",
+    "windowTrianglesCorrectUV": 28,
+    "windowTrianglesWrongFlip": 7
+  },
+  {
+    "model": "building_C_withoutBase.gltf",
+    "windowTrianglesCorrectUV": 4,
+    "windowTrianglesWrongFlip": 7
+  },
+  {
+    "model": "building_D_withoutBase.gltf",
+    "windowTrianglesCorrectUV": 10,
+    "windowTrianglesWrongFlip": 55
+  },
+  {
+    "model": "building_E_withoutBase.gltf",
+    "windowTrianglesCorrectUV": 4,
+    "windowTrianglesWrongFlip": 13
+  },
+  {
+    "model": "building_F_withoutBase.gltf",
+    "windowTrianglesCorrectUV": 36,
+    "windowTrianglesWrongFlip": 14
+  },
+  {
+    "model": "building_G_withoutBase.gltf",
+    "windowTrianglesCorrectUV": 18,
+    "windowTrianglesWrongFlip": 14
+  },
+  {
+    "model": "building_H_withoutBase.gltf",
+    "windowTrianglesCorrectUV": 100,
+    "windowTrianglesWrongFlip": 18
+  }
+]

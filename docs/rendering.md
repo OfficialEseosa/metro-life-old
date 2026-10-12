@@ -1,0 +1,17 @@
+# Light and image
+
+The city keeps metre units and a full-resolution DPR of 1 in both Cozy and Low modes. Settings stores the quality choice when browser storage is available; blocked storage falls back safely to Cozy.
+
+The pipeline renders the world once, then applies N8AO (half-resolution, Performance preset, 0.65 m radius, bilinear upsampling), SMAA, gentle bloom (0.1 strength, 1.6 threshold, one quarter-size separable blur), a small warm/saturation grade combined with bloom and AgX output. Low omits N8AO. Gamma correction occurs once in OutputPass. N8AO automatic transparency detection and transparency rerenders are disabled; transparent water/glass and light decals do not write scene depth.
+
+GPU timer queries cover the pixel passes after the beauty render, including AO, AA, bloom, grade and output. An unsupported timer reports null. Draw/triangle metrics include all passes and refreshed shadows: automatic renderer info reset is disabled and one explicit reset runs before each complete frame. Idle scenes still use demand rendering.
+
+Rooms add a warm hemisphere (0.5, 0.85 in the club), a camera-side warm key with a 16 m shadow region and 1024 map, and the procedural Three RoomEnvironment at 0.4. Global outdoor fill/sun do not change according to room type. The room shadow refreshes on position/activity changes, with moving activities limited to about15 updates per second. Imported building faces also receive a one-time BVH ray bake into owned vertex colours. Static furniture contacts are baked into vertex colours with six local hemisphere samples and segmented floors; Low retains these contacts. Lamps, stove and screens use local unshadowed lights; a club has three point lights, other rooms at most two. Glowing shades/windows are distinct surfaces. The private room lot has hedges and warm time-matched fog that begins beyond the room.
+
+Night uses a dusk gradient and cooler moonlight. Street lights get an instanced soft light-pool decal. The sedan has instanced front/rear luminous faces and ground beams following its actual driving matrix. KayKit windows are marked from small vertical faces using the diagonal-reflection atlas tile (u<0.245, v>0.755), then randomly enabled by pane and building instance. Blue paint is never used as a glass classifier. Other assets require an explicitly named glass/window material; unsupported palette buildings remain unlit until the V7 replacement. Up-facing roof faces and broad walls cannot light; the former world-space sparkle grid is removed.
+
+Primary implementation references: [N8AO usage and performance](https://github.com/N8python/n8ao), [Three SMAAPass](https://github.com/mrdoob/three.js/blob/dev/examples/jsm/postprocessing/SMAAPass.js), [Three OutputPass](https://github.com/mrdoob/three.js/blob/dev/examples/jsm/postprocessing/OutputPass.js). Installed sources were checked for colour-space and disposal behavior. N8AO 2.0.1 has no complete dispose override, so its owned render targets, quads and materials are explicitly released when size or quality changes.
+
+Actual checks, rejected images and performance belong in PLAN.md and evidence/visual/v3. These rendering changes do not finish V4 furniture staging or V5 crowds.
+
+The accepted32room views run at59.73FPS or better. Laptop Cozy pixel cost has median4.49ms and max6.02ms, above the approximate3–4ms target in some views; Low has median2.55ms. Quality-toggle checks show stable GPU geometry/texture counts. Timer diagnostics are development-only. Entering a room cancels any outstanding outdoor camera flight.

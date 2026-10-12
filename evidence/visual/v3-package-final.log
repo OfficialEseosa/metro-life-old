@@ -1,0 +1,110 @@
+[INFO] Scanning for projects...
+[INFO] Loaded 24060 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] 
+[INFO] -----------------------< app.metrolife:backend >------------------------
+[INFO] Building backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] Loaded 74 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ backend ---
+[INFO] Deleting C:\Users\rapha\Last Night on Maple Street\backend\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 183 resources from ..\frontend\dist to target\classes\static
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 5 resources from ..\shared to target\classes\static-data
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ backend ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 15 source files with javac [debug parameters release 21] to target\classes
+[INFO] /C:/Users/rapha/Last Night on Maple Street/backend/src/main/java/app/metrolife/GameService.java: Some input files use or override a deprecated API.
+[INFO] /C:/Users/rapha/Last Night on Maple Street/backend/src/main/java/app/metrolife/GameService.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ backend ---
+[INFO] skip non existing resourceDirectory C:\Users\rapha\Last Night on Maple Street\backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ backend ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 15 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] /C:/Users/rapha/Last Night on Maple Street/backend/src/test/java/app/metrolife/ResidentMotionTests.java: C:\Users\rapha\Last Night on Maple Street\backend\src\test\java\app\metrolife\ResidentMotionTests.java uses or overrides a deprecated API.
+[INFO] /C:/Users/rapha/Last Night on Maple Street/backend/src/test/java/app/metrolife/ResidentMotionTests.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running app.metrolife.AuthConcurrencyTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.785 s -- in app.metrolife.AuthConcurrencyTests
+[INFO] Running app.metrolife.CivicEconomyTests
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.116 s -- in app.metrolife.CivicEconomyTests
+[INFO] Running app.metrolife.CommunityTests
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.747 s -- in app.metrolife.CommunityTests
+[INFO] Running app.metrolife.CoreTests
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.410 s -- in app.metrolife.CoreTests
+[INFO] Running app.metrolife.FinalRulesTests
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.285 s -- in app.metrolife.FinalRulesTests
+[INFO] Running app.metrolife.FirstDayTests
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.286 s -- in app.metrolife.FirstDayTests
+[INFO] Running app.metrolife.HttpContractTests
+16:58:20.435 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [app.metrolife.HttpContractTests]: HttpContractTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:58:20.670 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration app.metrolife.MetroLifeApplication for test class app.metrolife.HttpContractTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.16)
+
+2026-10-12T16:58:21.308-04:00  INFO 2712 --- [metro-life] [           main] app.metrolife.HttpContractTests          : Starting HttpContractTests using Java 21.0.8 with PID 2712 (started by rapha in C:\Users\rapha\Last Night on Maple Street\backend)
+2026-10-12T16:58:21.312-04:00  INFO 2712 --- [metro-life] [           main] app.metrolife.HttpContractTests          : No active profile set, falling back to 1 default profile: "default"
+2026-10-12T16:58:22.912-04:00  INFO 2712 --- [metro-life] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-10-12T16:58:23.318-04:00  INFO 2712 --- [metro-life] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-12T16:58:23.318-04:00  INFO 2712 --- [metro-life] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-12T16:58:23.320-04:00  INFO 2712 --- [metro-life] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-12T16:58:23.362-04:00  INFO 2712 --- [metro-life] [           main] app.metrolife.HttpContractTests          : Started HttpContractTests in 2.499 seconds (process running for 7.547)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (C:\Users\rapha\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.335 s -- in app.metrolife.HttpContractTests
+[INFO] Running app.metrolife.InteriorTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.256 s -- in app.metrolife.InteriorTests
+[INFO] Running app.metrolife.LiveWireTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.391 s -- in app.metrolife.LiveWireTests
+[INFO] Running app.metrolife.NavigationTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.186 s -- in app.metrolife.NavigationTests
+[INFO] Running app.metrolife.ProgressionTests
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.739 s -- in app.metrolife.ProgressionTests
+[INFO] Running app.metrolife.ResidentMotionTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.542 s -- in app.metrolife.ResidentMotionTests
+[INFO] Running app.metrolife.VenueTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.143 s -- in app.metrolife.VenueTests
+[INFO] Running app.metrolife.WorkplaceTests
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.164 s -- in app.metrolife.WorkplaceTests
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 83, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ backend ---
+[INFO] Building jar: C:\Users\rapha\Last Night on Maple Street\backend\target\backend-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:3.5.16:repackage (repackage) @ backend ---
+[INFO] Loaded 50 auto-discovered prefixes for remote repository ow2-snapshot (prefixes-ow2-snapshot.txt)
+[INFO] Replacing main artifact C:\Users\rapha\Last Night on Maple Street\backend\target\backend-0.0.1-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to C:\Users\rapha\Last Night on Maple Street\backend\target\backend-0.0.1-SNAPSHOT.jar.original
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  26.788 s
+[INFO] Finished at: 2026-10-12T16:58:32-04:00
+[INFO] ------------------------------------------------------------------------

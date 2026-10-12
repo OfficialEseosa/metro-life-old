@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
+import { bakeContact } from './baked-contact'
 
 /** Build static architecture into one vertex-coloured mesh per landmark. */
 export class Builder {
@@ -42,5 +43,5 @@ export class Builder {
     }
     return this
   }
-  build() { const geometry = mergeGeometries(this.parts); this.parts.forEach(g => g.dispose()); if (!geometry) throw Error('Empty geometry'); geometry.computeBoundingSphere(); return geometry }
+  build({bakeAO=false}:{bakeAO?:boolean}={}) { if(bakeAO)bakeContact(this.parts);const geometry = mergeGeometries(this.parts); this.parts.forEach(g => g.dispose()); if (!geometry) throw Error('Empty geometry'); geometry.computeBoundingSphere(); geometry.userData.bakedContact=bakeAO;return geometry }
 }

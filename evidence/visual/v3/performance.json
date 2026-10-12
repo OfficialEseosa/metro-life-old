@@ -1,0 +1,77 @@
+{
+  "rooms": [
+    {
+      "report": "lighting/report-1280-low.json",
+      "views": 8,
+      "minAcceptedFps": 59.85806849749967,
+      "maxCalls": 23,
+      "maxTriangles": 14068,
+      "postGpuMedianMs": 2.5520858916666667,
+      "postGpuMaxMs": 3.923095450000002,
+      "failedAttemptsRetained": 0,
+      "errors": []
+    },
+    {
+      "report": "lighting/report-1280-normal.json",
+      "views": 8,
+      "minAcceptedFps": 59.93092244467163,
+      "maxCalls": 29,
+      "maxTriangles": 14074,
+      "postGpuMedianMs": 4.492100229166667,
+      "postGpuMaxMs": 6.021065950000004,
+      "failedAttemptsRetained": 1,
+      "errors": []
+    },
+    {
+      "report": "lighting/report-375-low.json",
+      "views": 8,
+      "minAcceptedFps": 59.730838333502824,
+      "maxCalls": 23,
+      "maxTriangles": 14068,
+      "postGpuMedianMs": 1.2059503166666667,
+      "postGpuMaxMs": 1.5161527666666663,
+      "failedAttemptsRetained": 0,
+      "errors": []
+    },
+    {
+      "report": "lighting/report-375-normal.json",
+      "views": 8,
+      "minAcceptedFps": 59.789003992662806,
+      "maxCalls": 38,
+      "maxTriangles": 20634,
+      "postGpuMedianMs": 1.700975254166667,
+      "postGpuMaxMs": 2.556294233333333,
+      "failedAttemptsRetained": 0,
+      "errors": []
+    }
+  ],
+  "limits": {
+    "callsBelow": 150,
+    "trianglesBelow": 300000,
+    "activeFpsAbove": 58,
+    "nativeDpr": 1
+  },
+  "cities": [
+    {
+      "report": "scene-atl/report-atl.json",
+      "minFps": 59.99916667829025,
+      "maxCalls": 113,
+      "maxTriangles": 242579,
+      "errors": []
+    },
+    {
+      "report": "scene-bay/report-bay.json",
+      "minFps": 60.02189033601251,
+      "maxCalls": 109,
+      "maxTriangles": 216639,
+      "errors": []
+    },
+    {
+      "report": "scene-nyc/report-nyc.json",
+      "minFps": 58.97209243569169,
+      "maxCalls": 108,
+      "maxTriangles": 166759,
+      "errors": []
+    }
+  ]
+}

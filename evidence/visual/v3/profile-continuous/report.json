@@ -1,0 +1,378 @@
+[
+  {
+    "quality": "normal",
+    "hidden": false,
+    "metrics": {
+      "calls": 48,
+      "triangles": 26628,
+      "fps": 56.5078169146732,
+      "p95Ms": 31,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1
+    },
+    "post": {
+      "quality": "normal",
+      "halfResolutionAO": true,
+      "dpr": 1,
+      "postGpuMs": 3.8895759583333334,
+      "beautyGpuMs": 3.2909630583333347,
+      "frameCpuMs": 0.8999999761581421,
+      "passes": [
+        "beauty",
+        "N8AO half",
+        "SMAA",
+        "gentle bloom",
+        "warm grade",
+        "AgX output"
+      ]
+    },
+    "hot": [
+      {
+        "function": "(idle)",
+        "url": "",
+        "line": 0,
+        "percent": 82.26294253691513
+      },
+      {
+        "function": "(program)",
+        "url": "",
+        "line": 0,
+        "percent": 4.678882761074542
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.33801814623732435
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.2134851449919943
+      },
+      {
+        "function": "fetch",
+        "url": "",
+        "line": 0,
+        "percent": 0.2134851449919943
+      },
+      {
+        "function": "(garbage collector)",
+        "url": "",
+        "line": 0,
+        "percent": 0.2134851449919943
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.1779042874933286
+      },
+      {
+        "function": "bindVertexArray",
+        "url": "",
+        "line": 0,
+        "percent": 0.1779042874933286
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.16011385874399572
+      },
+      {
+        "function": "update",
+        "url": "/node_modules/.vite/deps/react-three-fiber.esm-CF7-_ctn.js?v=77995b77",
+        "line": 10042,
+        "percent": 0.16011385874399572
+      },
+      {
+        "function": "",
+        "url": "/src/scene/walking.tsx?t=1791834742128",
+        "line": 171,
+        "percent": 0.16011385874399572
+      },
+      {
+        "function": "texSubImage2D",
+        "url": "",
+        "line": 0,
+        "percent": 0.14232342999466288
+      },
+      {
+        "function": "money",
+        "url": "/src/ui/helpers.ts?t=1791834742126",
+        "line": 5,
+        "percent": 0.12453300124533001
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.12453300124533001
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.12453300124533001
+      },
+      {
+        "function": "WebGLRenderer.renderBufferDirect",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52233,
+        "percent": 0.12453300124533001
+      }
+    ]
+  },
+  {
+    "quality": "low",
+    "hidden": false,
+    "metrics": {
+      "calls": 32,
+      "triangles": 13766,
+      "fps": 60.00240009586077,
+      "p95Ms": 19.600000023841858,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1
+    },
+    "post": {
+      "quality": "low",
+      "halfResolutionAO": false,
+      "dpr": 1,
+      "postGpuMs": 3.1189609166666665,
+      "beautyGpuMs": 3.9928949333333335,
+      "frameCpuMs": 0.699999988079071,
+      "passes": [
+        "beauty",
+        "SMAA",
+        "gentle bloom",
+        "warm grade",
+        "AgX output"
+      ]
+    },
+    "hot": [
+      {
+        "function": "(idle)",
+        "url": "",
+        "line": 0,
+        "percent": 84.70288291821926
+      },
+      {
+        "function": "(program)",
+        "url": "",
+        "line": 0,
+        "percent": 3.1378701706216905
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.2353402627966268
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.21572857423024122
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.21572857423024122
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.19611688566385566
+      },
+      {
+        "function": "texSubImage2D",
+        "url": "",
+        "line": 0,
+        "percent": 0.19611688566385566
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.1765051970974701
+      },
+      {
+        "function": "",
+        "url": "/src/scene/walking.tsx?t=1791834742128",
+        "line": 171,
+        "percent": 0.1765051970974701
+      },
+      {
+        "function": "WebGLRenderer.renderBufferDirect",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52233,
+        "percent": 0.15689350853108452
+      },
+      {
+        "function": "(garbage collector)",
+        "url": "",
+        "line": 0,
+        "percent": 0.13728181996469896
+      },
+      {
+        "function": "multiplyMatrices",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 8253,
+        "percent": 0.13728181996469896
+      },
+      {
+        "function": "uniform1fv",
+        "url": "",
+        "line": 0,
+        "percent": 0.13728181996469896
+      },
+      {
+        "function": "fetch",
+        "url": "",
+        "line": 0,
+        "percent": 0.13728181996469896
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.1176701313983134
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.1176701313983134
+      }
+    ]
+  },
+  {
+    "quality": "raw",
+    "hidden": false,
+    "metrics": {
+      "calls": 14,
+      "triangles": 13748,
+      "fps": 59.99400059994001,
+      "p95Ms": 18.5,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1
+    },
+    "post": {
+      "quality": "low",
+      "halfResolutionAO": false,
+      "dpr": 1,
+      "postGpuMs": 3.1189609166666665,
+      "beautyGpuMs": 3.9928949333333335,
+      "frameCpuMs": 0.699999988079071,
+      "passes": [
+        "beauty",
+        "SMAA",
+        "gentle bloom",
+        "warm grade",
+        "AgX output"
+      ]
+    },
+    "hot": [
+      {
+        "function": "(idle)",
+        "url": "",
+        "line": 0,
+        "percent": 84.30113403470419
+      },
+      {
+        "function": "(program)",
+        "url": "",
+        "line": 0,
+        "percent": 4.536138816778249
+      },
+      {
+        "function": "WebGLRenderer.renderBufferDirect",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52233,
+        "percent": 0.25959830577947807
+      },
+      {
+        "function": "texSubImage2D",
+        "url": "",
+        "line": 0,
+        "percent": 0.23227216832900668
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.218609099603771
+      },
+      {
+        "function": "setProgram",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52775,
+        "percent": 0.20494603087853533
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.19128296215329962
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.16395682470282827
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.15029375597759256
+      },
+      {
+        "function": "",
+        "url": "/src/scene/walking.tsx?t=1791834742128",
+        "line": 171,
+        "percent": 0.15029375597759256
+      },
+      {
+        "function": "multiplyMatrices",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 8253,
+        "percent": 0.15029375597759256
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.13663068725235689
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.1229676185271212
+      },
+      {
+        "function": "loop",
+        "url": "/node_modules/.vite/deps/react-three-fiber.esm-CF7-_ctn.js?v=77995b77",
+        "line": 10063,
+        "percent": 0.1229676185271212
+      },
+      {
+        "function": "setValue",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 45853,
+        "percent": 0.1229676185271212
+      },
+      {
+        "function": "bindVertexArray",
+        "url": "",
+        "line": 0,
+        "percent": 0.1229676185271212
+      }
+    ]
+  }
+]

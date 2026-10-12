@@ -1,0 +1,384 @@
+[
+  {
+    "quality": "normal",
+    "hidden": false,
+    "metrics": {
+      "calls": 38,
+      "triangles": 13772,
+      "fps": 55.28323443722301,
+      "p95Ms": 32.20000001788139,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1
+    },
+    "post": {
+      "quality": "normal",
+      "halfResolutionAO": true,
+      "transparencyAware": false,
+      "automaticBeauty": false,
+      "dpr": 1,
+      "postGpuMs": 4.434141033333335,
+      "beautyGpuMs": 3.7346193750000007,
+      "frameCpuMs": 0.7000000178813934,
+      "passes": [
+        "beauty",
+        "N8AO half",
+        "SMAA",
+        "gentle bloom",
+        "warm grade",
+        "AgX output"
+      ]
+    },
+    "hot": [
+      {
+        "function": "(idle)",
+        "url": "",
+        "line": 0,
+        "percent": 82.0754716981132
+      },
+      {
+        "function": "(program)",
+        "url": "",
+        "line": 0,
+        "percent": 4.540094339622642
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.41273584905660377
+      },
+      {
+        "function": "requestAnimationFrame",
+        "url": "",
+        "line": 0,
+        "percent": 0.294811320754717
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.294811320754717
+      },
+      {
+        "function": "projectObject",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52527,
+        "percent": 0.2358490566037736
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.2358490566037736
+      },
+      {
+        "function": "ReactElement",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 105,
+        "percent": 0.2358490566037736
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.2358490566037736
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.2358490566037736
+      },
+      {
+        "function": "ws.onmessage",
+        "url": "/src/api/client.ts?t=1791834742126",
+        "line": 140,
+        "percent": 0.17688679245283018
+      },
+      {
+        "function": "WebGLRenderer.render",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52443,
+        "percent": 0.17688679245283018
+      },
+      {
+        "function": "setProgram",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52775,
+        "percent": 0.17688679245283018
+      },
+      {
+        "function": "setProgram",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52775,
+        "percent": 0.17688679245283018
+      },
+      {
+        "function": "",
+        "url": "/src/scene/walking.tsx?t=1791834742128",
+        "line": 171,
+        "percent": 0.17688679245283018
+      },
+      {
+        "function": "fetch",
+        "url": "",
+        "line": 0,
+        "percent": 0.17688679245283018
+      }
+    ]
+  },
+  {
+    "quality": "low",
+    "hidden": false,
+    "metrics": {
+      "calls": 32,
+      "triangles": 13766,
+      "fps": 59.98440405480274,
+      "p95Ms": 19.19999998807907,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1
+    },
+    "post": {
+      "quality": "low",
+      "halfResolutionAO": false,
+      "transparencyAware": false,
+      "automaticBeauty": false,
+      "dpr": 1,
+      "postGpuMs": 2.8673077,
+      "beautyGpuMs": 3.7982763916666684,
+      "frameCpuMs": 0.9000000059604645,
+      "passes": [
+        "beauty",
+        "SMAA",
+        "gentle bloom",
+        "warm grade",
+        "AgX output"
+      ]
+    },
+    "hot": [
+      {
+        "function": "(idle)",
+        "url": "",
+        "line": 0,
+        "percent": 78.56973715368221
+      },
+      {
+        "function": "(program)",
+        "url": "",
+        "line": 0,
+        "percent": 4.191333175467677
+      },
+      {
+        "function": "WebGLRenderer.renderBufferDirect",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52233,
+        "percent": 0.2841581813876391
+      },
+      {
+        "function": "texSubImage2D",
+        "url": "",
+        "line": 0,
+        "percent": 0.24863840871418422
+      },
+      {
+        "function": "multiplyMatrices",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 8253,
+        "percent": 0.23679848448969926
+      },
+      {
+        "function": "composer.render",
+        "url": "/src/scene/image-quality.tsx?t=1791835796752",
+        "line": 102,
+        "percent": 0.2249585602652143
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.2249585602652143
+      },
+      {
+        "function": "",
+        "url": "/src/scene/walking.tsx?t=1791834742128",
+        "line": 171,
+        "percent": 0.21311863604072934
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.21311863604072934
+      },
+      {
+        "function": "fetch",
+        "url": "",
+        "line": 0,
+        "percent": 0.20127871181624438
+      },
+      {
+        "function": "uniform1fv",
+        "url": "",
+        "line": 0,
+        "percent": 0.20127871181624438
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.20127871181624438
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.18943878759175942
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.17759886336727446
+      },
+      {
+        "function": "loop",
+        "url": "/node_modules/.vite/deps/react-three-fiber.esm-CF7-_ctn.js?v=77995b77",
+        "line": 10063,
+        "percent": 0.1657589391427895
+      },
+      {
+        "function": "bindVertexArray",
+        "url": "",
+        "line": 0,
+        "percent": 0.1657589391427895
+      }
+    ]
+  },
+  {
+    "quality": "raw",
+    "hidden": false,
+    "metrics": {
+      "calls": 14,
+      "triangles": 13748,
+      "fps": 60.00360021615603,
+      "p95Ms": 19.599999994039536,
+      "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1
+    },
+    "post": {
+      "quality": "low",
+      "halfResolutionAO": false,
+      "transparencyAware": false,
+      "automaticBeauty": false,
+      "dpr": 1,
+      "postGpuMs": 2.8673077,
+      "beautyGpuMs": 3.7982763916666684,
+      "frameCpuMs": 0.9000000059604645,
+      "passes": [
+        "beauty",
+        "SMAA",
+        "gentle bloom",
+        "warm grade",
+        "AgX output"
+      ]
+    },
+    "hot": [
+      {
+        "function": "(idle)",
+        "url": "",
+        "line": 0,
+        "percent": 83.48110762515346
+      },
+      {
+        "function": "(program)",
+        "url": "",
+        "line": 0,
+        "percent": 4.542354385486291
+      },
+      {
+        "function": "WebGLRenderer.renderBufferDirect",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52233,
+        "percent": 0.3819397080889374
+      },
+      {
+        "function": "texSubImage2D",
+        "url": "",
+        "line": 0,
+        "percent": 0.286454781066703
+      },
+      {
+        "function": "(garbage collector)",
+        "url": "",
+        "line": 0,
+        "percent": 0.286454781066703
+      },
+      {
+        "function": "",
+        "url": "/src/scene/walking.tsx?t=1791834742128",
+        "line": 171,
+        "percent": 0.24553266948574545
+      },
+      {
+        "function": "setProgram",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 52775,
+        "percent": 0.23189196562542627
+      },
+      {
+        "function": "fetch",
+        "url": "",
+        "line": 0,
+        "percent": 0.2182512617651071
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.20461055790478788
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.1909698540444687
+      },
+      {
+        "function": "multiplyMatrices",
+        "url": "/node_modules/.vite/deps/three.module-CwO0auyC.js?v=77995b77",
+        "line": 8253,
+        "percent": 0.1636884463238303
+      },
+      {
+        "function": "requestAnimationFrame",
+        "url": "",
+        "line": 0,
+        "percent": 0.1636884463238303
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.15004774246351113
+      },
+      {
+        "function": "exports.jsxDEV",
+        "url": "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b0dc6efd",
+        "line": 192,
+        "percent": 0.15004774246351113
+      },
+      {
+        "function": "exports.createElement",
+        "url": "/node_modules/.vite/deps/react.js?v=b0dc6efd",
+        "line": 624,
+        "percent": 0.15004774246351113
+      },
+      {
+        "function": "clear",
+        "url": "",
+        "line": 0,
+        "percent": 0.13640703860319192
+      }
+    ]
+  }
+]

@@ -1,0 +1,77 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "venue": "home",
+      "theme": "day",
+      "quality": "normal",
+      "metrics": {
+        "calls": 38,
+        "triangles": 10780,
+        "fps": 59.99999999999999,
+        "p95Ms": 21.799999982118607,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "post": {
+        "quality": "normal",
+        "halfResolutionAO": true,
+        "dpr": 1,
+        "postGpuMs": 3.238570725,
+        "frameCpuMs": 1.5,
+        "passes": [
+          "beauty",
+          "N8AO half",
+          "SMAA",
+          "gentle bloom",
+          "warm grade",
+          "AgX output"
+        ]
+      },
+      "room": {
+        "shadowSize": 1024,
+        "environmentIntensity": 0.4
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "venue": "home",
+      "theme": "night",
+      "quality": "normal",
+      "metrics": {
+        "calls": 38,
+        "triangles": 10780,
+        "fps": 59.98920194357864,
+        "p95Ms": 22.099999994039536,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "post": {
+        "quality": "normal",
+        "halfResolutionAO": true,
+        "dpr": 1,
+        "postGpuMs": 4.037156608333333,
+        "frameCpuMs": 1.199999988079071,
+        "passes": [
+          "beauty",
+          "N8AO half",
+          "SMAA",
+          "gentle bloom",
+          "warm grade",
+          "AgX output"
+        ]
+      },
+      "room": {
+        "shadowSize": 1024,
+        "environmentIntensity": 0.4
+      }
+    }
+  ],
+  "errors": []
+}

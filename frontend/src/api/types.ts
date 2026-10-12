@@ -164,7 +164,7 @@ export type Sim = {
   pronouns?:'she'|'he'|'they'
   introDone?:boolean
   arrivalDay?:number
-  firstDay?:Record<FirstDayStep,boolean>&{complete:boolean}
+  firstDay?:Record<FirstDayStep,boolean>&{complete:boolean;closingSeen?:boolean}
   outfits?:Record<string,boolean>
   position?: import('../navigation').Position
   /** Server epoch when this life began; civic/gift eligibility after one game day. */

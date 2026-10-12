@@ -1,0 +1,24 @@
+[INFO] Scanning for projects...
+[INFO] Loaded 24060 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] 
+[INFO] -----------------------< app.metrolife:backend >------------------------
+[INFO] Building backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] Loaded 74 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ backend ---
+[INFO] Deleting C:\Users\rapha\Last Night on Maple Street\backend\target
+[INFO] ------------------------------------------------------------------------
+[ERROR] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.551 s
+[INFO] Finished at: 2026-10-12T16:57:52-04:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-clean-plugin:3.4.1:clean (default-clean) on project backend: Failed to clean project: Failed to delete C:\Users\rapha\Last Night on Maple Street\backend\target\backend-0.0.1-SNAPSHOT.jar: C:\Users\rapha\Last Night on Maple Street\backend\target\backend-0.0.1-SNAPSHOT.jar: The process cannot access the file because it is being used by another process -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

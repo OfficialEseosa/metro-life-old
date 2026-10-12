@@ -5,7 +5,7 @@ import canonical from '../../../shared/world.json'
 import { api } from '../api/client'
 import { useStore } from '../store'
 import { useNightLighting } from '../lighting'
-import { Creator, Intro, Settings, FirstDayGoals, FirstRentPrimary } from './entry'
+import { Creator, Intro, Settings, FirstDayGoals, FirstRentPrimary, FirstDayClosing } from './entry'
 import { PortraitStudio } from './character-preview'
 import { Busy, JobPrimary, JobsPanel, LocationPanel, LocationPrimary, SimPanel, StoryPanel } from './panels'
 import { Avatar, ArrowUpRight, Icon, Sheet } from './primitives'
@@ -35,5 +35,6 @@ export default function Hud(){const ready=useStore(s=>s.ready),world=useStore(s=
  if(!ready||!world||!user)return <div className="intro-story"><section className="plate" role="status"><h1>{loadError?'The city could not connect':'Opening your city…'}</h1>{loadError&&<button className="primary full" onClick={()=>void state().load()}>Try again</button>}</section></div>
  if(!sim)return <Creator/>
  if(sim.introDone===false)return <Intro/>
+ if(sim.firstDay?.complete&&!sim.firstDay.closingSeen)return <FirstDayClosing/>
  return <div className={`metro-hud ${sim?'is-playing':''} ${sim?.position?.room?'is-inside':''} ${moving||sim?.busyUntil?'hud-quiet':''}`}><PortraitStudio/><TopBar/><WalkingControls/>{sim&&<><Moodlets search={openSearch}/>{!panel&&!search&&<><Dock search={openSearch}/><FirstDayGoals compact/>{sim.busyUntil?<div className="idle-progress"><Busy/></div>:!sim.job&&<button className="first-job-cue plate secondary-hud" onClick={()=>state().openPanel('jobs')}><span className="semantic-tile work"><Icon name="briefcase"/></span>Find your first job<ArrowUpRight size={20}/></button>}</>}</>}{search&&!panel&&<MapTools close={()=>setSearch(false)}/>}<ActivePanel/><ResultToast/><SocialNotice/><NeedWarning/><RewardFlight/>{beat&&<Sheet modal dismissible={false} icon={beat.icon} title={beat.title} kicker={`A MOMENT THAT MATTERS${beat.chapter?` · ${beat.chapter} / ${beat.total}`:''}`} close={closeBeat}><StoryPanel beat={beat}/></Sheet>}{!sim&&!panel&&<p className="map-credit">Map data (c) OpenStreetMap contributors</p>}<button className="overview-button icon-button plate-button secondary-hud" aria-label="See the whole city" onClick={()=>{state().setFocus('overview');state().openPanel(null);setSearch(false)}}><Scan size={20}/></button></div>
 }

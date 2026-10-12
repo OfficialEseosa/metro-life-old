@@ -3,3 +3,5 @@
 .creator-card footer .primary:disabled{background:#dddcc6;color:#526552;opacity:1;border-color:#b8bea5;box-shadow:none}
 
 .life-start,.intro-story{--primary:#216546;--cream:#fff7ea;--edge:#cbb79a;--ink:#243e3a;--muted:#536759;--social:#378879;color:var(--ink)}.life-start button,.intro-story button{font:inherit;cursor:pointer}.creator-fields input,.creator-fields select{padding:11px 12px;border:2px solid #bdc9b0;border-radius:10px;font:inherit;background:#fffdf5;min-height:46px}.creator-card footer .primary:disabled{color:#526552!important}.intro-story .primary,.creator-card footer .primary{background:#216546}.creator-card footer .primary:disabled{background:#dddcc6}
+
+.creator-fields>label{display:block;margin-top:18px}.creator-scroll-hint{font-size:12px;color:#536759;margin:7px 0 0}

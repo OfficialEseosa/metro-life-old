@@ -23,6 +23,7 @@ public class ApiController {
     @GetMapping("/auth/me") ObjectNode me(@CookieValue(name="ml_session",required=false)String token){return game.me(token);}
     @PostMapping("/auth/guest") ObjectNode guest(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){var r=game.guest(token,body);cookie(req,res,r.token());ObjectNode out=game.object();out.set("user",r.user());return out;}
     @PostMapping("/life/new") ObjectNode newLife(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){var r=game.newLife(token,body);cookie(req,res,r.token());ObjectNode out=game.object();out.set("user",r.user());return out;}
+    @PostMapping("/first-day/complete") ObjectNode firstDay(@CookieValue(name="ml_session",required=false)String token){return game.finishFirstDay(token);}
     @PostMapping("/intro/complete") ObjectNode intro(@CookieValue(name="ml_session",required=false)String token){return game.finishIntro(token);}
     @PostMapping("/home/rent") ObjectNode rent(@CookieValue(name="ml_session",required=false)String token){return game.payFirstRent(token);}
     @PostMapping("/sim/outfit") ObjectNode outfit(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.outfit(token,body);}

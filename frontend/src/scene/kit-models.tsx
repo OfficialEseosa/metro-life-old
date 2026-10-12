@@ -1,3 +1,7 @@
+import { bakeBuildingContact } from './baked-contact'
+import { CarLights } from './car-lights'
+import { windowMask } from './window-mask'
+import { NightPools } from './night-pools'
 /* oxlint-disable react/immutability -- shared Three.js buffers and instance matrices are renderer resources. */
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
@@ -26,23 +30,19 @@ export function KitInstances({url,placements,shadow=true,night=false,drive}:{url
   })
   return [...groups.values()].map(({parts,material})=>{const geometry=mergeGeometries(parts);parts.forEach(p=>p.dispose());if(!geometry)throw Error(`Cannot merge kit ${url}`);material.roughness=.78;
    if(/building|painted-row/.test(url)){
+    windowMask(geometry,material.map,url.includes('/kaykit/')?'kaykit':'other',material.name);bakeBuildingContact(geometry,.12);material.vertexColors=true
     const windowNight={value:0};material.userData.windowNight=windowNight
-    material.onBeforeCompile=shader=>{shader.uniforms.windowNight=windowNight;shader.vertexShader='varying vec2 vWindowUv;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvWindowUv=vec2(mix(position.x,position.z,step(.5,abs(normal.x))),position.y);');shader.fragmentShader='uniform float windowNight;\nvarying vec2 vWindowUv;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
-     if(windowNight>.5){
-     vec3 windowBase=diffuseColor.rgb;
-     float windowMask=step(windowBase.r*1.18,windowBase.b)*step(windowBase.r*1.08,windowBase.g)*step(.05,windowBase.b)*step(windowBase.b,.85);
-     vec2 windowGrid=vWindowUv*vec2(12.,24.);
-     vec2 windowCell=fract(windowGrid);
-     windowMask*=step(.16,windowCell.x)*step(windowCell.x,.8)*step(.16,windowCell.y)*step(windowCell.y,.78);
-     windowMask*=step(2.,mod(floor(windowGrid.x)+floor(windowGrid.y)*3.,7.));
-     totalEmissiveRadiance+=windowMask*vec3(.24,.135,.045);
-     }
-    `)};material.customProgramCacheKey=()=> 'metro-warm-windows-v3'
+    material.onBeforeCompile=shader=>{shader.uniforms.windowNight=windowNight;shader.vertexShader='attribute float windowMask;attribute float windowId;varying float vLitWindow;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+      float seed=windowId;
+      #ifdef USE_INSTANCING
+      seed+=floor(instanceMatrix[3].x)*13.+floor(instanceMatrix[3].z)*7.;
+      #endif
+      vLitWindow=windowMask*step(.42,fract(sin(seed*12.9898)*43758.5453));`);shader.fragmentShader='uniform float windowNight;varying float vLitWindow;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=windowNight*vLitWindow*vec3(3.1,1.6,.6);')};material.customProgramCacheKey=()=> 'metro-actual-window-faces-v4'
    }
    return{geometry,material}})
  },[scene,url])
  useEffect(()=>()=>{for(const batch of batches){batch.geometry.dispose();batch.material.dispose()}},[batches])
- return <group name={`kit:${url}`}>{batches.map((batch,i)=><KitBatch key={i} {...batch} placements={placements} shadow={shadow} night={night} drive={drive}/>)}</group>
+ return <group name={`kit:${url}`}>{night&&url.includes('streetlight')&&<NightPools placements={placements}/>}{batches.map((batch,i)=><KitBatch key={i} {...batch} placements={placements} shadow={shadow} night={night} drive={drive}/>)}</group>
 }
 function KitBatch({geometry,material,placements,shadow,night,drive}:{geometry:THREE.BufferGeometry;material:THREE.MeshStandardMaterial;placements:Placement[];shadow:boolean;night:boolean;drive?:DriveRoute[]}){
  const ref=useRef<THREE.InstancedMesh>(null)
@@ -52,7 +52,7 @@ function KitBatch({geometry,material,placements,shadow,night,drive}:{geometry:TH
 
  useLayoutEffect(()=>{const m=ref.current!,d=new THREE.Object3D();placements.forEach((p,i)=>{d.position.set(p.x,p.y,p.z);d.rotation.set(p.pitch??0,p.angle,0);d.scale.setScalar(p.scale??1);d.updateMatrix();m.setMatrixAt(i,d.matrix);m.setColorAt(i,new THREE.Color(p.color))});m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.computeBoundingSphere();m.updateMatrix();m.matrixAutoUpdate=false},[placements])
  useLayoutEffect(()=>{material.emissive.set(night?'#243c50':'#000000');material.emissiveIntensity=night?.12:0;if(material.userData.windowNight)material.userData.windowNight.value=night?1:0},[material,night])
- return <instancedMesh name={drive?"driving-cars":undefined} ref={ref} args={[geometry,material,placements.length]} castShadow={shadow} receiveShadow raycast={noPick}/>
+ return <>{night&&drive&&<CarLights source={ref} count={placements.length}/>}<instancedMesh name={drive?"driving-cars":undefined} ref={ref} args={[geometry,material,placements.length]} castShadow={shadow} receiveShadow raycast={noPick}/></>
 }
 
 /** Authoring units are scene units. Exported hierarchy contains <=4 merged material meshes. */

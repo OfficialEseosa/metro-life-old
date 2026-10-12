@@ -15,9 +15,12 @@
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.1",
     "lucide-react": "^1.55.0",
+    "n8ao": "2.0.1",
+    "postprocessing": "6.39.5",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "three": "^0.186.1",
+    "three-mesh-bvh": "0.8.3",
     "zustand": "^5.0.15"
   },
   "devDependencies": {

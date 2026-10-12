@@ -170,3 +170,7 @@ Fonts/code are separate from the 3D art: Geist and Bricolage Grotesque retain th
 | `world/suburban/Textures/colormap.png` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
 | `world/suburban/tree-large.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
 | `world/suburban/tree-small.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+
+## Rendering code
+
+N8AO 2.0.1: CC0 1.0 per its shipped LICENSE ([upstream](https://github.com/N8python/n8ao); package metadata says ISC). postprocessing 6.39.5: Zlib ([upstream](https://github.com/pmndrs/postprocessing)). Three addons/RoomEnvironment: MIT, existing Three dependency. three-mesh-bvh 0.8.3: MIT ([upstream](https://github.com/gkjohnson/three-mesh-bvh)). Contact bakes, light pools and light faces are generated here; no new external art assets.
