@@ -1,0 +1,19 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"imported\":6,\"unknowns_added\":0,\"total\":6}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "imported": 6,
+        "unknowns_added": 0,
+        "total": 6
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}

@@ -1,0 +1,104 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"evidence_id\":\"ev_a26b3b41b9530e7b5e6591669439661bbc6b8327586a10376cd28b484ae3e11d\",\"subject\":null,\"provider\":{\"id\":\"rea-javascript-application-workflows\",\"name\":\"REA JavaScript application workflows\",\"version\":\"1\"},\"analysis_profile\":null,\"predicate_type\":\"rea.javascript-semantic-trace\",\"operation\":\"trace_javascript_semantics\",\"parameters\":{\"application_evidence_id\":\"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37\",\"query\":{\"seed\":{\"kind\":\"property\",\"name\":\"onFloor\"},\"direction\":\"backward-provenance\",\"include_ambiguous_dynamic_edges\":false,\"expected\":null}},\"raw_result\":null,\"normalized_result\":{\"query_id\":\"jsrq_c9bf30d9e0173546c89a54a777f8d68b1f11d9eff11d6455e1fe8f7ed11301d0\",\"source_graph_id\":\"jsrg_55956bafa1d2e7d603c562d23892676f38da87a498afdb99aa202ffc11e02829\",\"seed\":{\"kind\":\"property\",\"name\":\"onFloor\"},\"direction\":\"backward-provenance\",\"status\":\"partial\",\"seed_node_ids\":[],\"evidence_contexts\":[],\"nodes\":[],\"relations\":[],\"unknowns\":[],\"expected_match_node_ids\":[],\"summary\":{\"total_seed_matches\":0,\"traversed_nodes\":0,\"traversed_relations\":0,\"traversed_functions\":0,\"traversed_modules\":0,\"relevant_unknowns\":0},\"coverage\":{\"status\":\"partial\"},\"limitations\":[\"Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.\",\"Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.\",\"Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.\",\"Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.\",\"Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.\",\"Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.\",\"Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.\",\"Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.\",\"Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.\",\"Semantic graph reachability is a static inference and does not prove runtime execution.\",\"The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.\",\"Timer extraction covers global or node:timers scheduling and exact local-handle cancellation.\"],\"source_evidence_id\":\"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37\",\"evidence_links\":[\"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37\"]},\"confidence\":\"inferred\",\"authority\":\"analyst-inference\",\"environment\":null,\"limitations\":[\"Artifact identity is unavailable for this observation.\",\"Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.\",\"Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.\",\"Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.\",\"Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.\",\"Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.\",\"Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.\",\"Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.\",\"Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.\",\"Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.\",\"Semantic graph reachability is a static inference and does not prove runtime execution.\",\"The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.\",\"Timer extraction covers global or node:timers scheduling and exact local-handle cancellation.\"],\"locations\":[],\"evidence_links\":[\"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37\"]}"
+      }
+    ],
+    "structuredContent": {
+      "evidence_id": "ev_a26b3b41b9530e7b5e6591669439661bbc6b8327586a10376cd28b484ae3e11d",
+      "subject": null,
+      "provider": {
+        "id": "rea-javascript-application-workflows",
+        "name": "REA JavaScript application workflows",
+        "version": "1"
+      },
+      "analysis_profile": null,
+      "predicate_type": "rea.javascript-semantic-trace",
+      "operation": "trace_javascript_semantics",
+      "parameters": {
+        "application_evidence_id": "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37",
+        "query": {
+          "seed": {
+            "kind": "property",
+            "name": "onFloor"
+          },
+          "direction": "backward-provenance",
+          "include_ambiguous_dynamic_edges": false,
+          "expected": null
+        }
+      },
+      "raw_result": null,
+      "normalized_result": {
+        "query_id": "jsrq_c9bf30d9e0173546c89a54a777f8d68b1f11d9eff11d6455e1fe8f7ed11301d0",
+        "source_graph_id": "jsrg_55956bafa1d2e7d603c562d23892676f38da87a498afdb99aa202ffc11e02829",
+        "seed": {
+          "kind": "property",
+          "name": "onFloor"
+        },
+        "direction": "backward-provenance",
+        "status": "partial",
+        "seed_node_ids": [],
+        "evidence_contexts": [],
+        "nodes": [],
+        "relations": [],
+        "unknowns": [],
+        "expected_match_node_ids": [],
+        "summary": {
+          "total_seed_matches": 0,
+          "traversed_nodes": 0,
+          "traversed_relations": 0,
+          "traversed_functions": 0,
+          "traversed_modules": 0,
+          "relevant_unknowns": 0
+        },
+        "coverage": {
+          "status": "partial"
+        },
+        "limitations": [
+          "Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.",
+          "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
+          "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
+          "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
+          "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
+          "Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.",
+          "Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.",
+          "Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.",
+          "Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.",
+          "Semantic graph reachability is a static inference and does not prove runtime execution.",
+          "The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.",
+          "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation."
+        ],
+        "source_evidence_id": "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37",
+        "evidence_links": [
+          "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37"
+        ]
+      },
+      "confidence": "inferred",
+      "authority": "analyst-inference",
+      "environment": null,
+      "limitations": [
+        "Artifact identity is unavailable for this observation.",
+        "Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.",
+        "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
+        "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
+        "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
+        "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
+        "Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.",
+        "Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.",
+        "Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.",
+        "Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.",
+        "Semantic graph reachability is a static inference and does not prove runtime execution.",
+        "The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.",
+        "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation."
+      ],
+      "locations": [],
+      "evidence_links": [
+        "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37"
+      ]
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 11
+}

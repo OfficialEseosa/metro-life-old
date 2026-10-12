@@ -1,0 +1,1 @@
+{"level":40,"time":1791766147227,"application":"rea","mode":"mcp","layer":"server","tool":"analyze_javascript_application","durationMs":4.43,"status":"error","msg":"MCP tool execution completed"}

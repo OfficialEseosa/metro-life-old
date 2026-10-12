@@ -1,0 +1,333 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"evidence_id\":\"ev_692b997342171916e2e6b1670f8e6ea4e4859350e8b8c0e42b5c840a555f94c5\",\"subject\":null,\"provider\":{\"id\":\"rea-javascript-application-workflows\",\"name\":\"REA JavaScript application workflows\",\"version\":\"1\"},\"analysis_profile\":null,\"predicate_type\":\"rea.javascript-semantic-trace\",\"operation\":\"trace_javascript_semantics\",\"parameters\":{\"application_evidence_id\":\"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37\",\"query\":{\"seed\":{\"kind\":\"property\",\"name\":\"vpos\"},\"direction\":\"backward-provenance\",\"include_ambiguous_dynamic_edges\":false,\"expected\":null}},\"raw_result\":null,\"normalized_result\":{\"query_id\":\"jsrq_5611b4e501940eea418b4f2cc1ef557b4eacb8b3b5e9160e6529347e4d38e04b\",\"source_graph_id\":\"jsrg_55956bafa1d2e7d603c562d23892676f38da87a498afdb99aa202ffc11e02829\",\"seed\":{\"kind\":\"property\",\"name\":\"vpos\"},\"direction\":\"backward-provenance\",\"status\":\"ambiguous\",\"seed_node_ids\":[\"jsrg_node_465ab0ca6bb009fe9d41096cd6e352c9bc0a0844ea7ff17fb1784b78e3eddf1d\",\"jsrg_node_c33737acabb640c283b7f7583519432f0fedc4370e93a6c953b401645a465e5b\"],\"evidence_contexts\":[{\"authority\":\"ast-static-analysis\",\"state\":\"observed\",\"confidence\":\"exact\",\"artifact\":{\"available\":true,\"artifact_id\":\"art_22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8\",\"sha256\":\"22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8\"},\"extractor\":{\"name\":\"rea-javascript-semantic-analysis\",\"version\":\"1\",\"operation\":\"analyze_javascript_application\",\"executable_sha256\":null},\"coverage\":{\"status\":\"complete\",\"truncated\":false,\"omitted_count\":0,\"limits\":[]},\"limitations\":[],\"evidence_ids\":[],\"context_id\":\"jsrg_evidence_e1b0cc4a2fd0252c6b525ad834e38657e5574a57c3729954f6911279215736c0\"},{\"authority\":\"unknown\",\"state\":\"unknown\",\"confidence\":\"unknown\",\"artifact\":{\"available\":true,\"artifact_id\":\"art_22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8\",\"sha256\":\"22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8\"},\"extractor\":{\"name\":\"rea-javascript-semantic-analysis\",\"version\":\"1\",\"operation\":\"analyze_javascript_application\",\"executable_sha256\":null},\"coverage\":{\"status\":\"complete\",\"truncated\":false,\"omitted_count\":0,\"limits\":[]},\"limitations\":[\"Dynamic syntax prevents an exact static relationship.\"],\"evidence_ids\":[],\"context_id\":\"jsrg_evidence_e2e6b749f38ece3f3c8b24918487b3735aa8484e302553140d1383fe24cb6e03\"}],\"nodes\":[{\"kind\":\"property-slot\",\"identity\":{\"artifact_sha256\":\"22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8\",\"module_path\":\"venue-view.js\",\"source_range\":null,\"role_key\":\"property:[\\\"scope:function:5013:5116:binding:s\\\",[\\\"vpos\\\"]]\"},\"function_node_id\":\"jsrg_node_27f1e9164d4c42be8b5ac3bbb8ea179b406cf4b775c555f1d80d174c441d1d3b\",\"application_node_ids\":[\"jag_node_f473c4a3fcd889a6ebd807b9047a0ddffb9d11411e8b366d9b11f810b2240658\"],\"label\":\"vpos\",\"properties\":{\"name\":\"vpos\",\"object_binding_id\":\"scope:function:5013:5116:binding:s\",\"presence\":\"unknown-coverage\",\"property_path\":[\"vpos\"],\"property_pointer\":\"/vpos\",\"value_coverage\":null,\"value_status\":\"unknown\"},\"evidence\":{\"context_id\":\"jsrg_evidence_e1b0cc4a2fd0252c6b525ad834e38657e5574a57c3729954f6911279215736c0\",\"location\":{\"available\":true,\"value\":{\"kind\":\"artifact-path\",\"path\":\"venue-view.js\"}}},\"node_id\":\"jsrg_node_465ab0ca6bb009fe9d41096cd6e352c9bc0a0844ea7ff17fb1784b78e3eddf1d\",\"identifier_strategy\":{\"strategy\":\"semantic-content-sha256\",\"stability\":\"artifact-version\"}},{\"kind\":\"property-slot\",\"identity\":{\"artifact_sha256\":\"22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8\",\"module_path\":\"venue-view.js\",\"source_range\":null,\"role_key\":\"property:[\\\"scope:function:4928:4956:binding:a\\\",[\\\"vpos\\\"]]\"},\"function_node_id\":\"jsrg_node_2160e6589853f2babdc942a9095dbbb8d42ba0b828648e0c8cd7a2301c6d3fe5\",\"application_node_ids\":[\"jag_node_f473c4a3fcd889a6ebd807b9047a0ddffb9d11411e8b366d9b11f810b2240658\"],\"label\":\"vpos\",\"properties\":{\"name\":\"vpos\",\"object_binding_id\":\"scope:function:4928:4956:binding:a\",\"presence\":\"unknown-coverage\",\"property_path\":[\"vpos\"],\"property_pointer\":\"/vpos\",\"value_coverage\":null,\"value_status\":\"unknown\"},\"evidence\":{\"context_id\":\"jsrg_evidence_e1b0cc4a2fd0252c6b525ad834e38657e5574a57c3729954f6911279215736c0\",\"location\":{\"available\":true,\"value\":{\"kind\":\"artifact-path\",\"path\":\"venue-view.js\"}}},\"node_id\":\"jsrg_node_c33737acabb640c283b7f7583519432f0fedc4370e93a6c953b401645a465e5b\",\"identifier_strategy\":{\"strategy\":\"semantic-content-sha256\",\"stability\":\"artifact-version\"}}],\"relations\":[],\"unknowns\":[{\"node_id\":\"jsrg_node_465ab0ca6bb009fe9d41096cd6e352c9bc0a0844ea7ff17fb1784b78e3eddf1d\",\"family\":\"object-flow\",\"relation_kinds\":[\"reads-property\"],\"reason\":\"ambiguous-target\",\"detail\":\"Static read property /vpos has unknown-coverage presence; its receiver is unresolved or not a retained container; object identity is complete.\",\"candidate_node_ids\":[],\"evidence\":{\"context_id\":\"jsrg_evidence_e2e6b749f38ece3f3c8b24918487b3735aa8484e302553140d1383fe24cb6e03\",\"location\":{\"available\":true,\"value\":{\"kind\":\"source-range\",\"source\":\"venue-view.js\",\"start\":{\"line\":2,\"column\":4932},\"end\":{\"line\":2,\"column\":4938}}}},\"unknown_id\":\"jsrg_unknown_a5b1ce17c221a2f7210df46c0c9790ad35ffbe830cfffa48b82589c9a808c2d3\"},{\"node_id\":\"jsrg_node_465ab0ca6bb009fe9d41096cd6e352c9bc0a0844ea7ff17fb1784b78e3eddf1d\",\"family\":\"object-flow\",\"relation_kinds\":[\"writes-property\"],\"reason\":\"ambiguous-target\",\"detail\":\"Static write property /vpos has unknown-coverage presence; its receiver is unresolved or not a retained container; object identity is complete.\",\"candidate_node_ids\":[],\"evidence\":{\"context_id\":\"jsrg_evidence_e2e6b749f38ece3f3c8b24918487b3735aa8484e302553140d1383fe24cb6e03\",\"location\":{\"available\":true,\"value\":{\"kind\":\"source-range\",\"source\":\"venue-view.js\",\"start\":{\"line\":2,\"column\":4968},\"end\":{\"line\":2,\"column\":4974}}}},\"unknown_id\":\"jsrg_unknown_dced9484c6ffcdd5f83409c11821e5934929f77a5886646dedde5f11d7726c84\"},{\"node_id\":\"jsrg_node_c33737acabb640c283b7f7583519432f0fedc4370e93a6c953b401645a465e5b\",\"family\":\"object-flow\",\"relation_kinds\":[\"writes-property\"],\"reason\":\"ambiguous-target\",\"detail\":\"Static write property /vpos has unknown-coverage presence; its receiver is unresolved or not a retained container; object identity is complete.\",\"candidate_node_ids\":[],\"evidence\":{\"context_id\":\"jsrg_evidence_e2e6b749f38ece3f3c8b24918487b3735aa8484e302553140d1383fe24cb6e03\",\"location\":{\"available\":true,\"value\":{\"kind\":\"source-range\",\"source\":\"venue-view.js\",\"start\":{\"line\":2,\"column\":4830},\"end\":{\"line\":2,\"column\":4836}}}},\"unknown_id\":\"jsrg_unknown_e577b158f98bd7069eec6ff3a002f7de5ca1ebd8dd39ce2444dacf8dede7dc34\"}],\"expected_match_node_ids\":[],\"summary\":{\"total_seed_matches\":2,\"traversed_nodes\":2,\"traversed_relations\":0,\"traversed_functions\":2,\"traversed_modules\":1,\"relevant_unknowns\":3},\"coverage\":{\"status\":\"partial\"},\"limitations\":[\"Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.\",\"Candidate relations remain ambiguous and do not establish a resolved semantic path.\",\"Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.\",\"Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.\",\"Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.\",\"Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.\",\"Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.\",\"Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.\",\"Relevant dynamic, unsupported, incomplete, or ambiguous semantics remain unknown.\",\"Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.\",\"Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.\",\"Semantic graph reachability is a static inference and does not prove runtime execution.\",\"The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.\",\"Timer extraction covers global or node:timers scheduling and exact local-handle cancellation.\"],\"source_evidence_id\":\"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37\",\"evidence_links\":[\"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37\"]},\"confidence\":\"inferred\",\"authority\":\"analyst-inference\",\"environment\":null,\"limitations\":[\"Artifact identity is unavailable for this observation.\",\"Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.\",\"Candidate relations remain ambiguous and do not establish a resolved semantic path.\",\"Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.\",\"Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.\",\"Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.\",\"Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.\",\"Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.\",\"Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.\",\"Relevant dynamic, unsupported, incomplete, or ambiguous semantics remain unknown.\",\"Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.\",\"Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.\",\"Semantic graph reachability is a static inference and does not prove runtime execution.\",\"The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.\",\"Timer extraction covers global or node:timers scheduling and exact local-handle cancellation.\"],\"locations\":[],\"evidence_links\":[\"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37\"]}"
+      }
+    ],
+    "structuredContent": {
+      "evidence_id": "ev_692b997342171916e2e6b1670f8e6ea4e4859350e8b8c0e42b5c840a555f94c5",
+      "subject": null,
+      "provider": {
+        "id": "rea-javascript-application-workflows",
+        "name": "REA JavaScript application workflows",
+        "version": "1"
+      },
+      "analysis_profile": null,
+      "predicate_type": "rea.javascript-semantic-trace",
+      "operation": "trace_javascript_semantics",
+      "parameters": {
+        "application_evidence_id": "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37",
+        "query": {
+          "seed": {
+            "kind": "property",
+            "name": "vpos"
+          },
+          "direction": "backward-provenance",
+          "include_ambiguous_dynamic_edges": false,
+          "expected": null
+        }
+      },
+      "raw_result": null,
+      "normalized_result": {
+        "query_id": "jsrq_5611b4e501940eea418b4f2cc1ef557b4eacb8b3b5e9160e6529347e4d38e04b",
+        "source_graph_id": "jsrg_55956bafa1d2e7d603c562d23892676f38da87a498afdb99aa202ffc11e02829",
+        "seed": {
+          "kind": "property",
+          "name": "vpos"
+        },
+        "direction": "backward-provenance",
+        "status": "ambiguous",
+        "seed_node_ids": [
+          "jsrg_node_465ab0ca6bb009fe9d41096cd6e352c9bc0a0844ea7ff17fb1784b78e3eddf1d",
+          "jsrg_node_c33737acabb640c283b7f7583519432f0fedc4370e93a6c953b401645a465e5b"
+        ],
+        "evidence_contexts": [
+          {
+            "authority": "ast-static-analysis",
+            "state": "observed",
+            "confidence": "exact",
+            "artifact": {
+              "available": true,
+              "artifact_id": "art_22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8",
+              "sha256": "22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8"
+            },
+            "extractor": {
+              "name": "rea-javascript-semantic-analysis",
+              "version": "1",
+              "operation": "analyze_javascript_application",
+              "executable_sha256": null
+            },
+            "coverage": {
+              "status": "complete",
+              "truncated": false,
+              "omitted_count": 0,
+              "limits": []
+            },
+            "limitations": [],
+            "evidence_ids": [],
+            "context_id": "jsrg_evidence_e1b0cc4a2fd0252c6b525ad834e38657e5574a57c3729954f6911279215736c0"
+          },
+          {
+            "authority": "unknown",
+            "state": "unknown",
+            "confidence": "unknown",
+            "artifact": {
+              "available": true,
+              "artifact_id": "art_22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8",
+              "sha256": "22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8"
+            },
+            "extractor": {
+              "name": "rea-javascript-semantic-analysis",
+              "version": "1",
+              "operation": "analyze_javascript_application",
+              "executable_sha256": null
+            },
+            "coverage": {
+              "status": "complete",
+              "truncated": false,
+              "omitted_count": 0,
+              "limits": []
+            },
+            "limitations": [
+              "Dynamic syntax prevents an exact static relationship."
+            ],
+            "evidence_ids": [],
+            "context_id": "jsrg_evidence_e2e6b749f38ece3f3c8b24918487b3735aa8484e302553140d1383fe24cb6e03"
+          }
+        ],
+        "nodes": [
+          {
+            "kind": "property-slot",
+            "identity": {
+              "artifact_sha256": "22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8",
+              "module_path": "venue-view.js",
+              "source_range": null,
+              "role_key": "property:[\"scope:function:5013:5116:binding:s\",[\"vpos\"]]"
+            },
+            "function_node_id": "jsrg_node_27f1e9164d4c42be8b5ac3bbb8ea179b406cf4b775c555f1d80d174c441d1d3b",
+            "application_node_ids": [
+              "jag_node_f473c4a3fcd889a6ebd807b9047a0ddffb9d11411e8b366d9b11f810b2240658"
+            ],
+            "label": "vpos",
+            "properties": {
+              "name": "vpos",
+              "object_binding_id": "scope:function:5013:5116:binding:s",
+              "presence": "unknown-coverage",
+              "property_path": [
+                "vpos"
+              ],
+              "property_pointer": "/vpos",
+              "value_coverage": null,
+              "value_status": "unknown"
+            },
+            "evidence": {
+              "context_id": "jsrg_evidence_e1b0cc4a2fd0252c6b525ad834e38657e5574a57c3729954f6911279215736c0",
+              "location": {
+                "available": true,
+                "value": {
+                  "kind": "artifact-path",
+                  "path": "venue-view.js"
+                }
+              }
+            },
+            "node_id": "jsrg_node_465ab0ca6bb009fe9d41096cd6e352c9bc0a0844ea7ff17fb1784b78e3eddf1d",
+            "identifier_strategy": {
+              "strategy": "semantic-content-sha256",
+              "stability": "artifact-version"
+            }
+          },
+          {
+            "kind": "property-slot",
+            "identity": {
+              "artifact_sha256": "22f90da56097452fa0c181b20118a6a70fde127edcd007ad8c2986e4d6416dc8",
+              "module_path": "venue-view.js",
+              "source_range": null,
+              "role_key": "property:[\"scope:function:4928:4956:binding:a\",[\"vpos\"]]"
+            },
+            "function_node_id": "jsrg_node_2160e6589853f2babdc942a9095dbbb8d42ba0b828648e0c8cd7a2301c6d3fe5",
+            "application_node_ids": [
+              "jag_node_f473c4a3fcd889a6ebd807b9047a0ddffb9d11411e8b366d9b11f810b2240658"
+            ],
+            "label": "vpos",
+            "properties": {
+              "name": "vpos",
+              "object_binding_id": "scope:function:4928:4956:binding:a",
+              "presence": "unknown-coverage",
+              "property_path": [
+                "vpos"
+              ],
+              "property_pointer": "/vpos",
+              "value_coverage": null,
+              "value_status": "unknown"
+            },
+            "evidence": {
+              "context_id": "jsrg_evidence_e1b0cc4a2fd0252c6b525ad834e38657e5574a57c3729954f6911279215736c0",
+              "location": {
+                "available": true,
+                "value": {
+                  "kind": "artifact-path",
+                  "path": "venue-view.js"
+                }
+              }
+            },
+            "node_id": "jsrg_node_c33737acabb640c283b7f7583519432f0fedc4370e93a6c953b401645a465e5b",
+            "identifier_strategy": {
+              "strategy": "semantic-content-sha256",
+              "stability": "artifact-version"
+            }
+          }
+        ],
+        "relations": [],
+        "unknowns": [
+          {
+            "node_id": "jsrg_node_465ab0ca6bb009fe9d41096cd6e352c9bc0a0844ea7ff17fb1784b78e3eddf1d",
+            "family": "object-flow",
+            "relation_kinds": [
+              "reads-property"
+            ],
+            "reason": "ambiguous-target",
+            "detail": "Static read property /vpos has unknown-coverage presence; its receiver is unresolved or not a retained container; object identity is complete.",
+            "candidate_node_ids": [],
+            "evidence": {
+              "context_id": "jsrg_evidence_e2e6b749f38ece3f3c8b24918487b3735aa8484e302553140d1383fe24cb6e03",
+              "location": {
+                "available": true,
+                "value": {
+                  "kind": "source-range",
+                  "source": "venue-view.js",
+                  "start": {
+                    "line": 2,
+                    "column": 4932
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 4938
+                  }
+                }
+              }
+            },
+            "unknown_id": "jsrg_unknown_a5b1ce17c221a2f7210df46c0c9790ad35ffbe830cfffa48b82589c9a808c2d3"
+          },
+          {
+            "node_id": "jsrg_node_465ab0ca6bb009fe9d41096cd6e352c9bc0a0844ea7ff17fb1784b78e3eddf1d",
+            "family": "object-flow",
+            "relation_kinds": [
+              "writes-property"
+            ],
+            "reason": "ambiguous-target",
+            "detail": "Static write property /vpos has unknown-coverage presence; its receiver is unresolved or not a retained container; object identity is complete.",
+            "candidate_node_ids": [],
+            "evidence": {
+              "context_id": "jsrg_evidence_e2e6b749f38ece3f3c8b24918487b3735aa8484e302553140d1383fe24cb6e03",
+              "location": {
+                "available": true,
+                "value": {
+                  "kind": "source-range",
+                  "source": "venue-view.js",
+                  "start": {
+                    "line": 2,
+                    "column": 4968
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 4974
+                  }
+                }
+              }
+            },
+            "unknown_id": "jsrg_unknown_dced9484c6ffcdd5f83409c11821e5934929f77a5886646dedde5f11d7726c84"
+          },
+          {
+            "node_id": "jsrg_node_c33737acabb640c283b7f7583519432f0fedc4370e93a6c953b401645a465e5b",
+            "family": "object-flow",
+            "relation_kinds": [
+              "writes-property"
+            ],
+            "reason": "ambiguous-target",
+            "detail": "Static write property /vpos has unknown-coverage presence; its receiver is unresolved or not a retained container; object identity is complete.",
+            "candidate_node_ids": [],
+            "evidence": {
+              "context_id": "jsrg_evidence_e2e6b749f38ece3f3c8b24918487b3735aa8484e302553140d1383fe24cb6e03",
+              "location": {
+                "available": true,
+                "value": {
+                  "kind": "source-range",
+                  "source": "venue-view.js",
+                  "start": {
+                    "line": 2,
+                    "column": 4830
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 4836
+                  }
+                }
+              }
+            },
+            "unknown_id": "jsrg_unknown_e577b158f98bd7069eec6ff3a002f7de5ca1ebd8dd39ce2444dacf8dede7dc34"
+          }
+        ],
+        "expected_match_node_ids": [],
+        "summary": {
+          "total_seed_matches": 2,
+          "traversed_nodes": 2,
+          "traversed_relations": 0,
+          "traversed_functions": 2,
+          "traversed_modules": 1,
+          "relevant_unknowns": 3
+        },
+        "coverage": {
+          "status": "partial"
+        },
+        "limitations": [
+          "Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.",
+          "Candidate relations remain ambiguous and do not establish a resolved semantic path.",
+          "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
+          "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
+          "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
+          "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
+          "Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.",
+          "Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.",
+          "Relevant dynamic, unsupported, incomplete, or ambiguous semantics remain unknown.",
+          "Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.",
+          "Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.",
+          "Semantic graph reachability is a static inference and does not prove runtime execution.",
+          "The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.",
+          "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation."
+        ],
+        "source_evidence_id": "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37",
+        "evidence_links": [
+          "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37"
+        ]
+      },
+      "confidence": "inferred",
+      "authority": "analyst-inference",
+      "environment": null,
+      "limitations": [
+        "Artifact identity is unavailable for this observation.",
+        "Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.",
+        "Candidate relations remain ambiguous and do not establish a resolved semantic path.",
+        "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
+        "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
+        "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
+        "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
+        "Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.",
+        "Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.",
+        "Relevant dynamic, unsupported, incomplete, or ambiguous semantics remain unknown.",
+        "Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.",
+        "Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.",
+        "Semantic graph reachability is a static inference and does not prove runtime execution.",
+        "The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.",
+        "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation."
+      ],
+      "locations": [],
+      "evidence_links": [
+        "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37"
+      ]
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 5
+}

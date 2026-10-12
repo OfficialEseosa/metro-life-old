@@ -1,0 +1,3 @@
+{"level":30,"time":1791766934465,"application":"rea","mode":"mcp","layer":"server","tool":"trace_javascript_semantics","durationMs":213.87,"status":"ok","msg":"MCP tool execution completed"}
+{"level":30,"time":1791766934954,"application":"rea","mode":"mcp","layer":"server","tool":"trace_javascript_semantics","durationMs":431.54,"status":"ok","msg":"MCP tool execution completed"}
+{"level":30,"time":1791766935009,"application":"rea","mode":"mcp","layer":"server","tool":"trace_javascript_semantics","durationMs":47.76,"status":"ok","msg":"MCP tool execution completed"}

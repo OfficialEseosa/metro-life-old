@@ -1,0 +1,6 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"owner-rea-diagnostic","version":"1.0"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"import_evidence_bundle","arguments":{"path":"C:/Users/rapha/tools/rea/owner-study-features.json"}}}
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"trace_javascript_semantics","arguments":{"application":{"kind":"retained-evidence","evidence_id":"ev_c140b37672535128a67c8c023a711ef2ed52df3b638ca99ff4a293faea4cb736"},"query":{"seed":{"kind":"literal","value":37.5},"direction":"backward-provenance"}}}}
+{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"trace_javascript_semantics","arguments":{"application":{"kind":"retained-evidence","evidence_id":"ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37"},"query":{"seed":{"kind":"property","name":"vpos"},"direction":"backward-provenance"}}}}
+{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"trace_javascript_semantics","arguments":{"application":{"kind":"retained-evidence","evidence_id":"ev_e74301d83544d3c980e2d99a12dc3eb7cb89c51b0fd2c4412768be0c5367b797"},"query":{"seed":{"kind":"property","name":"current"},"direction":"backward-provenance"}}}}

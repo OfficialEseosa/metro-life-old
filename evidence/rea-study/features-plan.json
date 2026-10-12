@@ -1,0 +1,129 @@
+[
+  {
+    "label": "world-map",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\features\\world-map",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "travel-vehicle",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\features\\travel-vehicle",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "traffic",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\features\\traffic",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "airport-crowd",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\features\\airport-crowd",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "travel-start",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\features\\travel-start",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "travel-arrive",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\features\\travel-arrive",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "venue-view",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\features\\venue-view",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "map-camera",
+    "name": "trace_javascript_semantics",
+    "arguments": {
+      "query": {
+        "seed": {
+          "kind": "property",
+          "name": "camera"
+        },
+        "direction": "backward-provenance"
+      }
+    },
+    "references": {
+      "application": "world-map"
+    }
+  },
+  {
+    "label": "avatar-floor",
+    "name": "trace_javascript_semantics",
+    "arguments": {
+      "query": {
+        "seed": {
+          "kind": "property",
+          "name": "onFloor"
+        },
+        "direction": "backward-provenance"
+      }
+    },
+    "references": {
+      "application": "venue-view"
+    }
+  },
+  {
+    "label": "travel-state",
+    "name": "trace_javascript_semantics",
+    "arguments": {
+      "query": {
+        "seed": {
+          "kind": "property",
+          "name": "travel"
+        },
+        "direction": "backward-provenance"
+      }
+    },
+    "references": {
+      "application": "travel-start"
+    }
+  },
+  {
+    "label": "crowd-positions",
+    "name": "trace_javascript_semantics",
+    "arguments": {
+      "query": {
+        "seed": {
+          "kind": "property",
+          "name": "path"
+        },
+        "direction": "backward-provenance"
+      }
+    },
+    "references": {
+      "application": "airport-crowd"
+    }
+  },
+  {
+    "label": "export",
+    "name": "export_evidence_bundle",
+    "arguments": {
+      "path": "C:/Users/rapha/tools/rea/owner-study-features.json"
+    }
+  }
+]

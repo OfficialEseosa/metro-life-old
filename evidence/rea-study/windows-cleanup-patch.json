@@ -1,0 +1,7 @@
+{
+  "path": "C:\\Users\\rapha\\tools\\rea\\node_modules\\rea-agents\\dist\\browser\\PlaywrightScenarioBrowser.js",
+  "version": "6.3.0",
+  "before": "withPlaywrightExecutionBoundary(() => cleanup, 1_000, signal)",
+  "after": "withPlaywrightExecutionBoundary(() => cleanup, 10_000, signal)",
+  "reason": "Observed successful public-page capture reported cleanup_incomplete after 1000ms on Windows. Give browser shutdown/profile deletion 10 seconds; preserve cleanup error handling."
+}

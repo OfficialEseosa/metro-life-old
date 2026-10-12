@@ -1,0 +1,4 @@
+Error: Request initialize timed out after 30000ms
+    at Timeout.<anonymous> (file:///C:/Users/rapha/Last%20Night%20on%20Maple%20Street/evidence/rea-study/rea-client.mjs:26:149)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7)

@@ -1,0 +1,34 @@
+[
+  {
+    "label": "tiny",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\tiny",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "scene",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\scene",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "data",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\data",
+      "format": "directory"
+    }
+  },
+  {
+    "label": "quests",
+    "name": "analyze_javascript_application",
+    "arguments": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\quests",
+      "format": "directory"
+    }
+  }
+]

@@ -1,0 +1,1356 @@
+[
+  {
+    "file": "cached-single-auto/tiny.json",
+    "evidence_id": null,
+    "error": {
+      "code": "unsupported_target",
+      "category": "unsupported_target",
+      "message": "Unsupported target for analyze_javascript_application at C:\\Users\\rapha\\Last Night on Maple Street\\reference\\chunks\\296d7_9wj0wna.js: JavaScript application analysis accepts only a directory or an .asar file",
+      "retryable": false,
+      "remediation": {
+        "action": "Select an extracted application directory, an app bundle, or an .asar file such as Contents/Resources/app.asar."
+      },
+      "details": {
+        "operation": "analyze_javascript_application",
+        "path": "C:\\Users\\rapha\\Last Night on Maple Street\\reference\\chunks\\296d7_9wj0wna.js",
+        "reason": "JavaScript application analysis accepts only a directory or an .asar file"
+      }
+    },
+    "response_bytes": 902
+  },
+  {
+    "file": "cached-single-isolated/tiny.json.gz",
+    "evidence_id": "ev_ecb8e24ab673dc0d5b71f95396b57a927204cbb81836cb86dff92489b794c95c",
+    "error": null,
+    "response_bytes": 378995,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 285,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 75,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "exact/camera-height.json",
+    "evidence_id": "ev_424ca9aa00e354d1e7c777a3a61d287ecd458edfe1390ee2626defcf20a5243d",
+    "error": null,
+    "response_bytes": 10253,
+    "summary": {
+      "total_seed_matches": 0,
+      "traversed_nodes": 0,
+      "traversed_relations": 0,
+      "traversed_functions": 0,
+      "traversed_modules": 0,
+      "relevant_unknowns": 0
+    },
+    "status": "partial"
+  },
+  {
+    "file": "exact/import.json",
+    "evidence_id": null,
+    "error": null,
+    "response_bytes": 331
+  },
+  {
+    "file": "exact/traffic-matrix.json",
+    "evidence_id": "ev_e6a1eefca4b2473f5f2f5f02499dc71a2d46d91200ff27e9234c8928d62501dd",
+    "error": null,
+    "response_bytes": 10277,
+    "summary": {
+      "total_seed_matches": 0,
+      "traversed_nodes": 0,
+      "traversed_relations": 0,
+      "traversed_functions": 0,
+      "traversed_modules": 0,
+      "relevant_unknowns": 0
+    },
+    "status": "partial"
+  },
+  {
+    "file": "exact/venue-position.json",
+    "evidence_id": "ev_692b997342171916e2e6b1670f8e6ea4e4859350e8b8c0e42b5c840a555f94c5",
+    "error": null,
+    "response_bytes": 26250,
+    "summary": {
+      "total_seed_matches": 2,
+      "traversed_nodes": 2,
+      "traversed_relations": 0,
+      "traversed_functions": 2,
+      "traversed_modules": 1,
+      "relevant_unknowns": 3
+    },
+    "status": "ambiguous"
+  },
+  {
+    "file": "features-retry/airport-crowd.json.gz",
+    "evidence_id": "ev_26aadc93af6f955e154e9b46732c4b58d1e1edc935b9237b274de0b8e69f0ba6",
+    "error": null,
+    "response_bytes": 1211064,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 1693,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 665,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "features-retry/avatar-floor.json",
+    "evidence_id": "ev_a26b3b41b9530e7b5e6591669439661bbc6b8327586a10376cd28b484ae3e11d",
+    "error": null,
+    "response_bytes": 10278,
+    "summary": {
+      "total_seed_matches": 0,
+      "traversed_nodes": 0,
+      "traversed_relations": 0,
+      "traversed_functions": 0,
+      "traversed_modules": 0,
+      "relevant_unknowns": 0
+    },
+    "status": "partial"
+  },
+  {
+    "file": "features-retry/crowd-positions.json",
+    "evidence_id": "ev_58077fc9a2cdd641a5b3ceb685c984bec10804ea4b869b16aae6fd552e4b8f55",
+    "error": null,
+    "response_bytes": 10266,
+    "summary": {
+      "total_seed_matches": 0,
+      "traversed_nodes": 0,
+      "traversed_relations": 0,
+      "traversed_functions": 0,
+      "traversed_modules": 0,
+      "relevant_unknowns": 0
+    },
+    "status": "partial"
+  },
+  {
+    "file": "features-retry/export.json",
+    "evidence_id": null,
+    "error": null,
+    "response_bytes": 484
+  },
+  {
+    "file": "features-retry/map-camera.json",
+    "evidence_id": "ev_99e3fb0acc2e934cb820f7da8d718cb9049fd9eac3d5d6cf714e50fcad2e1c84",
+    "error": null,
+    "response_bytes": 10274,
+    "summary": {
+      "total_seed_matches": 0,
+      "traversed_nodes": 0,
+      "traversed_relations": 0,
+      "traversed_functions": 0,
+      "traversed_modules": 0,
+      "relevant_unknowns": 0
+    },
+    "status": "partial"
+  },
+  {
+    "file": "features-retry/traffic.json.gz",
+    "evidence_id": "ev_e74301d83544d3c980e2d99a12dc3eb7cb89c51b0fd2c4412768be0c5367b797",
+    "error": null,
+    "response_bytes": 3154382,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 1937,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 724,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "features-retry/travel-arrive.json.gz",
+    "evidence_id": "ev_5b6d01169c99ba1c81235e99366dfd8fa3f27f59c63c515a1d9700bbe08b255e",
+    "error": null,
+    "response_bytes": 6905978,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 7138,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 2094,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "features-retry/travel-start.json.gz",
+    "evidence_id": "ev_f72a9cf36d039900e11e07f9cd1208cb1353e6a8a390775575dbaf1f8589769e",
+    "error": null,
+    "response_bytes": 955262,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 837,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 268,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "features-retry/travel-state.json",
+    "evidence_id": "ev_9f804672d8f5238ab2352b1c6262568e513e51d56861540dbd0fa05f35015893",
+    "error": null,
+    "response_bytes": 19412,
+    "summary": {
+      "total_seed_matches": 1,
+      "traversed_nodes": 1,
+      "traversed_relations": 0,
+      "traversed_functions": 1,
+      "traversed_modules": 1,
+      "relevant_unknowns": 1
+    },
+    "status": "ambiguous"
+  },
+  {
+    "file": "features-retry/travel-vehicle.json.gz",
+    "evidence_id": "ev_a17502599494947e8093492e07d0b6861adc19fccb2d62161d5d8cc33b8eec2a",
+    "error": null,
+    "response_bytes": 877162,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 632,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 219,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "features-retry/venue-view.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "analyze_javascript_application",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10539660,
+          "response_code_units_at_least": 10539660,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_cbfb39acd296a87d07d11c89309f076b87c7fa978678a9642929c7593c652d37"
+          }
+        }
+      }
+    },
+    "response_bytes": 1596
+  },
+  {
+    "file": "features-retry/world-map.json.gz",
+    "evidence_id": "ev_c140b37672535128a67c8c023a711ef2ed52df3b638ca99ff4a293faea4cb736",
+    "error": null,
+    "response_bytes": 8503903,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 5753,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 2022,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "focused/camera.json.gz",
+    "evidence_id": "ev_d76093c7e6a365e376fe87bacc996d62cc504024a2523352ab491b0467b3b61c",
+    "error": null,
+    "response_bytes": 3294649,
+    "summary": {
+      "total_seed_matches": 2,
+      "traversed_nodes": 2,
+      "traversed_relations": 0,
+      "traversed_functions": 2,
+      "traversed_modules": 1,
+      "relevant_unknowns": 1800
+    },
+    "status": "ambiguous"
+  },
+  {
+    "file": "focused/import.json",
+    "evidence_id": null,
+    "error": null,
+    "response_bytes": 327
+  },
+  {
+    "file": "focused/interior.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "trace_javascript_semantics",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10490464,
+          "response_code_units_at_least": 10490464,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_9286091c2104dbdcc05227205b6db13c077a6e1c163e13de1d689cea2444734c",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_9286091c2104dbdcc05227205b6db13c077a6e1c163e13de1d689cea2444734c"
+          }
+        }
+      }
+    },
+    "response_bytes": 1592
+  },
+  {
+    "file": "focused/places.json",
+    "evidence_id": "ev_854ed34d5a19179d17d335ea98fd37cba7ed7963d2e25abcd963e4075757dce3",
+    "error": null,
+    "response_bytes": 10277,
+    "summary": {
+      "total_seed_matches": 0,
+      "traversed_nodes": 0,
+      "traversed_relations": 0,
+      "traversed_functions": 0,
+      "traversed_modules": 0,
+      "relevant_unknowns": 0
+    },
+    "status": "partial"
+  },
+  {
+    "file": "focused/travel.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "trace_javascript_semantics",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10490456,
+          "response_code_units_at_least": 10490456,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_96c0ecd13506cf78232105837a47ecd92f083bf7ae01deec95d68fe840012027",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_96c0ecd13506cf78232105837a47ecd92f083bf7ae01deec95d68fe840012027"
+          }
+        }
+      }
+    },
+    "response_bytes": 1592
+  },
+  {
+    "file": "focused/walkers.json.gz",
+    "evidence_id": "ev_3e5f1627b83de5ad478503be46aed2d8ae1871f21394a79d63f67035cfe0ec85",
+    "error": null,
+    "response_bytes": 3283068,
+    "summary": {
+      "total_seed_matches": 0,
+      "traversed_nodes": 0,
+      "traversed_relations": 0,
+      "traversed_functions": 0,
+      "traversed_modules": 0,
+      "relevant_unknowns": 1798
+    },
+    "status": "partial"
+  },
+  {
+    "file": "home/home-path.json",
+    "evidence_id": "ev_0487ebb826c4ee30704f04e55131c4d9e83895ac287e4b432ba0071a2f875868",
+    "error": null,
+    "response_bytes": 21290,
+    "summary": {
+      "total_seed_matches": 1,
+      "traversed_nodes": 1,
+      "traversed_relations": 0,
+      "traversed_functions": 1,
+      "traversed_modules": 1,
+      "relevant_unknowns": 2
+    },
+    "status": "ambiguous"
+  },
+  {
+    "file": "home/home-walk.json.gz",
+    "evidence_id": "ev_4e8677fc0cfea83cf1fcb67e724f0d82dcbfb55678c3d662e549445e0697f4cb",
+    "error": null,
+    "response_bytes": 484160,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 375,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 154,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "live-permanent/live.json.gz",
+    "evidence_id": "ev_c52e1270ac38ce7d32e0e90e761673e599fd5f2777a52d553fca1a572ad6a865",
+    "error": null,
+    "response_bytes": 2087911,
+    "browser": {
+      "mode": "launch",
+      "process_ownership": "provider-owned",
+      "cleanup": "terminated-owned-process",
+      "product": "Chromium",
+      "version": "155.0.4283.45"
+    },
+    "completeness": {
+      "status": "complete",
+      "equality_eligible": true,
+      "missing_sections": [],
+      "truncated_sections": []
+    },
+    "duration_ms": 10087
+  },
+  {
+    "file": "permanent-chunks/data.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "analyze_javascript_application",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10556846,
+          "response_code_units_at_least": 10556846,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_a8274cf4b8e67745c40fb7b28a1f8bd6ad7a034fe638c87667534fc4651ec759",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_a8274cf4b8e67745c40fb7b28a1f8bd6ad7a034fe638c87667534fc4651ec759"
+          }
+        }
+      }
+    },
+    "response_bytes": 1596
+  },
+  {
+    "file": "permanent-chunks/quests.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "analyze_javascript_application",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10553336,
+          "response_code_units_at_least": 10553336,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_2877dc7b8cec6b3e8f548187f64c1c647f6e5d310df3079ef20c68c22d6663d0",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_2877dc7b8cec6b3e8f548187f64c1c647f6e5d310df3079ef20c68c22d6663d0"
+          }
+        }
+      }
+    },
+    "response_bytes": 1596
+  },
+  {
+    "file": "permanent-chunks/scene.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "analyze_javascript_application",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10560550,
+          "response_code_units_at_least": 10560550,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_4082d76260eca59f99693d135ffeb05a286c142b0d45d8432f62337353b1a065",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_4082d76260eca59f99693d135ffeb05a286c142b0d45d8432f62337353b1a065"
+          }
+        }
+      }
+    },
+    "response_bytes": 1596
+  },
+  {
+    "file": "permanent-chunks/tiny.json.gz",
+    "evidence_id": "ev_ecb8e24ab673dc0d5b71f95396b57a927204cbb81836cb86dff92489b794c95c",
+    "error": null,
+    "response_bytes": 378995,
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 285,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 75,
+      "findings": 0,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 0,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 0,
+        "renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    }
+  },
+  {
+    "file": "permanent-recovered/data-summary.json",
+    "evidence_id": "ev_915282ee449c24ef8d8b863b8c71fd83f70a7c3f8ba72a4990e809acbe9ce41d",
+    "error": null,
+    "response_bytes": 24237,
+    "summary": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\data",
+      "format": "directory",
+      "root_artifact_sha256": "9633c73f17796ed713fa9b1bdc7cb0e829aad7cd074fd9dd8e13efee34a3c6bb",
+      "statistics": {
+        "relevant_files": 1,
+        "nested_asar_containers": 0,
+        "text_bytes_read": 431243,
+        "invalid_utf8_files": 0,
+        "parsed_javascript_files": 1,
+        "visited_ast_nodes": 83204,
+        "findings": 15,
+        "modules": 0,
+        "parse_failures": 0
+      },
+      "electron": {
+        "browser_windows": 0,
+        "explicit_web_preferences": 0,
+        "preload_entrypoints": 0,
+        "context_bridge_apis": 0,
+        "exposed_api_members": 0,
+        "ipc": {
+          "operations": 0,
+          "literal_channels": 0,
+          "dynamic_channel_operations": 0,
+          "renderer_transmissions": 0,
+          "renderer_listeners": 0,
+          "main_handlers": 0,
+          "paired_renderer_transmissions": 0,
+          "ambiguous_renderer_transmissions": 0,
+          "unpaired_literal_renderer_transmissions": 0
+        },
+        "sender_validation_observations": 0,
+        "utility_processes": 0,
+        "resolved_utility_entrypoints": 0,
+        "native_addon_bindings": 0,
+        "resolved_native_addon_bindings": 0
+      },
+      "coverage": {
+        "application": {
+          "status": "complete",
+          "truncated": false,
+          "omitted_count": 0,
+          "limits": []
+        },
+        "semantic": {
+          "status": "unknown",
+          "truncated": false,
+          "omitted_nodes": 0,
+          "omitted_relations": 0,
+          "limits": [],
+          "families": [
+            {
+              "family": "boundary",
+              "status": "partial",
+              "retained_relations": 14,
+              "omitted_relations": 0,
+              "unknown_count": 0
+            },
+            {
+              "family": "call-flow",
+              "status": "partial",
+              "retained_relations": 1521,
+              "omitted_relations": 0,
+              "unknown_count": 705
+            },
+            {
+              "family": "child-process",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": 0,
+              "unknown_count": 0
+            },
+            {
+              "family": "closure",
+              "status": "partial",
+              "retained_relations": 723,
+              "omitted_relations": 0,
+              "unknown_count": 0
+            },
+            {
+              "family": "configuration",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": 0,
+              "unknown_count": 0
+            },
+            {
+              "family": "data-flow",
+              "status": "partial",
+              "retained_relations": 15649,
+              "omitted_relations": 0,
+              "unknown_count": 1305
+            },
+            {
+              "family": "event",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": 0,
+              "unknown_count": 0
+            },
+            {
+              "family": "object-flow",
+              "status": "partial",
+              "retained_relations": 1548,
+              "omitted_relations": 0,
+              "unknown_count": 1942
+            },
+            {
+              "family": "promise-ownership",
+              "status": "partial",
+              "retained_relations": 5,
+              "omitted_relations": 0,
+              "unknown_count": 1
+            },
+            {
+              "family": "request",
+              "status": "partial",
+              "retained_relations": 1,
+              "omitted_relations": 0,
+              "unknown_count": 1
+            },
+            {
+              "family": "resource-lifecycle",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": 0,
+              "unknown_count": 0
+            },
+            {
+              "family": "timer",
+              "status": "partial",
+              "retained_relations": 4,
+              "omitted_relations": 0,
+              "unknown_count": 0
+            }
+          ]
+        },
+        "application_unknowns": 0,
+        "semantic_unknowns": 3954
+      },
+      "limitation_count": 5
+    }
+  },
+  {
+    "file": "permanent-recovered/data.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "analyze_javascript_application",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10556846,
+          "response_code_units_at_least": 10556846,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_a8274cf4b8e67745c40fb7b28a1f8bd6ad7a034fe638c87667534fc4651ec759",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_a8274cf4b8e67745c40fb7b28a1f8bd6ad7a034fe638c87667534fc4651ec759"
+          }
+        }
+      }
+    },
+    "response_bytes": 1596
+  },
+  {
+    "file": "permanent-recovered/export.json",
+    "evidence_id": null,
+    "error": null,
+    "response_bytes": 483
+  },
+  {
+    "file": "permanent-recovered/quests-summary.json",
+    "evidence_id": "ev_523c0f359ed1ea6f1e32681b6f9adc89640dcecb1364b65e282fb17efc1425da",
+    "error": null,
+    "response_bytes": 24594,
+    "summary": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\quests",
+      "format": "directory",
+      "root_artifact_sha256": "1d813bc34aeca88d3ea7387480c8cf02b898d62e75d56dd564da4f0c9a17473a",
+      "statistics": {
+        "relevant_files": 1,
+        "nested_asar_containers": 0,
+        "text_bytes_read": 398673,
+        "invalid_utf8_files": 0,
+        "parsed_javascript_files": 1,
+        "visited_ast_nodes": 109811,
+        "findings": 0,
+        "modules": 0,
+        "parse_failures": 0
+      },
+      "electron": {
+        "browser_windows": 0,
+        "explicit_web_preferences": 0,
+        "preload_entrypoints": 0,
+        "context_bridge_apis": 0,
+        "exposed_api_members": 0,
+        "ipc": {
+          "operations": 0,
+          "literal_channels": 0,
+          "dynamic_channel_operations": 0,
+          "renderer_transmissions": 0,
+          "renderer_listeners": 0,
+          "main_handlers": 0,
+          "paired_renderer_transmissions": 0,
+          "ambiguous_renderer_transmissions": 0,
+          "unpaired_literal_renderer_transmissions": 0
+        },
+        "sender_validation_observations": 0,
+        "utility_processes": 0,
+        "resolved_utility_entrypoints": 0,
+        "native_addon_bindings": 0,
+        "resolved_native_addon_bindings": 0
+      },
+      "coverage": {
+        "application": {
+          "status": "complete",
+          "truncated": false,
+          "omitted_count": 0,
+          "limits": []
+        },
+        "semantic": {
+          "status": "partial",
+          "truncated": true,
+          "omitted_nodes": null,
+          "omitted_relations": null,
+          "limits": [
+            {
+              "name": "semantic_graph_node_ceiling",
+              "value": 100000,
+              "unit": "items"
+            }
+          ],
+          "families": [
+            {
+              "family": "boundary",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "call-flow",
+              "status": "partial",
+              "retained_relations": 5279,
+              "omitted_relations": null,
+              "unknown_count": 3011
+            },
+            {
+              "family": "child-process",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "closure",
+              "status": "partial",
+              "retained_relations": 4555,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "configuration",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "data-flow",
+              "status": "partial",
+              "retained_relations": 8165,
+              "omitted_relations": null,
+              "unknown_count": 4720
+            },
+            {
+              "family": "event",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "object-flow",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 11037
+            },
+            {
+              "family": "promise-ownership",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "request",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "resource-lifecycle",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "timer",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            }
+          ]
+        },
+        "application_unknowns": 0,
+        "semantic_unknowns": 18768
+      },
+      "limitation_count": 5
+    }
+  },
+  {
+    "file": "permanent-recovered/quests.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "analyze_javascript_application",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10553336,
+          "response_code_units_at_least": 10553336,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_2877dc7b8cec6b3e8f548187f64c1c647f6e5d310df3079ef20c68c22d6663d0",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_2877dc7b8cec6b3e8f548187f64c1c647f6e5d310df3079ef20c68c22d6663d0"
+          }
+        }
+      }
+    },
+    "response_bytes": 1596
+  },
+  {
+    "file": "permanent-recovered/scene-summary.json",
+    "evidence_id": "ev_9df5e3999173d030ba1cef0d6019ba06a7e792db903e33e76575c88cb00275e3",
+    "error": null,
+    "response_bytes": 24582,
+    "summary": {
+      "input_path": "C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\scene",
+      "format": "directory",
+      "root_artifact_sha256": "39d5468bde0de3f6e1ff38a6ed21923fa17a213e95237ae8f417afd823cdc3d6",
+      "statistics": {
+        "relevant_files": 1,
+        "nested_asar_containers": 0,
+        "text_bytes_read": 167823,
+        "invalid_utf8_files": 0,
+        "parsed_javascript_files": 1,
+        "visited_ast_nodes": 58030,
+        "findings": 0,
+        "modules": 0,
+        "parse_failures": 0
+      },
+      "electron": {
+        "browser_windows": 0,
+        "explicit_web_preferences": 0,
+        "preload_entrypoints": 0,
+        "context_bridge_apis": 0,
+        "exposed_api_members": 0,
+        "ipc": {
+          "operations": 0,
+          "literal_channels": 0,
+          "dynamic_channel_operations": 0,
+          "renderer_transmissions": 0,
+          "renderer_listeners": 0,
+          "main_handlers": 0,
+          "paired_renderer_transmissions": 0,
+          "ambiguous_renderer_transmissions": 0,
+          "unpaired_literal_renderer_transmissions": 0
+        },
+        "sender_validation_observations": 0,
+        "utility_processes": 0,
+        "resolved_utility_entrypoints": 0,
+        "native_addon_bindings": 0,
+        "resolved_native_addon_bindings": 0
+      },
+      "coverage": {
+        "application": {
+          "status": "complete",
+          "truncated": false,
+          "omitted_count": 0,
+          "limits": []
+        },
+        "semantic": {
+          "status": "partial",
+          "truncated": true,
+          "omitted_nodes": null,
+          "omitted_relations": null,
+          "limits": [
+            {
+              "name": "semantic_graph_node_ceiling",
+              "value": 100000,
+              "unit": "items"
+            }
+          ],
+          "families": [
+            {
+              "family": "boundary",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "call-flow",
+              "status": "partial",
+              "retained_relations": 735,
+              "omitted_relations": null,
+              "unknown_count": 3008
+            },
+            {
+              "family": "child-process",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "closure",
+              "status": "partial",
+              "retained_relations": 3743,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "configuration",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "data-flow",
+              "status": "partial",
+              "retained_relations": 19061,
+              "omitted_relations": null,
+              "unknown_count": 1838
+            },
+            {
+              "family": "event",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "object-flow",
+              "status": "partial",
+              "retained_relations": 1769,
+              "omitted_relations": null,
+              "unknown_count": 4908
+            },
+            {
+              "family": "promise-ownership",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "request",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "resource-lifecycle",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 0
+            },
+            {
+              "family": "timer",
+              "status": "partial",
+              "retained_relations": 0,
+              "omitted_relations": null,
+              "unknown_count": 2
+            }
+          ]
+        },
+        "application_unknowns": 0,
+        "semantic_unknowns": 9756
+      },
+      "limitation_count": 5
+    }
+  },
+  {
+    "file": "permanent-recovered/scene.json",
+    "evidence_id": null,
+    "error": {
+      "code": "resource_constraint",
+      "category": "resource_constraint",
+      "message": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+      "retryable": false,
+      "remediation": {
+        "action": "Export retained session evidence through export_evidence_bundle to a caller-selected path, or use complete CLI JSON output. Tools that accept retained-evidence references can inspect compatible records. The connection remains usable."
+      },
+      "details": {
+        "operation": "analyze_javascript_application",
+        "resource": "transport",
+        "reason": "The operation completed, but its complete MCP response exceeds the stdio response budget. The analysis result was not truncated. Export retained evidence to consume the complete analysis, or use complete CLI JSON output.",
+        "reported_limits": {
+          "boundary": "mcp-response",
+          "default_receive_buffer_bytes": 10485760,
+          "result_budget_bytes": 10484736,
+          "max_string_code_units": 536869864,
+          "response_bytes_at_least": 10560550,
+          "response_code_units_at_least": 10560550,
+          "constraint": "receive-buffer",
+          "evidence_id": "ev_4082d76260eca59f99693d135ffeb05a286c142b0d45d8432f62337353b1a065",
+          "evidence_reference": {
+            "kind": "retained-evidence",
+            "evidence_id": "ev_4082d76260eca59f99693d135ffeb05a286c142b0d45d8432f62337353b1a065"
+          }
+        }
+      }
+    },
+    "response_bytes": 1596
+  },
+  {
+    "retained_bundle": "C:\\Users\\rapha\\tools\\rea\\owner-study-evidence.json",
+    "bytes": 118258055,
+    "sha256": "f9019315f94c8f2d59a81205465e8d80c42e98042a283d0ff7e64ec2cf5e8b49"
+  },
+  {
+    "retained_bundle": "C:\\Users\\rapha\\tools\\rea\\owner-study-features.json",
+    "bytes": 15009420,
+    "sha256": "8cd666c698f0f9ee991d4ae6ecddaf0975d8d492434d10cec815d3051b71a76c"
+  }
+]

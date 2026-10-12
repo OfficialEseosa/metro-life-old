@@ -1,0 +1,13 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"error\":{\"code\":\"unsupported_target\",\"category\":\"unsupported_target\",\"message\":\"Unsupported target for analyze_javascript_application at C:\\\\Users\\\\rapha\\\\Last Night on Maple Street\\\\reference\\\\chunks\\\\296d7_9wj0wna.js: JavaScript application analysis accepts only a directory or an .asar file\",\"retryable\":false,\"remediation\":{\"action\":\"Select an extracted application directory, an app bundle, or an .asar file such as Contents/Resources/app.asar.\"},\"details\":{\"operation\":\"analyze_javascript_application\",\"path\":\"C:\\\\Users\\\\rapha\\\\Last Night on Maple Street\\\\reference\\\\chunks\\\\296d7_9wj0wna.js\",\"reason\":\"JavaScript application analysis accepts only a directory or an .asar file\"}}}"
+      }
+    ],
+    "isError": true
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}

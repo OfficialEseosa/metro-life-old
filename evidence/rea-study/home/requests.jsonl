@@ -1,0 +1,4 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"owner-rea-diagnostic","version":"1.0"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"analyze_javascript_application","arguments":{"input_path":"C:\\Users\\rapha\\tools\\rea\\analysis-inputs\\features\\home-walk","format":"directory"}}}
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"trace_javascript_semantics","arguments":{"query":{"seed":{"kind":"property","name":"pos"},"direction":"backward-provenance"},"application":{"kind":"retained-evidence","evidence_id":"ev_4e8677fc0cfea83cf1fcb67e724f0d82dcbfb55678c3d662e549445e0697f4cb"}}}}

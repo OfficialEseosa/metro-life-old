@@ -1,0 +1,6 @@
+{"level":30,"time":1791766322973,"application":"rea","mode":"mcp","layer":"server","tool":"analyze_javascript_application","durationMs":15041.31,"status":"ok","msg":"MCP tool execution completed"}
+{"level":30,"time":1791766323205,"application":"rea","mode":"mcp","layer":"server","tool":"inspect_analysis_view","durationMs":17.87,"status":"ok","msg":"MCP tool execution completed"}
+{"level":30,"time":1791766335876,"application":"rea","mode":"mcp","layer":"server","tool":"analyze_javascript_application","durationMs":12662.2,"status":"ok","msg":"MCP tool execution completed"}
+{"level":30,"time":1791766335997,"application":"rea","mode":"mcp","layer":"server","tool":"inspect_analysis_view","durationMs":4.79,"status":"ok","msg":"MCP tool execution completed"}
+{"level":30,"time":1791766351489,"application":"rea","mode":"mcp","layer":"server","tool":"analyze_javascript_application","durationMs":15485,"status":"ok","msg":"MCP tool execution completed"}
+{"level":30,"time":1791766351678,"application":"rea","mode":"mcp","layer":"server","tool":"inspect_analysis_view","durationMs":16.49,"status":"ok","msg":"MCP tool execution completed"}

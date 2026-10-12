@@ -1,0 +1,31 @@
+[
+  {
+    "label": "live",
+    "name": "capture_browser_scenario",
+    "arguments": {
+      "browser": {
+        "mode": "launch",
+        "executable_path": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+        "headless": false
+      },
+      "start_url": {
+        "url": "https://lagoslife.app"
+      },
+      "actions": [
+        {
+          "step_id": "passive-load",
+          "action": "wait_for_timeout",
+          "duration_ms": 8000
+        }
+      ],
+      "capture": {
+        "at_end": [
+          "screenshot",
+          "dom",
+          "accessibility",
+          "url"
+        ]
+      }
+    }
+  }
+]
