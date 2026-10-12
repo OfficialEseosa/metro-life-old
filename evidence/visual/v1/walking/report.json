@@ -1,0 +1,209 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "before": {
+        "x": -24.5714,
+        "z": -58.9,
+        "face": 3.141592653589793,
+        "place": "home",
+        "city": "atl",
+        "room": null
+      },
+      "after": {
+        "x": -20.718320000100135,
+        "z": -58.9,
+        "face": 1.5707963267948966,
+        "place": "home",
+        "city": "atl",
+        "room": null
+      },
+      "server": {
+        "x": -20.718320000100135,
+        "z": -58.9,
+        "face": 1.5707963267948966,
+        "place": "street",
+        "city": "atl",
+        "room": null
+      },
+      "invalidTeleport": 409,
+      "moved": {
+        "eye": [
+          -20.718392923945107,
+          9.00000000000001,
+          -46.9
+        ],
+        "target": [
+          -20.718392923945107,
+          1.0000000000000129,
+          -58.9
+        ],
+        "offset": {
+          "enabled": true,
+          "fullWidth": 1280,
+          "fullHeight": 800,
+          "offsetX": 0,
+          "offsetY": -45,
+          "width": 1280,
+          "height": 800
+        }
+      },
+      "overview": {
+        "eye": [
+          100.6862216701371,
+          114.46803032173756,
+          137.7790405804411
+        ],
+        "target": [
+          -0.0023510772933836776,
+          0.00011347817844581154,
+          4.992748744397312
+        ],
+        "offset": {
+          "enabled": true,
+          "fullWidth": 1280,
+          "fullHeight": 800,
+          "offsetX": 0,
+          "offsetY": -45,
+          "width": 1280,
+          "height": 800
+        }
+      },
+      "follow": {
+        "eye": [
+          -23.773815649436752,
+          9.000001101660345,
+          -46.89999807094554
+        ],
+        "target": [
+          -23.77381670117353,
+          0.9999999895557552,
+          -58.89999933261191
+        ],
+        "offset": {
+          "enabled": true,
+          "fullWidth": 1280,
+          "fullHeight": 800,
+          "offsetX": 0,
+          "offsetY": -45,
+          "width": 1280,
+          "height": 800
+        }
+      },
+      "metrics": {
+        "calls": 64,
+        "triangles": 186707,
+        "fps": 56.808095153559385,
+        "p95Ms": 36.30000001192093,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "before": {
+        "x": -24.5714,
+        "z": -58.9,
+        "face": 3.141592653589793,
+        "place": "home",
+        "city": "atl",
+        "room": null
+      },
+      "after": {
+        "x": -21.1769599999249,
+        "z": -58.9,
+        "face": 1.5707963267948966,
+        "place": "home",
+        "city": "atl",
+        "room": null
+      },
+      "server": {
+        "x": -21.469700000000003,
+        "z": -58.9,
+        "face": 1.5707963267948966,
+        "place": "street",
+        "city": "atl",
+        "room": null
+      },
+      "invalidTeleport": 409,
+      "moved": {
+        "eye": [
+          -21.17696805653334,
+          9.00000000000001,
+          -46.9
+        ],
+        "target": [
+          -21.17696805653334,
+          1.0000000000000129,
+          -58.9
+        ],
+        "offset": {
+          "enabled": true,
+          "fullWidth": 375,
+          "fullHeight": 812,
+          "offsetX": 0,
+          "offsetY": -49,
+          "width": 375,
+          "height": 812
+        }
+      },
+      "overview": {
+        "eye": [
+          304.6641079141035,
+          346.3563827018506,
+          416.9080223866722
+        ],
+        "target": [
+          -0.0008943743074191729,
+          0.0000422333654083879,
+          4.997301287950404
+        ],
+        "offset": {
+          "enabled": true,
+          "fullWidth": 375,
+          "fullHeight": 812,
+          "offsetX": 0,
+          "offsetY": -49,
+          "width": 375,
+          "height": 812
+        }
+      },
+      "follow": {
+        "eye": [
+          -24.11863318409262,
+          9.000004102721146,
+          -46.89999435945169
+        ],
+        "target": [
+          -24.118636889241266,
+          0.9999999878391408,
+          -58.899999222920265
+        ],
+        "offset": {
+          "enabled": true,
+          "fullWidth": 375,
+          "fullHeight": 812,
+          "offsetX": 0,
+          "offsetY": -49,
+          "width": 375,
+          "height": 812
+        }
+      },
+      "metrics": {
+        "calls": 63,
+        "triangles": 182509,
+        "fps": 51.38814735799866,
+        "p95Ms": 37.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    }
+  ],
+  "errors": []
+}

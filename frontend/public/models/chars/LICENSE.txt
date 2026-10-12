@@ -1,0 +1,7 @@
+CC0 1.0 Universal
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Quaternius — Ultimate Modular Men and Ultimate Modular Women packs.
+https://quaternius.com/packs/ultimatemodularcharacters.html
+https://quaternius.com/packs/ultimatemodularwomen.html
+Existing optimised GLBs supplied with this repository. Clips/material names retained; runtime clones are recoloured and uniformly scaled.

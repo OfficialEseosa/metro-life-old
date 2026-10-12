@@ -16,10 +16,10 @@ export function Walkways({city}:{city:CityId}){
    }
   }
   for(const d of Object.values(n.homes)){const g=new THREE.PlaneGeometry(5.8,5.2);g.rotateX(-Math.PI/2);b.add(g,'#c9c8b6',d.x,.035,d.z-4.1)}
-  for(const path of n.paths)for(let i=1;i<path.points.length;i++){const a=path.points[i-1],c=path.points[i],dx=c[0]-a[0],dz=c[1]-a[1],g=new THREE.PlaneGeometry(1.15,Math.hypot(dx,dz)+.18);g.rotateX(-Math.PI/2);g.rotateY(Math.atan2(dx,dz));b.add(g,'#d6d1c3',(a[0]+c[0])/2,.045,(a[1]+c[1])/2)}
+  for(const path of n.paths)for(let i=1;i<path.points.length;i++){const a=path.points[i-1],c=path.points[i],dx=c[0]-a[0],dz=c[1]-a[1],g=new THREE.PlaneGeometry(2,Math.hypot(dx,dz)+.18);g.rotateX(-Math.PI/2);g.rotateY(Math.atan2(dx,dz));b.add(g,'#d6d1c3',(a[0]+c[0])/2,.045,(a[1]+c[1])/2)}
   for(const park of Object.values(routes.cities[city].parks))for(const [x,z] of park.benches){
-   b.box(x,.54,z,1.75,.16,.65,'#986449');b.box(x,1.04,z-.28,1.75,.75,.12,'#986449');
-   for(const dx of [-.65,.65])b.box(x+dx,.26,z,.12,.52,.48,'#485358');
+   b.box(x,.39,z,1.75,.12,.65,'#986449');b.box(x,.85,z-.28,1.75,.8,.12,'#986449');
+   for(const dx of [-.65,.65])b.box(x+dx,.18,z,.12,.36,.48,'#485358');
   }
   return b.build()
  },[city])

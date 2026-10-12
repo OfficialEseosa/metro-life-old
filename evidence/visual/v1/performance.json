@@ -1,0 +1,23 @@
+[
+  {
+    "city": "atl",
+    "minFps": 59.28736586240458,
+    "peakCalls": 94,
+    "peakTriangles": 240017,
+    "maxP95ms": 22.900000005960464
+  },
+  {
+    "city": "bay",
+    "minFps": 58.326042578011084,
+    "peakCalls": 90,
+    "peakTriangles": 218669,
+    "maxP95ms": 18.400000005960464
+  },
+  {
+    "city": "nyc",
+    "minFps": 60.278486608057364,
+    "peakCalls": 89,
+    "peakTriangles": 166799,
+    "maxP95ms": 18.5
+  }
+]

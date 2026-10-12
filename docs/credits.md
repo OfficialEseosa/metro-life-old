@@ -1,0 +1,172 @@
+# Asset credits
+
+Every shipped model/texture is inventoried below, including retained assets not currently rendered. Existing kit files came with the owner-supplied repository; source-pack and CC0 declarations were checked against the authors’ official pages on 2026-10-12. File hashes and measured model bounds are in `shared/model-metrics.json` (measurements cover the actively surveyed packs). No Mixamo assets are used. No reference advertisements, dialogue, images or names are game content.
+
+CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/. KayKit’s original licence remains beside the models; Quaternius and Kenney source notices are now retained too. Runtime recolours, uniform scaling, baked crowds and authoring transformations do not change the upstream licence.
+
+Metro Life’s newly authored models/geometry, model textures and procedural effects are dedicated to CC0 by this project. Scripts remain repository code. Landmarks were built from geometric forms using photographic references as information; the reference images themselves are not shipped as game assets. Source/evidence and recognition limits are in `landmarks.md`.
+
+Fonts/code are separate from the 3D art: Geist and Bricolage Grotesque retain their installed OFL notices; Three.js, React, libraries and Game Studio reference skills retain their own permissive software licences. Map data (c) OpenStreetMap contributors, ODbL, https://www.openstreetmap.org/copyright. These are not CC0 model packs.
+
+| Local file (under frontend/public/models) | Author / source | Licence |
+|---|---|---|
+| `streets/road_straight.glb` | Metro Life authored metric street | CC0 1.0 |
+| `vehicles/sedan.glb` | [Kenney Car Kit](https://kenney.nl/assets/car-kit), metre proportions authored in Metro Life | CC0 1.0 |
+| `chars/f_casual.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularwomen.html) | CC0 1.0 |
+| `chars/f_party.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularwomen.html) | CC0 1.0 |
+| `chars/f_smart.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularwomen.html) | CC0 1.0 |
+| `chars/f_street.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularwomen.html) | CC0 1.0 |
+| `chars/f_work.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularwomen.html) | CC0 1.0 |
+| `chars/m_casual.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
+| `chars/m_casual2.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
+| `chars/m_party.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
+| `chars/m_smart.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
+| `chars/m_street.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
+| `chars/m_work.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
+| `kaykit/base.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/base.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/bench.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/bench.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/box_A.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/box_A.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/box_B.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/box_B.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_A.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_A.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_A_withoutBase.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_A_withoutBase.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_B.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_B.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_B_withoutBase.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_B_withoutBase.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_C.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_C.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_C_withoutBase.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_C_withoutBase.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_D.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_D.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_D_withoutBase.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_D_withoutBase.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_E.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_E.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_E_withoutBase.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_E_withoutBase.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_F.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_F.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_F_withoutBase.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_F_withoutBase.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_G.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_G.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_G_withoutBase.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_G_withoutBase.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_H.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_H.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_H_withoutBase.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/building_H_withoutBase.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/bush.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/bush.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_hatchback.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_hatchback.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_police.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_police.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_sedan.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_sedan.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_stationwagon.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_stationwagon.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_taxi.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/car_taxi.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/citybits_texture.png` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/dumpster.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/dumpster.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/firehydrant.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/firehydrant.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_corner.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_corner.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_corner_curved.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_corner_curved.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_junction.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_junction.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_straight.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_straight.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_straight_crossing.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_straight_crossing.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_tsplit.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/road_tsplit.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/streetlight.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/streetlight.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trafficlight_A.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trafficlight_A.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trafficlight_B.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trafficlight_B.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trafficlight_C.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trafficlight_C.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trash_A.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trash_A.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trash_B.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/trash_B.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/watertower.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `kaykit/watertower.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
+| `landmarks/alcatraz.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/aquarium.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/arena.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/benz.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/brooklynBridge.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/capitol.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/centennial.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/empire.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/ferryBuilding.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/fox.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/goldenGate.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/grandCentral.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/high.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/liberty.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/met.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/oneWtc.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/painted-row-lod.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/paintedLadies.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/piedmont.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/ponce.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/resident-lod.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/salesforce.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/sfCityHall.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `world/car/delivery.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
+| `world/car/sedan.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
+| `world/car/suv.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
+| `world/car/taxi.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
+| `world/car/Textures/colormap.png` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
+| `world/car/van.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
+| `world/commercial/building-a.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-b.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-c.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-d.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-e.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-g.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-h.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-k.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-skyscraper-a.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-skyscraper-b.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-skyscraper-c.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/building-skyscraper-e.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/detail-awning-wide.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/detail-overhang.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/detail-parasol-a.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/detail-parasol-b.glb` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/commercial/Textures/colormap.png` | [Kenney](https://kenney.nl/assets/city-kit-commercial) | CC0 1.0 |
+| `world/nature/tree_palmBend.glb` | [Kenney](https://kenney.nl/assets/nature-kit) | CC0 1.0 |
+| `world/nature/tree_palmTall.glb` | [Kenney](https://kenney.nl/assets/nature-kit) | CC0 1.0 |
+| `world/pirate/boat-row-small.glb` | [Kenney](https://kenney.nl/assets/pirate-kit) | CC0 1.0 |
+| `world/pirate/palm-straight.glb` | [Kenney](https://kenney.nl/assets/pirate-kit) | CC0 1.0 |
+| `world/pirate/structure-platform-dock.glb` | [Kenney](https://kenney.nl/assets/pirate-kit) | CC0 1.0 |
+| `world/pirate/structure-roof.glb` | [Kenney](https://kenney.nl/assets/pirate-kit) | CC0 1.0 |
+| `world/pirate/Textures/colormap.png` | [Kenney](https://kenney.nl/assets/pirate-kit) | CC0 1.0 |
+| `world/suburban/building-type-a.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/building-type-c.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/building-type-f.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/building-type-k.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/building-type-m.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/building-type-q.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/building-type-t.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/planter.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/Textures/colormap.png` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/tree-large.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |
+| `world/suburban/tree-small.glb` | [Kenney](https://kenney.nl/assets/city-kit-suburban) | CC0 1.0 |

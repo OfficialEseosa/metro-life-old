@@ -10,6 +10,8 @@ import { nycEast,nycLand } from './cities/nyc'
 import { bayWest,bayEast,bayMarin } from './cities/bay'
 import { suspension } from './metropolitan-models'
 import osm from './city-osm.json'
+import { metricPlacement } from './world-scale'
+import { fitMetricGroups } from './metric-layout'
 import { outsidePlots, outsideBoards } from './economy-sites'
 const noPick=()=>{}
 function inside(x:number,z:number,poly:number[][]){let yes=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])yes=!yes}return yes}
@@ -33,7 +35,7 @@ export function dataFor(city:'nyc'|'bay'){
   if(victorianRows.length>=5||![-1,1].every(a=>[-1,1].every(c=>isLand(x+a*6.5,z+c*2.5)))||!clearSite(x,z,6.5)||victorianRows.some(r=>Math.hypot(r.x-x,r.z-z)<17))continue
   victorianRows.push(p(x,baseHill(x,z)+.1,z,13,4.8,4.5,'#ffffff'))
  }
- const hill=(x:number,z:number)=>{let height=baseHill(x,z);for(const row of victorianRows){const outside=Math.hypot(Math.max(0,Math.abs(x-row.x)-7),Math.max(0,Math.abs(z-row.z)-3)),blend=Math.max(0,1-outside/4);height=height*(1-blend)+(row.y-.1)*blend}return height}
+ const hill=(x:number,z:number)=>{let height=baseHill(x,z);for(const row of victorianRows){const outside=Math.hypot(Math.max(0,Math.abs(x-row.x)-7),Math.max(0,Math.abs(z-row.z)-3)),blend=Math.max(0,1-outside/4);height=height*(1-blend)+(row.y-.1)*blend}for(const home of homeSitesFor(city))height*=THREE.MathUtils.smoothstep(Math.hypot(x-home.x,z-home.z),7,13);return height}
  if(city==='bay')for(let z=-44;z<72;z+=4)for(let x=-94;x<-30;x+=4){
   if(![[0,0],[4,0],[0,4],[4,4]].every(([dx,dz])=>isLand(x+dx,z+dz)))continue
   const a=[x,hill(x,z)+.08,z],c=[x+4,hill(x+4,z)+.08,z],d=[x,hill(x,z+4)+.08,z+4],e=[x+4,hill(x+4,z+4)+.08,z+4]
@@ -92,7 +94,7 @@ export function dataFor(city:'nyc'|'bay'){
  const connectedRoads=roads.filter(r=>!mainRoads.some(m=>Math.hypot(m.x-r.x,m.z-r.z)<3)).concat(mainRoads)
  for(const road of connectedRoads){const dx=Math.sin(road.angle)*road.sz*.5,dz=Math.cos(road.angle)*road.sz*.5;road.y+=hill(road.x,road.z);road.pitch=-Math.atan2(hill(road.x+dx,road.z+dz)-hill(road.x-dx,road.z-dz),road.sz)}
  for(const car of cars)car.y=hill(car.x,car.z)+.08
- return{land:shore.build(),streets:b.build(),homes,blocks,towers,brownstones:selectedBrownstones,victorianRows,trees,cars,roads:connectedRoads}
+ return{hill,land:shore.build(),streets:b.build(),homes,blocks,towers,brownstones:selectedBrownstones,victorianRows,trees,cars,roads:connectedRoads}
 }
 export function MetropolitanFabric({city,night}:{city:'nyc'|'bay';night:boolean}){
  const data=useMemo(()=>dataFor(city),[city])
@@ -103,14 +105,14 @@ export function MetropolitanFabric({city,night}:{city:'nyc'|'bay';night:boolean}
 }
 
 export function metropolitanGroups(data:ReturnType<typeof dataFor>,city:'nyc'|'bay'){
-  const result:Record<string,Placement[]>={},add=(url:string,p:Placement)=>{(result[url]??=[]).push(p)},sample=(p:Placement[],n:number)=>p.filter((_,i)=>Math.floor((i+1)*n/p.length)>Math.floor(i*n/p.length)),soft=(p:Placement)=>({...p,color:'#'+new THREE.Color(p.color).lerp(new THREE.Color('#ffffff'),.4).getHexString(),angle:Math.round((p.x+p.z)/8)%4*Math.PI/2})
-  sample(data.homes,city==='bay'?60:20).forEach((p,i)=>add(city==='bay'&&i%9===0?'world/suburban/building-type-c.glb':'kaykit/building_'+['A','B'][i%2]+'_withoutBase.gltf',soft(p)))
+  const result:Record<string,Placement[]>={},add=(url:string,p:Placement)=>{(result[url]??=[]).push(metricPlacement(url,p))},sample=(p:Placement[],n:number)=>p.filter((_,i)=>Math.floor((i+1)*n/p.length)>Math.floor(i*n/p.length)),soft=(p:Placement)=>({...p,color:'#'+new THREE.Color(p.color).lerp(new THREE.Color('#ffffff'),.4).getHexString(),angle:Math.round((p.x+p.z)/8)%4*Math.PI/2})
+  sample(data.homes,city==='bay'?60:20).forEach((p,i)=>add('kaykit/building_'+['A','B'][i%2]+'_withoutBase.gltf',soft(p)))
   sample(data.blocks,city==='bay'?54:40).forEach((p,i)=>add('kaykit/building_'+(city==='bay'?['A','C','D']:['C','D','E'])[i%3]+'_withoutBase.gltf',soft(p)))
-  sample(data.towers,city==='bay'?14:42).forEach((p,i)=>add('world/commercial/building-skyscraper-'+['a','b','e'][i%3]+'.glb',{...soft(p),sy:Math.min(p.sy,24),angle:p.angle}))
+  sample(data.towers,city==='bay'?14:42).forEach(p=>add('kaykit/building_H_withoutBase.gltf',{...soft(p),sy:Math.min(p.sy,24),angle:p.angle}))
   data.brownstones.forEach(p=>add('kaykit/building_C_withoutBase.gltf',{...p,color:'#'+new THREE.Color(p.color).lerp(new THREE.Color('#ffffff'),.15).getHexString()}))
-  data.victorianRows.forEach(p=>add('landmarks/painted-row-lod.glb',p))
+  data.victorianRows.forEach(p=>{(result['landmarks/painted-row-lod.glb']??=[]).push({...p,scale:1})})
   data.trees.filter((_,i)=>city==='nyc'||i%2===0).forEach((p,i)=>add('world/suburban/tree-'+(i%2?'small':'large')+'.glb',{...p,sx:p.sx*2,sy:p.sy*3,sz:p.sz*2,color:'#f0ffe9'}))
   data.cars.filter((_,i)=>i%(city==='bay'?30:12)===0).forEach((p,i)=>add('kaykit/car_'+(i%2?'sedan':'hatchback')+'.gltf',{...p,sx:.7,sy:.55,sz:1.3,color:'#ffffff'}))
   data.roads.forEach((p,i)=>{add('kaykit/road_straight.gltf',p);if(i%28===0)add('kaykit/streetlight.gltf',{...p,x:p.x+1.5,sx:.8,sy:2.5,sz:.25,pitch:0})})
-  return result
+  return fitMetricGroups(city,result,data.hill)
 }

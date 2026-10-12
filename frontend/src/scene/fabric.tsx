@@ -6,10 +6,12 @@ import { outsideHomes } from './cities'
 import { atlSites } from './cities/atl'
 import { KitInstances } from './kit-models'
 import osm from './atl-osm.json'
+import { metricPlacement } from './world-scale'
+import { fitMetricGroups } from './metric-layout'
 import { outsidePlots, outsideBoards } from './economy-sites'
 
 const noPick = () => {}
-export type Placement = { x: number; y: number; z: number; sx: number; sy: number; sz: number; angle: number; color: string; pitch?:number }
+export type Placement = { x: number; y: number; z: number; sx: number; sy: number; sz: number; angle: number; color: string; pitch?:number; scale?:number }
 
 export function Instances({ geometry, placements, emissive = false, night }: { geometry: THREE.BufferGeometry; placements: Placement[]; emissive?: boolean; night: boolean }) {
   const ref = useRef<THREE.InstancedMesh>(null)
@@ -47,12 +49,12 @@ function fabricData(){
 
 export function kitFabric(){
  const source=fabricData(),groups:Record<string,Placement[]>={}
- const add=(url:string,p:Placement)=>{(groups[url]??=[]).push(p)}
+ const add=(url:string,p:Placement)=>{(groups[url]??=[]).push(metricPlacement(url,p))}
  const sample=(items:Placement[],n:number)=>items.filter((_,i)=>Math.floor((i+1)*n/items.length)>Math.floor(i*n/items.length))
  const gentle=(p:Placement)=>({...p,color:'#'+new THREE.Color(p.color).lerp(new THREE.Color('#ffffff'),.8).getHexString(),angle:Math.round((p.x+p.z)/9)%4*Math.PI/2})
- sample(source.homes,58).forEach((p,i)=>add(i%6===0?'world/suburban/building-type-a.glb':`kaykit/building_${['A','B','C'][i%3]}_withoutBase.gltf`,gentle(p)))
+ sample(source.homes,58).forEach((p,i)=>add(`kaykit/building_${['A','B','C'][i%3]}_withoutBase.gltf`,gentle(p)))
  sample(source.blocks,22).forEach((p,i)=>add(`kaykit/building_${['D','E','F'][i%3]}_withoutBase.gltf`,gentle(p)))
- sample(source.towers.filter(p=>Math.hypot(p.x+12,p.z-4)>29),16).forEach((p,i)=>add(`world/commercial/building-skyscraper-${['a','b','c'][i%3]}.glb`,gentle(p)))
+ sample(source.towers.filter(p=>Math.hypot(p.x+12,p.z-4)>29),16).forEach(p=>add('kaykit/building_H_withoutBase.gltf',gentle(p)))
  source.trees.filter(p=>!(p.x>5&&p.x<35&&p.z>-54&&p.z<-17)&&!(p.x>-27&&p.x<0&&p.z>-12&&p.z<23)).forEach((p,i)=>add(`world/suburban/tree-${i%2?'small':'large'}.glb`,{...p,sx:p.sx*1.8,sy:p.sy*3.2,sz:p.sz*1.8,color:'#efffec'}))
  source.lamps.forEach(p=>add('kaykit/streetlight.gltf',{...p,sx:.8,sy:2.5,sz:.25,color:'#ffffff'}))
  source.cars.forEach((p,i)=>add(`kaykit/car_${i%2?'hatchback':'sedan'}.gltf`,{...p,sx:.7,sy:.6,sz:1.3,color:'#ffffff',angle:i%2?0:Math.PI}))
@@ -69,7 +71,7 @@ export function kitFabric(){
   const count=Math.ceil(length/3.4)
   for(let j=0;j<count;j++){const t=(j+.5)/count,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;if(Math.abs(x)<46&&z>-20&&z<53&&clearRoad(x,z))add('kaykit/road_straight.gltf',{x,y:.025,z,sx:2,sy:.1,sz:length/count,angle,color:'#ffffff'})}
  }
- return groups
+ return fitMetricGroups('atl',groups)
 }
 export function Fabric({night}:{night:boolean}){
  const groups=useMemo(()=>kitFabric(),[])

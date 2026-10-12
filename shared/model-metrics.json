@@ -1,0 +1,1721 @@
+{
+  "chars/f_casual.glb": {
+    "sha256": "5d59a77f224a47fb4b2e6842365724f3db32b8084107333b8ba82c199155e90d",
+    "min": [
+      -0.25107496405741614,
+      -0.008573960705045042,
+      -0.16866576403872954
+    ],
+    "size": [
+      0.5242301751405395,
+      1.8094870795684233,
+      0.6195029820442859
+    ],
+    "triangles": 6424,
+    "materials": [
+      "White",
+      "Skin",
+      "Grey",
+      "Hair_Blond",
+      "Hair_Brown",
+      "Brown",
+      "Orange"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/f_party.glb": {
+    "sha256": "749caf779666a4226f9c6b966579696915d3aad9879a39c27f5dccf35ae287db",
+    "min": [
+      -0.25084179321338956,
+      -0.00010055270524390941,
+      -0.15797255938542878
+    ],
+    "size": [
+      0.534311919926868,
+      1.8002699805527171,
+      0.5933020178840169
+    ],
+    "triangles": 6108,
+    "materials": [
+      "Skin",
+      "Red",
+      "Brown",
+      "LimeGreen",
+      "Gold"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/f_smart.glb": {
+    "sha256": "a2b98dd3ba47b2d8bf10f1c443e9af646d542fd97240c65a44af205c03fb52ec",
+    "min": [
+      -0.25334827399326904,
+      -0.0023338281734162675,
+      -0.16187213790948418
+    ],
+    "size": [
+      0.5402503547341886,
+      1.80308503340599,
+      0.6169384418377711
+    ],
+    "triangles": 6482,
+    "materials": [
+      "Black",
+      "White",
+      "Skin",
+      "Hair_Blond",
+      "Hair_Brown",
+      "Brown"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/f_street.glb": {
+    "sha256": "0bead155b801f61a7aefd90cedfa9e5f2bf72043a0bd950156c9dab2d4d766a3",
+    "min": [
+      -0.2508897376503724,
+      -0.0003169491158093717,
+      -0.16358251869003376
+    ],
+    "size": [
+      0.5096812101007531,
+      1.918671632525224,
+      0.6018840033949885
+    ],
+    "triangles": 5956,
+    "materials": [
+      "Skin",
+      "Pink",
+      "Black",
+      "Grey",
+      "Hair_Brown",
+      "Brown"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/f_work.glb": {
+    "sha256": "861a41809c970cb58978f48022c84f780527652d65bcbeff47e3625a11ce74a8",
+    "min": [
+      -0.2509436356087047,
+      -0.002344311119513846,
+      -0.16187407948128427
+    ],
+    "size": [
+      0.5378457171845796,
+      1.8206948224195874,
+      0.6169403841893709
+    ],
+    "triangles": 6112,
+    "materials": [
+      "Skin",
+      "Worker_Vest",
+      "Worker_Yellow",
+      "White",
+      "Black",
+      "DarkBrown",
+      "Brown",
+      "Brown_02",
+      "Brown2"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/m_casual.glb": {
+    "sha256": "f418cdd6a28d3703d6ed662889affd2da59d70bd579f4d25c95791419221d50a",
+    "min": [
+      -0.27586795420184823,
+      -0.0016004011662994822,
+      -0.1706496162419371
+    ],
+    "size": [
+      0.6068226890700966,
+      1.8234587877274395,
+      0.6426129273687221
+    ],
+    "triangles": 5776,
+    "materials": [
+      "White",
+      "Red_Dark",
+      "LightBrown",
+      "Skin",
+      "Skin_Darker",
+      "Eyebrows",
+      "Eye",
+      "Hair",
+      "LightBlue"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/m_casual2.glb": {
+    "sha256": "96b681139ad58d16cad45765efdb783566924a31e98d17613059108b3828b359",
+    "min": [
+      -0.28513026827510596,
+      -0.0043679766594750995,
+      -0.17108969415411904
+    ],
+    "size": [
+      0.616085001052575,
+      1.8363530675676831,
+      0.6430530030992483
+    ],
+    "triangles": 6206,
+    "materials": [
+      "White",
+      "Purple",
+      "Skin",
+      "LightBlue",
+      "Eyebrows",
+      "Eye",
+      "Hair"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/m_party.glb": {
+    "sha256": "134cf22c5e818a52ed815aafb4b9a3e89d7cc7c398f92ba4b7dc263c487e3f4b",
+    "min": [
+      -0.2758493459720288,
+      -0.0061254636034772224,
+      -0.17025537997718998
+    ],
+    "size": [
+      0.6033687271177292,
+      1.83765953097198,
+      0.6409231415337455
+    ],
+    "triangles": 6574,
+    "materials": [
+      "Skin",
+      "Red_Dark",
+      "White",
+      "LightBrown",
+      "Eyebrows",
+      "Eye",
+      "Hair",
+      "Earrings"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/m_smart.glb": {
+    "sha256": "a9bf04f95de4cfd8e7442956eeb70e86a93bc330f97a928e9490ee91727d0d25",
+    "min": [
+      -0.27491821480872153,
+      -0.0014980739252963239,
+      -0.17109140402309278
+    ],
+    "size": [
+      0.6058729479336308,
+      1.8251039697447042,
+      0.6430547137339434
+    ],
+    "triangles": 6634,
+    "materials": [
+      "Suit",
+      "Black",
+      "White",
+      "Tie",
+      "Skin",
+      "Hair",
+      "Eyebrows",
+      "Eye"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/m_street.glb": {
+    "sha256": "815a30a158520fdd4223b0cf604c018919c78d46ee436dbc559cde119cb3cf40",
+    "min": [
+      -0.27586994784704466,
+      -0.0043860415955171905,
+      -0.1710917656576925
+    ],
+    "size": [
+      0.6068246857559649,
+      1.936213198935155,
+      0.6430550759717829
+    ],
+    "triangles": 5500,
+    "materials": [
+      "Black",
+      "Skin",
+      "LightBlue",
+      "White",
+      "Red_Dark",
+      "Earrings",
+      "Red",
+      "Eyebrows",
+      "Eye"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "chars/m_work.glb": {
+    "sha256": "e3bd85f89e8ed1fd24b163eebd7cfe9df3ffc6b36b1c65efe6fe54a524dd3c90",
+    "min": [
+      -0.27583668363309055,
+      -0.0038682591351191695,
+      -0.16602247596946837
+    ],
+    "size": [
+      0.6067809702613751,
+      1.834017993126668,
+      0.6379678455623309
+    ],
+    "triangles": 5240,
+    "materials": [
+      "Black",
+      "Grey",
+      "Brown2",
+      "Brown",
+      "Worker_Yellow",
+      "Worker_Vest",
+      "LightBrown",
+      "Skin",
+      "Eyebrows",
+      "Eye",
+      "Moustache"
+    ],
+    "clips": [
+      "CharacterArmature|Idle",
+      "CharacterArmature|Idle_Neutral",
+      "CharacterArmature|Interact",
+      "CharacterArmature|Run",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Wave"
+    ]
+  },
+  "kaykit/base.gltf": {
+    "sha256": "ac49eb9d300587172c416f73c7fd709403dc34f432f02ab3e3c9590adc63c21c",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      0.09999998658895493,
+      2
+    ],
+    "triangles": 60,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/bench.gltf": {
+    "sha256": "f3b731470c30ed21d7e03f15d28f1937b3e4881efcca57a48e4c82ae582e51e1",
+    "min": [
+      -0.20000001788139343,
+      0,
+      -0.07500002533197403
+    ],
+    "size": [
+      0.40000003576278687,
+      0.10000002384185791,
+      0.15000005066394806
+    ],
+    "triangles": 44,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/box_A.gltf": {
+    "sha256": "fe1fa867aa6aa2933bbe3d232c8dcedffc68d484019f71544ce191e2c8ddc16c",
+    "min": [
+      -0.10000002384185791,
+      -2.2351741790771484e-8,
+      -0.10000002384185791
+    ],
+    "size": [
+      0.20000004768371582,
+      0.17640116065740585,
+      0.2030770182609558
+    ],
+    "triangles": 32,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/box_B.gltf": {
+    "sha256": "6ad0554fedbc3ad3079cac62668455912bbe59be3b796de3356f2cc4e726e690",
+    "min": [
+      -0.07602937519550323,
+      -1.6993885409988252e-8,
+      -0.07602937519550323
+    ],
+    "size": [
+      0.15205875039100647,
+      0.1696322581237606,
+      0.15439815819263458
+    ],
+    "triangles": 20,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_A.gltf": {
+    "sha256": "d9d21afb847de1c67a643cc34738f0b71d71f6a8926e8fa7f248bb6a434a22ba",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      1.6499998569488525,
+      2
+    ],
+    "triangles": 828,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_A_withoutBase.gltf": {
+    "sha256": "37389d47e4ddec9175c40d41a48e2c1d16a1c44146833ec73fef2710e0b6876e",
+    "min": [
+      -0.6033698320388794,
+      0.09993039071559906,
+      -0.6499999761581421
+    ],
+    "size": [
+      1.2067396640777588,
+      1.5500694662332535,
+      1.4500000476837158
+    ],
+    "triangles": 435,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_B.gltf": {
+    "sha256": "d026df95a16e31d1d50827375db7978099af35eefbb255bf6674855d303fb390",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      1.6499998569488525,
+      2
+    ],
+    "triangles": 1082,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_B_withoutBase.gltf": {
+    "sha256": "69b1e3d91479c8fe3134e385fef567603cecd2423a032f2a11b9f2deb7046458",
+    "min": [
+      -0.8033698201179504,
+      0.09993039071559906,
+      -0.6499999761581421
+    ],
+    "size": [
+      1.6067396402359009,
+      1.5500694662332535,
+      1.2999999523162842
+    ],
+    "triangles": 586,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_C.gltf": {
+    "sha256": "d2477afdb8a68507ab862ede37f47a2a7b74df369290bc57712239214c6ae2c8",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      2.976620674133301,
+      2
+    ],
+    "triangles": 1020,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_C_withoutBase.gltf": {
+    "sha256": "f059362f96617268b7eff7a1f65f853288a79e21316e5793bbc23a0a2e937671",
+    "min": [
+      -0.6033698320388794,
+      0.09993039071559906,
+      -0.6499999761581421
+    ],
+    "size": [
+      1.2067396640777588,
+      2.2500695139169693,
+      1.2999999523162842
+    ],
+    "triangles": 666,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_D.gltf": {
+    "sha256": "1484455bd37ce136e1defb1639f68cf82b7b00f977856b1d9483de9c02760ba3",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      2.9700002670288086,
+      2.020421028137207
+    ],
+    "triangles": 1118,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_D_withoutBase.gltf": {
+    "sha256": "40c07bd5026825a8cf95bf202b702fdb4858ae8a4f2236aa41a9db7a4fdd19ca",
+    "min": [
+      -0.8033698201179504,
+      0.09993039071559906,
+      -0.6499999761581421
+    ],
+    "size": [
+      1.6067396402359009,
+      2.2500695139169693,
+      1.2999999523162842
+    ],
+    "triangles": 848,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_E.gltf": {
+    "sha256": "42905f3038030e27126da1454aaf1e1bff1ad66de34d9c94a9599c709ae5e97d",
+    "min": [
+      -1.0033698081970215,
+      0,
+      -1
+    ],
+    "size": [
+      2.006739616394043,
+      2.3499999046325684,
+      2
+    ],
+    "triangles": 1356,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_E_withoutBase.gltf": {
+    "sha256": "0b2ab5f634eaf0d45ccf5fe585b4a9269f1b8e5b9ab34a412bafca046087e609",
+    "min": [
+      -1.0033698081970215,
+      0.09993039071559906,
+      -0.6499999761581421
+    ],
+    "size": [
+      2.006739616394043,
+      2.2500695139169693,
+      1.4500000476837158
+    ],
+    "triangles": 950,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_F.gltf": {
+    "sha256": "cebfc6df11af7caf712a3f3e0d2c033554355ff7bf7a8b332eb21ebdaaba2aa1",
+    "min": [
+      -1.0033698081970215,
+      0,
+      -1
+    ],
+    "size": [
+      2.006739616394043,
+      2.3499999046325684,
+      2
+    ],
+    "triangles": 1389,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_F_withoutBase.gltf": {
+    "sha256": "7fe97913eb97fe868b440ac4f13ca60f4d36262624526bbcafcef94566016343",
+    "min": [
+      -1.0033698081970215,
+      0.09993039071559906,
+      -0.6499999761581421
+    ],
+    "size": [
+      2.006739616394043,
+      2.2500695139169693,
+      1.2999999523162842
+    ],
+    "triangles": 1097,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_G.gltf": {
+    "sha256": "314dad28b2ef5fdd370534ded457e0381410fe8051687517552b8f1ac43fac11",
+    "min": [
+      -1.0033698081970215,
+      0,
+      -1
+    ],
+    "size": [
+      2.006739616394043,
+      2.9763526916503906,
+      2
+    ],
+    "triangles": 1711,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_G_withoutBase.gltf": {
+    "sha256": "2a2dc998168a01bd34390d6fbb2a273e191c8b6e3258f4f3df09a37465ebf0e1",
+    "min": [
+      -1.0033698081970215,
+      0.09993039071559906,
+      -0.6499999761581421
+    ],
+    "size": [
+      2.006739616394043,
+      2.2500695139169693,
+      1.4500000476837158
+    ],
+    "triangles": 1053,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_H.gltf": {
+    "sha256": "319d8392ba3b1662ca8506cfda7dbecc694a7d60268e20a136cdeecbe472d6d2",
+    "min": [
+      -1.0033698081970215,
+      0,
+      -1
+    ],
+    "size": [
+      2.006739616394043,
+      3.049999952316284,
+      2
+    ],
+    "triangles": 1885,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/building_H_withoutBase.gltf": {
+    "sha256": "51d6e3ecb8d12703163c806193787bff9c034931733ca7cd497568c1d62f1793",
+    "min": [
+      -1.0033698081970215,
+      0.09993039071559906,
+      -0.6499999761581421
+    ],
+    "size": [
+      2.006739616394043,
+      2.950069561600685,
+      1.2999999523162842
+    ],
+    "triangles": 1333,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/bush.gltf": {
+    "sha256": "b1de478b23e6bcfd08d6c070440582195839f66dfd3afc123118fb6298483183",
+    "min": [
+      -0.08946483582258224,
+      0,
+      -0.09955329447984695
+    ],
+    "size": [
+      0.18936064839363098,
+      0.38052958250045776,
+      0.1990933120250702
+    ],
+    "triangles": 72,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/car_hatchback.gltf": {
+    "sha256": "e38be3dbdfbc95b0e794fc5c8164b2ff658b2dc5049b51d38179d16a9432b4f3",
+    "min": [
+      -0.20947551727294922,
+      -0.0610429048538208,
+      -0.39533495903015137
+    ],
+    "size": [
+      0.41896088421344757,
+      0.3687642216682434,
+      0.8060729503631592
+    ],
+    "triangles": 1194,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/car_police.gltf": {
+    "sha256": "c6f1f85c2a8f56ec0abb76deac13486d42399c6d23868e5e524a090fce652d12",
+    "min": [
+      -0.20947551727294922,
+      -0.0610429048538208,
+      -0.47233495116233826
+    ],
+    "size": [
+      0.41896088421344757,
+      0.41263529658317566,
+      0.9380729794502258
+    ],
+    "triangles": 1316,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/car_sedan.gltf": {
+    "sha256": "96c9d38e682bc2c77470af09d1a7450208559ca652bf2cf6fd2bc20b8646ef59",
+    "min": [
+      -0.20947551727294922,
+      -0.0610429048538208,
+      -0.47233495116233826
+    ],
+    "size": [
+      0.41896088421344757,
+      0.3687642216682434,
+      0.9380729794502258
+    ],
+    "triangles": 1222,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/car_stationwagon.gltf": {
+    "sha256": "49f7e2bdb70183214a3e8d8576e420ebb69520b21db81dddfc6a04e1ed8994fd",
+    "min": [
+      -0.20947551727294922,
+      -0.0610429048538208,
+      -0.47233495116233826
+    ],
+    "size": [
+      0.41896088421344757,
+      0.3687642216682434,
+      0.9380729794502258
+    ],
+    "triangles": 1234,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/car_taxi.gltf": {
+    "sha256": "781b3265473dab6f7e054f06c23abeba9b811516b19b61a7a88b0aa8d33e1323",
+    "min": [
+      -0.20947551727294922,
+      -0.0610429048538208,
+      -0.47233495116233826
+    ],
+    "size": [
+      0.41896088421344757,
+      0.4344717860221863,
+      0.9380729794502258
+    ],
+    "triangles": 1256,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/dumpster.gltf": {
+    "sha256": "56353a02aa70f61ea0f94f5806c66f489b2949b64db0611b5ccf2b500c815cb9",
+    "min": [
+      -0.2829735279083252,
+      0,
+      -0.17639896273612976
+    ],
+    "size": [
+      0.5659470558166504,
+      0.317278653383255,
+      0.3527979254722595
+    ],
+    "triangles": 126,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/firehydrant.gltf": {
+    "sha256": "0a3f9fb95e8b4805602ad26050ee552408553682b41f3e54981a69dfa92a7f3b",
+    "min": [
+      -0.06774556636810303,
+      6.705522537231445e-8,
+      -0.06509828567504883
+    ],
+    "size": [
+      0.13549518585205078,
+      0.2245950624346733,
+      0.13132071495056152
+    ],
+    "triangles": 180,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/road_corner.gltf": {
+    "sha256": "592dadb7a6e81e2c5c2415d5e3872eaccece0c71ff1e34bb3ced06ceed4ce149",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      0.09999997913837433,
+      2
+    ],
+    "triangles": 152,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/road_corner_curved.gltf": {
+    "sha256": "92a3a77292b6f2cc75accd7b0340d98805377925cd0c9593661bcbf541913e88",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      0.09999997913837433,
+      2
+    ],
+    "triangles": 172,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/road_junction.gltf": {
+    "sha256": "28ea556cf76cf3efd38b62c3610a338bca46ff8e25c336406821c85cf58b7c6b",
+    "min": [
+      -1,
+      0,
+      -1.000000238418579
+    ],
+    "size": [
+      2,
+      0.09999997913837433,
+      2.000000238418579
+    ],
+    "triangles": 170,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/road_straight.gltf": {
+    "sha256": "35c74b311a04e5682dfc7fc823867aa53de1cc19b86fa801730496ee69b52e68",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      0.09999999403953552,
+      2
+    ],
+    "triangles": 58,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/road_straight_crossing.gltf": {
+    "sha256": "7df128514884a9356404fa3b42b10816a6dec8a211bc22233372cdbb7e1e71a9",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      0.09999999403953552,
+      2
+    ],
+    "triangles": 64,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/road_tsplit.gltf": {
+    "sha256": "dcdf1facedbd82419b9d0533f327bcf0b66ad74ced86c63d5151244a9cec812f",
+    "min": [
+      -1,
+      0,
+      -1
+    ],
+    "size": [
+      2,
+      0.09999997913837433,
+      2
+    ],
+    "triangles": 138,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/streetlight.gltf": {
+    "sha256": "4399e9023844319e0f74311779a2c0ebecacec16f5dfd8123b6141a3af903c6a",
+    "min": [
+      -0.2392103672027588,
+      0.000009156763553619385,
+      -0.034511469304561615
+    ],
+    "size": [
+      0.2693069577217102,
+      0.9599148258566856,
+      0.06902249157428741
+    ],
+    "triangles": 176,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/trafficlight_A.gltf": {
+    "sha256": "4a22f6fc11fcafd61b2272e675a20437d3c69003ae63002980a903a215941b15",
+    "min": [
+      -0.13457560539245605,
+      0.000009156763553619385,
+      -0.03985767439007759
+    ],
+    "size": [
+      0.17443180084228516,
+      0.7294858917593956,
+      0.1505678854882717
+    ],
+    "triangles": 508,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/trafficlight_B.gltf": {
+    "sha256": "a7b9369e3cad7b58a0914a885a14d477c402295fc7d89b26280b4f77b742e28b",
+    "min": [
+      -0.2392103672027588,
+      0.000009156763553619385,
+      -0.03985767439007759
+    ],
+    "size": [
+      0.2790665626525879,
+      0.9599148258566856,
+      0.1505678854882717
+    ],
+    "triangles": 636,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/trafficlight_C.gltf": {
+    "sha256": "1453697f533323bcf661d59842850a3054ac0bee3d3e7cd8e1ea5e2d627de226",
+    "min": [
+      -0.7640303373336792,
+      0.000009156763553619385,
+      -0.1370096057653427
+    ],
+    "size": [
+      0.797736644744873,
+      0.9694854244589806,
+      0.271585613489151
+    ],
+    "triangles": 444,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/trash_A.gltf": {
+    "sha256": "dcd3a27821a9d8a781a40a393e167d51c1cdb743edf95edc59236fe32238b464",
+    "min": [
+      -0.060088641941547394,
+      0,
+      -0.0666484460234642
+    ],
+    "size": [
+      0.12677377462387085,
+      0.052376944571733475,
+      0.1332968920469284
+    ],
+    "triangles": 18,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/trash_B.gltf": {
+    "sha256": "6b549af074a24a1d2dd916af53d33d71d251b9e7e004de67294da02d336754e3",
+    "min": [
+      -0.026508506387472153,
+      0,
+      -0.032371584326028824
+    ],
+    "size": [
+      0.06806180998682976,
+      0.04039031267166138,
+      0.07084156945347786
+    ],
+    "triangles": 18,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "kaykit/watertower.gltf": {
+    "sha256": "55ae59f2a21ad38c64312a4c00d6808dc486bf4a8e8a8c969bc9e26cdc84d8f3",
+    "min": [
+      -0.24944308400154114,
+      -9.387731552124023e-7,
+      -0.24944308400154114
+    ],
+    "size": [
+      0.4988861531019211,
+      0.6700010150671005,
+      0.4988861531019211
+    ],
+    "triangles": 146,
+    "materials": [
+      "citybits_texture"
+    ],
+    "clips": []
+  },
+  "world/suburban/building-type-a.glb": {
+    "sha256": "49f32e20b9dcd24b1c8f6d6488807b8c8cb684cbb595bfb0bb36ad903e470faa",
+    "min": [
+      -0.6499999761581421,
+      0,
+      -0.5140689015388489
+    ],
+    "size": [
+      1.2999999523162842,
+      0.8335409760475159,
+      1.0281378030776978
+    ],
+    "triangles": 1174,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/building-type-c.glb": {
+    "sha256": "86a69f30f1a09461283e158514945ae5cc9d56357b0ddc83a9a3f0eecd113591",
+    "min": [
+      -0.6431901454925537,
+      0,
+      -0.5140689015388489
+    ],
+    "size": [
+      1.2863802909851074,
+      1.033540964126587,
+      1.0281378030776978
+    ],
+    "triangles": 1196,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/building-type-f.glb": {
+    "sha256": "6f778f50d7f03c86f9a018e428cf8ffdd9e918df09954c0651d1c9559584a22b",
+    "min": [
+      -0.7139999866485596,
+      0,
+      -0.7029455900192261
+    ],
+    "size": [
+      1.428000032901764,
+      1.1375000476837158,
+      1.405891239643097
+    ],
+    "triangles": 1616,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/building-type-k.glb": {
+    "sha256": "c1b819a526bbcf9663bc40c98e22337cded7fff7c50c14679132d5d98d75f583",
+    "min": [
+      -0.46046897768974304,
+      0,
+      -0.5099999904632568
+    ],
+    "size": [
+      0.9209379851818085,
+      1.1495962142944336,
+      1.0199999809265137
+    ],
+    "triangles": 1024,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/building-type-m.glb": {
+    "sha256": "36d31f4e45498f6229805b6a7a1577ef00230daeea4c6a4469481e9d5a0fdb7c",
+    "min": [
+      -0.7140000462532043,
+      0,
+      -0.7140000462532043
+    ],
+    "size": [
+      1.4280000925064087,
+      0.7374999523162842,
+      1.428000032901764
+    ],
+    "triangles": 1112,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/building-type-q.glb": {
+    "sha256": "9b56037cab0de804e308766cc5e69b95b3576ffb444084c9016a0748cbcaca04",
+    "min": [
+      -0.6200000047683716,
+      -8.823155091021372e-19,
+      -0.4220000207424164
+    ],
+    "size": [
+      1.2400000095367432,
+      0.9179999828338623,
+      0.8855879306793213
+    ],
+    "triangles": 1140,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/building-type-t.glb": {
+    "sha256": "3b729b473fc995a632ebc4d96cc8f18ef9d43bdc1a6c26010a02ec0b298c34e7",
+    "min": [
+      -0.6635879278182983,
+      0,
+      -0.7031901478767395
+    ],
+    "size": [
+      1.3135879039764404,
+      1.1563305854797363,
+      1.406380295753479
+    ],
+    "triangles": 2062,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/planter.glb": {
+    "sha256": "a876e87d908f0397dcaf94b7705835447825c4c5b39195319535415386542c17",
+    "min": [
+      -0.20000000298023224,
+      0,
+      -0.15057337284088135
+    ],
+    "size": [
+      0.4000000059604645,
+      0.17710953950881958,
+      0.29999999701976776
+    ],
+    "triangles": 204,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/tree-large.glb": {
+    "sha256": "16d1f95c149bc727a953a473cf20bf21de9bf1a88747c4f9d2eeb4ac7d43e291",
+    "min": [
+      -0.10522209107875824,
+      0,
+      -0.12149999290704727
+    ],
+    "size": [
+      0.21044418215751648,
+      0.7669999599456787,
+      0.24299998581409454
+    ],
+    "triangles": 42,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/suburban/tree-small.glb": {
+    "sha256": "5f63359e5f392609d7617cc98070855ca1ffd4f4b4bc3978a5ff56ece88a58d6",
+    "min": [
+      -0.10522209107875824,
+      0,
+      -0.12149999290704727
+    ],
+    "size": [
+      0.21044418215751648,
+      0.5670000314712524,
+      0.24299998581409454
+    ],
+    "triangles": 42,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-a.glb": {
+    "sha256": "5cf220f90ee3f21e7abe38055ca409a48aa8ef1d5ffab6e2deb99e5a5e1ed5e0",
+    "min": [
+      -0.44179391860961914,
+      0,
+      -0.4699999690055847
+    ],
+    "size": [
+      0.8835878968238831,
+      1.2929999828338623,
+      0.9399999976158142
+    ],
+    "triangles": 1252,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-b.glb": {
+    "sha256": "3b5d3ac0799c024781d92bb15971d42f4f8e380554dc5cf6a40c2f07d948947a",
+    "min": [
+      -0.48500001430511475,
+      0,
+      -0.4699999690055847
+    ],
+    "size": [
+      0.9700000882148743,
+      1.2929999828338623,
+      0.9399999976158142
+    ],
+    "triangles": 1276,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-c.glb": {
+    "sha256": "f6887608a95a165503561730252c30506938803731c6546efca12bd47b1666bd",
+    "min": [
+      -0.44179391860961914,
+      0,
+      -0.5450000166893005
+    ],
+    "size": [
+      0.8835878968238831,
+      0.8930000066757202,
+      1.0900000929832458
+    ],
+    "triangles": 1195,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-d.glb": {
+    "sha256": "40605608e9aca0c98e294acff4af0f74afa417a51d589be490ca98f33ce4c2f5",
+    "min": [
+      -0.41999998688697815,
+      0,
+      -0.4500000476837158
+    ],
+    "size": [
+      0.8400000333786011,
+      1.2929999828338623,
+      0.8999998569488525
+    ],
+    "triangles": 1100,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-e.glb": {
+    "sha256": "edbe5b49858a3c83e72d3cf496129c06082ef3a3d6005769f8883138e275b456",
+    "min": [
+      -0.8199999928474426,
+      0,
+      -0.5039456486701965
+    ],
+    "size": [
+      1.64000004529953,
+      0.8930000066757202,
+      1.0078915357589722
+    ],
+    "triangles": 1509,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-g.glb": {
+    "sha256": "9a28fa2fdfac07492ee95589882213cfd6eb32d6752cb3b2f5404604c676d27a",
+    "min": [
+      -0.48500001430511475,
+      0,
+      -0.460999995470047
+    ],
+    "size": [
+      0.9700000286102295,
+      1.693000078201294,
+      0.9220001995563507
+    ],
+    "triangles": 2006,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-h.glb": {
+    "sha256": "6881613ce218bb33a0f56137d4d33b00d307c47e518fbb21ccba1083efbea896",
+    "min": [
+      -0.44179391860961914,
+      0,
+      -0.5039456486701965
+    ],
+    "size": [
+      0.8835878372192383,
+      1.2929999828338623,
+      1.0078911185264587
+    ],
+    "triangles": 1512,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-k.glb": {
+    "sha256": "afd36f573b9d6a6a890675aa0fbe762b29efb6258f322990752d79d9f0da42c6",
+    "min": [
+      -1.041793942451477,
+      0,
+      -0.47099998593330383
+    ],
+    "size": [
+      2.0835880041122437,
+      1.4700000286102295,
+      0.9419997930526733
+    ],
+    "triangles": 2960,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-skyscraper-a.glb": {
+    "sha256": "d8339bbb75944ff91d1ec9a70ec6dead71bd98b94a42d3dd0fc1f3b107ddbe85",
+    "min": [
+      -0.680000364780426,
+      0,
+      -0.6800000667572021
+    ],
+    "size": [
+      1.3599997758865356,
+      2.879999876022339,
+      1.3600001335144043
+    ],
+    "triangles": 1292,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-skyscraper-b.glb": {
+    "sha256": "3a383e8a0a8819023d30b2aee1c6f40fa6bc28990227a306a86e531f36c6b8d5",
+    "min": [
+      -0.6800006031990051,
+      0,
+      -0.6799999475479126
+    ],
+    "size": [
+      1.3599997758865356,
+      4.480000019073486,
+      1.35999995470047
+    ],
+    "triangles": 1592,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-skyscraper-c.glb": {
+    "sha256": "e73c357554f7561fedb8c1cbecf9d7163ba09ada264d661c59a0f0a180e0185f",
+    "min": [
+      -0.6399999856948853,
+      0,
+      -0.6939456462860107
+    ],
+    "size": [
+      1.2799996733665466,
+      4.079999923706055,
+      1.3878913521766663
+    ],
+    "triangles": 1704,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/building-skyscraper-e.glb": {
+    "sha256": "21b58a2f2b18d6a7cf8915e8b947bdb6a6a0706da6cffb5a01677c29f03b5935",
+    "min": [
+      -0.6474997997283936,
+      0,
+      -0.6210000514984131
+    ],
+    "size": [
+      1.2949998378753662,
+      4.079999923706055,
+      1.2420002222061157
+    ],
+    "triangles": 1156,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/detail-awning-wide.glb": {
+    "sha256": "d37ba34be414cef84db966e548e2c558088aec3fdf68763565b9caf95c11ac5f",
+    "min": [
+      -0.4000000059604645,
+      -2.707167856703783e-16,
+      0.09999999403953552
+    ],
+    "size": [
+      0.800000011920929,
+      0.40000000596046476,
+      0.1478913128376007
+    ],
+    "triangles": 40,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/detail-overhang.glb": {
+    "sha256": "291b00c1f698296b50cf25c393777eee9547a4aa0f912efe73cb9789d104ba2b",
+    "min": [
+      -0.25,
+      -3.1591686090528296e-18,
+      0.05000000447034836
+    ],
+    "size": [
+      0.5,
+      0.4000000059604645,
+      0.19999999552965164
+    ],
+    "triangles": 64,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/detail-parasol-a.glb": {
+    "sha256": "70e636bea8dc67c3bfd19b163333e824356118458c8c401017322ec43c10a7f7",
+    "min": [
+      -0.17320507764816284,
+      0,
+      -0.20000000298023224
+    ],
+    "size": [
+      0.3464101552963257,
+      0.45000001788139343,
+      0.4000000059604645
+    ],
+    "triangles": 96,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/commercial/detail-parasol-b.glb": {
+    "sha256": "2d58c1d16df16f618afd9f7fd9f13e82791c50cd7cd77edaa493fbdd09e708d2",
+    "min": [
+      -0.17320507764816284,
+      0,
+      -0.20000000298023224
+    ],
+    "size": [
+      0.3464101552963257,
+      0.45000001788139343,
+      0.4000000059604645
+    ],
+    "triangles": 120,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/car/delivery.glb": {
+    "sha256": "426a3e3a2c242c05c889b1445ba02ef95b2c8b7cd6f597e1275ef736a826014b",
+    "min": [
+      -0.75,
+      -1.1920928966180355e-8,
+      -1.6499998807907104
+    ],
+    "size": [
+      1.5,
+      1.6499998927116393,
+      3.249999761581421
+    ],
+    "triangles": 2476,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/car/sedan.glb": {
+    "sha256": "b532ea7d2c59f7f6b22b138cf1955218a2c1898f1cea932af4d3fd563c3959b7",
+    "min": [
+      -0.75,
+      -1.1920928966180355e-8,
+      -1.299999976158142
+    ],
+    "size": [
+      1.5,
+      1.299999988079071,
+      2.549999952316284
+    ],
+    "triangles": 2032,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/car/suv.glb": {
+    "sha256": "9df31f6e89e927a8176fc792aa125f0b19dc1ba29d2025bfef7c4f4d6ab1778a",
+    "min": [
+      -0.75,
+      -1.1920928966180355e-8,
+      -1.3499999305371886
+    ],
+    "size": [
+      1.5,
+      1.3000000357627868,
+      2.6999999543790434
+    ],
+    "triangles": 2474,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/car/taxi.glb": {
+    "sha256": "3803539718ffd3b84b515dbce8ed6b489f1ff5be58edb1903d2c5db5c584bdc7",
+    "min": [
+      -0.75,
+      -1.1920928966180355e-8,
+      -1.3999998807907104
+    ],
+    "size": [
+      1.5,
+      1.4999999165534972,
+      2.749999761581421
+    ],
+    "triangles": 2072,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/car/van.glb": {
+    "sha256": "ed4ed56e8e5ed98db050af09ed2062b3b6bb7b93eab1e563cb6774b387b233a1",
+    "min": [
+      -0.75,
+      -1.1920928966180355e-8,
+      -1.4000001192092895
+    ],
+    "size": [
+      1.5,
+      1.349999988079071,
+      2.750000238418579
+    ],
+    "triangles": 2082,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "world/nature/tree_palmBend.glb": {
+    "sha256": "8af9dae16ce3c03183f9457996ebdd135167199514e8f4f944ee2bd82828d5c9",
+    "min": [
+      -0.467744857,
+      -0.05,
+      -0.50638175
+    ],
+    "size": [
+      0.935489714,
+      1.37991071,
+      1.0127635
+    ],
+    "triangles": 200,
+    "materials": [
+      "leafsGreen",
+      "woodBark"
+    ],
+    "clips": []
+  },
+  "world/nature/tree_palmTall.glb": {
+    "sha256": "cbd2c2ea7d0316be7514d44699527c566ce91e0542e8b6c6bf431a155e5655f6",
+    "min": [
+      -0.5171644,
+      -0.05,
+      -0.514597654
+    ],
+    "size": [
+      1.034329167,
+      1.355659,
+      1.034329154
+    ],
+    "triangles": 190,
+    "materials": [
+      "leafsGreen",
+      "woodBark"
+    ],
+    "clips": []
+  },
+  "vehicles/sedan.glb": {
+    "sha256": "94624067126cf63f7c8ce13a433034c76dc2c8f6b1146c5085fe1744cfb9d075",
+    "min": [
+      -0.8999999761581421,
+      0,
+      -2.200000047683716
+    ],
+    "size": [
+      1.7999999523162842,
+      1.4500000476837158,
+      4.400000095367432
+    ],
+    "triangles": 2032,
+    "materials": [
+      "colormap"
+    ],
+    "clips": []
+  },
+  "streets/road_straight.glb": {
+    "sha256": "8413142142e873260a0046be2b9a76c7683a979d1998ff5ce15cb0d8626f18a1",
+    "min": [
+      -5.199999809265137,
+      -0.07999999821186066,
+      -3.200000047683716
+    ],
+    "size": [
+      10.399999618530273,
+      0.23549998551607132,
+      6.400000095367432
+    ],
+    "triangles": 156,
+    "materials": [
+      "street-colours"
+    ],
+    "clips": []
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "city": "atl",
+    "comparisons": 400,
+    "maxErrorMetres": 1.6486811915683575e-14,
+    "lookupMillisecondsPer400Samples": 0.28927900000000134
+  },
+  {
+    "city": "nyc",
+    "comparisons": 400,
+    "maxErrorMetres": 1.4210854715202004e-14,
+    "lookupMillisecondsPer400Samples": 0.4788619999999992
+  },
+  {
+    "city": "bay",
+    "comparisons": 400,
+    "maxErrorMetres": 1.84297022087776e-14,
+    "lookupMillisecondsPer400Samples": 0.40698599999999713
+  }
+]

@@ -1,0 +1,7 @@
+CC0 1.0 Universal
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Kenney — City Kit Suburban, City Kit Commercial, Car Kit, Pirate Kit and Nature Kit.
+https://kenney.nl/assets
+https://kenney.nl/support
+Existing optimised GLBs supplied with this repository.

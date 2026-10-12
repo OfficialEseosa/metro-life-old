@@ -15,8 +15,8 @@ export function KitInstances({url,placements,shadow=true,night=false,drive}:{url
  useLayoutEffect(()=>{gl.shadowMap.needsUpdate=true;invalidate()},[scene,gl,invalidate])
  const batches=useMemo(()=>{
   scene.updateMatrixWorld(true)
-  const bounds=new THREE.Box3().setFromObject(scene),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3())
-  const normalize=new THREE.Matrix4().makeScale(1/(size.x||1),1/(size.y||1),1/(size.z||1)).multiply(new THREE.Matrix4().makeTranslation(-center.x,-bounds.min.y,-center.z))
+  const bounds=new THREE.Box3().setFromObject(scene),center=bounds.getCenter(new THREE.Vector3())
+  const normalize=new THREE.Matrix4().makeTranslation(-center.x,-bounds.min.y,-center.z)
   const groups=new Map<string,{parts:THREE.BufferGeometry[];material:THREE.MeshStandardMaterial}>()
   scene.traverse(o=>{if(!(o instanceof THREE.Mesh))return
    const source=(Array.isArray(o.material)?o.material[0]:o.material) as THREE.MeshStandardMaterial
@@ -48,9 +48,9 @@ function KitBatch({geometry,material,placements,shadow,night,drive}:{geometry:TH
  const ref=useRef<THREE.InstancedMesh>(null)
  const {invalidate}=useThree(),dummy=useMemo(()=>new THREE.Object3D(),[])
  useEffect(()=>{if(!drive)return;const timer=setInterval(()=>{if(!document.hidden)invalidate()},1000/30);return()=>clearInterval(timer)},[drive,invalidate])
- useFrame(({clock})=>{if(!drive||!ref.current)return;drive.forEach((r,i)=>{const dx=r.ex-r.x,dz=r.ez-r.z,length=Math.hypot(dx,dz),t=((clock.elapsedTime*(2.4+i*.15)+i*7)%(2*length))/length,back=t>1,f=back?2-t:t,p=placements[i];dummy.position.set(r.x+dx*f,r.y+(r.ey-r.y)*f,r.z+dz*f);dummy.rotation.set(0,Math.atan2(dx,dz)+(back?Math.PI:0),0);dummy.scale.set(p.sx,p.sy,p.sz);dummy.updateMatrix();ref.current!.setMatrixAt(i,dummy.matrix)});ref.current.instanceMatrix.needsUpdate=true;ref.current.computeBoundingSphere()})
+ useFrame(({clock})=>{if(!drive||!ref.current)return;drive.forEach((r,i)=>{const dx=r.ex-r.x,dz=r.ez-r.z,length=Math.hypot(dx,dz),t=((clock.elapsedTime*(2.4+i*.15)+i*7)%(2*length))/length,back=t>1,f=back?2-t:t,p=placements[i];dummy.position.set(r.x+dx*f,r.y+(r.ey-r.y)*f,r.z+dz*f);dummy.rotation.set(0,Math.atan2(dx,dz)+(back?Math.PI:0),0);dummy.scale.setScalar(p.scale??1);dummy.updateMatrix();ref.current!.setMatrixAt(i,dummy.matrix)});ref.current.instanceMatrix.needsUpdate=true;ref.current.computeBoundingSphere()})
 
- useLayoutEffect(()=>{const m=ref.current!,d=new THREE.Object3D();placements.forEach((p,i)=>{d.position.set(p.x,p.y,p.z);d.rotation.set(p.pitch??0,p.angle,0);d.scale.set(p.sx,p.sy,p.sz);d.updateMatrix();m.setMatrixAt(i,d.matrix);m.setColorAt(i,new THREE.Color(p.color))});m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.computeBoundingSphere();m.updateMatrix();m.matrixAutoUpdate=false},[placements])
+ useLayoutEffect(()=>{const m=ref.current!,d=new THREE.Object3D();placements.forEach((p,i)=>{d.position.set(p.x,p.y,p.z);d.rotation.set(p.pitch??0,p.angle,0);d.scale.setScalar(p.scale??1);d.updateMatrix();m.setMatrixAt(i,d.matrix);m.setColorAt(i,new THREE.Color(p.color))});m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.computeBoundingSphere();m.updateMatrix();m.matrixAutoUpdate=false},[placements])
  useLayoutEffect(()=>{material.emissive.set(night?'#243c50':'#000000');material.emissiveIntensity=night?.12:0;if(material.userData.windowNight)material.userData.windowNight.value=night?1:0},[material,night])
  return <instancedMesh name={drive?"driving-cars":undefined} ref={ref} args={[geometry,material,placements.length]} castShadow={shadow} receiveShadow raycast={noPick}/>
 }
