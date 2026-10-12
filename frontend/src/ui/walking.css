@@ -9,3 +9,12 @@
 
 .is-playing .first-job-cue{display:none}.is-playing .overview-button{top:20px;right:280px;bottom:auto}
 @media(max-width:700px){.is-playing .overview-button{top:calc(142px + env(safe-area-inset-top));right:12px;bottom:auto}}
+
+.room-curtain{position:fixed;inset:0;background:#17352d;z-index:39;pointer-events:none;animation:room-fade .45s ease-out both}.walking-payoff{position:absolute;left:0;bottom:0;transform:translateX(-50%);white-space:nowrap;padding:8px 12px;background:#fff4d9;color:#234d3a;border-radius:14px;box-shadow:0 3px 12px #1b362b30;animation:walking-payoff 2.4s ease-out forwards}.walking-payoff b{display:block;font-size:23px}.walking-payoff small{display:block;font-size:12px;font-weight:650}@keyframes room-fade{0%,30%{opacity:1}100%{opacity:0}}@keyframes walking-payoff{0%{opacity:0;translate:0 12px}15%,65%{opacity:1}100%{opacity:0;translate:0 -42px}}.metro-hud .walk-help button{color:#fff}
+
+@media(min-width:701px){.walk-status{top:140px}}
+@media(max-width:700px){.is-playing:has(.walk-interact) .result-toast{bottom:250px!important;left:14px;right:14px;padding:8px}.is-playing:has(.walk-interact) .result-toast p{display:none}.is-playing:has(.walk-interact) .result-toast strong{font-size:18px}}
+
+.metro-hud .walk-interact small{color:#fff5d6;opacity:1;border:1px solid #fff5d677;border-radius:5px;padding:1px 6px;margin-top:3px}.is-inside .overview-button{display:none}.is-inside .city-controls select{display:none}
+
+@media(max-width:700px){.is-playing:has(.walk-interact) .idle-progress{bottom:250px;right:14px}.is-playing .walk-status{top:calc(120px + env(safe-area-inset-top))}}

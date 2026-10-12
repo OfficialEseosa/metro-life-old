@@ -22,7 +22,7 @@ class ProgressionTests {
         refresh();String city=sim().path("city").asText(),loc=sim().path("job").path("loc").asText();
         ObjectNode w=game.world(game.session(token,true));w.put("startedAt",now-4*60000); // 08:00 + four game hours
         String action="shift-"+track;for(JsonNode a:content.landmark(city,loc).path("actions"))if(a.path("requires").path("job").asText().equals(track)){action=a.path("id").asText();break;}
-        return game.act(token,json("{\"city\":\""+city+"\",\"loc\":\""+loc+"\",\"action\":\""+action+"\"}"));
+        return ActivityFixture.act(game,token,json("{\"city\":\""+city+"\",\"loc\":\""+loc+"\",\"action\":\""+action+"\"}"));
     }
     @Test void everyTrackEarnsAllFiveLevelsOnlyAtCompletion()throws Exception{
         for(String track:Content.TRACKS){
@@ -55,15 +55,15 @@ class ProgressionTests {
     }
     @Test void activityTriggersAndDreamRewardsWaitForCompletionThenStorySurvivesRestart()throws Exception{
         sim().withArray("visited").add("piedmont").add("high");sim().withObject("skills").withObject("tech").put("level",2);
-        JsonNode started=game.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"a0\"}"));
+        JsonNode started=ActivityFixture.act(game,token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"a0\"}"));
         assertEquals(0,started.path("sim").path("aspiration").path("step").asInt());assertTrue(started.path("sim").path("pendingBeat").isNull());assertEquals(2500,started.path("sim").path("cash").asInt());
         assertEquals(409,assertThrows(ApiException.class,()->game.chooseStory(token,json("{\"beatId\":\"atl-startup:0\",\"choice\":\"steady\"}"))).status);
         now=started.path("sim").path("busyUntil").asLong();JsonNode finished=game.getSim(token).path("sim");assertEquals(2,finished.path("aspiration").path("step").asInt());assertEquals(2935,finished.path("cash").asInt());assertEquals("atl-startup:0",finished.path("pendingBeat").path("id").asText());
         assertEquals(409,assertThrows(ApiException.class,()->game.setAspiration(token,json("{\"aspiration\":\"athlete\"}"))).status);
         game.chooseStory(token,json("{\"beatId\":\"atl-startup:0\",\"choice\":\"steady\"}"));
         GameService restarted=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),content,mapper);restarted.time=()->now;assertTrue(restarted.getSim(token).path("sim").path("pendingBeat").isNull());assertEquals("waiting",restarted.getSim(token).path("sim").path("stories").get(0).path("status").asText());
-        JsonNode breakTime=restarted.act(token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"shower\"}"));now=breakTime.path("sim").path("busyUntil").asLong();restarted.getSim(token);
-        JsonNode next=restarted.act(token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"a0\"}"));now=next.path("sim").path("busyUntil").asLong();assertEquals("atl-startup:1",restarted.getSim(token).path("sim").path("pendingBeat").path("id").asText());
+        JsonNode breakTime=ActivityFixture.act(restarted,token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"shower\"}"));now=breakTime.path("sim").path("busyUntil").asLong();restarted.getSim(token);
+        JsonNode next=ActivityFixture.act(restarted,token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"a0\"}"));now=next.path("sim").path("busyUntil").asLong();assertEquals("atl-startup:1",restarted.getSim(token).path("sim").path("pendingBeat").path("id").asText());
     }
     @Test void nineStoriesChainSkillChecksAndRejectReplayAndForgery()throws Exception{
         assertEquals(9,game.stories.all.size());

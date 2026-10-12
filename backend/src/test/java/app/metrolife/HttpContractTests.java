@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class HttpContractTests {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper mapper;
+    @Autowired GameService game;
     @DynamicPropertySource static void properties(DynamicPropertyRegistry registry){registry.add("metro.data",()->System.getProperty("java.io.tmpdir")+"/metro-http-"+java.util.UUID.randomUUID()+".json");}
     @Test void guestCookieAndAuthoritativeSetupContract()throws Exception{
         mvc.perform(get("/api/sim")).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.error").value("Please log in"));
@@ -27,6 +28,10 @@ class HttpContractTests {
         Cookie cookie=new Cookie("ml_session",header.split(";")[0].split("=",2)[1]);
         mvc.perform(post("/api/worlds").cookie(cookie).contentType("application/json").content("{\"name\":\"HTTP world\",\"mode\":\"solo\"}")).andExpect(status().isOk()).andExpect(jsonPath("$.world.mode").value("solo"));
         mvc.perform(post("/api/sim/setup").cookie(cookie).contentType("application/json").content("{\"city\":\"atl\",\"neighborhood\":\"midtown\",\"aspiration\":\"founder\"}")).andExpect(status().isOk()).andExpect(jsonPath("$.sim.cash").value(2500)).andExpect(jsonPath("$.sim.needs.energy").value(85.0)).andExpect(jsonPath("$.sim.pendingBeat").isEmpty()).andExpect(jsonPath("$.sim.updatedAt").doesNotExist());
+        mvc.perform(post("/api/act").cookie(cookie).contentType("application/json").content("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"cook\"}")).andExpect(status().isConflict());
+        mvc.perform(post("/api/door").cookie(cookie).contentType("application/json").content("{\"loc\":\"home\",\"enter\":true}")).andExpect(status().isOk()).andExpect(jsonPath("$.sim.position.room").isString());
+        // Furniture arrival fixture; swept walking and station rejection are covered by InteriorTests.
+        synchronized(game){game.sim(game.session(cookie.getValue(),true)).withObject("position").put("x",-2.8).put("z",.1);}
         mvc.perform(post("/api/act").cookie(cookie).contentType("application/json").content("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"cook\",\"pay\":1000000}")).andExpect(status().isOk()).andExpect(jsonPath("$.sim.cash").value(2500)).andExpect(jsonPath("$.result.deltas.cash").value(33)).andExpect(jsonPath("$.sim.busyUntil").isNumber()).andExpect(jsonPath("$.sim.busyStartedAt").isNumber()).andExpect(jsonPath("$.sim._pendingAction").doesNotExist());
         mvc.perform(post("/api/act").cookie(cookie).contentType("application/json").content("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"cook\"}")).andExpect(status().isConflict());
         mvc.perform(post("/api/auth/logout").cookie(cookie)).andExpect(status().isOk()).andExpect(header().string("Set-Cookie",org.hamcrest.Matchers.containsString("Max-Age=0")));

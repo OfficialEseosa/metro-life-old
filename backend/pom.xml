@@ -36,7 +36,7 @@
 		<resources>
 			<resource><directory>../frontend/dist</directory><targetPath>static</targetPath></resource>
 			<resource><directory>src/main/resources</directory></resource>
-			<resource><directory>../shared</directory><targetPath>static-data</targetPath><includes><include>world.json</include><include>navigation.json</include></includes></resource>
+			<resource><directory>../shared</directory><targetPath>static-data</targetPath><includes><include>world.json</include><include>navigation.json</include><include>interiors.json</include></includes></resource>
 		</resources>
 		<plugins>
 			<plugin>

@@ -144,7 +144,7 @@ public class GameService {
         require(w!=null&&belongs(w,session.path("userId").asText()),403,"Join this world with its private code first");select(session,w);store.save();
         ObjectNode out=object();out.set("world",worldInfo(w));ObjectNode s=(ObjectNode)table("sims").get(simKey(session));if(s==null)out.putNull("sim");else {decay(s,w);out.set("sim",publicSim(s));store.save();}return out;
     }
-    ObjectNode publicSim(ObjectNode s) {navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
+    ObjectNode publicSim(ObjectNode s) {navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited","_outside"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
     String friendlyName(){
         String[] first={"Avery","Riley","Jordan","Casey","Morgan","Taylor","Alex","Jamie","Quinn","Rowan","Sage","Skyler","Reese","Parker","Cameron","Blair"};
         String[] last={"Brooks","Vale","Reed","Lane","Park","Ellis","Hayes","Quill","Blake","Bell","Stone","Wells","Banks","Hill","West","Hart"};
@@ -171,6 +171,7 @@ public class GameService {
         for(int i=0;i<3;i++){ObjectNode g=goals.addObject().put("id",ids[i]).put("text",texts[i]).put("icon",icons[i]).put("progress",0).put("target",i==0?3:1).put("done",false);g.putObject("reward").put("cash",45).put("xp",25);}
     }
     ObjectNode simResponse(ObjectNode s,ObjectNode w) {ObjectNode out=object();out.set("sim",publicSim(s));out.set("clock",clock(w));return out;}
+    synchronized ObjectNode door(String token,JsonNode body){return navigation.door(token,body);}
     synchronized ObjectNode movePosition(String token,JsonNode body){return navigation.move(token,body);}
     synchronized ObjectNode getSim(String token) {ObjectNode session=session(token,true),s=sim(session),w=world(session);decay(s,w);return simResponse(s,w);}
     void decay(ObjectNode s,ObjectNode w) {
@@ -233,6 +234,7 @@ public class GameService {
         if(a.path("requires").has("job")){a=a.deepCopy();a.put("pay",s.path("job").path("payPerHour").asInt());s.withObject("job").put("shifts",s.path("job").path("shifts").asInt()+1);}
         a=civic.action(w,city,loc.equals("home")?object():content.landmark(city,loc),a);
         require(s.path("cash").asDouble()>=a.path("cost").asDouble(),402,"You do not have enough cash for this activity");
+        navigation.requireAction(live,loc,action);s.set("position",live.path("position").deepCopy());
         boolean campaign=a.path("label").asText().equals("Campaign");if(campaign)civic.campaignCheck(w,s,city);
         boolean low=Set.of("rough","low").contains(s.path("mood").asText());double cashDelta=Math.floor(a.path("pay").asDouble()*(low?.7:1))-a.path("cost").asDouble();
         s.put("cash",s.path("cash").asDouble()+cashDelta);int xp=a.path("xp").asInt();s.put("xp",s.path("xp").asInt()+xp);int oldLevel=s.path("level").asInt();updateLevel(s);

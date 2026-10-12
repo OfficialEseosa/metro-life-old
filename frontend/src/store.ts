@@ -1,3 +1,4 @@
+import { motion, useWalking } from './walking'
 import { serverNow, syncServerTime } from './server-time'
 import { create } from 'zustand'
 import { api, connectSocket } from './api/client'
@@ -244,7 +245,7 @@ export const useStore = create<State>((set, get) => {
       await Promise.all(jobs)
     },
 
-    setSim: (sim) => {if(sim&&sim.worldId!==get().worldInfo?.id)return;const travelled=sim&&get().sim&&sim.city!==get().sim?.city;set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
+    setSim: (sim) => {if(sim&&sim.worldId!==get().worldInfo?.id)return;const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.position={...sim.position};useWalking.setState({position:{...sim.position}})}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {
