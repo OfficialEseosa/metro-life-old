@@ -129,7 +129,7 @@ export function landmarkGeometry(id: string) {
     case 'techVillage': {
       block(0, 0, 10, 6.5, 5, '#d4ccb9')
       for (let y = 1; y < 6; y += 1.2) b.box(0, y, 2.6, 10.1, .5, .04, '#45575b')
-      b.box(-2.5, 1, 2.8, 2.5, 2, .4, '#c1814d').box(2, 6.8, 0, 4, .2, 4, '#7f9b69');break
+      b.box(2, 6.8, 0, 4, .2, 4, '#7f9b69');break
     }
     case 'lenox': {
       block(-4, 0, 6, 2.7, 7);block(4, 0, 6, 2.7, 7)

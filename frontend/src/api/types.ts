@@ -222,6 +222,7 @@ export type StoryOutcome = { win: boolean; text: string; deltas: Deltas; next: S
 // ---- people ---------------------------------------------------------------
 
 export type Player = {
+  activity?: string
   position?: import('../navigation').Position
   id: string
   username: string
@@ -296,6 +297,7 @@ export type Me = { now: number; user: User | null; world: WorldInfo | null; sim:
 export type ServerEvent =
   | { type: 'hello'; worldId: string; clock: Clock }
   | { type: 'presence'; city: CityId; players: Player[] }
+  | { type: 'positions'; city: CityId; at:number; players: Pick<Player,'id'|'position'|'activity'|'loc'>[] }
   | { type: 'chat'; message: ChatMessage }
   | { type: 'event'; kind: 'mayor' | 'plots' | 'billboards' | 'homes' | 'story'; city: CityId; text?: string }
   | { type: 'clock'; clock: Clock }

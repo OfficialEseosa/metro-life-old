@@ -1,0 +1,131 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "atl",
+      "walkedPath": [
+        {
+          "x": -22,
+          "z": -58.9
+        },
+        {
+          "x": -1.75,
+          "z": -58.9
+        },
+        {
+          "x": -1.75,
+          "z": -57.4
+        },
+        {
+          "x": 3.5,
+          "z": -57.4
+        }
+      ],
+      "shortcut": false,
+      "before": 2500,
+      "paid": 2665,
+      "animatedTyping": true,
+      "deskApplication": true,
+      "completionOnly": true,
+      "noListMenu": true,
+      "metrics": {
+        "calls": 6,
+        "triangles": 3678,
+        "fps": 60.02160777858563,
+        "p95Ms": 17.400000005960464,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "city": "bay",
+      "walkedPath": null,
+      "shortcut": true,
+      "before": 2500,
+      "paid": 2665,
+      "animatedTyping": true,
+      "deskApplication": true,
+      "completionOnly": true,
+      "noListMenu": true,
+      "metrics": {
+        "calls": 5,
+        "triangles": 3174,
+        "fps": 60.0343053169832,
+        "p95Ms": 17.400000005960464,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "atl",
+      "walkedPath": [
+        {
+          "x": -22,
+          "z": -58.9
+        },
+        {
+          "x": -1.75,
+          "z": -58.9
+        },
+        {
+          "x": -1.75,
+          "z": -57.4
+        },
+        {
+          "x": 3.5,
+          "z": -57.4
+        }
+      ],
+      "shortcut": false,
+      "before": 2500,
+      "paid": 2665,
+      "animatedTyping": true,
+      "deskApplication": true,
+      "completionOnly": true,
+      "noListMenu": true,
+      "metrics": {
+        "calls": 6,
+        "triangles": 3426,
+        "fps": 60.02641162114909,
+        "p95Ms": 17.80000001192093,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "city": "bay",
+      "walkedPath": null,
+      "shortcut": true,
+      "before": 2500,
+      "paid": 2665,
+      "animatedTyping": true,
+      "deskApplication": true,
+      "completionOnly": true,
+      "noListMenu": true,
+      "metrics": {
+        "calls": 5,
+        "triangles": 3174,
+        "fps": 60.11036657487106,
+        "p95Ms": 18.299999997019768,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    }
+  ],
+  "errors": []
+}

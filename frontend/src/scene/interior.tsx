@@ -1,9 +1,12 @@
 import { useEffect, useMemo } from 'react'
 import { roomType } from '../navigation'
+import * as THREE from 'three'
+import { useStore } from '../store'
 import { Builder } from './geometry'
 /** One shared, vertex-coloured cutaway home; furniture is built once into one draw. */
 export function Interior({room}:{room:string}){
- const type=roomType(room)
+ const type=roomType(room),world=useStore(s=>s.world),city=useStore(s=>s.city),name=world?.cities.find(c=>c.id===city)?.landmarks.find(l=>l.id===room.split(':')[1])?.name??'Welcome home'
+ const sign=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=128;const ctx=canvas.getContext('2d')!;ctx.fillStyle='#315b63';ctx.fillRect(0,0,1024,128);ctx.fillStyle='#fff0ce';ctx.font='bold 52px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(name,512,66,980);const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;return t},[name]);useEffect(()=>()=>sign.dispose(),[sign])
  const geometry=useMemo(()=>{const b=new Builder();
   // The room sits in its own small garden and street apron, rather than a void.
   b.box(0,-.4,0,38,.12,34,'#9bbd83');b.box(0,-.31,10,38,.05,3,'#bcc3af');b.box(0,-.32,13.5,38,.05,4,'#53676d');for(const x of [-11,-7,7,11]){b.cylinder(x,.9,-9,.12,2.2,'#876c4d',6);b.sphere(x,2.2,-9,.95,'#5e966b',1,1.2,1);}
@@ -14,7 +17,7 @@ export function Interior({room}:{room:string}){
   if(type==='home'){b.box(0,.015,-.15,3.3,.025,4.4,'#518f8b');for(const x of [-1.4,1.4])b.box(x,.034,-.15,.1,.02,4.1,'#f1d8ad');}
   if(type==='cafe'){
    b.box(-4.5,.55,-1.8,1.4,1.1,4,'#b27b53');b.box(-4.5,1.16,-1.8,1.6,.12,4.2,'#e4d8b8');b.box(-4.5,1.48,-3.2,.9,.6,.6,'#456a70');b.cylinder(-4.5,1.82,-3.2,.2,.12,'#e5c487',12);
-   for(const [x,z] of [[2.2,.3],[3.8,-2.9]]){b.cylinder(x,.58,z,.11,1.1,'#765c47',8);b.box(x,1.15,z,1.5,.14,1.3,'#ba8b60');b.cylinder(x,1.26,z,.35,.04,'#f5ebd5',16);b.sphere(x,1.34,z,.23,'#d59b4f',1,.3,1);b.box(x,.45,z+1.3,.65,.12,.6,'#54827d');}
+   for(const [x,z] of [[2.2,.3],[3.8,-2.9]]){b.cylinder(x,.58,z,.11,1.1,'#765c47',8);b.box(x,1.15,z,1.5,.14,1.3,'#ba8b60');b.cylinder(x,1.26,z,.35,.04,'#f5ebd5',16);b.sphere(x,1.34,z,.23,'#d59b4f',1,.3,1);b.box(x,.45,z+1.3,.65,.12,.6,'#54827d');for(const dx of [-.24,.24])for(const dz of [-.2,.2])b.box(x+dx,.21,z+1.3+dz,.07,.42,.07,'#365b59');b.box(x,.8,z+1.56,.65,.65,.09,'#54827d');}
    b.box(0,2.1,-4.82,2.4,1.4,.08,'#335d50');for(let i=0;i<4;i++)b.box(0,1.65+i*.28,-4.74,1.7,.05,.02,'#e9d8aa');b.box(4.8,2,-4.83,1.2,1.5,.08,'#86bec6');
    return b.build()
   }
@@ -46,5 +49,5 @@ export function Interior({room}:{room:string}){
   return b.build()
  },[type])
  useEffect(()=>()=>geometry.dispose(),[geometry])
- return <><mesh name={`${type}-interior`} geometry={geometry}><meshStandardMaterial vertexColors roughness={.9}/></mesh><pointLight position={[0,5,0]} intensity={25} color="#ffe4bc" distance={22} decay={2}/></>
+ return <>{type!=='home'&&<mesh position={[0,2.9,-4.83]}><planeGeometry args={[5.4,.675]}/><meshBasicMaterial map={sign} toneMapped={false}/></mesh>}<mesh name={`${type}-interior`} geometry={geometry}><meshStandardMaterial vertexColors roughness={.9}/></mesh><pointLight position={[0,5,0]} intensity={25} color="#ffe4bc" distance={22} decay={2}/></>
 }

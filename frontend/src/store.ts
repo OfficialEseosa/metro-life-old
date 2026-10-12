@@ -130,6 +130,9 @@ export const useStore = create<State>((set, get) => {
       case 'presence':
         if (e.city === city){presenceRevision++;set({ players: e.players })}
         break
+      case 'positions':
+        if(e.city===city){presenceRevision++;const positions=new Map(e.players.map(p=>[p.id,p]));set(s=>({players:s.players.map(p=>positions.has(p.id)?{...p,...positions.get(p.id)}:p)}))}
+        break
       case 'chat':
         if (e.message.city === city)set(s=>({chat:mergeChat(s.chat,[e.message])}))
         break

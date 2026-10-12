@@ -15,14 +15,14 @@ public class GameService {
     final ObjectMapper mapper;
     final Progression progression;
     final Stories stories;
-    final Civic civic;final Property property;final Community community;
+    final Civic civic;final Property property;final Community community;final ResidentMotion residentMotion;
     LongSupplier time = System::currentTimeMillis;
     long visits;
     private final SecureRandom random = new SecureRandom();
     private final AuthAttempts authAttempts=new AuthAttempts();
     java.util.function.Function<String,String> hashPassword=Passwords::hash;
     java.util.function.BiPredicate<String,String> verifyPassword=Passwords::verify;
-    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.visits=store.data.path("visits").asLong();this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this);this.community=new Community(this);navigation=new Navigation(this); }
+    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.visits=store.data.path("visits").asLong();this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this);this.community=new Community(this);navigation=new Navigation(this);residentMotion=new ResidentMotion(this); }
     long now() { return time.getAsLong(); }
     ObjectNode object() { return mapper.createObjectNode(); }
     ObjectNode table(String name) { return (ObjectNode)store.data.get(name); }

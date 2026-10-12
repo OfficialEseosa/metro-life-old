@@ -24,3 +24,5 @@
 .walk-caption{display:inline-block;background:#fff7eae8;color:#284e40;text-shadow:none;border-radius:9px;padding:5px 9px;font-size:13px}.reward-flight{z-index:11}.payoff-breakdown small{display:block;color:#284e40;font-size:13px}.walking-payoff b{font-size:18px}
 
 .walk-social{position:fixed;bottom:128px;right:24px;display:flex;gap:6px}.walk-social button,.walk-more{background:#fff4df;color:#234e41;border:2px solid #d9d7ba;border-radius:10px;min-height:40px;padding:6px 10px}.walk-more{position:fixed;bottom:106px;right:24px}.walk-social+.walk-more{display:none}@media(max-width:700px){.walk-social,.walk-more{bottom:calc(185px + env(safe-area-inset-bottom));right:14px}.walk-social button{font-size:12px;padding:5px 8px}}
+
+@media(max-width:700px){.is-playing:has(.walk-interact) .social-notice p{display:block;font-size:12px}.is-playing:has(.walk-interact) .social-notice strong{font-size:16px}}
