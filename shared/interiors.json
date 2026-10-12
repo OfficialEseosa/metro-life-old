@@ -1,18 +1,113 @@
 {
   "home": {
     "name": "Home",
-    "exit": {"x": 0, "z": 3.7},
+    "exit": {
+      "x": 0,
+      "z": 3.7
+    },
     "stations": [
-      {"id": "stove", "name": "Cook a fresh meal", "action": "cook", "x": -2.8, "z": 0.1, "face": -1.5707963268},
-      {"id": "bed", "name": "Get some sleep", "action": "sleep", "x": 1.8, "z": -2.4, "face": 1.5707963268},
-      {"id": "shower", "name": "Take a shower", "action": "shower", "x": -2.8, "z": -2.8, "face": -1.5707963268},
-      {"id": "couch", "name": "Invite a friend over", "action": "invite", "x": 1.8, "z": 1.1, "face": 1.5707963268}
+      {
+        "id": "stove",
+        "name": "Cook a fresh meal",
+        "action": "cook",
+        "x": -2.8,
+        "z": 0.1,
+        "face": -1.05
+      },
+      {
+        "id": "bed",
+        "name": "Get some sleep",
+        "action": "sleep",
+        "x": 1.8,
+        "z": -2.4,
+        "face": 1.5707963268
+      },
+      {
+        "id": "shower",
+        "name": "Take a shower",
+        "action": "shower",
+        "x": -2.8,
+        "z": -2.8,
+        "face": -1.5707963268
+      },
+      {
+        "id": "couch",
+        "name": "Invite a friend over",
+        "action": "invite",
+        "x": 1.8,
+        "z": 1.1,
+        "face": 1.5707963268
+      }
     ],
     "boxes": [
-      {"x": -4.4, "z": 0.1, "w": 1.3, "d": 2.0, "a": 0},
-      {"x": 3.7, "z": -2.4, "w": 3.2, "d": 1.9, "a": 0},
-      {"x": -4.4, "z": -2.9, "w": 1.4, "d": 1.8, "a": 0},
-      {"x": 3.8, "z": 1.1, "w": 1.4, "d": 2.4, "a": 0}
+      {
+        "x": -4.4,
+        "z": 0.1,
+        "w": 1.3,
+        "d": 2.0,
+        "a": 0
+      },
+      {
+        "x": 3.7,
+        "z": -2.4,
+        "w": 3.2,
+        "d": 1.9,
+        "a": 0
+      },
+      {
+        "x": -4.4,
+        "z": -2.9,
+        "w": 1.4,
+        "d": 1.8,
+        "a": 0
+      },
+      {
+        "x": 3.8,
+        "z": 1.1,
+        "w": 1.4,
+        "d": 2.4,
+        "a": 0
+      }
+    ]
+  },
+  "work": {
+    "name": "Workplace",
+    "exit": {
+      "x": 0,
+      "z": 3.7
+    },
+    "stations": [
+      {
+        "id": "desk",
+        "name": "Work a shift",
+        "action": "work",
+        "x": 0,
+        "z": -0.8,
+        "face": 3.1415926536
+      }
+    ],
+    "boxes": [
+      {
+        "x": 0,
+        "z": -2.2,
+        "w": 2.8,
+        "d": 1.0,
+        "a": 0
+      },
+      {
+        "x": -4.7,
+        "z": -3.8,
+        "w": 1.2,
+        "d": 1.4,
+        "a": 0
+      },
+      {
+        "x": 4.5,
+        "z": -3.7,
+        "w": 1.5,
+        "d": 1.6,
+        "a": 0
+      }
     ]
   }
 }

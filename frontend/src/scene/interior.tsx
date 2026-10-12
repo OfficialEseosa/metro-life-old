@@ -1,13 +1,21 @@
 import { useEffect, useMemo } from 'react'
+import { roomType } from '../navigation'
 import { Builder } from './geometry'
 /** One shared, vertex-coloured cutaway home; furniture is built once into one draw. */
-export function Interior(){
+export function Interior({room}:{room:string}){
+ const type=roomType(room)
  const geometry=useMemo(()=>{const b=new Builder();
+  // The room sits in its own small garden and street apron, rather than a void.
+  b.box(0,-.4,0,38,.12,34,'#9bbd83');b.box(0,-.31,10,38,.05,3,'#bcc3af');b.box(0,-.32,13.5,38,.05,4,'#53676d');for(const x of [-11,-7,7,11]){b.cylinder(x,.9,-9,.12,2.2,'#876c4d',6);b.sphere(x,2.2,-9,.95,'#5e966b',1,1.2,1);}
   b.box(0,-.14,0,12,.24,10,'#d5b792');for(let x=-5.5;x<6;x+=.6)b.box(x,-.012,0,.018,.012,10,'#b99a77');
   b.box(0,1.65,-5,12,3.3,.18,'#f1dfc1');b.box(-6,1.65,0,.18,3.3,10,'#e8d3b5');b.box(6,.65,0,.18,1.3,10,'#e8d3b5');
   for(const x of [-3.6,3.6])b.box(x,.35,5,4.8,.7,.18,'#f1dfc1');
   for(const x of [-.75,.75])b.box(x,.35,4.95,.12,.7,.18,'#528b79');b.box(0,.025,4.6,1.4,.04,.8,'#528b79');
   b.box(0,.015,-.15,3.3,.025,4.4,'#518f8b');for(const x of [-1.4,1.4])b.box(x,.034,-.15,.1,.02,4.1,'#f1d8ad');
+  if(type==='work'){
+   b.box(0,.82,-2.2,2.8,.16,1,'#966e50');for(const x of [-1.2,1.2])b.box(x,.4,-2.2,.12,.8,.75,'#3f5b59');b.box(0,1.35,-2.4,1.15,.65,.09,'#354a4c');b.box(0,1.36,-2.34,1,.5,.02,'#84c8ce');b.box(0,.95,-1.93,.9,.04,.28,'#dde7dc');b.box(0,.45,.4,.65,.12,.65,'#536e71');b.box(-4.7,1.2,-3.8,1.2,2.4,1.4,'#9d7659');for(const y of [.4,1.1,1.8])b.box(-4.68,y,-3.07,1.1,.08,.04,'#d8c5a3');b.cylinder(4.5,.5,-3.7,.65,1,'#d3aa7b',10);b.sphere(4.5,1.6,-3.7,.9,'#4c8868',.65,1.3,.65);b.box(2.8,1.8,-4.83,2.2,1.4,.1,'#487e80');for(let i=0;i<3;i++)b.box(2.8,1.4+i*.4,-4.75,1.6,.06,.02,'#e3e5cb');
+   return b.build()
+  }
   // Bed: timber frame, mattress, blanket, pillow and headboard.
   b.box(3.7,.28,-2.4,3.2,.45,1.9,'#8e6345');b.box(3.7,.62,-2.4,3.1,.28,1.8,'#f4ead7');b.box(3.25,.81,-2.4,2.1,.12,1.78,'#d88d67');b.box(4.77,.85,-2.4,.65,.2,1.45,'#fff7e8');b.box(5.25,.87,-2.4,.14,1.4,2,'#8e6345');
   // Stove and oven, with four burners and a pot.
@@ -20,7 +28,7 @@ export function Interior(){
   // A window and small original geometric print.
   b.box(-1.8,2.1,-4.87,2.7,1.4,.08,'#79b8c4');for(const x of [-3.2,-1.8,-.4])b.box(x,2.1,-4.8,.09,1.55,.1,'#fff2d9');b.box(-1.8,2.1,-4.77,2.9,.09,.1,'#fff2d9');b.box(2,2.05,-4.83,1.6,1.3,.1,'#876443');b.box(2,2.05,-4.75,1.4,1.1,.03,'#ecc78d');b.box(2,2.05,-4.72,.5,.65,.03,'#518f8b');
   return b.build()
- },[])
+ },[type])
  useEffect(()=>()=>geometry.dispose(),[geometry])
- return <><mesh name="home-interior" geometry={geometry}><meshStandardMaterial vertexColors roughness={.9}/></mesh><pointLight position={[0,5,0]} intensity={25} color="#ffe4bc" distance={22} decay={2}/></>
+ return <><mesh name={`${type}-interior`} geometry={geometry}><meshStandardMaterial vertexColors roughness={.9}/></mesh><pointLight position={[0,5,0]} intensity={25} color="#ffe4bc" distance={22} decay={2}/></>
 }

@@ -16,7 +16,7 @@ class ProgressionTests {
         content=new Content(mapper);store=new JsonStore(mapper,dir.resolve("save.json").toString());game=new GameService(store,content,mapper);game.time=()->now;
         token=game.guest(null,json("{}")).token();game.createWorld(token,json("{\"name\":\"Progression\",\"mode\":\"solo\"}"));game.setup(token,json("{\"city\":\"atl\",\"neighborhood\":\"midtown\",\"aspiration\":\"founder\"}"));
     }
-    JsonNode hire(JsonNode body){String track=body.path("jobId").asText().split("-")[0];sim().put("loc",Content.workplace(sim().path("city").asText(),track));game.world(game.session(token,true)).put("startedAt",now-4*60000);return game.applyJob(token,body);}
+    JsonNode hire(JsonNode body){String track=body.path("jobId").asText().split("-")[0];sim().put("loc",Content.workplace(sim().path("city").asText(),track));game.world(game.session(token,true)).put("startedAt",now-4*60000);return ActivityFixture.apply(game,token,body);}
     void refresh(){for(String n:Content.NEEDS)sim().withObject("needs").put(n,100);sim().put("updatedAt",now);}
     JsonNode shift(String track)throws Exception{
         refresh();String city=sim().path("city").asText(),loc=sim().path("job").path("loc").asText();

@@ -204,6 +204,7 @@ export type Deltas = {
 }
 
 export type ActResult = {
+  activity?: {id:string;label:string;cost:number;pay:number;dailyCash:number;bonusCash:number}
   text: string
   deltas: Deltas
   busyUntil: number | null

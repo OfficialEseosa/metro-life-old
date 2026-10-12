@@ -144,7 +144,7 @@ public class GameService {
         require(w!=null&&belongs(w,session.path("userId").asText()),403,"Join this world with its private code first");select(session,w);store.save();
         ObjectNode out=object();out.set("world",worldInfo(w));ObjectNode s=(ObjectNode)table("sims").get(simKey(session));if(s==null)out.putNull("sim");else {decay(s,w);out.set("sim",publicSim(s));store.save();}return out;
     }
-    ObjectNode publicSim(ObjectNode s) {navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited","_outside"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
+    ObjectNode publicSim(ObjectNode s) {navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited","_outside","_pendingTravel"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
     String friendlyName(){
         String[] first={"Avery","Riley","Jordan","Casey","Morgan","Taylor","Alex","Jamie","Quinn","Rowan","Sage","Skyler","Reese","Parker","Cameron","Blair"};
         String[] last={"Brooks","Vale","Reed","Lane","Park","Ellis","Hayes","Quill","Blake","Bell","Stone","Wells","Banks","Hill","West","Hart"};
@@ -171,6 +171,7 @@ public class GameService {
         for(int i=0;i<3;i++){ObjectNode g=goals.addObject().put("id",ids[i]).put("text",texts[i]).put("icon",icons[i]).put("progress",0).put("target",i==0?3:1).put("done",false);g.putObject("reward").put("cash",45).put("xp",25);}
     }
     ObjectNode simResponse(ObjectNode s,ObjectNode w) {ObjectNode out=object();out.set("sim",publicSim(s));out.set("clock",clock(w));return out;}
+    synchronized ObjectNode travel(String token,JsonNode body){return navigation.travel(token,body);}
     synchronized ObjectNode door(String token,JsonNode body){return navigation.door(token,body);}
     synchronized ObjectNode movePosition(String token,JsonNode body){return navigation.move(token,body);}
     synchronized ObjectNode getSim(String token) {ObjectNode session=session(token,true),s=sim(session),w=world(session);decay(s,w);return simResponse(s,w);}
@@ -181,6 +182,7 @@ public class GameService {
             double before=Math.min(hours,Math.max(0,s.path("busyUntil").asLong()-s.path("updatedAt").asLong())/60000.0);
             decayNeeds(s,before);settleAction(s);decayNeeds(s,hours-before);
         }else decayNeeds(s,hours);
+        if(s.has("_pendingTravel")&&s.path("busyUntil").asLong()<=now())navigation.settleTravel(s);
         s.put("updatedAt",now());if(!s.path("busyUntil").isNull()&&s.path("busyUntil").asLong()<=now())s.putNull("busyUntil").putNull("busyLabel").putNull("busyStartedAt");
         if(s.path("_externalProgress").asBoolean()&&!s.has("_pendingAction"))finishProgress(s);property.rent(s,w,0);updateMood(s);
     }
@@ -208,7 +210,7 @@ public class GameService {
         ObjectNode session=session(token,true),s=sim(session);decay(s,world(session));require(s.path("busyUntil").isNull()&&s.path("pendingBeat").isNull(),409,"Finish your activity or story before applying");
         String jobId=body.path("jobId").asText();ObjectNode chosen=null;JsonNode careerChosen=null;
         for(JsonNode candidate:jobs(token,s.path("city").asText()).path("jobs"))if(candidate.path("id").asText().equals(jobId)){chosen=((ObjectNode)candidate).deepCopy();careerChosen=candidate;chosen.put("shiftsToPromote",3+candidate.path("level").asInt());}
-        require(chosen!=null,404,"That job is no longer listed");require(s.path("city").equals(chosen.get("city")),403,"Travel to this city before applying");require(chosen.path("level").asInt()==1,403,"Apply for an entry role and earn promotions through shifts");require(s.path("loc").equals(chosen.path("loc")),409,"Visit the workplace before applying");require(civic.open(world(session),s.path("city").asText(),content.landmark(s.path("city").asText(),chosen.path("loc").asText()),clock(world(session)).path("hour").asInt()),409,"Apply while the workplace is open");requirements(s,chosen.path("requires"));
+        require(chosen!=null,404,"That job is no longer listed");require(s.path("city").equals(chosen.get("city")),403,"Travel to this city before applying");require(chosen.path("level").asInt()==1,403,"Apply for an entry role and earn promotions through shifts");require(s.path("loc").equals(chosen.path("loc")),409,"Visit the workplace before applying");require(civic.open(world(session),s.path("city").asText(),content.landmark(s.path("city").asText(),chosen.path("loc").asText()),clock(world(session)).path("hour").asInt()),409,"Apply while the workplace is open");requirements(s,chosen.path("requires"));navigation.atStation(s,chosen.path("loc").asText(),"desk");
         require(chosen.path("level").asInt()==1,403,"Apply for an entry role and earn promotions through shifts");
         require(s.path("job").isNull(),409,"Leave your current role before accepting another");
         chosen.put("id",jobId).put("track",careerChosen.path("track").asText()).put("shifts",0);s.set("job",chosen);store.save();ObjectNode out=object().put("hired",true);out.set("sim",publicSim(s));return out;
@@ -248,12 +250,13 @@ public class GameService {
         long busyUntil=now()+Math.clamp(a.path("durationMin").asLong()*60,2000,6000);s.put("busyUntil",busyUntil).put("busyLabel",a.path("label").asText());
         ArrayNode completed=mapper.createArrayNode();
         for(JsonNode node:s.path("daily")){ObjectNode g=(ObjectNode)node;if(g.path("done").asBoolean())continue;String gid=g.path("id").asText();boolean progress=gid.equals("explore")&&dailyVisit||gid.equals("work")&&a.path("pay").asInt()>0||gid.equals("cook")&&loc.equals("home")&&action.equals("cook");if(progress){int p=g.path("progress").asInt()+1;g.put("progress",p);if(p>=g.path("target").asInt()){g.put("done",true);s.put("cash",s.path("cash").asDouble()+g.path("reward").path("cash").asDouble());s.put("xp",s.path("xp").asInt()+g.path("reward").path("xp").asInt());completed.add(g.path("text").asText());}}}
+        int dailyCash=0;for(JsonNode goal:s.path("daily"))for(JsonNode done:completed)if(done.asText().equals(goal.path("text").asText()))dailyCash+=goal.path("reward").path("cash").asInt();
         int dailyCount=completed.size();String promoted=progression.activity(s,a,loc);stories.depart(s,city,loc);if(!a.path("requires").has("job")&&!action.equals("visit-workplace"))stories.trigger(s,city,loc);progression.evaluate(s,completed);
         updateMood(s);updateLevel(s);
         ObjectNode out=object(),result=object().put("text",outcomeText(a,loc,action,cashDelta,needDeltas,skillDeltas,dailyCount)).put("busyUntil",busyUntil).put("leveledUp",s.path("level").asInt()>oldLevel).putNull("promoted").putNull("beat");
         if(completed.size()>dailyCount){StringBuilder text=new StringBuilder(result.path("text").asText());for(int i=dailyCount;i<completed.size();i++)text.append(" ").append(completed.get(i).asText()).append(" completed.");result.put("text",text.toString());}
         if(promoted!=null){result.put("promoted",promoted);result.put("text",result.path("text").asText()+" Promoted to "+promoted+"!");}result.set("beat",s.path("pendingBeat").deepCopy());
-        ObjectNode deltas=result.putObject("deltas").put("cash",s.path("cash").asDouble()-cashBefore).put("xp",s.path("xp").asInt()-xpBefore);deltas.set("needs",needDeltas);deltas.set("skills",skillDeltas);result.set("goalsCompleted",completed);
+        ObjectNode deltas=result.putObject("deltas").put("cash",s.path("cash").asDouble()-cashBefore).put("xp",s.path("xp").asInt()-xpBefore);deltas.set("needs",needDeltas);deltas.set("skills",skillDeltas);result.set("goalsCompleted",completed);result.putObject("activity").put("id",action).put("label",a.path("label").asText()).put("cost",a.path("cost").asDouble()).put("pay",Math.floor(a.path("pay").asDouble()*(low?.7:1))).put("dailyCash",dailyCash).put("bonusCash",s.path("cash").asDouble()-cashBefore-cashDelta-dailyCash);
         // Persist the accepted outcome; readers settle it exactly once at its deadline,
         // including after a restart. Clients cannot mint or accelerate the reward.
         ObjectNode pending=live.putObject("_pendingAction").put("cost",a.path("cost").asDouble());pending.set("state",s);pending.set("deltas",deltas.deepCopy());if(campaign)pending.put("campaignCity",city).put("campaignTerm",civic.state(w,city).path("term").asInt()).put("campaignDay",civic.day(w));

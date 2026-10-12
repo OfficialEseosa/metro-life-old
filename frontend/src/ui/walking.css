@@ -18,3 +18,7 @@
 .metro-hud .walk-interact small{color:#fff5d6;opacity:1;border:1px solid #fff5d677;border-radius:5px;padding:1px 6px;margin-top:3px}.is-inside .overview-button{display:none}.is-inside .city-controls select{display:none}
 
 @media(max-width:700px){.is-playing:has(.walk-interact) .idle-progress{bottom:250px;right:14px}.is-playing .walk-status{top:calc(120px + env(safe-area-inset-top))}}
+
+.is-playing .moodlets{top:145px}.is-playing .busy-card{pointer-events:none}
+
+.walk-caption{display:inline-block;background:#fff7eae8;color:#284e40;text-shadow:none;border-radius:9px;padding:5px 9px;font-size:13px}.reward-flight{z-index:11}.payoff-breakdown small{display:block;color:#284e40;font-size:13px}.walking-payoff b{font-size:18px}

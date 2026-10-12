@@ -134,7 +134,7 @@ export const useStore = create<State>((set, get) => {
         if (e.message.city === city)set(s=>({chat:mergeChat(s.chat,[e.message])}))
         break
       case 'event':
-        if(e.kind==='story'){const wid=get().worldInfo?.id;void api.sim().then(r=>{if(get().worldInfo?.id===wid){const travelled=r.sim.city!==get().sim?.city;set({sim:r.sim,clock:r.clock});if(travelled){void get().setCity(r.sim.city);get().selectLocation(r.sim.loc);get().setFocus(r.sim.loc)}}}).catch(()=>{});if(e.text)set({socialNotice:e.text})}else if(e.city===city)void get().refresh(e.kind)
+        if(e.kind==='story'){const wid=get().worldInfo?.id;void api.sim().then(r=>{if(get().worldInfo?.id===wid){const travelled=r.sim.city!==get().sim?.city;get().setSim(r.sim);set({clock:r.clock});if(travelled){void get().setCity(r.sim.city);get().selectLocation(r.sim.loc);get().setFocus(r.sim.loc)}}}).catch(()=>{});if(e.text)set({socialNotice:e.text})}else if(e.city===city)void get().refresh(e.kind)
         break
     }
   }
@@ -245,7 +245,7 @@ export const useStore = create<State>((set, get) => {
       await Promise.all(jobs)
     },
 
-    setSim: (sim) => {if(sim&&sim.worldId!==get().worldInfo?.id)return;const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.position={...sim.position};useWalking.setState({position:{...sim.position}})}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
+    setSim: (sim) => {if(sim&&sim.worldId!==get().worldInfo?.id)return;const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.position={...sim.position};useWalking.setState({position:{...sim.position}});motion.follow=true;motion.wake()}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {

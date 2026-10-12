@@ -17,7 +17,7 @@ export function useGameFeedback(){
       if(cancelled||state.sim?.worldId!==worldId)return
       if(r.sim.busyUntil&&r.sim.busyUntil>serverNow()){timer=setTimeout(()=>void settle(),150);return}
       const travelled=r.sim.city!==state.sim?.city
-      useStore.setState({sim:r.sim,clock:r.clock})
+      state.setSim(r.sim);useStore.setState({clock:r.clock})
       if(travelled){await state.setCity(r.sim.city);state.selectLocation(r.sim.loc);state.setFocus(r.sim.loc)}
     }catch{if(!cancelled&&useStore.getState().sim?.worldId===worldId)timer=setTimeout(()=>void settle(),1000)}}
     timer=setTimeout(()=>void settle(),Math.max(0,until-serverNow()+80))

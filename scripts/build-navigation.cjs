@@ -8,7 +8,7 @@ const {kitFabric}=require('../frontend/src/scene/fabric');
 const {dataFor,metropolitanGroups}=require('../frontend/src/scene/metropolitan-fabric');
 const {nycLand,nycEast}=require('../frontend/src/scene/cities/nyc'),{bayWest,bayEast,bayMarin}=require('../frontend/src/scene/cities/bay');
 const world=require('../shared/world.json'),out={version:1,cities:{}};
-const dimensions={empire:[14,11],oneWtc:[19,19],grandCentral:[21,15],met:[29,20],cityHall:[18,12],ferryBuilding:[27,12],salesforce:[15,22],sfCityHall:[30,18],paintedLadies:[20,14]};
+const dimensions={techCampus:[24,24],empire:[14,11],oneWtc:[19,19],grandCentral:[21,15],met:[29,20],cityHall:[18,12],ferryBuilding:[27,12],salesforce:[15,22],sfCityHall:[30,18],paintedLadies:[20,14]};
 const neighborhoods={atl:['midtown','buckhead','o4w','eastAtlanta','westEnd','decatur'],nyc:['harlem','uws','soho','williamsburg','bedstuy','astoria'],bay:['mission','soma','sunset','oakland','berkeley','paloAlto']};
 for(const city of ['atl','nyc','bay']){
  const data=city==='atl'?null:dataFor(city),groups=data?metropolitanGroups(data,city):kitFabric(),boxes=[],doors={};
