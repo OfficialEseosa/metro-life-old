@@ -1,0 +1,8 @@
+package app.metrolife;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+final class ResidentStyle {
+ static final String[] SKIN={"#f6d3b3","#eabf98","#d9a37a","#c18659","#a06a43","#7f4f30","#5e3a24","#3f271a"};
+ static final String[] HAIR={"#211e24","#493326","#7d5637","#863e2d","#bc7141","#cfac65","#ddd5c7","#89848a","#5b7bd5","#c45a8c"};
+ static final String[] CLOTHES={"#78917e","#bc7154","#35445c","#c09b4f","#e4d8bc","#44444b","#597b94","#765970","#355e49","#995f46","#8cabbc","#c39598"};
+ static ObjectNode look(ObjectNode original,String id){int hash=0x811c9dc5;for(char c:id.toCharArray())hash=(hash^c)*16777619;long seed=Integer.toUnsignedLong(hash);ObjectNode result=original.deepCopy();String top=CLOTHES[(int)(seed%12)],bottom=CLOTHES[(int)((seed>>>5)%12)],shoes=new String[]{"#e9dfcc","#393840","#765b49"}[(int)((seed>>>9)%3)],style=new String[]{"casual","street","smart","work","party"}[(int)((seed>>>12)%5)];result.put("body",(seed&1)==1?"f":"m").put("skin",SKIN[(int)((seed>>>2)%8)]).put("hair",Personality.HAIR.get((int)((seed>>>6)%10))).put("hairColor",HAIR[(int)((seed>>>10)%10)]).put("face",Personality.FACES.get((int)((seed>>>16)%4))).put("top",top).put("bottom",bottom).put("shoeColor",shoes).put("style",style);ObjectNode outfits=result.putObject("outfits");for(String occasion:new String[]{"everyday","work","sleep"})outfits.putObject(occasion).put("top",occasion.equals("work")?CLOTHES[(int)((seed>>>19)%12)]:occasion.equals("sleep")?CLOTHES[(int)((seed>>>23)%12)]:top).put("bottom",bottom).put("shoeColor",shoes).put("style",occasion.equals("work")?"work":occasion.equals("sleep")?"casual":style);return result;}
+}

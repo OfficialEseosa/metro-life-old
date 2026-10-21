@@ -1,7 +1,7 @@
 import { serverNow } from './server-time'
 
 /** Short public gestures survive position updates and can be rendered by every client. */
-export type LifeAction={pose:string;topic?:string;text?:string;until:number}
+export type LifeAction={pose:string;topic?:string;text?:string;startedAt?:number;until:number}
 export type VisibleLife={lifeAction?:LifeAction|null;activity?:string;activitySlot?:{pose:string}|null;busyUntil?:number|null;busyLabel?:string|null;busyKind?:string|null;needs?:{energy?:number;hunger?:number;hygiene?:number}}
 export function activeLifeAction(person:VisibleLife){const action=person.lifeAction;return action&&action.until>serverNow()?action:null}
 export function lifePose(person:VisibleLife):string{

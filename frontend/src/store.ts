@@ -260,7 +260,7 @@ export const useStore = create<State>((set, get) => {
       await Promise.all(jobs)
     },
 
-    setSim: (sim) => {if(indoorTravelPending)return;if(sim&&sim.worldId!==get().worldInfo?.id)return;installHomeDesign(sim?.homeDesign,sim?.homeLayout);const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.teleport++;motion.position={...sim.position};useWalking.setState({position:{...sim.position}});motion.follow=true;motion.wake()}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
+    setSim: (sim) => {if(indoorTravelPending)return;if(sim&&sim.worldId!==get().worldInfo?.id)return;installHomeDesign(sim?.homeDesign,sim?.homeLayout);const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.revision++;motion.teleport++;motion.position={...sim.position};useWalking.setState({position:{...sim.position}});motion.follow=true;motion.wake()}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {

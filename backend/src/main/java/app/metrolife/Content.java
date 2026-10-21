@@ -53,7 +53,7 @@ public class Content {
                 ObjectNode row=levels.addObject().put("level",level).put("title",titles[t][level-1]).put("city","atl").put("loc",workplaces[t]).put("payPerHour",new int[]{70,100,140,190,250}[level-1]).put("shiftsToPromote",3+level);
                 row.putObject("requires").putObject("skills").put(careerSkills[t],(level-1)*2);
             }
-            ObjectNode shift=action("shift-"+TRACKS[t],"Work a shift","work","briefcase",60,0,120,Map.of("energy",-10,"hunger",-7,"fun",-3),Map.of(careerSkills[t],75));
+            ObjectNode shift=action("shift-"+TRACKS[t],"Work a shift","work","briefcase",240,0,120,Map.of("energy",-10,"hunger",-7,"fun",-3),Map.of(careerSkills[t],75));
             shift.putObject("requires").put("job",TRACKS[t]);ArrayNode workplaceActions=landmark("atl",workplaces[t]).withArray("actions");boolean existingShift=false;for(JsonNode existing:workplaceActions)if(existing.path("label").asText().equals("Work a shift")&&existing.path("requires").path("job").asText().equals(TRACKS[t]))existingShift=true;if(!existingShift)workplaceActions.add(shift);
             for(String other:new String[]{"nyc","bay"}){ArrayNode actions=landmark(other,workplace(other,TRACKS[t])).withArray("actions");boolean exists=false;for(JsonNode a:actions)if(a.path("requires").path("job").asText().equals(TRACKS[t]))exists=true;if(!exists)actions.add(shift.deepCopy());}
         }
@@ -61,16 +61,18 @@ public class Content {
         for(JsonNode row:world.path("cities")){ObjectNode city=(ObjectNode)row;JsonNode bus=transit.path("cities").path(city.path("id").asText()).path("bus");ObjectNode stop=city.withArray("landmarks").addObject().put("id",bus.path("id").asText()).put("name",bus.path("name").asText()).put("area","Downtown").put("category","transport").put("icon","train-front").put("blurb","Shared intercity departures. A bus ride costs a quarter of the plane fare and advances the shared clock by eight game hours.").put("transitHub",true);stop.putArray("open").add(0).add(24);stop.putArray("actions");}
         // Legacy action callers use the same booking service; publish the same fare/game-time facts.
         for(JsonNode city:world.path("cities"))for(JsonNode place:city.path("landmarks"))for(JsonNode node:place.path("actions"))if(node.has("to")){ObjectNode a=(ObjectNode)node;String from=city.path("id").asText(),to=a.path("to").asText();int fare=transit.path("fares").path(from+":"+to).asInt(transit.path("fares").path(to+":"+from).asInt());a.put("cost",fare).put("durationMin",transit.path("modes").path("plane").path("gameMinutes").asInt()).put("xp",0);a.putObject("needs");a.putObject("skills");}
+        String[] pitches={"Turn a small idea into a thriving studio. First, discover three places and earn your seed money.","Find your sound, take a small stage and work toward a sold-out show.","Meet your neighbours, build trust and earn a voice at the Gold Dome.","Cook your first good meal, master the kitchen and build a place people gather.","Train a little every day, join the team and make the crowd rise.","Find inspiration in the galleries, make your own work and build a collection.","Save your first spare dollar, claim a small plot and build a neighbourhood legacy."};
         ArrayNode aspirations=world.putArray("aspirations");
         for(int i=0;i<ASPIRATIONS.length;i++) {
-            ObjectNode aspiration=aspirations.addObject().put("id",ASPIRATIONS[i]).put("label",ASPIRATION_NAMES[i]).put("icon",new String[]{"rocket","mic-vocal","landmark","utensils","trophy","palette","house"}[i]).put("blurb","Build your own path, one good day at a time.");
+            ObjectNode aspiration=aspirations.addObject().put("id",ASPIRATIONS[i]).put("label",ASPIRATION_NAMES[i]).put("icon",new String[]{"rocket","mic-vocal","landmark","utensils","trophy","palette","house"}[i]).put("blurb",pitches[i]);
             ArrayNode milestones=aspiration.putArray("milestones");
             for(int step=0;step<6;step++) {
                 ObjectNode m=milestones.addObject().put("id",ASPIRATIONS[i]+"-"+step).put("text",Progression.TEXTS[i][step]);
                 m.putObject("reward").put("cash",150*(step+1)).put("xp",50*(step+1));
             }
         }
-        DisplayNames.apply(world);
+        for(JsonNode c:world.path("cities"))for(JsonNode l:c.path("landmarks"))for(JsonNode a:l.path("actions"))if(CareerRhythm.job(a))((ObjectNode)a).put("durationMin",240);else if(CareerRhythm.gig(a))((ObjectNode)a).put("durationMin",60);
+        LandmarkLife.install(this);DisplayNames.apply(world);for(JsonNode city:world.path("cities"))for(JsonNode place:city.path("landmarks"))if(DisplayNames.data.path("venues").has(place.path("id").asText()))((ObjectNode)place).put("name",DisplayNames.data.path("venues").path(place.path("id").asText()).asText());
     }
     ObjectNode action(String id,String label,String kind,String icon,int duration,int cost,int pay,Map<String,Integer> needs,Map<String,Integer> skills) {
         ObjectNode a=mapper.createObjectNode().put("id",id).put("label",label).put("kind",kind).put("icon",icon).put("durationMin",duration).put("cost",cost).put("pay",pay).put("xp",15);
@@ -84,7 +86,7 @@ public class Content {
         if(s.matches(".*(work |shift|usher|busk|sell |bartend|intern|ship a feature|trade the open|play a set|dj a set|play an open mic|perform at).*")) {
             kind="work"; cost=0; pay=22; needs=Map.of("energy",-10,"hunger",-7,"fun",-3);
             skill=s.contains("kitchen")||s.contains("line")?"cooking":cat.equals("music")||cat.equals("nightlife")?"music":"business";
-        } else if(s.matches(".*(eat |meal|dumplings|burrito|chowder|dim sum|food hall|get a slice|grab ).*")) {kind="food";cost=12;needs=Map.of("hunger",35,"fun",7);skill="cooking";}
+        } else if(s.matches(".*(eat |meal|dumplings|burrito|chowder|dim sum|food hall|get a slice|grab ).*")) {kind="food";cost=12;needs=Map.of("hunger",35,"fun",7);skill="";}
         else if(s.matches(".*(class|study|hackathon|co-work|sketch|interview|pitch|raise a seed|start something).*")) {kind="learn";cost=15;needs=Map.of("fun",10,"energy",-5);skill=cat.equals("culture")?"creativity":cat.equals("tech")||cat.equals("education")?"tech":"business";}
         else if(s.matches(".*(run |jog |bike |tennis|swim|shoot around|cycle).*")) {kind="learn";cost=0;needs=Map.of("fun",15,"energy",-8,"hunger",-5);skill="fitness";}
         else if(s.matches(".*(friends|network|club|debate|co-founder|meet |share ).*")) {kind="social";cost=0;needs=Map.of("social",30,"fun",10);skill="charisma";}

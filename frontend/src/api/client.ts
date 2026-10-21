@@ -166,3 +166,5 @@ export function connectSocket(onEvent: (e: ServerEvent) => void, onStatus?: (ope
     },
   }
 }
+
+export { req as apiRequest }

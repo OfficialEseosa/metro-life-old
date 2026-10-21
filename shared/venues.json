@@ -10,5 +10,300 @@
   "bay": {
     "cafe": "ferryBuilding",
     "club": "oaklandFox"
+  },
+  "landmarkLife": {
+    "ponce": {
+      "city": "atl",
+      "type": "foodhall",
+      "title": "Rooftop Fair",
+      "event": "Rooftop fair lights up",
+      "periodSeconds": 720,
+      "actions": [
+        {
+          "id": "burger",
+          "label": "Brick & Bun burger",
+          "station": "desk",
+          "kind": "food",
+          "cost": 8,
+          "pose": "Eat",
+          "need": "hunger",
+          "gain": 28
+        },
+        {
+          "id": "noodles",
+          "label": "Noodle Lantern bowl",
+          "station": "desk",
+          "kind": "food",
+          "cost": 10,
+          "pose": "Eat",
+          "need": "hunger",
+          "gain": 35
+        },
+        {
+          "id": "gelato",
+          "label": "Honeycomb gelato",
+          "station": "desk",
+          "kind": "food",
+          "cost": 5,
+          "pose": "Eat",
+          "need": "hunger",
+          "gain": 16
+        },
+        {
+          "id": "golf",
+          "label": "Play rooftop mini golf",
+          "station": "roof-golf",
+          "kind": "game",
+          "cost": 0,
+          "pose": "Interact",
+          "need": "fun",
+          "gain": 8
+        },
+        {
+          "id": "skee",
+          "label": "Roll rooftop skee-ball",
+          "station": "roof-skee",
+          "kind": "game",
+          "cost": 0,
+          "pose": "Interact",
+          "need": "fun",
+          "gain": 8
+        }
+      ]
+    },
+    "benz": {
+      "city": "atl",
+      "type": "stadium",
+      "title": "Petal Dome",
+      "event": "Kickoff and the opening roof",
+      "periodSeconds": 900,
+      "actions": [
+        {
+          "id": "watch",
+          "label": "Watch the highlight reel",
+          "station": "stands",
+          "kind": "watch",
+          "cost": 0,
+          "pose": "Cheer",
+          "need": "fun",
+          "gain": 8
+        },
+        {
+          "id": "wave",
+          "label": "Start the crowd wave",
+          "station": "stands",
+          "kind": "moment",
+          "cost": 0,
+          "pose": "Cheer",
+          "need": "fun",
+          "gain": 8
+        },
+        {
+          "id": "hotdog",
+          "label": "Two-Dollar Dog",
+          "station": "desk",
+          "kind": "food",
+          "cost": 2,
+          "pose": "Eat",
+          "need": "hunger",
+          "gain": 24
+        },
+        {
+          "id": "soda",
+          "label": "Two-Dollar Soda",
+          "station": "desk",
+          "kind": "food",
+          "cost": 2,
+          "pose": "Eat",
+          "need": "hunger",
+          "gain": 10
+        }
+      ]
+    },
+    "arena": {
+      "city": "atl",
+      "type": "arena",
+      "title": "Peachtree Arena",
+      "event": "Tip-off and dance cam",
+      "periodSeconds": 720,
+      "actions": [
+        {
+          "id": "watch",
+          "label": "Watch from courtside",
+          "station": "stands",
+          "kind": "watch",
+          "cost": 0,
+          "pose": "Cheer",
+          "need": "fun",
+          "gain": 8
+        },
+        {
+          "id": "shot",
+          "label": "Try the half-court shot",
+          "station": "court",
+          "kind": "game",
+          "cost": 0,
+          "pose": "Cheer",
+          "need": "fun",
+          "gain": 8
+        },
+        {
+          "id": "dancecam",
+          "label": "Join the dance cam",
+          "station": "stands",
+          "kind": "moment",
+          "cost": 0,
+          "pose": "Dance",
+          "need": "fun",
+          "gain": 8
+        }
+      ]
+    },
+    "aquarium": {
+      "city": "atl",
+      "type": "aquarium",
+      "title": "Deepwater Aquarium",
+      "event": "The giant ray glides past",
+      "periodSeconds": 600,
+      "actions": [
+        {
+          "id": "view",
+          "label": "Relax at the ocean window",
+          "station": "ocean",
+          "kind": "watch",
+          "cost": 0,
+          "pose": "Sit",
+          "need": "energy",
+          "gain": 12
+        },
+        {
+          "id": "tunnel",
+          "label": "Explore the ocean tunnel",
+          "station": "tunnel",
+          "kind": "watch",
+          "cost": 0,
+          "pose": "Interact",
+          "need": "fun",
+          "gain": 12
+        },
+        {
+          "id": "ray",
+          "label": "Meet a stingray",
+          "station": "touch",
+          "kind": "moment",
+          "cost": 0,
+          "pose": "Interact",
+          "need": "fun",
+          "gain": 10
+        }
+      ]
+    },
+    "fox": {
+      "city": "atl",
+      "type": "theatre",
+      "title": "The Peacock Palace",
+      "event": "Curtain up under the stars",
+      "periodSeconds": 900,
+      "actions": [
+        {
+          "id": "show",
+          "label": "Take a seat for the show",
+          "station": "seats",
+          "kind": "watch",
+          "cost": 0,
+          "pose": "Sit",
+          "need": "fun",
+          "gain": 16
+        },
+        {
+          "id": "organ",
+          "label": "Play the organ prelude",
+          "station": "organ",
+          "kind": "moment",
+          "cost": 0,
+          "pose": "Type",
+          "need": "fun",
+          "gain": 10
+        },
+        {
+          "id": "curtain",
+          "label": "Join the curtain call",
+          "station": "stage",
+          "kind": "moment",
+          "cost": 0,
+          "pose": "Cheer",
+          "need": "social",
+          "gain": 10
+        }
+      ]
+    },
+    "high": {
+      "city": "atl",
+      "type": "museum",
+      "title": "Midtown Museum of Art",
+      "event": "Atrium art social",
+      "periodSeconds": 720,
+      "actions": [
+        {
+          "id": "art",
+          "label": "Look closer at the artwork",
+          "station": "gallery",
+          "kind": "watch",
+          "cost": 0,
+          "pose": "Interact",
+          "need": "fun",
+          "gain": 12
+        },
+        {
+          "id": "paint",
+          "label": "Paint a small canvas",
+          "station": "studio",
+          "kind": "paint",
+          "cost": 0,
+          "pose": "Interact",
+          "need": "fun",
+          "gain": 12
+        }
+      ]
+    },
+    "atlAirport": {
+      "city": "atl",
+      "type": "airport",
+      "title": "Peach Field International",
+      "event": "The Lantern Forest comes alive",
+      "periodSeconds": 600,
+      "actions": [
+        {
+          "id": "forest",
+          "label": "Take in the Lantern Forest",
+          "station": "forest",
+          "kind": "watch",
+          "cost": 0,
+          "pose": "Interact",
+          "need": "energy",
+          "gain": 10
+        },
+        {
+          "id": "train",
+          "label": "Ride the SkyTrain loop",
+          "station": "train",
+          "kind": "moment",
+          "cost": 0,
+          "pose": "Sit",
+          "need": "fun",
+          "gain": 10
+        },
+        {
+          "id": "snack",
+          "label": "Concourse snack",
+          "station": "table",
+          "kind": "food",
+          "cost": 6,
+          "pose": "Eat",
+          "need": "hunger",
+          "gain": 20
+        }
+      ]
+    }
   }
 }

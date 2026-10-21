@@ -70,6 +70,8 @@ export type Requires = {
 }
 
 export type Action = {
+  venueStation?:string
+  venuePose?:string
   id: string
   label: string
   kind: ActionKind
@@ -170,6 +172,10 @@ export type FirstDayStep='outside'|'job'|'shift'|'meal'|'neighbour'|'rent'
 export type Sim = {
   /** Private relationships for this life; omitted from public player presence. */
   relationships?:Record<string,Friendship>
+  shiftSchedule?:{open:number;close:number;lastDay:number;canWork:boolean;reason:string;gigsToday:number;gigLimit:number;shiftGameMinutes:number;gigGameMinutes:number;shiftSeconds:number;hoursLabel:string}
+  workGame?:{id:string;startsAt:number;endsAt:number;taps:number;best:number;bonus?:number}
+  openHouse?:boolean
+  homeLikes?:number
   trip?: TransitTrip | null
   pronouns?:'she'|'he'|'they'
   introDone?:boolean

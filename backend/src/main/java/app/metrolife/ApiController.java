@@ -16,6 +16,19 @@ public class ApiController {
     final GameService game;final Content content;
     ApiController(GameService game,Content content){this.game=game;this.content=content;}
     void cookie(HttpServletRequest req,HttpServletResponse res,String token){res.addHeader("Set-Cookie",ResponseCookie.from("ml_session",token).httpOnly(true).secure(req.isSecure()).sameSite("Lax").path("/").maxAge(token.isEmpty()?0:30L*86400).build().toString());res.setHeader("Cache-Control","no-store");}
+    @GetMapping("/venue-moment") ObjectNode venueMoment(@CookieValue(name="ml_session",required=false)String token,@RequestParam String loc){synchronized(game){return game.landmarkLife.read(token,loc);}}
+    @PostMapping("/venue-moment") ObjectNode venueMoment(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){synchronized(game){return game.landmarkLife.mutate(token,body);}}
+    @GetMapping("/social-life") ObjectNode socialLife(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){synchronized(game){return game.socialLife.read(token,game.defaultCity(token,city));}}
+    @PostMapping("/emote") ObjectNode emote(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){synchronized(game){return game.socialLife.emote(token,body);}}
+    @PostMapping("/event/join") ObjectNode eventJoin(@CookieValue(name="ml_session",required=false)String token){synchronized(game){return game.socialLife.joinEvent(token);}}
+    @PostMapping("/shift/timing") ObjectNode timing(@CookieValue(name="ml_session",required=false)String token){synchronized(game){return game.socialLife.timing(token);}}
+    @PostMapping("/invite") ObjectNode invite(@CookieValue(name="ml_session",required=false)String token){synchronized(game){return game.socialLife.invite(token);}}
+    @PostMapping("/invite/join") ObjectNode inviteJoin(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){synchronized(game){return game.socialLife.joinInvite(token,body);}}
+    @PostMapping("/quick-start") ObjectNode quickStart(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){synchronized(game){return game.socialLife.quickStart(token,body);}}
+    @PostMapping("/open-house") ObjectNode openHouse(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){synchronized(game){return game.socialLife.house(token,body);}}
+    @PostMapping("/open-house/visit") ObjectNode visitHouse(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){synchronized(game){return game.socialLife.visit(token,body);}}
+    @PostMapping("/open-house/like") ObjectNode likeHouse(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){synchronized(game){return game.socialLife.like(token,body);}}
+    @GetMapping("/name") ObjectNode name(@CookieValue(name="ml_session",required=false)String token){return game.suggestName(token);}
     @GetMapping("/world") ObjectNode world(){return content.world;}
     @GetMapping("/version") Map<String,String> version(){return Map.of("build","metro-life-v2");}
     @GetMapping("/stats") ObjectNode stats(){return game.stats();}
