@@ -1,3 +1,4 @@
+import { installHomeDesign,useHomeDesign } from './home-design'
 import { motion, useWalking } from './walking'
 import { serverNow, syncServerTime } from './server-time'
 import { create } from 'zustand'
@@ -218,6 +219,7 @@ export const useStore = create<State>((set, get) => {
       const me = await safe(api.me())
       const city = me?.sim?.city ?? get().city
       if(resultTimer)clearTimeout(resultTimer);resultTimer=null;presenceRevision++
+      installHomeDesign(me?.sim?.homeDesign,me?.sim?.homeLayout);useHomeDesign.getState().setOpen(false)
       set({ user: me?.user ?? null, worldInfo: me?.world ?? null, sim: me?.sim ?? null, clock: me?.clock ?? null, city,players:[],chat:[],socialNotice:'', mayor:null,plots:null,billboards:null,homes:null,plotSelection:null,lastResult:null,selectedLoc:null,selectedSlot:null,searchOpen:false,rewardAnchor:null,focus:null,panel:null,acting:false })
       sessionChanging=false;resourceRevision++
       // Civic and live resources become available in M6/M7; do not poll absent routes.
@@ -258,7 +260,7 @@ export const useStore = create<State>((set, get) => {
       await Promise.all(jobs)
     },
 
-    setSim: (sim) => {if(indoorTravelPending)return;if(sim&&sim.worldId!==get().worldInfo?.id)return;const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.teleport++;motion.position={...sim.position};useWalking.setState({position:{...sim.position}});motion.follow=true;motion.wake()}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
+    setSim: (sim) => {if(indoorTravelPending)return;if(sim&&sim.worldId!==get().worldInfo?.id)return;installHomeDesign(sim?.homeDesign,sim?.homeLayout);const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.teleport++;motion.position={...sim.position};useWalking.setState({position:{...sim.position}});motion.follow=true;motion.wake()}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {
@@ -296,6 +298,7 @@ export const useStore = create<State>((set, get) => {
         const alreadyThere=!current.position?.room&&current.position?.place===destination
         let result=alreadyThere?await api.sim():await api.travel(sim.city,destination)
         if(get().sim?.worldId!==world)return
+        installHomeDesign(result.sim.homeDesign,result.sim.homeLayout)
         set({sim:result.sim,clock:result.clock,searchOpen:false,cameraMoving:false})
         const deadline=Date.now()+15000
         while(result.sim.busyUntil){
@@ -305,6 +308,7 @@ export const useStore = create<State>((set, get) => {
         }
         motion.revision++;motion.teleport++;motion.position={...result.sim.position!};motion.follow=true
         useWalking.setState({position:{...result.sim.position!},error:''})
+        installHomeDesign(result.sim.homeDesign,result.sim.homeLayout)
         set({sim:result.sim,clock:result.clock,panel:afterPanel,selectedLoc:destination,focus:null,cameraMoving:false})
         motion.wake();if(afterPanel==='mayor')await get().refresh('mayor')
       }catch(error){useWalking.setState({error:error instanceof Error?error.message:'Could not travel. Try again.'});throw error}

@@ -54,6 +54,8 @@ public class ApiController {
     @PostMapping("/plots") ObjectNode buyPlot(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.buyPlot(token,body);}
     @GetMapping("/billboards") ObjectNode boards(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.billboards(token,game.defaultCity(token,city));}
     @PostMapping("/billboards") ObjectNode book(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.bookBillboard(token,body);}
+    @GetMapping("/home/design") ObjectNode design(@CookieValue(name="ml_session",required=false)String token){return game.homeDesign(token);}
+    @PostMapping("/home/design") ObjectNode design(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.homeDesign(token,body);}
     @GetMapping("/homes") ObjectNode homes(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.homes(token,game.defaultCity(token,city));}
     @PostMapping("/home/move") ObjectNode move(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.moveHome(token,body);}
     @GetMapping(value="/plots/atlas.png",produces="image/png") ResponseEntity<byte[]> atlas(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city,@RequestParam(defaultValue="")String world){return ResponseEntity.ok().header("Cache-Control","private, no-cache").body(game.atlas(token,game.defaultCity(token,city),world));}

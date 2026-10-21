@@ -5,7 +5,7 @@
 - Round 2 item 1, city choice and shared bus/plane travel: done — 7e9e5a7.
 - Round 2 item 6, visible life: done (poses, gestures, shared labels and low needs).
 - Round 2 item 3, deeper character creation: done (creator, wardrobe, traits and wants).
-- Round 2 item 2, Buy mode and home space: not done.
+- Round 2 item 2, Buy mode and home space: done (catalogue, grid, paint and saved layouts).
 - Round 2 item 7, ledger, purchase clarity and slower needs: not done.
 - Round 2 item 8, distinct room shapes/materials: not done.
 - Round 2 item 9, full-height warm night skyline: not done.

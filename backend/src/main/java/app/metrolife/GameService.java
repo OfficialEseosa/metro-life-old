@@ -20,8 +20,8 @@ public class GameService {
     long visits;
     private final SecureRandom random = new SecureRandom();
     final FirstDay firstDay=new FirstDay(this);
-    final Transit transit;
-    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.visits=store.data.path("visits").asLong();this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this);this.community=new Community(this);navigation=new Navigation(this);residentMotion=new ResidentMotion(this);transit=new Transit(this);navigation.repairRoomPositions(); }
+    final Transit transit;final HomeDesign homeDesign;
+    GameService(JsonStore store, Content content, ObjectMapper mapper) { this.store=store;this.visits=store.data.path("visits").asLong();this.content=content;this.mapper=mapper;this.progression=new Progression(content);this.stories=new Stories(this);this.civic=new Civic(this);this.property=new Property(this);this.community=new Community(this);navigation=new Navigation(this);residentMotion=new ResidentMotion(this);transit=new Transit(this);homeDesign=new HomeDesign(this);navigation.repairRoomPositions(); }
     long now() { return time.getAsLong(); }
     ObjectNode object() { return mapper.createObjectNode(); }
     ObjectNode table(String name) { return (ObjectNode)store.data.get(name); }
@@ -92,7 +92,7 @@ public class GameService {
         if(s!=null) {navigation.resumePosture(s);decay(s,w);out.set("sim",publicSim(s));out.set("clock",clock(w));} else out.putNull("sim");return out;
     }
     Navigation navigation;
-    ObjectNode publicSim(ObjectNode s) {Personality.normalize(s);if(!s.path("needs").has("hygiene"))s.withObject("needs").put("hygiene",85);navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));copy.set("traitMoodlets",Personality.moodlets(s));copy.set("wants",Personality.wants(s));copy.remove("_wantBaseline");copy.set("trip",transit.trip(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited","_outside","_pendingTravel","_transitNap","_lastTripChat","_transitMinutes"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
+    ObjectNode publicSim(ObjectNode s) {Personality.normalize(s);if(!s.path("needs").has("hygiene"))s.withObject("needs").put("hygiene",85);homeDesign.ensure(s);navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));copy.set("traitMoodlets",Personality.moodlets(s));copy.set("wants",Personality.wants(s));copy.remove("_wantBaseline");copy.set("trip",transit.trip(s));copy.set("homeDesign",homeDesign.ensure(s).deepCopy());copy.set("homeLayout",homeDesign.layout(s,homeDesign.ensure(s)));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited","_outside","_pendingTravel","_transitNap","_lastTripChat","_transitMinutes"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
     String friendlyName(){
         String[] first="Avery Riley Jordan Casey Morgan Taylor Alex Jamie Quinn Rowan Sage Skyler Reese Parker Cameron Blair Adrian Ashley Aubrey Bailey Briar Brooklyn Charlie Dakota Drew Emerson Emery Evan Frankie Harper Hayden Jesse Jules Kai Kendall Kennedy Lee Logan Marley Micah Peyton Phoenix Remy Robin Rory Ryan Sam Shay Sidney Spencer Stevie Tatum Toby Tristan Wren Whitney Cody Dylan Ellery Finley Grey Hollis Indigo Justice Keegan Lennox".split(" ");
         String[] last="Brooks Vale Reed Lane Park Ellis Hayes Quill Blake Bell Stone Wells Banks Hill West Hart Adler Bailey Baker Barrett Benson Bishop Bowen Brady Burke Campbell Chandler Collins Conway Cook Crosby Dean Dixon Donovan Drake Everett Farley Fleming Flynn Fox Gardner Gibson Graham Griffin Hardy Harris Hartley Henderson Hunt Irwin James Keller Knight Lewis Mitchell Monroe Nash Palmer Pierce Price Reid Rivers Russell Shaw Tate Walker Winters Young".split(" ");
@@ -229,8 +229,8 @@ public class GameService {
         boolean campaign=a.path("label").asText().equals("Campaign");if(campaign)civic.campaignCheck(w,s,city);
         boolean low=Set.of("rough","low").contains(s.path("mood").asText());double cashDelta=Math.floor(a.path("pay").asDouble()*(low?.7:1))-a.path("cost").asDouble();
         s.put("cash",s.path("cash").asDouble()+cashDelta);int xp=a.path("xp").asInt();s.put("xp",s.path("xp").asInt()+xp);int oldLevel=s.path("level").asInt();updateLevel(s);
-        ObjectNode needDeltas=object(),skillDeltas=object();if(loc.equals("home")&&action.equals("shower"))needDeltas.put("hygiene",Math.min(70,100-s.path("needs").path("hygiene").asDouble(85)));
-        for(String need:Content.NEEDS){ObjectNode needs=s.withObject("needs");double before=needs.path(need).asDouble(),after=Math.clamp(before+Personality.needDelta(s,a,loc,need,a.path("needs").path(need).asDouble()),0,100);needs.put(need,after);needDeltas.put(need,after-before);}
+        ObjectNode homeBonus=loc.equals("home")?homeDesign.recoveryBonus(live,action):object();ObjectNode needDeltas=object(),skillDeltas=object();if(loc.equals("home")&&action.equals("shower"))needDeltas.put("hygiene",Math.min(70,100-s.path("needs").path("hygiene").asDouble(85)));
+        for(String need:Content.NEEDS){ObjectNode needs=s.withObject("needs");double before=needs.path(need).asDouble(),after=Math.clamp(before+Personality.needDelta(s,a,loc,need,a.path("needs").path(need).asDouble())+homeBonus.path(need).asDouble(),0,100);needs.put(need,after);needDeltas.put(need,after-before);}
         a.path("skills").fields().forEachRemaining(e->{ObjectNode skill=(ObjectNode)s.path("skills").get(e.getKey());int gain=(int)Math.floor(e.getValue().asInt()*(low?.7:1)*Personality.skillMultiplier(s,e.getKey()));addSkill(skill,gain);skillDeltas.put(e.getKey(),gain);});
         ArrayNode completed=mapper.createArrayNode();trackVisit(s,city,loc,completed);
         s.put("loc",loc).put("actionsCount",s.path("actionsCount").asInt()+1);
@@ -271,6 +271,8 @@ public class GameService {
         if(changes.isEmpty())changes.add("You are already feeling refreshed");if(goals>0)changes.add(goals+" daily goal"+(goals>1?"s":"")+" completed");
         return opening+" "+String.join(" · ",changes)+".";
     }
+    synchronized ObjectNode homeDesign(String token){return homeDesign.read(token);}
+    synchronized ObjectNode homeDesign(String token,JsonNode body){return homeDesign.mutate(token,body);}
     synchronized ObjectNode transit(String token,String city){return transit.read(token,city);}
     synchronized ObjectNode bookTransit(String token,JsonNode body){return transit.book(token,body);}
     synchronized ObjectNode napTransit(String token){return transit.nap(token);}

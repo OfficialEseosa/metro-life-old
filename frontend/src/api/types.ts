@@ -21,7 +21,7 @@ export type Look = {
   shoeColor: string
 }
 /** Authored visual hip slot; movement authority remains at the furniture approach. */
-export type ActivitySlot={id:string;pose:string;x:number;z:number;y?:number;face:number;bench?:boolean;station?:string}
+export type ActivitySlot={id:string;pose:string;x:number;z:number;y?:number;face:number;bench?:boolean;station?:string;action?:string}
 
 export type User = {
   id: string
@@ -186,6 +186,8 @@ export type Sim = {
   loc: string | null
   home: { kind?:string; city: CityId; neighborhood: string; rent: number }
   cash: number
+  homeDesign?:import("../home-design").HomeDesign
+  homeLayout?:import("../navigation").RoomLayout
   rentDebt?: number
   traits?:string[]
   traitMoodlets?:{id:string;label:string;detail:string}[]

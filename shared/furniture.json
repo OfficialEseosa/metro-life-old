@@ -1,0 +1,405 @@
+{
+  "grid": 0.25,
+  "categories": [
+    "seating",
+    "beds",
+    "tables",
+    "kitchen",
+    "bath",
+    "lighting",
+    "decor",
+    "plants"
+  ],
+  "wallColors": [
+    "#e5d8bf",
+    "#c2d3c9",
+    "#d8c4cf",
+    "#aabcc9",
+    "#e6cfaa",
+    "#ededdf"
+  ],
+  "floorColors": [
+    "#ad8b69",
+    "#735e50",
+    "#c8b795",
+    "#a0aaa6",
+    "#c9c5bc",
+    "#7f8b82"
+  ],
+  "items": [
+    {
+      "id": "starter-chair",
+      "name": "Simple armchair",
+      "category": "seating",
+      "kind": "chair",
+      "price": 80,
+      "w": 0.8,
+      "d": 0.8,
+      "color": "#668279",
+      "action": "invite",
+      "stats": {
+        "comfort": 2,
+        "fun": 1,
+        "hygiene": 0,
+        "environment": 0
+      }
+    },
+    {
+      "id": "sofa",
+      "name": "Soft two-seat sofa",
+      "category": "seating",
+      "kind": "sofa",
+      "price": 320,
+      "w": 1.8,
+      "d": 0.9,
+      "color": "#79919a",
+      "action": "invite",
+      "stats": {
+        "comfort": 6,
+        "fun": 3,
+        "hygiene": 0,
+        "environment": 0
+      }
+    },
+    {
+      "id": "velvet-sofa",
+      "name": "Velvet lounge sofa",
+      "category": "seating",
+      "kind": "sofa",
+      "price": 780,
+      "w": 2.1,
+      "d": 1,
+      "color": "#99647a",
+      "action": "invite",
+      "stats": {
+        "comfort": 9,
+        "fun": 6,
+        "hygiene": 0,
+        "environment": 4
+      }
+    },
+    {
+      "id": "starter-bed",
+      "name": "Pine bed",
+      "category": "beds",
+      "kind": "bed",
+      "price": 180,
+      "w": 2,
+      "d": 1.5,
+      "color": "#80999c",
+      "action": "sleep",
+      "stats": {
+        "comfort": 4,
+        "fun": 0,
+        "hygiene": 0,
+        "environment": 0
+      }
+    },
+    {
+      "id": "double-bed",
+      "name": "Cloud double bed",
+      "category": "beds",
+      "kind": "bed",
+      "price": 650,
+      "w": 2.2,
+      "d": 1.8,
+      "color": "#aaa1c4",
+      "action": "sleep",
+      "stats": {
+        "comfort": 9,
+        "fun": 0,
+        "hygiene": 0,
+        "environment": 3
+      }
+    },
+    {
+      "id": "nightstand",
+      "name": "Bedside table",
+      "category": "tables",
+      "kind": "table",
+      "price": 45,
+      "w": 0.55,
+      "d": 0.55,
+      "color": "#b28a65",
+      "action": "invite",
+      "stats": {
+        "comfort": 0,
+        "fun": 0,
+        "hygiene": 0,
+        "environment": 1
+      }
+    },
+    {
+      "id": "dining-table",
+      "name": "Oak dining table",
+      "category": "tables",
+      "kind": "table",
+      "price": 160,
+      "w": 1.3,
+      "d": 0.9,
+      "color": "#bb926e",
+      "action": "invite",
+      "stats": {
+        "comfort": 2,
+        "fun": 2,
+        "hygiene": 0,
+        "environment": 0
+      }
+    },
+    {
+      "id": "desk",
+      "name": "Study desk",
+      "category": "tables",
+      "kind": "desk",
+      "price": 250,
+      "w": 1.5,
+      "d": 0.7,
+      "color": "#a9876e",
+      "action": "invite",
+      "stats": {
+        "comfort": 3,
+        "fun": 4,
+        "hygiene": 0,
+        "environment": 0
+      }
+    },
+    {
+      "id": "starter-stove",
+      "name": "Compact cooker",
+      "category": "kitchen",
+      "kind": "stove",
+      "price": 220,
+      "w": 0.9,
+      "d": 1.1,
+      "color": "#9ca6a1",
+      "action": "cook",
+      "stats": {
+        "comfort": 0,
+        "fun": 2,
+        "hygiene": 0,
+        "environment": 0
+      }
+    },
+    {
+      "id": "range",
+      "name": "Chef range",
+      "category": "kitchen",
+      "kind": "stove",
+      "price": 700,
+      "w": 1.2,
+      "d": 1.1,
+      "color": "#5d6b76",
+      "action": "cook",
+      "stats": {
+        "comfort": 0,
+        "fun": 6,
+        "hygiene": 2,
+        "environment": 2
+      }
+    },
+    {
+      "id": "fridge",
+      "name": "Retro fridge",
+      "category": "kitchen",
+      "kind": "fridge",
+      "price": 340,
+      "w": 0.8,
+      "d": 0.8,
+      "color": "#91aaa3",
+      "action": "cook",
+      "stats": {
+        "comfort": 0,
+        "fun": 2,
+        "hygiene": 0,
+        "environment": 3
+      }
+    },
+    {
+      "id": "starter-shower",
+      "name": "Fresh shower",
+      "category": "bath",
+      "kind": "shower",
+      "price": 240,
+      "w": 1.1,
+      "d": 1.5,
+      "color": "#a8c9c4",
+      "action": "shower",
+      "stats": {
+        "comfort": 0,
+        "fun": 0,
+        "hygiene": 5,
+        "environment": 0
+      }
+    },
+    {
+      "id": "tub",
+      "name": "Deep soaking tub",
+      "category": "bath",
+      "kind": "tub",
+      "price": 680,
+      "w": 1.8,
+      "d": 0.9,
+      "color": "#c9d8d5",
+      "action": "shower",
+      "stats": {
+        "comfort": 6,
+        "fun": 2,
+        "hygiene": 9,
+        "environment": 3
+      }
+    },
+    {
+      "id": "sink",
+      "name": "Porcelain basin",
+      "category": "bath",
+      "kind": "sink",
+      "price": 110,
+      "w": 0.7,
+      "d": 0.65,
+      "color": "#d7dfd6",
+      "action": "shower",
+      "stats": {
+        "comfort": 0,
+        "fun": 0,
+        "hygiene": 3,
+        "environment": 0
+      }
+    },
+    {
+      "id": "floor-lamp",
+      "name": "Warm floor lamp",
+      "category": "lighting",
+      "kind": "lamp",
+      "price": 55,
+      "w": 0.4,
+      "d": 0.4,
+      "color": "#e3bf7c",
+      "action": "invite",
+      "stats": {
+        "comfort": 0,
+        "fun": 0,
+        "hygiene": 0,
+        "environment": 3
+      }
+    },
+    {
+      "id": "paper-lamp",
+      "name": "Paper lantern",
+      "category": "lighting",
+      "kind": "lamp",
+      "price": 120,
+      "w": 0.5,
+      "d": 0.5,
+      "color": "#f1d8af",
+      "action": "invite",
+      "stats": {
+        "comfort": 0,
+        "fun": 0,
+        "hygiene": 0,
+        "environment": 6
+      }
+    },
+    {
+      "id": "rug",
+      "name": "Woven rug",
+      "category": "decor",
+      "kind": "rug",
+      "price": 90,
+      "w": 1.5,
+      "d": 1.1,
+      "color": "#b88a76",
+      "action": "invite",
+      "stats": {
+        "comfort": 2,
+        "fun": 0,
+        "hygiene": 0,
+        "environment": 3
+      }
+    },
+    {
+      "id": "sculpture",
+      "name": "Abstract sculpture",
+      "category": "decor",
+      "kind": "sculpture",
+      "price": 380,
+      "w": 0.6,
+      "d": 0.6,
+      "color": "#cfb37d",
+      "action": "invite",
+      "stats": {
+        "comfort": 0,
+        "fun": 4,
+        "hygiene": 0,
+        "environment": 8
+      }
+    },
+    {
+      "id": "shelf",
+      "name": "Favourite books",
+      "category": "decor",
+      "kind": "shelf",
+      "price": 130,
+      "w": 1,
+      "d": 0.4,
+      "color": "#8e7968",
+      "action": "invite",
+      "stats": {
+        "comfort": 0,
+        "fun": 4,
+        "hygiene": 0,
+        "environment": 4
+      }
+    },
+    {
+      "id": "fern",
+      "name": "Boston fern",
+      "category": "plants",
+      "kind": "plant",
+      "price": 30,
+      "w": 0.5,
+      "d": 0.5,
+      "color": "#639773",
+      "action": "invite",
+      "stats": {
+        "comfort": 0,
+        "fun": 1,
+        "hygiene": 0,
+        "environment": 2
+      }
+    },
+    {
+      "id": "palm",
+      "name": "Indoor palm",
+      "category": "plants",
+      "kind": "plant",
+      "price": 95,
+      "w": 0.7,
+      "d": 0.7,
+      "color": "#547c5a",
+      "action": "invite",
+      "stats": {
+        "comfort": 0,
+        "fun": 2,
+        "hygiene": 0,
+        "environment": 5
+      }
+    },
+    {
+      "id": "flowers",
+      "name": "Fresh flowers",
+      "category": "plants",
+      "kind": "flowers",
+      "price": 45,
+      "w": 0.4,
+      "d": 0.4,
+      "color": "#cb8e9f",
+      "action": "invite",
+      "stats": {
+        "comfort": 0,
+        "fun": 2,
+        "hygiene": 0,
+        "environment": 3
+      }
+    }
+  ]
+}

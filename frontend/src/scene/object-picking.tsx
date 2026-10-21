@@ -1,3 +1,4 @@
+import { useHomeDesign } from '../home-design'
 import { useEffect, useRef } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -34,7 +35,7 @@ export function ObjectPicking({onPick}:{onPick:(target:PickTarget)=>void}){
   const down=(event:PointerEvent)=>{
    if(event.target!==canvas||event.button!==0||!event.isPrimary){gesture=null;return}
    const state=useStore.getState(),sim=state.sim
-   if(!sim||sim.city!==state.city){gesture=null;return}
+   if(useHomeDesign.getState().open||!sim||sim.city!==state.city){gesture=null;return}
    gesture={id:event.pointerId,x:event.clientX,y:event.clientY,dragged:false,city:state.city,room:sim.position?.room??null,user:sim.userId}
   }
   const move=(event:PointerEvent)=>{if(gesture?.id===event.pointerId&&Math.hypot(event.clientX-gesture.x,event.clientY-gesture.y)>=6)gesture.dragged=true}
@@ -43,7 +44,7 @@ export function ObjectPicking({onPick}:{onPick:(target:PickTarget)=>void}){
    const start=gesture;gesture=null
    if(!start||start.id!==event.pointerId||start.dragged||event.button!==0||!event.isPrimary||Math.hypot(event.clientX-start.x,event.clientY-start.y)>=6)return
    const state=useStore.getState(),sim=state.sim,city=state.city,room=sim?.position?.room??null
-   if(!sim||sim.city!==city||start.city!==city||start.room!==room||start.user!==sim.userId)return
+   if(useHomeDesign.getState().open||!sim||sim.city!==city||start.city!==city||start.room!==room||start.user!==sim.userId)return
    const rect=canvas.getBoundingClientRect();if(rect.width<=0||rect.height<=0)return
    if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)return
    camera.updateWorldMatrix(true,false);scene.updateMatrixWorld(true)
@@ -61,7 +62,7 @@ export function ObjectPicking({onPick}:{onPick:(target:PickTarget)=>void}){
    if(room){
     const type=roomType(room)
     if(!type)return
-    const layout=roomLayout(city,type),halfWidth=type==='home'?3.5:6,halfDepth=type==='home'?3:5
+    const layout=roomLayout(city,type),halfWidth=(layout.bounds?.w??(type==='home'?7:12))/2,halfDepth=(layout.bounds?.d??(type==='home'?6:10))/2
     plane.set(THREE.Object3D.DEFAULT_UP,0)
     if(raycaster.ray.intersectPlane(plane,hit)&&Math.abs(hit.x)<=halfWidth&&Math.abs(hit.z)<=halfDepth)acceptGround(hit)
     // The room doorway is open: select its actual jambs/lintel, not an

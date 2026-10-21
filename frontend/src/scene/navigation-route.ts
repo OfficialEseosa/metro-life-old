@@ -1,4 +1,4 @@
-import { canStand, inBox, inPolygon, interiors, navigation, roomLayout, roomType } from '../navigation'
+import { canStand, homeLayoutRevision, inBox, inPolygon, interiors, navigation, roomLayout, roomType } from '../navigation'
 import type { CityId } from '../api/types'
 
 type Point={x:number;z:number}
@@ -16,9 +16,9 @@ class MinHeap {
  pop(){const first=this.rows[0],last=this.rows.pop()!;if(this.rows.length){let i=0;while(i*2+1<this.rows.length){let child=i*2+1;if(child+1<this.rows.length&&this.rows[child+1].f<this.rows[child].f)child++;if(this.rows[child].f>=last.f)break;this.rows[i]=this.rows[child];i=child}this.rows[i]=last}return first}
 }
 function survey(city:CityId,room:string|null):Survey|undefined{
- const type=roomType(room),id=room?`${city}:${type}`:city,cached=surveys.get(id);if(cached)return cached
+ const type=roomType(room),id=room?`${city}:${type}:${type==='home'?homeLayoutRevision():0}`:city,cached=surveys.get(id);if(cached)return cached
  if(room&&(!type||!Object.hasOwn(interiors,type)))return
- const boxes=room?roomLayout(city,type!).boxes:navigation[city].boxes,extent=room?(type==='home'?[3.25,2.75]:[5.5,4.5]):undefined
+ const boxes=room?roomLayout(city,type!).boxes:navigation[city].boxes,bounds=room?roomLayout(city,type!).bounds:undefined,extent=room?(bounds?[bounds.w/2-.25,bounds.d/2-.25]:type==='home'?[3.25,2.75]:[5.5,4.5]):undefined
  const areas:number[][][]=room?[]:[...navigation[city].land],land=navigation[city].land.flat(),xs=land.map(p=>p[0]),zs=land.map(p=>p[1]),s:Survey={minX:extent?-extent[0]:Math.min(...xs)-1,maxX:extent?extent[0]:Math.max(...xs)+1,minZ:extent?-extent[1]:Math.min(...zs)-1,maxZ:extent?extent[1]:Math.max(...zs)+1,boxes,buckets:new Map(),edges:new Map(),areas,components:[],adjacent:[]}
  for(const b of boxes){const c=Math.abs(Math.cos(b.a)),sn=Math.abs(Math.sin(b.a)),rx=(b.w/2+.301)*c+(b.d/2+.301)*sn,rz=(b.w/2+.301)*sn+(b.d/2+.301)*c;for(let x=Math.floor((b.x-rx)/bucketSize);x<=Math.floor((b.x+rx)/bucketSize);x++)for(let z=Math.floor((b.z-rz)/bucketSize);z<=Math.floor((b.z+rz)/bucketSize);z++){const k=key(x,z),rows=s.buckets.get(k);if(rows)rows.push(b);else s.buckets.set(k,[b])}}
  if(!room){const n=navigation[city],polygons=[...n.land,...n.water];for(const bridge of n.bridges){const c=Math.cos(bridge.a),sn=Math.sin(bridge.a),w=bridge.w/2-.35,d=bridge.d/2-.35;const polygon=[[-w,-d],[w,-d],[w,d],[-w,d]].map(([x,z])=>[bridge.x+x*c+z*sn,bridge.z-x*sn+z*c]);polygons.push(polygon);areas.push(polygon)}for(const polygon of polygons)for(let i=0;i<polygon.length;i++){const a=polygon[i],b=polygon[(i+1)%polygon.length],edge={a:{x:a[0],z:a[1]},b:{x:b[0],z:b[1]}};for(let x=Math.floor(Math.min(a[0],b[0])/bucketSize);x<=Math.floor(Math.max(a[0],b[0])/bucketSize);x++)for(let z=Math.floor(Math.min(a[1],b[1])/bucketSize);z<=Math.floor(Math.max(a[1],b[1])/bucketSize);z++){const k=key(x,z),rows=s.edges.get(k);if(rows)rows.push(edge);else s.edges.set(k,[edge])}}}
@@ -54,7 +54,7 @@ function route(city:CityId,room:string|null,start:Point,end:Point,overallDeadlin
  }
 
  const started=performance.now(),deadline=Math.min(started+(room?40:220),overallDeadline-15),step=room?.25:.6,maxNodes=room?9000:50000,navigationCity=navigation[city]
- const stand=(x:number,z:number)=>{if(x<=s.minX||x>=s.maxX||z<=s.minZ||z>=s.maxZ)return false;const boxes=s.buckets.get(key(Math.floor(x/bucketSize),Math.floor(z/bucketSize)));if(boxes?.some(b=>inBox(x,z,b)))return false;if(room)return true;return(navigationCity.land.some(p=>inPolygon(x,z,p))||navigationCity.bridges.some(b=>inBox(x,z,b,-.35)))&&!navigationCity.water.some(p=>inPolygon(x,z,p))}
+ const stand=(x:number,z:number)=>{if(x<=s.minX||x>=s.maxX||z<=s.minZ||z>=s.maxZ)return false;const boxes=s.buckets.get(key(Math.floor(x/bucketSize),Math.floor(z/bucketSize)));if(boxes?.some(b=>inBox(x,z,b)))return false;if(room)return canStand(city,x,z,room);return(navigationCity.land.some(p=>inPolygon(x,z,p))||navigationCity.bridges.some(b=>inBox(x,z,b,-.35)))&&!navigationCity.water.some(p=>inPolygon(x,z,p))}
  const clear=(a:Point,b:Point,authority=false)=>{const seen=new Set<Obstacle>(),seenEdges=new Set<Boundary>(),cuts=[0,1],dx=b.x-a.x,dz=b.z-a.z
   for(let x=Math.floor(Math.min(a.x,b.x)/bucketSize);x<=Math.floor(Math.max(a.x,b.x)/bucketSize);x++)for(let z=Math.floor(Math.min(a.z,b.z)/bucketSize);z<=Math.floor(Math.max(a.z,b.z)/bucketSize);z++){
    const bucket=key(x,z);for(const box of s.buckets.get(bucket)??[]){if(seen.has(box))continue;seen.add(box);if(crossesBox(a,b,box))return false}
