@@ -2,6 +2,7 @@ import { ImageQuality } from './image-quality'
 import { WorldTextPreload } from './world-text'
 import { StorefrontSigns } from './storefront-signs'
 import { RoomLighting } from './room-lighting'
+import { RoomPlinth } from './room-plinth'
 import { PoseStudio } from './pose-studio'
 import type { CharacterPose } from './character'
 import { HelpWanted } from './help-wanted'
@@ -10,6 +11,8 @@ import { ScaleRuler } from './scale-ruler'
 import { metricPlacement } from './world-scale'
 import { Interior } from './interior'
 import { Walkways } from './walkways'
+import { Streets } from './streets'
+import { roomLayout,roomType } from '../navigation'
 /* oxlint-disable react/immutability -- Three.js objects and shader uniforms are imperative renderer resources. */
 import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
@@ -53,10 +56,10 @@ function Terrain({night}:{night:boolean}){const geometry=useMemo(()=>{const g=ne
 
 function Sky({ night,room }: { night: boolean;room?:boolean }) {
   const ref=useRef<THREE.Mesh>(null)
-  const material = useMemo(() => new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, depthTest: false, uniforms: { top: { value: new THREE.Color() }, bottom: { value: new THREE.Color() } },
+  const material = useMemo(() => new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, depthTest: false, uniforms: { top: { value: new THREE.Color() }, bottom: { value: new THREE.Color() }, interiorVoid:{value:0} },
     vertexShader: 'varying vec3 vPosition;void main(){vPosition=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader: 'uniform vec3 top;uniform vec3 bottom;varying vec3 vPosition;void main(){vec3 dir=normalize(vPosition);float h=clamp(dir.y*1.7,0.,1.);vec3 col=mix(bottom,top,pow(h,.65));vec2 cell=floor(dir.xz/(abs(dir.y)+.3)*350.);float star=step(.9988,fract(sin(dot(cell,vec2(127.1,311.7)))*43758.5453))*smoothstep(.12,.3,h)*(1.-step(.08,top.r));gl_FragColor=vec4(col+star*.65,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}' }), [])
-  useEffect(() => {material.uniforms.top.value.set(room?(night?'#78697b':'#e4d5b8'):night?'#1d274b':'#8fc3e2');material.uniforms.bottom.value.set(room?(night?'#91818d':'#eee5dd'):night?'#70677e':'#f1dfc4')}, [material, night,room])
+    fragmentShader: 'uniform float interiorVoid;uniform vec3 top;uniform vec3 bottom;varying vec3 vPosition;void main(){vec3 dir=normalize(vPosition);float h=clamp(dir.y*1.7,0.,1.);vec3 col=mix(bottom,top,pow(h,.65));vec2 cell=floor(dir.xz/(abs(dir.y)+.3)*350.);float star=step(.9988,fract(sin(dot(cell,vec2(127.1,311.7)))*43758.5453))*smoothstep(.12,.3,h)*(1.-step(.08,top.r));gl_FragColor=vec4(col+star*.65*(1.-interiorVoid),1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}' }), [])
+  useEffect(() => {material.uniforms.interiorVoid.value=room?1:0;material.uniforms.top.value.set(room?(night?'#2b2433':'#efe3d3'):night?'#1d274b':'#8fc3e2');material.uniforms.bottom.value.set(room?(night?'#191520':'#d9c6b4'):night?'#70677e':'#f1dfc4')}, [material, night,room])
   useFrame(({camera})=>{ref.current?.position.copy(camera.position)})
   return <mesh ref={ref} renderOrder={-1000} material={material} raycast={noPick} frustumCulled={false}><sphereGeometry args={[450, 24, 16]} /></mesh>
 }
@@ -137,7 +140,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   useEffect(() => {if(focus){if(!room){motion.follow=false;view(focus)}else{destination.current=null;motion.follow=true}useStore.getState().setFocus(null)}}, [focus,view,room])
   // Entering a room ends any outdoor intro/map flight before the walking camera takes over.
   useEffect(()=>{if(!room)return;destination.current=null;motion.follow=true;useStore.getState().setCameraMoving(false);invalidate()},[room,invalidate])
-  useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=new THREE.Fog(room?(night?'#91818d':'#eee5dd'):night?'#70677e':'#f1dfc4',room?38:500,room?75:1100);invalidate()}, [gl,scene,night,city,room,invalidate])
+  useEffect(() => {gl.shadowMap.autoUpdate=false;gl.shadowMap.needsUpdate=true;scene.fog=room?null:new THREE.Fog(night?'#70677e':'#f1dfc4',500,1100);invalidate()}, [gl,scene,night,city,room,invalidate])
   useEffect(() => {const wake=()=>{lastFrame.current=0;invalidate()};document.addEventListener('visibilitychange',wake);return()=>document.removeEventListener('visibilitychange',wake)},[invalidate])
   useFrame((_,dt)=>{
     const fog=scene.fog as THREE.Fog|null,range=camera.position.distanceTo(controls.current?.target??worldTarget);if(fog&&!room){fog.near=Math.max(500,range*1.1);fog.far=Math.max(1100,range*2.2)}
@@ -162,11 +165,11 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   return <>
     <Sky night={night} room={!!room}/><hemisphereLight args={[night?'#a8b9dd':'#e0e9f2',night?'#4c566c':'#9cacbd',room?(room.startsWith('club:')?.16:.45):night?.65:1.2]}/>
     <directionalLight position={[-55,90,45]} intensity={room?0:night?.9:2.0} color={night?'#95b3ef':'#fff1dc'} castShadow={!room} shadow-mapSize={[2048,2048]} shadow-camera-left={-100} shadow-camera-right={100} shadow-camera-top={100} shadow-camera-bottom={-100} shadow-camera-near={1} shadow-camera-far={230} shadow-bias={-.0003} shadow-normalBias={.12}/>
-    {room&&<><RoomLighting club={room.startsWith('club:')}/><Interior room={room}/></>}
+    {room&&<><RoomLighting club={room.startsWith('club:')}/><RoomPlinth room={room}/><Interior room={room}/></>}
     {/* Keep asset boundaries mounted across doors; late Suspense retries must not strand the exterior. */}
     <group name="outdoor-city" visible={!room}>{city==='atl'?<><mesh name="ground" position={[0,-.05,0]} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noPick}><planeGeometry args={[2000,2000]}/><meshStandardMaterial color={night?'#343b39':'#8ebd75'} emissive={night?'#586c83':'#000000'} emissiveIntensity={night?.24:0} roughness={1}/></mesh><Terrain night={night}/><Fabric night={night}/></>:<MetropolitanFabric key={city} city={city} night={night}/>}
     <Architecture key={`architecture-${city}`} city={city}/><Home city={city}/><Lake night={night} city={city}/>{!pinsHidden&&<Pins key={`pins-${city}`} onHover={onHover}/>}
-    <HelpWanted/><StorefrontSigns/><Walkways city={city}/><Traffic city={city} night={night}/><EconomyScene night={night}/></group><CameraOcclusion/><ObjectPicking onPick={openObjectMenu}/><Residents/><WorldActivity/><Walking controls={controls} cancelFlight={()=>{destination.current=null}}/><OrbitControls ref={controls} enabled={!beat&&panel!=='plots'&&!['play','setup','signup','login','worlds'].includes(panel??'')} makeDefault target={worldTarget} minDistance={9} maxDistance={1200} maxPolarAngle={1.25} minPolarAngle={.35} enableRotate enableDamping={false} mouseButtons={{MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE}} touches={{ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null;motion.follow=false;useStore.getState().setCameraMoving(true)}} onEnd={()=>{const c=controls.current;if(c&&useStore.getState().sim){const offset=c.object.position.clone().sub(c.target);motion.camera={angle:Math.atan2(offset.x,offset.z),distance:Math.hypot(offset.x,offset.z),height:offset.y};motion.follow=true}useStore.getState().setCameraMoving(false);invalidate()}} onChange={()=>{const c=controls.current;if(c){c.target.x=THREE.MathUtils.clamp(c.target.x,-105,125);c.target.z=THREE.MathUtils.clamp(c.target.z,-120,145)}invalidate()}}/>
+    <HelpWanted/><StorefrontSigns/><Streets city={city}/><Walkways city={city}/><Traffic city={city} night={night}/><EconomyScene night={night}/></group><CameraOcclusion/><ObjectPicking onPick={openObjectMenu}/><Residents/><WorldActivity/><Walking controls={controls} cancelFlight={()=>{destination.current=null}}/><OrbitControls ref={controls} enabled={!beat&&panel!=='plots'&&!['play','setup','signup','login','worlds'].includes(panel??'')} makeDefault target={worldTarget} minDistance={room?Math.max(5,(roomLayout(city,roomType(room)!).bounds?.w??12)*.2):9} maxDistance={room?Math.max(500,Math.hypot(roomLayout(city,roomType(room)!).bounds?.w??12,roomLayout(city,roomType(room)!).bounds?.d??10)*6):1200} maxPolarAngle={room?Math.PI*55/180:1.25} minPolarAngle={room?Math.PI*25/180:.35} enableRotate enableDamping={false} mouseButtons={{MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE}} touches={{ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_PAN}} screenSpacePanning={false} zoomSpeed={.7} onStart={()=>{destination.current=null;motion.follow=false;useStore.getState().setCameraMoving(true)}} onEnd={()=>{const c=controls.current;if(c&&useStore.getState().sim){const offset=c.object.position.clone().sub(c.target);motion.camera={angle:Math.atan2(offset.x,offset.z),distance:Math.hypot(offset.x,offset.z),height:offset.y};motion.follow=true}useStore.getState().setCameraMoving(false);invalidate()}} onChange={()=>{const c=controls.current;if(c){const layout=room?roomLayout(city,roomType(room)!):null,hw=(layout?.bounds?.w??12)/2,hd=(layout?.bounds?.d??10)/2;c.target.x=THREE.MathUtils.clamp(c.target.x,room?-hw+.7:-105,room?hw-.7:125);c.target.z=THREE.MathUtils.clamp(c.target.z,room?-hd+.7:-120,room?hd-.7:145);if(room)c.target.y=THREE.MathUtils.clamp(c.target.y,.4,(layout?.height??3)*.55)}invalidate()}}/>
   </>
 }
 function SceneLoading(){const {active,progress}=useProgress();return active?<div className="scene-loading" role="status">Bringing the city to life: {Math.round(progress)}%</div>:null}

@@ -3,7 +3,7 @@
 - R2 test cleanup: a3f283c, backend 134 to 75 cases / 20 to 18 suites; 92 obsolete scripts removed.
 - Prior times: backend 26.142 s; frontend checks 6.565 s. Revised suite deliberately unrun.
 - Round 3 item 1, sharp rendering and designed SDF signs: done.
-- Round 3 item 2, isolated interiors and room framing: not done.
+- Round 3 item 2, isolated interiors and room framing: done (culled city, soft void, room stage).
 - Round 3 item 3, unified animated characters and forward walking: in progress.
 - Round 3 item 4, zoned landmark interiors and shared moments: not done.
 - Round 3 item 5, connected streets and common travel network: done (shared graph, plaza ends, turning traffic).
