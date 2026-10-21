@@ -33,7 +33,7 @@ export function ObjectPicking({onPick}:{onPick:(target:PickTarget)=>void}){
   const canvas=gl.domElement,raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),hit=new THREE.Vector3(),inverse=new THREE.Matrix4(),transform=new THREE.Matrix4(),localRay=new THREE.Ray(),box=new THREE.Box3(),plane=new THREE.Plane(),instance=new THREE.Matrix4(),world=new THREE.Matrix4(),scale=new THREE.Vector3(),position=new THREE.Vector3(),rotation=new THREE.Quaternion()
   let gesture:{id:number;x:number;y:number;dragged:boolean;city:CityId;room:string|null;user:string}|null=null
   const down=(event:PointerEvent)=>{
-   if(event.target!==canvas||event.button!==0||!event.isPrimary){gesture=null;return}
+   if(event.target!==canvas||document.elementFromPoint(event.clientX,event.clientY)!==canvas||event.button!==0||!event.isPrimary){gesture=null;return}
    const state=useStore.getState(),sim=state.sim
    if(useHomeDesign.getState().open||!sim||sim.city!==state.city){gesture=null;return}
    gesture={id:event.pointerId,x:event.clientX,y:event.clientY,dragged:false,city:state.city,room:sim.position?.room??null,user:sim.userId}
@@ -42,7 +42,7 @@ export function ObjectPicking({onPick}:{onPick:(target:PickTarget)=>void}){
   const cancel=()=>{gesture=null}
   const up=(event:PointerEvent)=>{
    const start=gesture;gesture=null
-   if(!start||start.id!==event.pointerId||start.dragged||event.button!==0||!event.isPrimary||Math.hypot(event.clientX-start.x,event.clientY-start.y)>=6)return
+   if(event.target!==canvas||document.elementFromPoint(event.clientX,event.clientY)!==canvas||!start||start.id!==event.pointerId||start.dragged||event.button!==0||!event.isPrimary||Math.hypot(event.clientX-start.x,event.clientY-start.y)>=6)return
    const state=useStore.getState(),sim=state.sim,city=state.city,room=sim?.position?.room??null
    if(useHomeDesign.getState().open||!sim||sim.city!==city||start.city!==city||start.room!==room||start.user!==sim.userId)return
    const rect=canvas.getBoundingClientRect();if(rect.width<=0||rect.height<=0)return

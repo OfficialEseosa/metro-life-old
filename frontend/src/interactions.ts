@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { api } from './api/client'
-import type { CityId, Player, ActivitySlot } from './api/types'
-import { activityUse, canStand, doorsFor, roomLayout, roomType } from './navigation'
+import type { CityId, Player, ActivitySlot, Job, Action } from './api/types'
+import { activityUse, canStand, doorsFor, roomLayout, roomType, interiorType } from './navigation'
 import { navigationRoute } from './scene/navigation-route'
 import type { PickTarget } from './scene/object-picking'
 import { useStore } from './store'
@@ -34,6 +34,43 @@ function approach(city:CityId,room:string|null,point:Point,from:Point,radius=1.3
 }
 function closed(loc:string){const s=useStore.getState(),place=s.world?.cities.find(c=>c.id===s.sim?.city)?.landmarks.find(l=>l.id===loc);if(!place)return false;const [a,b]=policyHours(place.open,place.category,s.mayor?.mayor?.policy),c=s.clock,h=c?((c.hour*60+c.minute+(serverNow()-c.at)/c.msPerMinute)%1440)/60:12;return a<b?h<a||h>=b:h<a&&h>=b}
 function socialReason(p:Player|undefined){const s=useStore.getState();return !p||!p.npc&&!p.online?'That neighbour has left':p.socialBusy?'Your neighbour is busy':p.city!==s.sim?.city||(p.position?.room??null)!==(s.sim?.position?.room??null)?'Meet in the same room first':s.sim?.loc==='home'?'Meet at a public place first':''}
+/** An explicit navigation request replaces old walking tasks and enters through the real door. */
+function routeToStation(loc:string,last:Task){
+ const s=useStore.getState(),sim=s.sim,p=motion.position
+ if(!sim||!p)throw Error('Start your life first')
+ if(s.acting||sim.busyUntil)throw Error('Finish your current activity first')
+ if(sim.pendingBeat)throw Error('Choose your story first')
+ if(state().phase==='starting'||state().phase==='performing')throw Error('Finish or cancel your current action first')
+ const tasks:Task[]=[],base={city:sim.city,icon:'footprints'}
+ if(p.room!==last.room){
+  if(p.room){const layout=roomLayout(sim.city,roomType(p.room)!);tasks.push({...base,kind:'door',room:p.room,loc:p.place,point:layout.exit,enter:false,label:'Leave through the front door'})}
+  if(last.room){const door=doorsFor(sim)[loc];if(!door)throw Error('There is no entrance to that workplace');const point=approach(sim.city,null,door,p,2.5);if(!point)throw Error('There is no clear approach to that door');tasks.push({...base,kind:'door',room:null,loc,point,enter:true,label:`Enter ${door.name}`})}
+ }
+ tasks.push(last)
+ clearQueuedInteractions();path=[];settleAt=0
+ const queue=tasks.map(task=>({...task,id:`action-${++sequence}`}))
+ useInteractions.setState({current:queue[0],waiting:queue.slice(1),phase:'walking',error:'',menu:null})
+ s.openPanel(null);s.selectLocation(null);motion.wake()
+}
+export function queueWorkplace(job:Pick<Job,'id'|'title'|'city'|'loc'>,apply=false){
+ const s=useStore.getState(),sim=s.sim
+ if(!sim)throw Error('Start your life first')
+ if(sim.city!==job.city)throw Error('Travel to this city before visiting its workplace')
+ const type=interiorType(s.world,sim.city,job.loc),layout=type&&roomLayout(sim.city,type),desk=layout&&layout.stations.find(st=>st.id==='desk')
+ if(!type||!desk)throw Error('No hiring desk is available here')
+ routeToStation(job.loc,{kind:apply?'apply':'walk',city:sim.city,room:`${type}:${job.loc}`,loc:job.loc,point:desk,jobId:job.id,label:apply?`Walk to the desk and apply: ${job.title}`:'Walk to your work desk',icon:'briefcase'})
+}
+export function queueLocationAction(city:CityId,loc:string,action:Action){
+ const s=useStore.getState(),sim=s.sim,p=motion.position
+ if(!sim||!p||sim.city!==city)throw Error('Visit this city first')
+ const blocked=actionReason(action,sim,closed(loc),serverNow());if(blocked)throw Error(blocked)
+ const type=interiorType(s.world,city,loc),layout=type&&roomLayout(city,type),use=type&&activityUse(city,type,action)
+ const station=layout&&(type==='home'?layout.stations.find(st=>st.action===action.id):layout.stations.find(st=>st.id===use?.station))
+ const room=type?`${type}:${loc==='home'?sim.userId:loc}`:null,door=doorsFor(sim)[loc]
+ const point=station??(door&&approach(city,null,door,p,2.5))
+ if(!point)throw Error('There is no usable station for this activity')
+ routeToStation(loc,{kind:'act',city,room,loc,point,actionId:action.id,label:action.label,icon:action.icon})
+}
 export function clearQueuedInteractions(){finish();useInteractions.setState({waiting:[],menu:null})}
 export function closeObjectMenu(){useInteractions.setState({menu:null})}
 export function openObjectMenu(target:PickTarget){
@@ -94,7 +131,7 @@ async function perform(task:QueuedAction){
  try{
   await motion.flush();if(epoch!==interactionEpoch)return;if(cancelled.has(task.id)){finish();return}
   const s=useStore.getState();if(!s.sim||s.sim.city!==task.city||(s.sim.position?.room??null)!==task.room)throw Error('The scene changed. Choose the action again.')
-  if(task.kind==='act'){motion.useApproach=task.slotId?{slotId:task.slotId,...task.point}:null;const r=await api.act(task.city,task.loc!,task.actionId!,task.slotId);if(epoch!==interactionEpoch)return;s.setSim(r.sim);s.setLastResult(r.result)}
+  if(task.kind==='act'){const city=s.world?.cities.find(c=>c.id===task.city),action=(task.loc==='home'?city?.homeActions:city?.landmarks.find(l=>l.id===task.loc)?.actions)?.find(a=>a.id===task.actionId);if(!action)throw Error('This activity is no longer available');const reason=actionReason(action,s.sim,closed(task.loc!),serverNow());if(reason)throw Error(reason);motion.useApproach=task.slotId?{slotId:task.slotId,...task.point}:null;const r=await api.act(task.city,task.loc!,task.actionId!,task.slotId);if(epoch!==interactionEpoch)return;s.setSim(r.sim);s.setLastResult(r.result)}
   else if(task.kind==='door'){const r=await api.door(task.loc!,!!task.enter);if(epoch!==interactionEpoch)return;s.setSim(r.sim);s.selectLocation(r.sim.loc);s.openPanel(null)}
   else if(task.kind==='transit'){s.openPanel('travel')}
   else if(task.kind==='posture'){const r=await api.posture(task.benchId??null);if(epoch!==interactionEpoch)return;s.setSim(r.sim)}
@@ -112,7 +149,7 @@ async function perform(task:QueuedAction){
 export function interactionSteering(now:number,manual:boolean):Point{
  const s=useStore.getState(),sim=s.sim,p=motion.position,q=state()
  if(!sim||!p||cancelling)return{x:0,z:0}
- if(manual){manualAt=now;if(q.current&&q.phase==='walking')finish();return{x:0,z:0}}
+ if(manual){manualAt=now;if(q.current&&q.phase==='walking')clearQueuedInteractions();return{x:0,z:0}}
  if(now-manualAt<350)return{x:0,z:0}
  if(!q.current){if(q.waiting.length&&!sim.busyUntil&&!s.acting&&!s.panel&&!s.searchOpen&&!sim.pendingBeat){useInteractions.setState({current:q.waiting[0],waiting:q.waiting.slice(1),phase:'walking'});path=[];settleAt=0;motion.wake()}return{x:0,z:0}}
  const task=q.current
