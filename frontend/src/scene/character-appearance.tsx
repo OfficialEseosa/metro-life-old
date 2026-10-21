@@ -46,9 +46,9 @@ function makeAppearance(look:Look){
  if(face==='freckled')for(const sign of [-1,1])for(let i=0;i<4;i++)ball(sign*(.049+i*.012),.119-(i%2)*.012,.105,.003,.003,.003,lip)
  // A hairstyle is one draw per palette material, rather than one draw per curl.
  const batches=new Map<THREE.Material,THREE.BufferGeometry[]>()
- for(const object of [...group.children])if(object instanceof THREE.Mesh){object.updateMatrix();object.geometry.applyMatrix4(object.matrix);const material=object.material as THREE.Material;const parts=batches.get(material)??[];parts.push(object.geometry);batches.set(material,parts)}
+ for(const object of [...group.children])if(object instanceof THREE.Mesh){object.updateMatrix();const geometry=object.geometry.index?object.geometry.toNonIndexed():object.geometry.clone();geometry.applyMatrix4(object.matrix);geometry.deleteAttribute('uv');const material=object.material as THREE.Material;const parts=batches.get(material)??[];parts.push(geometry);batches.set(material,parts)}
  group.clear();const merged:THREE.BufferGeometry[]=[]
- for(const [material,parts]of batches){const geometry=mergeGeometries(parts,false);if(geometry){merged.push(geometry);const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=true;group.add(mesh)}}
+ for(const [material,parts]of batches){const geometry=mergeGeometries(parts,false);parts.forEach(part=>part.dispose());if(geometry){merged.push(geometry);const mesh=new THREE.Mesh(geometry,material);mesh.name=material===hair?'character-hair-'+style:material===eye?'character-face-pupils':material===white?'character-face-eyes':'character-face-details';mesh.userData.appearancePart=material===hair?'hair':'face';mesh.castShadow=true;group.add(mesh)}}
  geometries.forEach(geometry=>geometry.dispose());geometries.splice(0,geometries.length,...merged)
  return {group,dispose:()=>{geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose())}}
 }
