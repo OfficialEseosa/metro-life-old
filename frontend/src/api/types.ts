@@ -172,6 +172,8 @@ export type FirstDayStep='outside'|'job'|'shift'|'meal'|'neighbour'|'rent'
 export type Sim = {
   /** Private relationships for this life; omitted from public player presence. */
   relationships?:Record<string,Friendship>
+  personalSchedule?:Clock
+  scheduleMinutes?:number
   shiftSchedule?:{open:number;close:number;lastDay:number;canWork:boolean;reason:string;gigsToday:number;gigLimit:number;shiftGameMinutes:number;gigGameMinutes:number;shiftSeconds:number;hoursLabel:string}
   workGame?:{id:string;startsAt:number;endsAt:number;taps:number;best:number;bonus?:number}
   openHouse?:boolean
