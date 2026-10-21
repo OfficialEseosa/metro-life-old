@@ -25,6 +25,8 @@ import type {
   TransitMode,
 } from './types'
 import { syncServerTime } from '../server-time'
+import { useStore } from '../store'
+import { confirmPurchase } from '../ui/purchase-confirmation'
 
 let mutationRevision=0,mutations=0,lastSimSnapshotAt=0
 
@@ -58,6 +60,8 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
   } finally {if(mutation){mutations--;mutationRevision++}}
 }
 
+async function approvePurchase(amount:number,reason:string){if(!await confirmPurchase(amount,reason,useStore.getState().sim))throw new ApiError(0,'Purchase cancelled')}
+
 const q = (city?: CityId) => (city ? `?city=${city}` : '')
 
 export const api = {
@@ -72,11 +76,11 @@ export const api = {
   finishIntro: () => req<{sim:Sim}>('POST','/api/intro/complete'),
   finishFirstDay: () => req<{sim:Sim}>('POST','/api/first-day/complete'),
   payFirstRent: () => req<{sim:Sim}>('POST','/api/home/rent'),
-  outfit: (style:string) => req<{sim:Sim}>('POST','/api/sim/outfit',{style}),
+  outfit: async(style:string) => {const sim=useStore.getState().sim,owned=['casual','street'].includes(style)||style==='work'&&!!sim?.job||!!sim?.outfits?.[style];await approvePurchase(owned?0:style==='party'?90:120,`New ${style} outfit`);return req<{sim:Sim}>('POST','/api/sim/outfit',{style,confirm:true})},
 
   travel: (city:CityId,loc:string) => req<{sim:Sim;clock:Clock}>('POST','/api/travel',{city,loc}),
   transit: (city?:CityId) => req<TransitState>('GET',`/api/transit${q(city)}`),
-  bookTransit: (to:CityId,mode:TransitMode,confirmTimeAdvance=false) => req<{sim:Sim;clock:Clock}>('POST','/api/transit/book',{to,mode,confirmTimeAdvance}),
+  bookTransit: async(to:CityId,mode:TransitMode,confirmTimeAdvance=false) => {const state=useStore.getState(),routes=await req<TransitState>('GET',`/api/transit${q(state.sim?.city)}`),route=routes.routes.find(r=>r.to===to&&r.mode===mode);if(!route)throw new ApiError(0,'This departure is no longer available');const city=state.world?.cities.find(c=>c.id===to)?.name??to;await approvePurchase(route.fare,`${mode==='bus'?'Bus':'Plane'} ticket to ${city}. Visiting keeps your home.`);return req<{sim:Sim;clock:Clock}>('POST','/api/transit/book',{to,mode,confirmTimeAdvance,confirm:true})},
   napTransit: () => req<{sim:Sim;clock:Clock}>('POST','/api/transit/nap'),
   chatTransit: (text:string) => req<{message:ChatMessage;trip:TransitTrip;clock:Clock}>('POST','/api/transit/chat',{text}),
   door: (loc:string,enter:boolean) => req<{sim:Sim}>('POST','/api/door',{loc,enter}),
@@ -85,12 +89,11 @@ export const api = {
   sim: () => req<{ sim: Sim; clock: Clock }>('GET', '/api/sim'),
   setupSim: (setup: { traits?:string[];username:string;pronouns: 'she'|'he'|'they';city: CityId; neighborhood: string; aspiration: string; look?: Partial<Look> }) =>
     req<{ sim: Sim }>('POST', '/api/sim/setup', setup),
-  act: (city: CityId, loc: string, action: string, slotId?: string) =>
-    req<{ sim: Sim; result: ActResult }>('POST', '/api/act', { city, loc, action, ...(slotId?{slotId}:{}) }),
+  act: async(city: CityId, loc: string, action: string, slotId?: string) => {const c=useStore.getState().world?.cities.find(c=>c.id===city),a=(loc==='home'?c?.homeActions:c?.landmarks.find(l=>l.id===loc)?.actions)?.find(a=>a.id===action);await approvePurchase(a?.cost??0,a?.label??'City activity');return req<{ sim: Sim; result: ActResult }>('POST', '/api/act', { city, loc, action, confirm:true, ...(slotId?{slotId}:{}) })},
   cancelAction: () => req<{sim:Sim;clock:Clock}>('POST','/api/action/cancel'),
   choose: (beatId: string, choice: string) =>
     req<{ sim: Sim; outcome: StoryOutcome }>('POST', '/api/story/choose', { beatId, choice }),
-  moveHome: (city: CityId, neighborhood: string) => req<{ sim: Sim }>('POST', '/api/home/move', { city, neighborhood }),
+  moveHome: async(city: CityId, neighborhood: string) => {const c=useStore.getState().world?.cities.find(c=>c.id===city),home=c?.neighborhoods.find(n=>n.id===neighborhood);if(!home)throw new ApiError(0,'Choose a listed neighbourhood');await approvePurchase(home.rent,`Move your home to ${home.name}, ${c?.name??city}. One daily rent deposit; future daily rent is $${home.rent}.`);return req<{ sim: Sim }>('POST', '/api/home/move', { city, neighborhood,confirm:true })},
   setAspiration: (aspiration: string) => req<{ sim: Sim }>('POST', '/api/aspiration', { aspiration }),
 
   jobs: (city?: CityId) => req<{ jobs: Job[] }>('GET', `/api/jobs${q(city)}`),
@@ -110,11 +113,9 @@ export const api = {
   mayorAnnounce: (city: CityId, text: string) => req<MayorState>('POST', '/api/mayor/announce', { city, text }),
 
   plots: (city?: CityId) => req<Plots>('GET', `/api/plots${q(city)}`),
-  buyPlot: (plot: { city: CityId; x: number; y: number; w: number; h: number; title: string; link: string }) =>
-    req<{ ad: PlotAd; sim: Sim }>('POST', '/api/plots', plot),
+  buyPlot: async(plot: { city: CityId; x: number; y: number; w: number; h: number; title: string; link: string }) => {await approvePurchase(plot.w*plot.h*35,`Community plot booking: ${plot.w} by ${plot.h} cells for 7 days`);return req<{ ad: PlotAd; sim: Sim }>('POST', '/api/plots', {...plot,confirm:true})},
   billboards: (city?: CityId) => req<Billboards>('GET', `/api/billboards${q(city)}`),
-  bookBillboard: (city: CityId, slot: number, title: string, link: string) =>
-    req<{ ad: BillboardAd; sim: Sim }>('POST', '/api/billboards', { city, slot, title, link }),
+  bookBillboard: async(city: CityId, slot: number, title: string, link: string) => {await approvePurchase(300,'Billboard booking for 3 days');return req<{ ad: BillboardAd; sim: Sim }>('POST', '/api/billboards', { city, slot, title, link,confirm:true })},
   homes: (city?: CityId) => req<Homes>('GET', `/api/homes${q(city)}`),
 }
 

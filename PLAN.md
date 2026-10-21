@@ -6,9 +6,9 @@
 - Round 2 item 6, visible life: done (poses, gestures, shared labels and low needs).
 - Round 2 item 3, deeper character creation: done (creator, wardrobe, traits and wants).
 - Round 2 item 2, Buy mode and home space: done (catalogue, grid, paint and saved layouts).
-- Round 2 item 7, ledger, purchase clarity and slower needs: not done.
-- Round 2 item 8, distinct room shapes/materials: not done.
-- Round 2 item 9, full-height warm night skyline: not done.
+- Round 2 item 7, ledger, purchase clarity and slower needs: done.
+- Round 2 item 8, distinct room shapes/materials: done.
+- Round 2 item 9, full-height warm night skyline: done.
 - Round 2 item 10, friendship meters: not done.
 - Test cleanup: in progress; own commit required.
 - Latest owner rule: no more builds/lint/tests, screenshots, evidence or per-item browser checks.
