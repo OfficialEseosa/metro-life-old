@@ -79,6 +79,6 @@ final class Personality {
         want(rows,"dream-explore","Find a little inspiration in two places","compass",Math.max(0,sim.path("dailyVisited").size()-sim.path("_wantBaseline").path("visits").asInt()),2);
         return rows;
     }
-    private static int metric(JsonNode sim,String metric){metric=switch(metric){case "tech"->"learn";case "charisma"->"social";case "music"->"music";case "cooking"->"cook";case "fitness"->"fitness";case "creativity"->"learn";case "business"->"work";default->metric;};return Math.max(0,sim.path("_metrics").path(metric).asInt()-sim.path("_wantBaseline").path("metrics").path(metric).asInt());}
+    private static int metric(JsonNode sim,String metric){return Math.max(0,sim.path("_metrics").path(metric).asInt()-sim.path("_wantBaseline").path("metrics").path(metric).asInt());}
     private static void want(ArrayNode rows,String id,String text,String icon,int progress,int target){ObjectNode row=rows.addObject().put("id",id).put("text",text).put("icon",icon).put("progress",Math.min(target,progress)).put("target",target).put("done",progress>=target);row.putObject("reward").put("cash",0).put("xp",0);}
 }

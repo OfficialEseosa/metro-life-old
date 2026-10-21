@@ -3,7 +3,7 @@
 - Round 2 item 4, bugs: done — 2363d69.
 - Round 2 item 5, mouse/object interaction: done — 9a8dbde.
 - Round 2 item 1, city choice and shared bus/plane travel: done — 7e9e5a7.
-- Round 2 item 6, visible life: not done.
+- Round 2 item 6, visible life: done (poses, gestures, shared labels and low needs).
 - Round 2 item 3, deeper character creation: done (creator, wardrobe, traits and wants).
 - Round 2 item 2, Buy mode and home space: not done.
 - Round 2 item 7, ledger, purchase clarity and slower needs: not done.

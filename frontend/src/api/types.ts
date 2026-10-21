@@ -195,7 +195,8 @@ export type Sim = {
   level: number
   /** xp needed for the next level */
   xpNext: number
-  needs: Record<NeedId, number>
+  lifeAction?:import("../life-actions").LifeAction|null
+  needs: Record<NeedId, number> & {hygiene?:number}
   mood: Mood
   skills: Record<SkillId, { level: number; xp: number; next: number }>
   job: (Job & { shifts: number; shiftsToPromote: number }) | null
@@ -239,6 +240,9 @@ export type StoryOutcome = { win: boolean; text: string; deltas: Deltas; next: S
 // ---- people ---------------------------------------------------------------
 
 export type Player = {
+  lifeAction?:import("../life-actions").LifeAction|null
+  needs?:{energy?:number;hunger?:number;hygiene?:number}
+  busyLabel?:string|null
   travelStatus?:string|null
   tripId?:string|null
   socialBusy?: boolean
@@ -324,7 +328,7 @@ export type Me = { now: number; user: User | null; world: WorldInfo | null; sim:
 export type ServerEvent =
   | { type: 'hello'; worldId: string; clock: Clock }
   | { type: 'presence'; city: CityId; players: Player[] }
-  | { type: 'positions'; city: CityId; at:number; players: Pick<Player,'id'|'position'|'activity'|'loc'|'activitySlot'|'socialBusy'|'tripId'|'travelStatus'>[] }
+  | { type: 'positions'; city: CityId; at:number; players: Pick<Player,'id'|'position'|'activity'|'loc'|'activitySlot'|'socialBusy'|'tripId'|'travelStatus'|'lifeAction'|'needs'|'busyLabel'>[] }
   | { type: 'chat'; message: ChatMessage }
   | { type: 'event'; kind: 'mayor' | 'plots' | 'billboards' | 'homes' | 'story'; city: CityId; text?: string }
   | { type: 'clock'; clock: Clock }
