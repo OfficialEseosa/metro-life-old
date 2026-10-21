@@ -5,13 +5,13 @@ import { useGLTF } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useStore } from '../store'
-import { activeLifeAction,lifeLabel,lifePose,lifeTopic } from '../life-actions'
+import { lifeLabel,lifePose,lifeTopic } from '../life-actions'
 import { bodyCondition,crowdPose,movingPose,residentLook,velocityFacing } from './character-life'
 import { RiggedCharacter,type CharacterPose } from './character'
 import type { Player } from '../api/types'
 import { motion } from '../walking'
 import { roomLayout,roomType } from '../navigation'
-import { LifeBubble,StinkCloud } from './speech-bubbles'
+import { LifeBubble,StinkCloud,setLabelHover,clearLabelHover } from './speech-bubbles'
 import { roomFloorHeight } from './venue-zones'
 
 type ResidentMotion={position:THREE.Vector3;speed:number;yaw:number;distance:number;pose:CharacterPose;hidden:boolean;hip?:number}
@@ -19,7 +19,7 @@ function NearResident({person,read,ready}:{person:Player;read:()=>ResidentMotion
  const ref=useRef<THREE.Group>(null),look=useMemo(()=>person.npc?residentLook(person.id,person.look):person.look,[person.id,person.npc,person.look])
  useEffect(()=>{ready.add(person.id);return()=>{ready.delete(person.id)}},[person.id,ready])
  useFrame(()=>{const state=read();if(!ref.current)return;ref.current.visible=!!state&&!state.hidden;if(state){ref.current.position.copy(state.position);ref.current.rotation.y=state.yaw}})
- return <group ref={ref} name={'resident-'+person.id} visible={false} userData={{playerId:person.id,rigged:true}}><RiggedCharacter look={look} readPose={()=>read()?.pose??'Idle'} readHipHeight={()=>read()?.hip} readSpeed={()=>read()?.speed??0} readDistance={()=>read()?.distance??0} readCondition={()=>bodyCondition(person)} readStartedAt={()=>(person.lifeAction as {startedAt?:number}|null|undefined)?.startedAt}/></group>
+ return <group ref={ref} name={'resident-'+person.id} visible={false} userData={{playerId:person.id,rigged:true}} onPointerOver={event=>{event.stopPropagation();setLabelHover(person.id)}} onPointerOut={()=>clearLabelHover(person.id)}><RiggedCharacter look={look} readPose={()=>read()?.pose??'Idle'} readHipHeight={()=>read()?.hip} readSpeed={()=>read()?.speed??0} readDistance={()=>read()?.distance??0} readCondition={()=>bodyCondition(person)} readStartedAt={()=>(person.lifeAction as {startedAt?:number}|null|undefined)?.startedAt}/></group>
 }
 
 /** Full Quaternius actors near the player, inexpensive impostors only at street-view distance. */
@@ -56,7 +56,7 @@ export function Residents(){
   const vx=at.x-oldX,vz=at.z-oldZ,speed=snapped?0:Math.hypot(vx,vz)/Math.max(.001,dt),distance=player?Math.hypot(at.x-player.x,at.z-player.z):camera.position.distanceTo(at),previous=states.current.get(person.id),settled=at.distanceToSquared(person.target)<.0025;
   const yaw=velocityFacing(previous?.yaw??person.face,speed>.08?Math.atan2(vx,vz):settled?person.face:previous?.yaw??person.face,dt,speed>.08);
   dummy.position.copy(at);dummy.position.y=room?roomFloorHeight(city,roomType(room)!,at.x,at.z):groundHeight(cityScene,city,at.x,at.z);if(room&&settled&&person.person.activitySlot?.y!==undefined&&!['Sit','Type','Eat','Sleep','Lie'].includes(person.person.activitySlot.pose))dummy.position.y=person.person.activitySlot.y;point.copy(dummy.position);point.y+=1;point.project(camera);
-  const clip=distance>70||camera.position.distanceTo(dummy.position)<.85||point.z>1||point.z< -1;if(clip)hidden.current.add(person.id);else hidden.current.delete(person.id);
+  const clip=distance>(person.person.npc?70:140)||camera.position.distanceTo(dummy.position)<.85||point.z>1||point.z< -1;if(clip)hidden.current.add(person.id);else hidden.current.delete(person.id);
   const state:ResidentMotion={position:dummy.position.clone(),speed,yaw,distance,pose:movingPose(person.person,speed),hidden:clip,hip:settled&&person.person.activitySlot&&['Sit','Type','Eat','Sleep','Lie'].includes(person.person.activitySlot.pose)&&person.person.activitySlot.y!==undefined?person.person.activitySlot.y-dummy.position.y:undefined};states.current.set(person.id,state);rendered.current.set(person.id,state.position);
   model.poses.setX(i,speed>.08?(state.pose==='Run'?2:1):crowdPose(lifePose(person.person)));model.near.setX(i,nearSet.current.has(person.id)&&ready.current.has(person.id)?1:0);
   dummy.scale.setScalar(clip?0:1);dummy.rotation.y=yaw;dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
@@ -66,5 +66,5 @@ export function Residents(){
  })
  useEffect(()=>()=>{model.geometry.dispose();model.material.dispose()},[model])
  if(!crowd.length)return null
- return <><instancedMesh name="residents" ref={ref} args={[model.geometry,model.material,crowd.length]} raycast={()=>{}}/>{crowd.filter(p=>nearIds.includes(p.id)).map(p=><Suspense key={p.id} fallback={null}><NearResident person={p.person} read={()=>states.current.get(p.id)} ready={ready.current}/></Suspense>)}{crowd.filter(p=>nearIds.slice(0,10).includes(p.id)).map(p=>{const role=p.person.job??(p.person.npc?(room?.startsWith('cafe:')||room?.startsWith('foodhall:')?'Market patron':room?.startsWith('work:')?'Neighbour at work':room?.startsWith('theatre:')?'Theatre guest':room?.startsWith('arena:')||room?.startsWith('stadium:')?'Supporter':'Neighbour'):'Neighbour');return <group key={p.id}><LifeBubble name={p.person.username} label={role+(p.label?' · '+p.label:'')} topic={p.topic} speaking={['talk','wave','sleep','cheer'].includes(p.activity)} readPosition={()=>rendered.current.get(p.id)} visible={()=>!hidden.current.has(p.id)&&(!p.person.lifeAction||!!activeLifeAction(p.person))}/>{p.condition.dirty&&<StinkCloud readPosition={()=>rendered.current.get(p.id)}/>}</group>})}</>
+ return <><instancedMesh name="residents" ref={ref} args={[model.geometry,model.material,crowd.length]} raycast={()=>{}}/>{crowd.filter(p=>nearIds.includes(p.id)).map(p=><Suspense key={p.id} fallback={null}><NearResident person={p.person} read={()=>states.current.get(p.id)} ready={ready.current}/></Suspense>)}{crowd.filter(p=>!p.person.npc||nearIds.includes(p.id)).map(p=>{const role=p.person.job??(p.person.npc?(room?.startsWith('cafe:')||room?.startsWith('foodhall:')?'Market patron':room?.startsWith('work:')?'Neighbour at work':room?.startsWith('theatre:')?'Theatre guest':room?.startsWith('arena:')||room?.startsWith('stadium:')?'Supporter':'Neighbour'):'Neighbour');return <group key={p.id}><LifeBubble id={p.id} kind={p.person.npc?'npc':'player'} name={p.person.username} label={role+(p.label?' · '+p.label:'')} topic={p.topic} speaking={['talk','wave','sleep','cheer'].includes(p.activity)} readPosition={()=>rendered.current.get(p.id)} visible={()=>!hidden.current.has(p.id)}/>{p.condition.dirty&&<StinkCloud readPosition={()=>rendered.current.get(p.id)}/>}</group>})}</>
 }

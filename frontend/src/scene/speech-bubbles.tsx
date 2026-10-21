@@ -1,9 +1,12 @@
 /* oxlint-disable react/immutability -- Canvas textures and sprite positions are owned Three resources. */
 import { useEffect,useMemo,useRef } from 'react'
-import { useFrame,useThree } from '@react-three/fiber'
+import { useFrame,useThree,type RootState } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Billboard,RoundedBox } from '@react-three/drei'
 import { WorldText } from './world-text'
+import { useStore } from '../store'
+import { useInteractions } from '../interactions'
+import { motion } from '../walking'
 
 function topicIcon(c:CanvasRenderingContext2D,topic:string,x:number,y:number){
  c.save();c.translate(x,y);c.strokeStyle='#47766c';c.fillStyle='#47766c';c.lineWidth=3.5;c.lineCap='round';c.lineJoin='round'
@@ -18,12 +21,36 @@ function topicIcon(c:CanvasRenderingContext2D,topic:string,x:number,y:number){
  c.stroke();c.restore()
 }
 function topicTexture(topic:string){const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const c=canvas.getContext('2d')!;c.scale(2,2);topicIcon(c,topic,32,32);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;return texture}
-/** Outlined SDF text remains readable as the camera changes distance and DPR. */
-export function LifeBubble({name,label,topic='chat',speaking=false,readPosition,visible=()=>true}:{name:string;label:string;topic?:string;speaking?:boolean;readPosition:()=>{x:number;y?:number;z:number}|undefined;visible?:()=>boolean}){
- const ref=useRef<THREE.Group>(null),{invalidate}=useThree(),texture=useMemo(()=>topicTexture(topic),[topic])
- useEffect(()=>()=>texture.dispose(),[texture]);useEffect(()=>{invalidate()},[texture,invalidate])
- useFrame(({camera})=>{if(!ref.current)return;const p=readPosition();ref.current.visible=!!p&&visible();if(!p)return;ref.current.position.set(p.x,(p.y??0)+2.85,p.z);const distance=camera.position.distanceTo(ref.current.position),factor=Math.min(1.65,Math.max(.85,distance/20));ref.current.scale.setScalar(factor);if(distance>48)ref.current.visible=false})
- return <group ref={ref} renderOrder={30}><Billboard><RoundedBox args={[4.15,speaking?1.55:.98,.07]} radius={.15} smoothness={3} raycast={()=>{}}><meshBasicMaterial color="#fff9e9" transparent opacity={.97} depthTest={false} depthWrite={false}/></RoundedBox><WorldText position={[0,speaking?.46:.2,.055]} fontSize={.28} maxWidth={3.85} color="#263e39" outlineColor="#fff9e9" distance={70} depthTest={false} renderOrder={32}>{name.slice(0,24)}</WorldText><WorldText position={[0,speaking?.10:-.18,.055]} fontSize={.25} maxWidth={3.85} color="#4c6257" outlineColor="#fff9e9" distance={70} depthTest={false} renderOrder={32}>{label.slice(0,27)}</WorldText>{speaking&&<><mesh position={[-1.45,-.4,.065]} raycast={()=>{}}><planeGeometry args={[.55,.55]}/><meshBasicMaterial map={texture} transparent depthTest={false} depthWrite={false}/></mesh><WorldText position={[.25,-.4,.065]} fontSize={.3} maxWidth={2.9} color="#47766c" outlineColor="#fff9e9" distance={70} depthTest={false} renderOrder={32}>{topic==='sleep'?'Zzz...':'Bla ba, nibu ba!'}</WorldText></>}</Billboard></group>
+type LabelKind='npc'|'staff'|'player'|'self'
+type LabelPosition={x:number;y?:number;z:number}
+type LabelEntry={root:THREE.Group|null;id:string;kind:LabelKind;name:string;label:string;speaking:boolean;readPosition:()=>LabelPosition|undefined;visible:()=>boolean}
+const labels=new Set<LabelEntry>(),layoutFrames=new WeakMap<THREE.Camera,number>()
+let hoveredLabel=''
+export function setLabelHover(id:string){hoveredLabel=id;motion.wake()}
+export function clearLabelHover(id:string){if(hoveredLabel===id){hoveredLabel='';motion.wake()}}
+/** One screen-space budget serves staff and street NPCs, with real players taking priority. */
+function layoutLabels(state:RootState){
+ const {camera,size,clock}=state;if(layoutFrames.get(camera)===clock.elapsedTime)return;layoutFrames.set(camera,clock.elapsedTime)
+ const position=motion.position??useStore.getState().sim?.position,interaction=useInteractions.getState(),selected=interaction.menu?.target.kind==='person'?interaction.menu.target.id:interaction.current?.targetId,width=size.width<500?146:174,halfWidth=width/2,top=64,bottom=size.height-(size.width<600?150:105),candidates:{entry:LabelEntry;anchor:THREE.Vector3;projected:THREE.Vector3;distance:number;priority:number;focused:boolean}[]=[]
+ for(const entry of labels){if(!entry.root)continue;entry.root.visible=false;if(!entry.name.trim()||!entry.visible())continue;const at=entry.readPosition();if(!at)continue;const anchor=new THREE.Vector3(at.x,(at.y??0)+(entry.speaking?2.42:2.17),at.z),projected=anchor.clone().project(camera),distance=position?Math.hypot(at.x-position.x,at.z-position.z):Infinity,focused=entry.id===hoveredLabel||entry.id===selected,real=entry.kind==='self'||entry.kind==='player';if(projected.z< -1||projected.z>1||Math.abs(projected.x)>1.15||Math.abs(projected.y)>1.15||!real&&!focused&&distance>6)continue;candidates.push({entry,anchor,projected,distance,focused,priority:entry.kind==='self'?0:entry.kind==='player'?1:focused?2:3})}
+ candidates.sort((a,b)=>a.priority-b.priority||a.distance-b.distance)
+ const occupied:{x:number;y:number;w:number;h:number}[]=[],offsets=[[0,0],[0,-48],[-width*.65,-16],[width*.65,-16],[0,-96],[-width*.7,-76],[width*.7,-76]],persistentOffsets=[...offsets,[-width,-125],[width,-125],[0,-150]],screen=new THREE.Vector3();let ordinary=0
+ for(const candidate of candidates){const {entry,anchor,projected,focused,priority}=candidate,root=entry.root!;if(priority===3&&ordinary>=3)continue;const height=(entry.speaking?1.35:entry.label.trim()?.85:.5)*width/3.9,originalX=(projected.x+1)*size.width/2,originalY=(1-projected.y)*size.height/2;let placed:{x:number;y:number}|null=null
+  for(const [dx,dy]of priority<3?persistentOffsets:offsets){const x=THREE.MathUtils.clamp(originalX+dx,halfWidth+8,size.width-halfWidth-8),y=THREE.MathUtils.clamp(originalY+dy,top+height/2,bottom-height/2);if(priority>1&&Math.hypot(x-originalX,y-originalY)>180&&!focused)continue;if(occupied.some(box=>Math.abs(x-box.x)<(width+box.w)/2+7&&Math.abs(y-box.y)<(height+box.h)/2+5))continue;placed={x,y};break}
+  if(!placed)continue;occupied.push({...placed,w:width,h:height});if(priority===3)ordinary++
+  screen.set(placed.x/size.width*2-1,1-placed.y/size.height*2,projected.z).unproject(camera);root.position.copy(root.parent?root.parent.worldToLocal(screen):screen)
+  const depth=Math.abs(anchor.clone().applyMatrix4(camera.matrixWorldInverse).z),perPixel=camera instanceof THREE.PerspectiveCamera?2*depth*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/size.height:camera instanceof THREE.OrthographicCamera?(camera.top-camera.bottom)/camera.zoom/size.height:.015;root.scale.setScalar(perPixel*width/3.9);root.visible=true
+ }
+}
+
+/** Fixed screen size, shared collision avoidance, and no card without a nonempty name. */
+export function LifeBubble({name,label,topic='chat',speaking=false,readPosition,visible=()=>true,id=name,kind='npc'}:{name:string;label:string;topic?:string;speaking?:boolean;readPosition:()=>LabelPosition|undefined;visible?:()=>boolean;id?:string;kind?:LabelKind}){
+ const ref=useRef<THREE.Group>(null),{invalidate}=useThree(),texture=useMemo(()=>topicTexture(topic),[topic]),entry=useMemo<LabelEntry>(()=>({root:null,id,kind,name,label,speaking,readPosition,visible}),[id,kind,name,label,speaking,readPosition,visible]),real=kind==='player'||kind==='self',paper=real?'#dcefe7':'#fff8e7',ink=real?'#224f45':'#344c40',cleanName=name.trim(),cleanLabel=label.trim(),height=speaking?1.35:cleanLabel?.85:.5
+ useEffect(()=>{entry.root=ref.current;labels.add(entry);invalidate();return()=>{labels.delete(entry)}},[entry,invalidate])
+ useEffect(()=>()=>texture.dispose(),[texture])
+ useFrame(state=>layoutLabels(state))
+ if(!cleanName)return null
+ return <group ref={ref} visible={false} renderOrder={30}><Billboard><RoundedBox args={[3.9,height,.045]} radius={.11} smoothness={2} raycast={()=>{}}><meshBasicMaterial color={paper} transparent opacity={.95} depthTest={false} depthWrite={false}/></RoundedBox><WorldText position={[0,speaking?.42:cleanLabel?.18:0,.04]} fontSize={.28} maxWidth={3.62} color={ink} outlineColor={paper} distance={1000} depthTest={false} renderOrder={32}>{cleanName.slice(0,24)}</WorldText>{cleanLabel&&<WorldText position={[0,speaking?.08:-.18,.04]} fontSize={.245} maxWidth={3.62} color={real?'#436b5d':'#5e6d5a'} outlineColor={paper} distance={1000} depthTest={false} renderOrder={32}>{cleanLabel.slice(0,28)}</WorldText>}{speaking&&<><mesh position={[-1.37,-.36,.045]} raycast={()=>{}}><planeGeometry args={[.42,.42]}/><meshBasicMaterial map={texture} transparent depthTest={false} depthWrite={false}/></mesh><WorldText position={[.23,-.36,.045]} fontSize={.27} maxWidth={2.7} color="#47766c" outlineColor={paper} distance={1000} depthTest={false} renderOrder={32}>{topic==='sleep'?'Zzz...':'Bla ba, nibu ba!'}</WorldText></>}</Billboard></group>
 }
 
 export function StinkCloud({readPosition}:{readPosition:()=>{x:number;y?:number;z:number}|undefined}){

@@ -12,8 +12,9 @@ export function WorldTextPreload(){const invalidate=useThree(s=>s.invalidate);us
 export type WorldTextProps={children:string|number;position?:[number,number,number];rotation?:[number,number,number];fontSize?:number;maxWidth?:number;color?:string;outlineColor?:string;billboard?:boolean;distance?:number;anchorX?:'left'|'center'|'right';anchorY?:'top'|'middle'|'bottom';renderOrder?:number;depthTest?:boolean}
 /** Shared local-font SDF lettering for fascia, boards, wayfinding and character labels. */
 export function WorldText({children,position,rotation,fontSize=.42,maxWidth=5,color='#fff7ea',outlineColor='#2a1f2b',billboard=false,distance=65,anchorX='center',anchorY='middle',renderOrder=2,depthTest=true}:WorldTextProps){
- const ref=useRef<THREE.Group>(null),point=useRef(new THREE.Vector3()),text=fictionalText(String(children))
+ const ref=useRef<THREE.Group>(null),point=useRef(new THREE.Vector3()),text=fictionalText(String(children)).trim()
  useFrame(({camera})=>{if(!ref.current)return;ref.current.getWorldPosition(point.current);ref.current.visible=camera.position.distanceTo(point.current)<distance})
+ if(!text)return null
  const label=<Text font={signFont} fontSize={fontSize} maxWidth={maxWidth} anchorX={anchorX} anchorY={anchorY} textAlign="center" color={color} outlineWidth="5%" outlineColor={outlineColor} outlineBlur="1%" sdfGlyphSize={128} characters={characters} renderOrder={renderOrder} raycast={()=>{}} material-toneMapped={false} material-depthTest={depthTest} material-depthWrite={false}>{text}</Text>
  return <group ref={ref} position={position} rotation={rotation}>{billboard?<Billboard>{label}</Billboard>:label}</group>
 }
