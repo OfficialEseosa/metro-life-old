@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-10-21T01:33:07.418Z",
+  "capturedAt": "2026-10-21T01:52:00.770Z",
   "method": "Three GLTFLoader; hierarchy bounds; indexed triangles; equal non-glow material batches merged at runtime. Beauty calls exclude shadow/effect passes; full scene measured separately in browser.",
   "manifests": [
     {
