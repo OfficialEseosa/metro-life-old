@@ -107,6 +107,7 @@ type State = {
   openPanel: (p: Panel) => void
   selectLocation: (id: string | null) => void
   selectSlot: (slot: number | null) => void
+  travelTo: (location:string, afterPanel?:Panel) => Promise<void>
   setFocus: (key: string | null) => void
 }
 
@@ -256,7 +257,7 @@ export const useStore = create<State>((set, get) => {
       await Promise.all(jobs)
     },
 
-    setSim: (sim) => {if(sim&&sim.worldId!==get().worldInfo?.id)return;const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.position={...sim.position};useWalking.setState({position:{...sim.position}});motion.follow=true;motion.wake()}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
+    setSim: (sim) => {if(indoorTravelPending)return;if(sim&&sim.worldId!==get().worldInfo?.id)return;const travelled=sim&&get().sim&&sim.city!==get().sim?.city;if(sim?.position&&motion.position&&(sim.position.room!==motion.position.room||Math.hypot(sim.position.x-motion.position.x,sim.position.z-motion.position.z)>4)){motion.teleport++;motion.position={...sim.position};useWalking.setState({position:{...sim.position}});motion.follow=true;motion.wake()}set({sim});if(travelled&&sim){void get().setCity(sim.city);get().selectLocation(sim.loc);get().setFocus(sim.loc)}},
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {
@@ -267,7 +268,7 @@ export const useStore = create<State>((set, get) => {
         const complete=async()=>{if(get().sim?.worldId!==worldId)return;try{
           const r=await api.sim();if(get().sim?.worldId!==worldId)return
           if(r.sim.busyUntil&&r.sim.busyUntil>serverNow()){resultTimer=setTimeout(()=>void complete(),150);return}
-          set({sim:r.sim,clock:r.clock,lastResult,rewardAnchor:null})
+          get().setSim(r.sim);set({clock:r.clock,lastResult,rewardAnchor:null})
           if(r.sim.city!==sourceCity){await get().setCity(r.sim.city);get().selectLocation(r.sim.loc);get().setFocus(r.sim.loc)}
           resultTimer=null
         }catch{if(get().sim?.worldId===worldId)resultTimer=setTimeout(()=>void complete(),1000)}}
@@ -282,28 +283,39 @@ export const useStore = create<State>((set, get) => {
       set({ selectedLoc: id, panel: id ? 'location' : null,searchOpen:false })
     },
     selectSlot: (slot) => set({ selectedSlot: slot, panel: slot === null ? null : 'billboard' }),
+    travelTo: async (destination,afterPanel=null) => {
+      const state=get(),sim=state.sim
+      if(!sim||state.city!==sim.city||indoorTravelPending)return
+      if(sim.busyUntil||sim.pendingBeat){useWalking.setState({error:sim.busyUntil?'Finish this activity before travelling.':'Make your story choice before travelling.'});return}
+      indoorTravelPending=true;set({focus:null,acting:true});motion.x=motion.z=0
+      const world=sim.worldId
+      try{
+        await motion.flush();motion.revision++
+        const current=get().sim!
+        const alreadyThere=!current.position?.room&&current.position?.place===destination
+        let result=alreadyThere?await api.sim():await api.travel(sim.city,destination)
+        if(get().sim?.worldId!==world)return
+        set({sim:result.sim,clock:result.clock,searchOpen:false,cameraMoving:false})
+        const deadline=Date.now()+15000
+        while(result.sim.busyUntil){
+          if(Date.now()>deadline)throw Error('Your trip is taking longer than expected. Please try again.')
+          await new Promise(resolve=>setTimeout(resolve,150));result=await api.sim()
+          if(get().sim?.worldId!==world)return
+        }
+        motion.revision++;motion.teleport++;motion.position={...result.sim.position!};motion.follow=true
+        useWalking.setState({position:{...result.sim.position!},error:''})
+        set({sim:result.sim,clock:result.clock,panel:afterPanel,selectedLoc:destination,focus:null,cameraMoving:false})
+        motion.wake();if(afterPanel==='mayor')await get().refresh('mayor')
+      }catch(error){useWalking.setState({error:error instanceof Error?error.message:'Could not travel. Try again.'});throw error}
+      finally{indoorTravelPending=false;set({acting:false})}
+    },
     setFocus: (focus) => {
       const state=get(),sim=state.sim
-      // Map destinations use world coordinates. Keep an indoor camera attached to
-      // its room until the server has accepted the transition to the street.
-      if(focus&&sim?.position?.room&&state.city===sim.city){
-        const destination=focus==='homes'?'home':focus
-        const landmark=destination==='home'||state.world?.cities.find(c=>c.id===sim.city)?.landmarks.some(l=>l.id===destination)
-        if(!landmark||destination===sim.position.place){set({focus:null});motion.follow=true;motion.wake();return}
-        if(indoorTravelPending)return
-        if(sim.busyUntil||sim.pendingBeat){useWalking.setState({error:sim.busyUntil?'Finish this activity before travelling.':'Make your story choice before travelling.'});return}
-        indoorTravelPending=true;set({focus:null,acting:true});motion.x=motion.z=0
-        void (async()=>{try{
-          await motion.flush()
-          const result=await api.travel(sim.city,destination)
-          if(get().sim?.worldId!==sim.worldId)return
-          get().setSim(result.sim);set({panel:null,searchOpen:false,cameraMoving:false})
-          motion.follow=true;motion.wake();useWalking.setState({error:''})
-        }catch(error){useWalking.setState({error:error instanceof Error?error.message:'Could not travel. Try again.'})}
-        finally{indoorTravelPending=false;set({acting:false})}})()
-        return
-      }
-      set({ focus })
+      const destination=focus==='homes'?'home':focus
+      const landmark=destination==='home'||state.world?.cities.find(c=>c.id===sim?.city)?.landmarks.some(l=>l.id===destination)
+      if(destination&&landmark&&sim&&state.city===sim.city){void get().travelTo(destination).catch(()=>{});return}
+      if(sim?.position?.room&&state.city===sim.city){set({focus:null});motion.follow=true;motion.wake();return}
+      set({focus})
     },
   }
 })

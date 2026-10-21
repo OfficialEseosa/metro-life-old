@@ -55,8 +55,9 @@ final class Progression {
     JsonNode career(String track){for(JsonNode c:content.world.path("careers"))if(c.path("track").asText().equals(track))return c;throw new IllegalArgumentException(track);}
     void count(ObjectNode s,String key){ObjectNode metrics=s.withObject("_metrics");metrics.put(key,metrics.path(key).asInt()+1);}
     int skill(ObjectNode s,String key){return s.path("skills").path(key).path("level").asInt();}
+    int visitCount(ObjectNode s){Set<String> places=new HashSet<>();for(JsonNode place:s.path("visited")){String id=place.asText();if(!id.equals("home")&&!id.equals("street")&&!id.isBlank())places.add(id);}return places.size();}
     boolean met(ObjectNode s,String rule){String[] r=rule.split(":");return switch(r[0]){
-        case "visits"->s.path("visited").size()-1>=Integer.parseInt(r[1]);
+        case "visits"->visitCount(s)>=Integer.parseInt(r[1]);
         case "skill"->skill(s,r[1])>=Integer.parseInt(r[2]);
         case "count"->(s.path("_metrics").path(r[1]).asInt()+s.path("_externalMetrics").path(r[1]).asInt())>=Integer.parseInt(r[2]);
         case "job"->s.path("job").path("track").asText().equals(r[1])&&s.path("job").path("level").asInt()>=Integer.parseInt(r[2]);
@@ -72,7 +73,7 @@ final class Progression {
             String rule=RULES[index][i];String[] r=rule.split(":");ObjectNode row=((ObjectNode)content.aspiration(id).path("milestones").get(i)).deepCopy();
             row.put("status",i<step?"done":(s.path("_readyClaims").path(id+"-"+i).asBoolean()||met(s,rule))?"ready":i==step?"current":"locked");
             int target=switch(r[0]){case "visits","cash"->Integer.parseInt(r[1]);case "skill","job","count"->Integer.parseInt(r[2]);default->1;};
-            int value=switch(r[0]){case "visits"->s.path("visited").size()-1;case "cash"->s.path("cash").asInt();case "skill"->skill(s,r[1]);case "job"->s.path("job").path("track").asText().equals(r[1])?s.path("job").path("level").asInt():0;case "count"->(s.path("_metrics").path(r[1]).asInt()+s.path("_externalMetrics").path(r[1]).asInt());default->met(s,rule)?1:0;};
+            int value=switch(r[0]){case "visits"->visitCount(s);case "cash"->s.path("cash").asInt();case "skill"->skill(s,r[1]);case "job"->s.path("job").path("track").asText().equals(r[1])?s.path("job").path("level").asInt():0;case "count"->(s.path("_metrics").path(r[1]).asInt()+s.path("_externalMetrics").path(r[1]).asInt());default->met(s,rule)?1:0;};
             row.put("progress",i<step||s.path("_readyClaims").path(id+"-"+i).asBoolean()?target:Math.min(value,target)).put("target",target);rows.add(row);
         }
         return rows;

@@ -69,7 +69,7 @@ export const api = {
   payFirstRent: () => req<{sim:Sim}>('POST','/api/home/rent'),
   outfit: (style:string) => req<{sim:Sim}>('POST','/api/sim/outfit',{style}),
 
-  travel: (city:CityId,loc:string) => req<{sim:Sim}>('POST','/api/travel',{city,loc}),
+  travel: (city:CityId,loc:string) => req<{sim:Sim;clock:Clock}>('POST','/api/travel',{city,loc}),
   door: (loc:string,enter:boolean) => req<{sim:Sim}>('POST','/api/door',{loc,enter}),
   posture: (bench:string|null) => req<{sim:Sim}>('POST','/api/posture',{bench}),
   move: (city:CityId,p:import('../navigation').Position) => req<{position:import('../navigation').Position}>('POST','/api/move',{city,...p}),

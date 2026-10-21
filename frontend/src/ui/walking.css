@@ -30,3 +30,7 @@
 @media(min-width:701px){.walk-social{bottom:174px}.walk-more{bottom:146px}}
 
 @media(max-width:700px){.is-inside .walk-status{top:calc(174px + env(safe-area-inset-top))}.is-inside .walk-caption{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}}
+
+/* Game gestures must never drag-select HUD text; form fields remain editable. */
+.metro-hud,.walk-joystick,.city-canvas{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.metro-hud input,.metro-hud textarea{user-select:text;-webkit-user-select:text}

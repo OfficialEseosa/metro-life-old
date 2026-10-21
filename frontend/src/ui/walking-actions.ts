@@ -18,7 +18,7 @@ export function stationAction(sim:Sim,world:World|null,p:Position){
  return {station,action,apply:atWork&&!sim.job,label:atWork?sim.job?(sim.job.loc===p.place?'Work a shift':'Your workplace is elsewhere'):'Apply for a role':action?.label??station?.name,reason:atWork&&sim.job&&sim.job.loc!==p.place?'Your workplace is elsewhere':station&&station.id!=='exit'&&!action&&!atWork?'There is no activity here right now. Try another station.':''}
 }
 
-export function nearbyPerson(sim:Sim,p:Position,players:import('../api/types').Player[]){return players.filter(n=>n.id!==sim.userId&&n.city===sim.city&&(n.npc||n.online)&&n.position&&(n.position.room??null)===(p.room??null)&&!p.room?.startsWith('home:')&&Math.hypot(n.position.x-p.x,n.position.z-p.z)<2.8).sort((a,b)=>Math.hypot(a.position!.x-p.x,a.position!.z-p.z)-Math.hypot(b.position!.x-p.x,b.position!.z-p.z))[0]}
+export function nearbyPerson(sim:Sim,p:Position,players:import('../api/types').Player[]){return players.filter(n=>p.place!=='home'&&n.loc!=='home'&&n.id!==sim.userId&&n.city===sim.city&&(n.npc||n.online)&&n.position&&(n.position.room??null)===(p.room??null)&&!p.room?.startsWith('home:')&&Math.hypot(n.position.x-p.x,n.position.z-p.z)<2.8).sort((a,b)=>Math.hypot(a.position!.x-p.x,a.position!.z-p.z)-Math.hypot(b.position!.x-p.x,b.position!.z-p.z))[0]}
 export async function meet(kind:'wave'|'hangout'|'gift'='wave'){
  const s=useStore.getState(),p=motion.position;if(!s.sim||!p||s.acting||s.sim.busyUntil||s.sim.pendingBeat)return;
  const person=nearbyPerson(s.sim,p,s.players);if(!person)return;useStore.setState({acting:true});

@@ -20,5 +20,9 @@ final class FirstDay {
         ObjectNode goals=s.withObject("firstDay");goals.put(step,true);
         goals.put("complete",STEPS.stream().allMatch(k->goals.path(k).asBoolean()));
     }
+    boolean outside(ObjectNode s){
+        if(!s.path("position").isObject()||!s.path("position").path("room").isNull()||s.path("firstDay").path("outside").asBoolean()||!s.path("firstDay").isObject())return false;
+        mark(s,"outside");return true;
+    }
     void established(ObjectNode s){GameService.require(complete(s),409,"Settle in and finish your first-day goals before booking city space");}
 }

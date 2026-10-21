@@ -1,0 +1,218 @@
+{
+  "capturedAt": "2026-10-21T13:33:00.676Z",
+  "result": "PASS",
+  "highMuseumFalsePositiveCount": 10,
+  "emptyEntranceCases": [
+    {
+      "camera": [
+        10.331758723215401,
+        16,
+        -17.771263428944657
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 28.53698617172875,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        10.331758723215401,
+        24,
+        -17.771263428944657
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 33.27155851680609,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        21.82525075095124,
+        9,
+        -32.404551856746444
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 29.86022546016555,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        21.82525075095124,
+        16,
+        -32.404551856746444
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 32.352013436399254,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        21.82525075095124,
+        24,
+        -32.404551856746444
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 36.61187122632674,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        -26.3317587232154,
+        16,
+        -17.771263428944657
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 28.53698617172875,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        -26.3317587232154,
+        24,
+        -17.771263428944657
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 33.27155851680609,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        -37.82525075095124,
+        9,
+        -32.404551856746444
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 29.86022546016555,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        -37.82525075095124,
+        16,
+        -32.404551856746444
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 32.352013436399254,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    },
+    {
+      "camera": [
+        -37.82525075095124,
+        24,
+        -32.404551856746444
+      ],
+      "target": [
+        -8,
+        1,
+        -35.75
+      ],
+      "far": 36.61187122632674,
+      "boxWouldFade": true,
+      "surfaceConfirmed": false,
+      "triangleHits": 0
+    }
+  ],
+  "foregroundMuseum": {
+    "camera": [
+      -8,
+      4,
+      -66
+    ],
+    "target": [
+      -8,
+      1,
+      -30
+    ],
+    "far": 34.92478373637688,
+    "boxWouldFade": true,
+    "surfaceConfirmed": true,
+    "triangleHits": 5
+  },
+  "behindMuseum": {
+    "camera": [
+      -8,
+      10,
+      -14
+    ],
+    "target": [
+      -8,
+      1,
+      -32
+    ],
+    "far": 18.92461179749811,
+    "boxWouldFade": false,
+    "surfaceConfirmed": false,
+    "triangleHits": 0
+  },
+  "foregroundTree": {
+    "camera": [
+      0,
+      5,
+      12
+    ],
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "far": 11.449110640673519,
+    "boxWouldFade": true,
+    "surfaceConfirmed": true,
+    "triangleHits": 2
+  },
+  "nativeTreeHeight": 0.7669999599456787,
+  "worldTreeHeight": 8,
+  "limit": "CPU actual-triangle confirmation applies to non-instanced landmarks. Instanced foliage keeps its existing shader local-box test; this fixture confirms a real foreground tree remains selected."
+}
