@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import type { Look } from '../api/types'
 
 type WardrobeLook = Look & {face?:string;outfits?:Partial<Record<'everyday'|'work'|'sleep',{top:string;bottom:string;style:string;shoeColor:string}>>}
@@ -40,6 +41,12 @@ function makeAppearance(look:Look){
  }
  ball(0,.081,.109,face==='bright'?.036:.027,.007,.008,lip)
  if(face==='freckled')for(const sign of [-1,1])for(let i=0;i<4;i++)ball(sign*(.049+i*.012),.119-(i%2)*.012,.105,.003,.003,.003,lip)
+ // A hairstyle is one draw per palette material, rather than one draw per curl.
+ const batches=new Map<THREE.Material,THREE.BufferGeometry[]>()
+ for(const object of [...group.children])if(object instanceof THREE.Mesh){object.updateMatrix();object.geometry.applyMatrix4(object.matrix);const material=object.material as THREE.Material;const parts=batches.get(material)??[];parts.push(object.geometry);batches.set(material,parts)}
+ group.clear();const merged:THREE.BufferGeometry[]=[]
+ for(const [material,parts]of batches){const geometry=mergeGeometries(parts,false);if(geometry){merged.push(geometry);const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=true;group.add(mesh)}}
+ geometries.forEach(geometry=>geometry.dispose());geometries.splice(0,geometries.length,...merged)
  return {group,dispose:()=>{geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose())}}
 }
 
@@ -47,9 +54,17 @@ function makeAppearance(look:Look){
 export function mountCharacterAppearance(root:THREE.Object3D,look:Look,actorScale:number){
  const head=root.getObjectByName('Head')??root.getObjectByName('head')
  if(!head)return ()=>{}
+ root.updateMatrixWorld(true)
  const appearance=makeAppearance(look),scale=head.getWorldScale(new THREE.Vector3())
- appearance.group.scale.set(1/Math.max(.00001,scale.x*actorScale),1/Math.max(.00001,scale.y*actorScale),1/Math.max(.00001,scale.z*actorScale))
- root.traverse(o=>{if(o instanceof THREE.Mesh&&/Head/i.test(o.name)){for(const material of Array.isArray(o.material)?o.material:[o.material])if(/^(Hair(?:_|$)|Red_Dark$|Red$|DarkBrown$|Moustache$|Eyebrows$|Eye$)/.test(material.name)){material.visible=false}}})
+ // Fit to the skin vertices of this modular head, including its bind-pose transform.
+ const inverse=head.matrixWorld.clone().invert(),point=new THREE.Vector3(),bounds=new THREE.Box3(),visited=new Set<number>()
+ root.traverse(object=>{if(!(object instanceof THREE.Mesh)||!/Head/i.test(object.name))return;const palette=Array.isArray(object.material)?object.material:[object.material],geometry=object.geometry,index=geometry.index;visited.clear();for(const part of geometry.groups){if(!/^Skin/.test(palette[part.materialIndex??0]?.name??''))continue;for(let at=part.start;at<part.start+part.count;at++){const vertex=index?index.getX(at):at;if(visited.has(vertex))continue;visited.add(vertex);object.getVertexPosition(vertex,point);point.applyMatrix4(object.matrixWorld).applyMatrix4(inverse);bounds.expandByPoint(point)}}})
+ if(!bounds.isEmpty()){
+  const centre=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3()),physical=new THREE.Vector3(size.x*scale.x*actorScale,size.y*scale.y*actorScale,size.z*scale.z*actorScale)
+  if(physical.x>.1&&physical.x<.8&&physical.y>.1&&physical.y<.8){appearance.group.position.set(centre.x,bounds.min.y,centre.z);appearance.group.scale.set(physical.x/.28,physical.y/.27,physical.z/.22)}
+ }
+ appearance.group.scale.divide(new THREE.Vector3(Math.max(.00001,scale.x*actorScale),Math.max(.00001,scale.y*actorScale),Math.max(.00001,scale.z*actorScale)))
+ root.traverse(o=>{if(o instanceof THREE.Mesh&&/Head/i.test(o.name)){for(const material of Array.isArray(o.material)?o.material:[o.material])if(!/^Skin/.test(material.name))material.visible=false}})
  head.add(appearance.group)
  return ()=>{head.remove(appearance.group);appearance.dispose()}
 }

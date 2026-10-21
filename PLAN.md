@@ -4,11 +4,11 @@
 - Prior times: backend 26.142 s; frontend checks 6.565 s. Revised suite deliberately unrun.
 - Round 3 item 1, sharp rendering and designed SDF signs: done.
 - Round 3 item 2, isolated interiors and room framing: done (culled city, soft void, room stage).
-- Round 3 item 3, unified animated characters and forward walking: in progress.
+- Round 3 item 3, unified animated characters and forward walking: done.
 - Round 3 item 4, zoned landmark interiors and shared moments: not done.
 - Round 3 item 5, connected streets and common travel network: done (shared graph, plaza ends, turning traffic).
-- Round 3 item 6, procedural music, ambience and sound controls: in progress.
-- Round 3 item 7, Sunday Morning UI and phone layouts: in progress.
+- Round 3 item 6, procedural music, ambience and sound controls: done.
+- Round 3 item 7, Sunday Morning UI and phone layouts: done.
 - Round 3 item 8, quick start, emotes, events, celebrations and social fun: not done.
 - Round 3 item 9, remaining audit fixes: waiting for research/metro/audit-R2.md.
 - Rules: no per-item build/lint/tests, screenshots, evidence folders or long log.

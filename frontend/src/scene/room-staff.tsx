@@ -1,13 +1,26 @@
-/* oxlint-disable react/immutability -- Static room staff matrices are owned instance buffers. */
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { useGLTF } from '@react-three/drei'
-import * as THREE from 'three'
+import { Suspense, useMemo } from 'react'
+import type { Look } from '../api/types'
 import type { RoomLayout } from '../navigation'
-/** A single batch of on-duty staff at authored positions behind each service counter. */
+import { useStore } from '../store'
+import { serverNow } from '../server-time'
+import { RiggedCharacter,type CharacterPose } from './character'
+import { identitySeed,residentLook } from './character-life'
+import { LifeBubble } from './speech-bubbles'
+
+function staffWork(name:string):{pose:CharacterPose;label:string;topic:string}{
+ if(/cook|chef|barista|bartend|vendor|stall|kitchen|food/i.test(name))return {pose:'Cook',label:'Preparing an order',topic:'food'}
+ if(/music|perform|stage/i.test(name))return {pose:'Play',label:'Playing for the room',topic:'music'}
+ if(/curator|gallery|guide/i.test(name))return {pose:'Browse',label:'Showing the collection',topic:'chat'}
+ if(/nurse|doctor|health/i.test(name))return {pose:'Interact',label:'Getting care ready',topic:'work'}
+ return {pose:'Type',label:'Helping the next visitor',topic:'work'}
+}
+
+/** Named staff use the same skinned body and purposeful activity loops as every resident. */
 export function RoomStaff({staff}:{staff:NonNullable<RoomLayout['staff']>}){
- const {scene}=useGLTF('/models/landmarks/resident-lod.glb'),ref=useRef<THREE.InstancedMesh>(null)
- const geometry=useMemo(()=>{let source:THREE.Mesh|undefined;scene.traverse(o=>{if(o instanceof THREE.Mesh)source=o});if(!source)throw Error('Staff model missing');scene.updateMatrixWorld(true);const g=source.geometry.clone();g.applyMatrix4(source.matrixWorld);g.computeBoundingBox();const bounds=g.boundingBox!,center=bounds.getCenter(new THREE.Vector3()),height=bounds.max.y-bounds.min.y;g.translate(-center.x,-bounds.min.y,-center.z);g.scale(1.78/height,1.78/height,1.78/height);return g},[scene])
- useLayoutEffect(()=>{if(!ref.current)return;const dummy=new THREE.Object3D();staff.forEach((person,i)=>{dummy.position.set(person.x,0,person.z);dummy.rotation.y=person.face;dummy.updateMatrix();ref.current!.setMatrixAt(i,dummy.matrix);ref.current!.setColorAt(i,new THREE.Color(person.id==='nurse'?'#bedce0':'#d2ba98'))});ref.current.instanceMatrix.needsUpdate=true;ref.current.computeBoundingSphere()},[staff])
- useEffect(()=>()=>geometry.dispose(),[geometry])
- return staff.length?<instancedMesh name="venue-staff-behind-counters" ref={ref} args={[geometry,undefined,staff.length]} castShadow userData={{roles:staff.map(s=>s.name)}}><meshStandardMaterial vertexColors roughness={.9}/></instancedMesh>:null
+ const room=useStore(s=>s.sim?.position?.room??'room')
+ const people=useMemo(()=>staff.map(person=>{
+  const key=room+':staff:'+person.id,seed=identitySeed(key),base:Look={body:'f',skin:'#b47752',hair:'short',hairColor:'#302820',top:'#326957',bottom:'#313c4b',style:'work',shoeColor:'#393840'},look=residentLook(key,base),top=/nurse|health/i.test(person.id)?'#97c9c7':'#dfc9a3',outfit={top,bottom:'#394650',style:'work',shoeColor:'#393840'}
+  return {...person,role:person.name,look:{...look,...outfit,outfits:{everyday:outfit,work:outfit,sleep:outfit}},name:['Mira','Theo','Imani','Felix','Priya','Nina','Oscar','Ada'][seed%8]+' '+['Calder','Sato','Grant','Mercer','Vega','Kim'][(seed>>>4)%6],work:staffWork(person.id+' '+person.name),phase:(seed%12)}
+ }),[room,staff])
+ return <group name="venue-staff-behind-counters" userData={{roles:staff.map(person=>person.name)}}>{people.map(person=><group key={person.id} position={[person.x,0,person.z]} rotation={[0,person.face,0]} userData={{staff:true,role:person.name,purpose:person.work.label}}><Suspense fallback={null}><RiggedCharacter look={person.look} readPose={()=>Math.floor(serverNow()/1000+person.phase)%14<11?person.work.pose:'Idle'}/></Suspense></group>)}{people.map(person=><LifeBubble key={'name-'+person.id} name={person.name} label={person.role+' · '+person.work.label} topic={person.work.topic} readPosition={()=>({x:person.x,y:0,z:person.z})}/>)}</group>
 }
