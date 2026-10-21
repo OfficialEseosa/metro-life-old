@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { setHomeLayout, type RoomLayout, inBox } from './navigation'
 import type { Sim } from './api/types'
-export type Furnishing={id:string;catalogId:string;x:number;z:number;rotation:number;paid:number}
+export type Furnishing={id:string;catalogId:string;x:number;z:number;rotation:number;paid:number;resale?:number;starter?:boolean}
 export type HomeDesign={revision:number;width:number;depth:number;wallColor:string;floorColor:string;items:Furnishing[]}
 export type FurnitureProduct={id:string;name:string;category:string;kind:string;price:number;w:number;d:number;color:string;action:string;stats:{comfort:number;fun:number;hygiene:number;environment:number}}
 export type FurnitureCatalog={grid:number;categories:string[];wallColors:string[];floorColors:string[];items:FurnitureProduct[]}
