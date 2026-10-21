@@ -31,6 +31,7 @@ public class ApiController {
     @PostMapping("/sim/setup") ObjectNode setup(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.setup(token,body);}
     @PostMapping("/travel") ObjectNode travel(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.travel(token,body);}
     @PostMapping("/door") ObjectNode door(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.door(token,body);}
+    @PostMapping("/posture") ObjectNode posture(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.posture(token,body);}
     @PostMapping("/move") ObjectNode walk(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.movePosition(token,body);}
     @PostMapping("/act") ObjectNode act(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.act(token,body);}
     @PostMapping("/aspiration") ObjectNode aspiration(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.setAspiration(token,body);}

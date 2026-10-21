@@ -71,6 +71,7 @@ export const api = {
 
   travel: (city:CityId,loc:string) => req<{sim:Sim}>('POST','/api/travel',{city,loc}),
   door: (loc:string,enter:boolean) => req<{sim:Sim}>('POST','/api/door',{loc,enter}),
+  posture: (bench:string|null) => req<{sim:Sim}>('POST','/api/posture',{bench}),
   move: (city:CityId,p:import('../navigation').Position) => req<{position:import('../navigation').Position}>('POST','/api/move',{city,...p}),
   sim: () => req<{ sim: Sim; clock: Clock }>('GET', '/api/sim'),
   setupSim: (setup: { username:string;pronouns: 'she'|'he'|'they';city: CityId; neighborhood: string; aspiration: string; look?: Partial<Look> }) =>

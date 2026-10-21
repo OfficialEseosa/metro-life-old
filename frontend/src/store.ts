@@ -58,6 +58,8 @@ type State = {
   // the city map being looked at (may differ from sim.city)
   city: CityId
   sceneQuality: 'normal' | 'low'
+  wallMode: 'up' | 'cutaway' | 'down'
+  setWallMode: (mode: 'up' | 'cutaway' | 'down') => void
   setSceneQuality: (quality: 'normal' | 'low') => void
   sceneTheme: 'auto' | 'day' | 'night'
   mapLens: 'all' | 'eat' | 'earn' | 'fun' | 'affordable'
@@ -169,6 +171,8 @@ export const useStore = create<State>((set, get) => {
     socialNotice: '',
     city: 'atl',
     sceneQuality: (()=>{try{return localStorage.getItem('metro-quality')==='low'?'low':'normal'}catch{return 'normal'}})(),
+    wallMode: 'cutaway',
+    setWallMode: (wallMode) => set({wallMode}),
     setSceneQuality: (sceneQuality) => {try{localStorage.setItem('metro-quality',sceneQuality)}catch{/* Session preference still works with blocked storage. */}set({sceneQuality})},
     sceneTheme: 'auto',
     mapLens: 'all',setMapLens:mapLens=>set({mapLens}),

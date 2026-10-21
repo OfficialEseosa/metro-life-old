@@ -61,7 +61,7 @@ class CoreTests {
         JsonNode result=ActivityFixture.act(game,token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"shower\"}"));
         assertEquals(50,result.path("sim").path("needs").path("energy").asDouble(),.01);
         now=result.path("sim").path("busyUntil").asLong();JsonNode completed=game.getSim(token).path("sim");
-        assertEquals(68,completed.path("needs").path("energy").asDouble(),.2);assertEquals(62,completed.path("needs").path("fun").asDouble(),.2);
+        assertEquals(67.7,completed.path("needs").path("energy").asDouble(),.01);assertEquals(61.7,completed.path("needs").path("fun").asDouble(),.01);
         assertTrue(result.path("result").path("text").asText().contains("Energy +18"));assertTrue(result.path("result").path("text").asText().contains("Fun +12"));
         now+=12345;JsonNode rounded=game.getSim(token).path("sim").path("needs");for(String need:Content.NEEDS)assertEquals(Math.round(rounded.path(need).asDouble()*10),rounded.path(need).asDouble()*10,.00001);
     }

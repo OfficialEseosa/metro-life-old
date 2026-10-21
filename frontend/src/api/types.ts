@@ -17,6 +17,8 @@ export type Look = {
   style: string
   shoeColor: string
 }
+/** Authored visual hip slot; movement authority remains at the furniture approach. */
+export type ActivitySlot={id:string;pose:string;x:number;z:number;y?:number;face:number;bench?:boolean}
 
 export type User = {
   id: string
@@ -167,6 +169,7 @@ export type Sim = {
   firstDay?:Record<FirstDayStep,boolean>&{complete:boolean;closingSeen?:boolean}
   outfits?:Record<string,boolean>
   position?: import('../navigation').Position
+  activitySlot?: ActivitySlot | null
   /** Server epoch when this life began; civic/gift eligibility after one game day. */
   createdAt: number
   userId: string
@@ -230,6 +233,7 @@ export type StoryOutcome = { win: boolean; text: string; deltas: Deltas; next: S
 export type Player = {
   activity?: string
   position?: import('../navigation').Position
+  activitySlot?: ActivitySlot | null
   id: string
   username: string
   look: Look
@@ -303,7 +307,7 @@ export type Me = { now: number; user: User | null; world: WorldInfo | null; sim:
 export type ServerEvent =
   | { type: 'hello'; worldId: string; clock: Clock }
   | { type: 'presence'; city: CityId; players: Player[] }
-  | { type: 'positions'; city: CityId; at:number; players: Pick<Player,'id'|'position'|'activity'|'loc'>[] }
+  | { type: 'positions'; city: CityId; at:number; players: Pick<Player,'id'|'position'|'activity'|'loc'|'activitySlot'>[] }
   | { type: 'chat'; message: ChatMessage }
   | { type: 'event'; kind: 'mayor' | 'plots' | 'billboards' | 'homes' | 'story'; city: CityId; text?: string }
   | { type: 'clock'; clock: Clock }

@@ -37,7 +37,7 @@ export function KitInstances({url,placements,shadow=true,night=false,drive}:{url
       #ifdef USE_INSTANCING
       seed+=floor(instanceMatrix[3].x)*13.+floor(instanceMatrix[3].z)*7.;
       #endif
-      vLitWindow=windowMask*step(.42,fract(sin(seed*12.9898)*43758.5453));`);shader.fragmentShader='uniform float windowNight;varying float vLitWindow;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=windowNight*vLitWindow*vec3(3.1,1.6,.6);')};material.customProgramCacheKey=()=> 'metro-actual-window-faces-v4'
+      vLitWindow=windowMask*step(.22,fract(sin(seed*12.9898)*43758.5453));`);shader.fragmentShader='uniform float windowNight;varying float vLitWindow;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=windowNight*vLitWindow*vec3(3.1,1.6,.6);')};material.customProgramCacheKey=()=> 'metro-actual-window-faces-v5'
    }
    return{geometry,material}})
  },[scene,url])

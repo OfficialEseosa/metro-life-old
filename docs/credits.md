@@ -174,3 +174,7 @@ Fonts/code are separate from the 3D art: Geist and Bricolage Grotesque retain th
 ## Rendering code
 
 N8AO 2.0.1: CC0 1.0 per its shipped LICENSE ([upstream](https://github.com/N8python/n8ao); package metadata says ISC). postprocessing 6.39.5: Zlib ([upstream](https://github.com/pmndrs/postprocessing)). Three addons/RoomEnvironment: MIT, existing Three dependency. three-mesh-bvh 0.8.3: MIT ([upstream](https://github.com/gkjohnson/three-mesh-bvh)). Contact bakes, light pools and light faces are generated here; no new external art assets.
+
+## V4 activities
+
+`chars/activities-f.json` and `chars/activities-m.json`: retargeted/derived from Quaternius Universal Animation Libraries 1 and 2, CC0 1.0. Original author pages: [Library 1](https://quaternius.com/packs/universalanimationlibrary.html), [Library 2](https://quaternius.com/packs/universalanimationlibrary2.html). Source archives were downloaded from the Quaternius-authored OpenGameArt entries; original licences ship as `chars/UAL1-LICENSE.txt` and `chars/UAL2-LICENSE.txt`. Type, Eat, Lie, Sleep and Cheer combine or adapt these clips; no Mixamo data. Original shipped character GLBs remain unchanged.

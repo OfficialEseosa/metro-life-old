@@ -1,0 +1,317 @@
+{
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "venue": "l5p",
+      "wallMode": "up",
+      "state": {
+        "pose": "Idle",
+        "head": [
+          0.1981616882111997,
+          1.5325141513138711,
+          4.275628962424853
+        ],
+        "slot": null,
+        "position": [
+          0.21168000027537304,
+          0,
+          4.190139999949932
+        ],
+        "walls": [
+          {
+            "name": "front",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "back",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "left",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "right",
+            "upper": true,
+            "lower": 1
+          }
+        ]
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 15099,
+        "fps": 59.37189008398197,
+        "p95Ms": 22.399999976158142,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "venue": "l5p",
+      "wallMode": "down",
+      "state": {
+        "pose": "Idle",
+        "head": [
+          0.19816223070369277,
+          1.536438184287965,
+          4.271627816606322
+        ],
+        "slot": null,
+        "position": [
+          0.21168000027537304,
+          0,
+          4.190139999949932
+        ],
+        "walls": [
+          {
+            "name": "front",
+            "upper": false,
+            "lower": 0.3846153846153846
+          },
+          {
+            "name": "back",
+            "upper": false,
+            "lower": 0.3846153846153846
+          },
+          {
+            "name": "left",
+            "upper": false,
+            "lower": 0.3846153846153846
+          },
+          {
+            "name": "right",
+            "upper": false,
+            "lower": 0.3846153846153846
+          }
+        ]
+      },
+      "metrics": {
+        "calls": 34,
+        "triangles": 14919,
+        "fps": 59.37189008398197,
+        "p95Ms": 22.399999976158142,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "venue": "l5p",
+      "wallMode": "cutaway",
+      "state": {
+        "pose": "Idle",
+        "head": [
+          0.19816213498463614,
+          1.5375732771352884,
+          4.272363138738551
+        ],
+        "slot": null,
+        "position": [
+          0.21168000027537304,
+          0,
+          4.190139999949932
+        ],
+        "walls": [
+          {
+            "name": "front",
+            "upper": false,
+            "lower": 1
+          },
+          {
+            "name": "back",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "left",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "right",
+            "upper": false,
+            "lower": 1
+          }
+        ]
+      },
+      "metrics": {
+        "calls": 36,
+        "triangles": 15027,
+        "fps": 59.37189008398197,
+        "p95Ms": 22.399999976158142,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "venue": "l5p",
+      "action": "a0",
+      "state": {
+        "pose": "Dance",
+        "head": [
+          0.056627763355602864,
+          1.5291063460814494,
+          0.771646844814621
+        ],
+        "slot": {
+          "id": "dance-4",
+          "pose": "Dance",
+          "x": 0,
+          "z": 0.8,
+          "face": 3.141592653589793
+        },
+        "position": [
+          0,
+          0,
+          0.8
+        ],
+        "walls": [
+          {
+            "name": "front",
+            "upper": false,
+            "lower": 1
+          },
+          {
+            "name": "back",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "left",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "right",
+            "upper": false,
+            "lower": 1
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "venue": "l5p",
+      "action": "a2",
+      "state": {
+        "pose": "Cheer",
+        "head": [
+          -0.048737173525785805,
+          1.9094579634889375,
+          -3.073278607934263
+        ],
+        "slot": {
+          "id": "stage",
+          "pose": "Cheer",
+          "x": 0,
+          "z": -3.1,
+          "face": 0
+        },
+        "position": [
+          0,
+          0.36,
+          -3.1
+        ],
+        "walls": [
+          {
+            "name": "front",
+            "upper": false,
+            "lower": 1
+          },
+          {
+            "name": "back",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "left",
+            "upper": true,
+            "lower": 1
+          },
+          {
+            "name": "right",
+            "upper": false,
+            "lower": 1
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "venue": "l5p",
+      "theme": "day",
+      "quality": "normal",
+      "metrics": {
+        "calls": 36,
+        "triangles": 15027,
+        "fps": 59.37189008398197,
+        "p95Ms": 22.399999976158142,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      },
+      "attempts": [
+        {
+          "calls": 36,
+          "triangles": 15027,
+          "fps": 59.37189008398197,
+          "p95Ms": 22.399999976158142,
+          "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "dpr": 1
+        }
+      ],
+      "post": {
+        "adaptive": {
+          "seconds": 0,
+          "frames": 0,
+          "slowWindows": 0,
+          "fps": 58.625628726674535,
+          "changed": false
+        },
+        "quality": "normal",
+        "halfResolutionAO": true,
+        "transparencyAware": false,
+        "automaticBeauty": false,
+        "dpr": 1,
+        "postGpuMs": 4.482935725000001,
+        "beautyGpuMs": 7.400786874999998,
+        "frameCpuMs": 1.7999999821186066,
+        "passes": [
+          "beauty",
+          "N8AO half",
+          "SMAA",
+          "gentle bloom",
+          "warm grade",
+          "AgX output"
+        ]
+      },
+      "room": {
+        "shadowSize": 1024,
+        "environmentIntensity": 0.22
+      }
+    }
+  ],
+  "errors": []
+}

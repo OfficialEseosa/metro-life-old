@@ -101,7 +101,7 @@ export function MetropolitanFabric({city,night}:{city:'nyc'|'bay';night:boolean}
  useEffect(()=>()=>{data.land.dispose();data.streets.dispose()},[data])
  const groups=useMemo(()=>metropolitanGroups(data,city),[data,city])
  useLayoutEffect(()=>{Object.keys(groups).forEach(url=>useGLTF.preload(`/models/${url}`))},[groups])
- return <group><mesh name="terrain" geometry={data.land} matrixAutoUpdate={false} receiveShadow raycast={noPick}><meshStandardMaterial vertexColors emissive={night?'#365238':'#000000'} emissiveIntensity={night?.18:0} roughness={1}/></mesh><mesh geometry={data.streets} matrixAutoUpdate={false} receiveShadow castShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={.85}/></mesh>{Object.entries(groups).filter(([url])=>!url.includes('car_')).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={'/models/'+url} placements={placements} night={night} shadow={false}/></Suspense>)}</group>
+ return <group><mesh name="terrain" geometry={data.land} matrixAutoUpdate={false} receiveShadow raycast={noPick}><meshStandardMaterial vertexColors color={night?'#626a70':'#ffffff'} emissive={night?'#20252c':'#000000'} emissiveIntensity={night?.08:0} roughness={1}/></mesh><mesh geometry={data.streets} matrixAutoUpdate={false} receiveShadow castShadow raycast={noPick}><meshStandardMaterial vertexColors roughness={.85}/></mesh>{Object.entries(groups).filter(([url])=>!url.includes('car_')).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={'/models/'+url} placements={placements} night={night} shadow={false}/></Suspense>)}</group>
 }
 
 export function metropolitanGroups(data:ReturnType<typeof dataFor>,city:'nyc'|'bay'){

@@ -12,7 +12,7 @@ export async function enterBuilding(loc:string){
 }
 
 export function stationAction(sim:Sim,world:World|null,p:Position){
- const station=nearbyStation(p),city=world?.cities.find(c=>c.id===sim.city),place=city?.landmarks.find(l=>l.id===p.place)
+ const station=nearbyStation(p,sim.city),city=world?.cities.find(c=>c.id===sim.city),place=city?.landmarks.find(l=>l.id===p.place)
  const action=p.room?.startsWith('home:')?city?.homeActions.find(a=>a.id===station?.action):station?.id==='desk'?place?.actions.find(a=>a.requires?.job===sim.job?.track&&!!a.requires?.job):station?.action==='eat'?place?.actions.find(a=>a.kind==='food'):station?.action==='dance'?place?.actions.find(a=>a.kind==='fun'&&!a.requires?.job):station?.action==='perform'?place?.actions.find(a=>a.kind==='work'&&!a.requires?.job):undefined
  return {station,action,apply:station?.id==='desk'&&!sim.job,label:station?.id==='desk'?sim.job?(sim.job.loc===p.place?'Work a shift':'Your workplace is elsewhere'):'Apply for a role':station?.name,reason:station?.id==='desk'&&sim.job&&sim.job.loc!==p.place?'Your workplace is elsewhere':''}
 }

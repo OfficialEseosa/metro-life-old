@@ -1,0 +1,62 @@
+[
+  {
+    "body": "f",
+    "style": "casual",
+    "bones": 62,
+    "maxBindDifference": 0
+  },
+  {
+    "body": "f",
+    "style": "street",
+    "bones": 62,
+    "maxBindDifference": 0.00000823423130213996
+  },
+  {
+    "body": "f",
+    "style": "work",
+    "bones": 62,
+    "maxBindDifference": 0.000007112855470836621
+  },
+  {
+    "body": "f",
+    "style": "smart",
+    "bones": 62,
+    "maxBindDifference": 0.000009866200926467172
+  },
+  {
+    "body": "f",
+    "style": "party",
+    "bones": 62,
+    "maxBindDifference": 0.000015423340713027756
+  },
+  {
+    "body": "m",
+    "style": "casual",
+    "bones": 62,
+    "maxBindDifference": 0
+  },
+  {
+    "body": "m",
+    "style": "street",
+    "bones": 62,
+    "maxBindDifference": 0.00001047694797762233
+  },
+  {
+    "body": "m",
+    "style": "work",
+    "bones": 62,
+    "maxBindDifference": 0.00001131506722629183
+  },
+  {
+    "body": "m",
+    "style": "smart",
+    "bones": 62,
+    "maxBindDifference": 0.0000090525370950445
+  },
+  {
+    "body": "m",
+    "style": "party",
+    "bones": 62,
+    "maxBindDifference": 0.00001150035529917659
+  }
+]

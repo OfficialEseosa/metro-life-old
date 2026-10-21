@@ -7,9 +7,9 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
 import { Pass } from 'three/addons/postprocessing/Pass.js'
 import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js'
 import { GentleBloom } from './gentle-bloom'
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { N8AOPass } from 'n8ao'
 import { useStore } from '../store'
+import { motion } from '../walking'
 
 class BeautyPass extends Pass {
   private scene:THREE.Scene;private camera:THREE.Camera;private target:THREE.WebGLRenderTarget;private ready:()=>void
@@ -19,7 +19,7 @@ class BeautyPass extends Pass {
 
 /** One render of the city; the remaining passes operate on pixels. Native resolution in both modes. */
 export function ImageQuality(){
- const {gl,scene,camera,size,invalidate}=useThree(),quality=useStore(s=>s.sceneQuality),pipeline=useRef<EffectComposer|null>(null)
+ const {gl,scene,camera,size,invalidate}=useThree(),quality=useStore(s=>s.sceneQuality),pipeline=useRef<EffectComposer|null>(null),adaptive=useRef({seconds:0,frames:0,slowWindows:0,fps:60,changed:false})
  useEffect(()=>{
   const composer=new EffectComposer(gl),ao=quality==='normal'?new N8AOPass(scene,camera,size.width,size.height):null
   const context=gl.getContext() as WebGL2RenderingContext,extension=import.meta.env.DEV?context.getExtension('EXT_disjoint_timer_query_webgl2'):null
@@ -36,7 +36,7 @@ export function ImageQuality(){
    beauty.render=(...args)=>{render(...args);beautyDone()};composer.addPass(beauty)
   }
   composer.addPass(new SMAAPass())
-  composer.addPass(new GentleBloom());composer.addPass(new OutputPass());composer.setPixelRatio(1);composer.setSize(size.width,size.height)
+  composer.addPass(new GentleBloom());composer.setPixelRatio(1);composer.setSize(size.width,size.height)
   gl.toneMapping=THREE.AgXToneMapping;gl.toneMappingExposure=1;gl.info.autoReset=false
   const render=composer.render.bind(composer)
   composer.render=(dt?:number)=>{
@@ -44,7 +44,7 @@ export function ImageQuality(){
     const {query,kind}=queries.shift()!;if(!context.getParameter(extension.GPU_DISJOINT_EXT)){const list=kind==="post"?samples:beautySamples;list.push(context.getQueryParameter(query,context.QUERY_RESULT)/1e6);if(list.length>120)list.shift()}context.deleteQuery(query)
    }
    const start=performance.now();begin("beauty");render(dt);end()
-   scene.userData.imageQuality={quality,halfResolutionAO:!!ao,transparencyAware:ao?.configuration.transparencyAware??false,automaticBeauty:ao?.configuration.autoRenderBeauty??false,dpr:gl.getPixelRatio(),postGpuMs:samples.length?samples.reduce((a,b)=>a+b,0)/samples.length:null,beautyGpuMs:beautySamples.length?beautySamples.reduce((a,b)=>a+b,0)/beautySamples.length:null,frameCpuMs:performance.now()-start,passes:['beauty',...(ao?['N8AO half']:[]),'SMAA','gentle bloom','warm grade','AgX output']}
+   scene.userData.imageQuality={adaptive:{...adaptive.current},quality,halfResolutionAO:!!ao,transparencyAware:ao?.configuration.transparencyAware??false,automaticBeauty:ao?.configuration.autoRenderBeauty??false,dpr:gl.getPixelRatio(),postGpuMs:samples.length?samples.reduce((a,b)=>a+b,0)/samples.length:null,beautyGpuMs:beautySamples.length?beautySamples.reduce((a,b)=>a+b,0)/beautySamples.length:null,frameCpuMs:performance.now()-start,passes:['beauty',...(ao?['N8AO half']:[]),'SMAA','gentle bloom','warm grade','AgX output']}
   }
   pipeline.current=composer;invalidate()
   return()=>{
@@ -54,6 +54,14 @@ export function ImageQuality(){
    delete scene.userData.imageQuality;gl.info.autoReset=true
   }
  },[gl,scene,camera,quality,size.width,size.height,invalidate])
+ useEffect(()=>{if(quality==='normal')adaptive.current={seconds:0,frames:0,slowWindows:0,fps:60,changed:false}},[quality])
+ useFrame((_,dt)=>{
+  const sample=adaptive.current,active=motion.moving&&(motion.x!==0||motion.z!==0)
+  // Demand rendering and the intentional 30Hz idle cadence are not slow gameplay.
+  if(quality!=='normal'||document.hidden||!active||dt>1){sample.seconds=sample.frames=0;return}
+  sample.seconds+=dt;sample.frames++
+  if(sample.seconds>=3){sample.fps=sample.frames/sample.seconds;sample.slowWindows=sample.fps<50?sample.slowWindows+1:0;sample.seconds=sample.frames=0;if(sample.slowWindows>=2&&!sample.changed){sample.changed=true;useStore.getState().setSceneQuality('low')}}
+ },-90)
  useFrame(()=>gl.info.reset(),-100)
  useFrame((_,dt)=>{if(import.meta.env.DEV&&scene.userData.withoutEffects){gl.setRenderTarget(null);gl.render(scene,camera)}else pipeline.current?.render(dt)},1)
  return null
