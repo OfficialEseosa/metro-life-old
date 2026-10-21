@@ -11,6 +11,7 @@ class CityBoundary extends Component<{children:ReactNode},{failed:boolean}>{
 }
 export default function App(){
  const load=useStore(s=>s.load)
+ useEffect(()=>{window.dispatchEvent(new Event('metro-mounted'))},[])
  useEffect(()=>{void load()},[load])
  return <div style={{position:'fixed',inset:0,overflow:'hidden'}}><CityBoundary><Suspense fallback={<div className="scene-loading" role="status">Opening your city…</div>}><CityScene/></Suspense></CityBoundary><Hud/></div>
 }
