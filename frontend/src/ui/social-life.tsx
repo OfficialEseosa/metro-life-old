@@ -28,8 +28,8 @@ export async function refreshSocialLife(){const sim=useStore.getState().sim;if(!
 export function celebrate(label:string,kind='reward'){window.dispatchEvent(new CustomEvent('metro-celebrate',{detail:{label,kind}}));sound(kind==='friend'?'friend':kind==='payday'?'payday':'reward')}
 function useCelebrations(){
  useEffect(()=>useStore.subscribe((next,previous)=>{const sim=next.sim,old=previous.sim;if(!sim||!old||sim.userId!==old.userId)return
-  const entry=sim.economy?.entries?.at(-1),last=old.economy?.entries?.at(-1)
-  if(entry&&entry.id!==last?.id&&entry.amount>0&&/pay|shift/i.test(entry.reason)){const key='metro:first-pay:'+sim.userId;let seen=false;try{seen=localStorage.getItem(key)==='yes';localStorage.setItem(key,'yes')}catch{}if(!seen)celebrate('Your first paycheck!','payday')}
+  const previousEntries=new Set((old.economy?.entries??[]).map(entry=>entry.id)),paid=(sim.economy?.entries??[]).some(entry=>!previousEntries.has(entry.id)&&entry.amount>0&&/wage|pay|shift/i.test(entry.reason))
+  if(paid){const key='metro:first-pay:'+sim.userId;let seen=false;try{seen=localStorage.getItem(key)==='yes';localStorage.setItem(key,'yes')}catch{}if(!seen)celebrate('Your first paycheck!','payday')}
   if(sim.daily.some(g=>g.done&&!old.daily.find(p=>p.id===g.id)?.done))celebrate('A goal, made real!')
   for(const [id,friend]of Object.entries(sim.relationships??{})){const before=old.relationships?.[id];if(before&&before.label!==friend.label&&friend.value>before.value){celebrate('A new '+friend.label.toLowerCase()+'!','friend');break}}
  }),[])
