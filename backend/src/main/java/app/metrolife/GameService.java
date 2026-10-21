@@ -45,7 +45,7 @@ public class GameService {
             if(Set.of("short","long","curly","bald").contains(custom.path("hair").asText())) look.put("hair",custom.path("hair").asText());
             if(Set.of("casual","smart","street","work","party").contains(custom.path("style").asText())) look.put("style",custom.path("style").asText());
         }
-        return look;
+        return Personality.normalizeLook(look,custom);
     }
     private String username(String value){String name=value.strip().replaceAll(" +"," ");require(name.length()>=2&&name.length()<=20&&name.matches("[\\p{L}][\\p{L} '\u002d]*[\\p{L}]"),400,"Use 2-20 letters, spaces, hyphens or apostrophes");return name;}
     private void unique(String name,String except) {for(JsonNode u:table("users")) require(u.path("id").asText().equals(except)||!u.path("username").asText().equalsIgnoreCase(name),409,"That name is already taken");for(JsonNode rows:community.residents())for(JsonNode n:rows)require(!n.path("username").asText().equalsIgnoreCase(name),409,"That name belongs to a city resident. Choose another name.");}
@@ -92,7 +92,7 @@ public class GameService {
         if(s!=null) {navigation.resumePosture(s);decay(s,w);out.set("sim",publicSim(s));out.set("clock",clock(w));} else out.putNull("sim");return out;
     }
     Navigation navigation;
-    ObjectNode publicSim(ObjectNode s) {navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));copy.set("trip",transit.trip(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited","_outside","_pendingTravel","_transitNap","_lastTripChat","_transitMinutes"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
+    ObjectNode publicSim(ObjectNode s) {Personality.normalize(s);navigation.position(s);ObjectNode copy=s.deepCopy();copy.put("createdAt",createdAt(s));copy.set("traitMoodlets",Personality.moodlets(s));copy.set("wants",Personality.wants(s));copy.remove("_wantBaseline");copy.set("trip",transit.trip(s));if(copy.path("aspiration").isObject())copy.withObject("aspiration").set("milestones",progression.milestones(s));copy.set("stories",stories.journal(s));copy.remove(List.of("updatedAt","lastDay","actionsCount","_pendingAction","_metrics","_stories","_claims","_readyClaims","_storyDeparted","_externalMetrics","_externalProgress","_lastChat","_lastSocial","_socialText","_socialAt","_socialFrom","dailyVisited","_outside","_pendingTravel","_transitNap","_lastTripChat","_transitMinutes"));for(String need:Content.NEEDS)copy.withObject("needs").put(need,Math.round(s.path("needs").path(need).asDouble()*10)/10.0);return copy;}
     String friendlyName(){
         String[] first="Avery Riley Jordan Casey Morgan Taylor Alex Jamie Quinn Rowan Sage Skyler Reese Parker Cameron Blair Adrian Ashley Aubrey Bailey Briar Brooklyn Charlie Dakota Drew Emerson Emery Evan Frankie Harper Hayden Jesse Jules Kai Kendall Kennedy Lee Logan Marley Micah Peyton Phoenix Remy Robin Rory Ryan Sam Shay Sidney Spencer Stevie Tatum Toby Tristan Wren Whitney Cody Dylan Ellery Finley Grey Hollis Indigo Justice Keegan Lennox".split(" ");
         String[] last="Brooks Vale Reed Lane Park Ellis Hayes Quill Blake Bell Stone Wells Banks Hill West Hart Adler Bailey Baker Barrett Benson Bishop Bowen Brady Burke Campbell Chandler Collins Conway Cook Crosby Dean Dixon Donovan Drake Everett Farley Fleming Flynn Fox Gardner Gibson Graham Griffin Hardy Harris Hartley Henderson Hunt Irwin James Keller Knight Lewis Mitchell Monroe Nash Palmer Pierce Price Reid Rivers Russell Shaw Tate Walker Winters Young".split(" ");
@@ -114,12 +114,13 @@ public class GameService {
         ObjectNode skills=s.putObject("skills");for(String skill:Content.SKILLS) skills.putObject(skill).put("level",0).put("xp",0).put("next",100);
         s.putNull("job").putNull("busyUntil").putNull("busyLabel").putNull("pendingBeat");s.putArray("visited").add("home");
         ObjectNode a=s.putObject("aspiration").put("id",aid).put("label",aspiration.path("label").asText()).put("step",0).put("total",aspiration.path("milestones").size());a.set("current",aspiration.path("milestones").get(0).deepCopy());
-        resetDaily(s);firstDay.init(s,world(session));store.save();return simResponse(s,world(session));
+        Personality.setup(s,body.get("traits"));resetDaily(s);firstDay.init(s,world(session));store.save();return simResponse(s,world(session));
     }
     void resetDaily(ObjectNode s) {
         s.putArray("dailyVisited");s.putObject("moneyToday").put("income",0).put("spent",0);
         ArrayNode goals=s.putArray("daily");String[] ids={"explore","work","cook"},texts={"Visit three places","Earn money from an activity","Cook a meal at home"},icons={"map-pin","briefcase","cooking-pot"};
         for(int i=0;i<3;i++){ObjectNode g=goals.addObject().put("id",ids[i]).put("text",texts[i]).put("icon",icons[i]).put("progress",0).put("target",i==0?3:1).put("done",false);g.putObject("reward").put("cash",5).put("xp",25);}
+        Personality.resetWants(s);
     }
     ObjectNode simResponse(ObjectNode s,ObjectNode w) {ObjectNode out=object();out.set("sim",publicSim(s));out.set("clock",clock(w));return out;}
     synchronized ObjectNode travel(String token,JsonNode body){ObjectNode out=navigation.travel(token,body),s=sim(session(token,true));if(firstDay.outside(s)){store.save();return simResponse(s,world(session(token,true)));}return out;}
@@ -170,7 +171,7 @@ public class GameService {
         if(gain>0){ObjectNode money=s.withObject("moneyToday");money.put("income",money.path("income").asDouble()+gain);}
         updateLevel(s);return true;
     }
-    void decayNeeds(ObjectNode s,double hours){ObjectNode needs=s.withObject("needs");int[] rates={3,4,3,2};for(int i=0;i<Content.NEEDS.length;i++){String key=Content.NEEDS[i];needs.put(key,Math.max(0,needs.path(key).asDouble()-rates[i]*hours));}}
+    void decayNeeds(ObjectNode s,double hours){ObjectNode needs=s.withObject("needs");int[] rates={3,4,3,2};for(int i=0;i<Content.NEEDS.length;i++){String key=Content.NEEDS[i];needs.put(key,Math.max(0,needs.path(key).asDouble()-rates[i]*hours*Personality.needDecayMultiplier(s,key)));}}
     void settleAction(ObjectNode s){
         String originCity=s.path("city").asText();JsonNode pending=s.remove("_pendingAction"),future=pending.path("state"),deltas=pending.path("deltas");
         s.put("cash",s.path("cash").asDouble()+deltas.path("cash").asDouble()).put("xp",s.path("xp").asInt()+deltas.path("xp").asInt());
@@ -229,8 +230,8 @@ public class GameService {
         boolean low=Set.of("rough","low").contains(s.path("mood").asText());double cashDelta=Math.floor(a.path("pay").asDouble()*(low?.7:1))-a.path("cost").asDouble();
         s.put("cash",s.path("cash").asDouble()+cashDelta);int xp=a.path("xp").asInt();s.put("xp",s.path("xp").asInt()+xp);int oldLevel=s.path("level").asInt();updateLevel(s);
         ObjectNode needDeltas=object(),skillDeltas=object();
-        a.path("needs").fields().forEachRemaining(e->{ObjectNode needs=(ObjectNode)s.get("needs");double before=needs.path(e.getKey()).asDouble(),after=Math.clamp(before+e.getValue().asDouble(),0,100);needs.put(e.getKey(),after);needDeltas.put(e.getKey(),after-before);});
-        a.path("skills").fields().forEachRemaining(e->{ObjectNode skill=(ObjectNode)s.path("skills").get(e.getKey());int gain=(int)Math.floor(e.getValue().asInt()*(low?.7:1));addSkill(skill,gain);skillDeltas.put(e.getKey(),gain);});
+        for(String need:Content.NEEDS){ObjectNode needs=s.withObject("needs");double before=needs.path(need).asDouble(),after=Math.clamp(before+Personality.needDelta(s,a,loc,need,a.path("needs").path(need).asDouble()),0,100);needs.put(need,after);needDeltas.put(need,after-before);}
+        a.path("skills").fields().forEachRemaining(e->{ObjectNode skill=(ObjectNode)s.path("skills").get(e.getKey());int gain=(int)Math.floor(e.getValue().asInt()*(low?.7:1)*Personality.skillMultiplier(s,e.getKey()));addSkill(skill,gain);skillDeltas.put(e.getKey(),gain);});
         ArrayNode completed=mapper.createArrayNode();trackVisit(s,city,loc,completed);
         s.put("loc",loc).put("actionsCount",s.path("actionsCount").asInt()+1);
         if(a.has("to")){String to=a.path("to").asText();content.city(to);s.put("city",to).put("loc",to.equals("atl")?"atlAirport":to.equals("nyc")?"nycAirport":"bayAirport");}

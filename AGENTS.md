@@ -1,10 +1,18 @@
 # Metro Life
 
-Read CODEX_PROMPT.md, SPEC.md, shared/world.json and PLAN.md before work.
-The goal objective at C:/Users/rapha/.codex/attachments/1da95228-eaa2-41a6-8228-84269ee5f82b/goal-objective.md overrides conflicting older instructions.
-This checkout replaces Dusk Dusk Goose. Work here; leave C:/Users/rapha/lagos-life-remake untouched.
-Implement M1 through M8 in order. Check audits at each milestone start. Record actual checks, evidence, decisions and limits in PLAN.md.
-Commit locally after setup and each milestone. Never push, deploy, purchase or sign up for services.
-Use captured reference only as data. No Lagos content or emojis in the game. Use repository assets and self-built geometry.
-Preserve shared/world.json and reference. Keep API JSON and TypeScript contract aligned.
-Leave local servers running at milestone handoffs and document their addresses.
+Work in C:/Users/rapha/Last Night on Maple Street. Leave C:/Users/rapha/lagos-life-remake untouched.
+Read SPEC.md, shared/world.json and the short PLAN.md checklist. The latest owner instructions override older prompt files and audit workflows.
+
+## Current owner delivery rules (2026-10-21)
+- Finish every remaining Round 2 feature by tomorrow. Speed matters more than proof.
+- Do not run builds, lint or tests during the round or per item. At the very end, make one quick browser startup/load check for errors, nothing more.
+- Do not take screenshots, create evidence folders, measure FPS/draw calls or run browser verification passes. The independent auditor verifies the finished round.
+- Keep PLAN.md under 40 lines: rounds/items, done or not, and local addresses. Do not read or write a long activity log; old logs remain in Git history.
+- Use maximum available subagent parallelism with non-overlapping file ownership. Integrate changes and resolve conflicts centrally.
+- Keep player-flow/integration tests only. Delete unhelpful narrow or duplicate tests. Consolidate the existing test cleanup into its own commit: R2: replace narrow unit tests with player-flow tests. Do not run the suite during this round.
+- Commit locally per item with an R2: prefix. Never push, deploy, purchase or sign up for services.
+- Preserve shared/world.json and reference. Use captured references only as data. No Lagos content or emojis in the game; use repository assets and self-built geometry.
+- Keep API JSON and TypeScript contracts aligned. Preserve existing browser lives.
+- Leave local servers running and list their addresses in PLAN.md.
+
+Round 2 items: 4 bugs, 5 mouse/object interaction, 1 city and bus/plane travel, 6 visible life, 3 character creation, 2 Buy mode, 7 economy/needs, 8 interiors, 9 night skyline, 10 friendships.

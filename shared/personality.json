@@ -1,0 +1,18 @@
+{
+  "traits": [
+    {"id":"creative","label":"Creative","icon":"palette","detail":"Creativity and music practice earn 25% more skill XP.","skill":"creativity"},
+    {"id":"bookworm","label":"Bookworm","icon":"book-open","detail":"Tech practice earns 25% more XP; quiet learning restores a little fun.","skill":"tech"},
+    {"id":"foodie","label":"Foodie","icon":"utensils","detail":"Cooking earns 25% more XP and meals restore extra hunger.","skill":"cooking"},
+    {"id":"active","label":"Active","icon":"dumbbell","detail":"Fitness earns 25% more XP; exercise restores extra fun.","skill":"fitness"},
+    {"id":"outgoing","label":"Outgoing","icon":"users","detail":"Charisma earns 25% more XP; social moments restore extra social need.","skill":"charisma"},
+    {"id":"ambitious","label":"Ambitious","icon":"briefcase","detail":"Business earns 25% more XP; finishing work restores a little fun.","skill":"business"},
+    {"id":"music-lover","label":"Music lover","icon":"music","detail":"Music earns 25% more XP and music activities restore extra fun.","skill":"music"},
+    {"id":"easygoing","label":"Easygoing","icon":"sun","detail":"Fun drains 25% more slowly. Less pressure, more room to enjoy the day."},
+    {"id":"independent","label":"Independent","icon":"leaf","detail":"Social need drains 30% more slowly, so time alone feels comfortable."},
+    {"id":"early-bird","label":"Early bird","icon":"sunrise","detail":"Energy drains 20% more slowly and sleep restores extra energy."},
+    {"id":"homebody","label":"Homebody","icon":"house","detail":"Home activities restore extra fun. Your own room is your happy place."},
+    {"id":"curious","label":"Curious","icon":"compass","detail":"All skill practice earns 10% more XP. A new place is always inviting."}
+  ],
+  "hair": [{"id":"short","label":"Crop"},{"id":"bob","label":"Bob"},{"id":"long","label":"Long"},{"id":"curly","label":"Curls"},{"id":"afro","label":"Afro"},{"id":"bun","label":"Bun"},{"id":"ponytail","label":"Ponytail"},{"id":"braids","label":"Braids"},{"id":"mohawk","label":"Mohawk"},{"id":"bald","label":"Shaved"}],
+  "faces": [{"id":"soft","label":"Soft"},{"id":"bright","label":"Bright"},{"id":"angular","label":"Angular"},{"id":"freckled","label":"Freckled"}]
+}

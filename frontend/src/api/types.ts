@@ -7,7 +7,10 @@ export type Mood = 'great' | 'good' | 'okay' | 'low' | 'rough'
 export type ActionKind = 'work' | 'fun' | 'food' | 'learn' | 'social' | 'civic' | 'travel' | 'rest'
 export type CareerTrack = 'tech' | 'music' | 'sports' | 'food' | 'finance' | 'arts' | 'civic' | 'health'
 
+export type LookOutfit={top:string;bottom:string;style:string;shoeColor:string}
 export type Look = {
+  face?:string
+  outfits?:Record<"everyday"|"work"|"sleep",LookOutfit>
   body: 'f' | 'm'
   skin: string
   hair: string
@@ -184,6 +187,9 @@ export type Sim = {
   home: { kind?:string; city: CityId; neighborhood: string; rent: number }
   cash: number
   rentDebt?: number
+  traits?:string[]
+  traitMoodlets?:{id:string;label:string;detail:string}[]
+  wants?:Goal[]
   moneyToday?: { income: number; spent: number }
   xp: number
   level: number

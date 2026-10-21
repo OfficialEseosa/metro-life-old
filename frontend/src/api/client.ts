@@ -83,7 +83,7 @@ export const api = {
   posture: (bench:string|null) => req<{sim:Sim}>('POST','/api/posture',{bench}),
   move: (city:CityId,p:import('../navigation').Position) => req<{position:import('../navigation').Position}>('POST','/api/move',{city,...p}),
   sim: () => req<{ sim: Sim; clock: Clock }>('GET', '/api/sim'),
-  setupSim: (setup: { username:string;pronouns: 'she'|'he'|'they';city: CityId; neighborhood: string; aspiration: string; look?: Partial<Look> }) =>
+  setupSim: (setup: { traits?:string[];username:string;pronouns: 'she'|'he'|'they';city: CityId; neighborhood: string; aspiration: string; look?: Partial<Look> }) =>
     req<{ sim: Sim }>('POST', '/api/sim/setup', setup),
   act: (city: CityId, loc: string, action: string, slotId?: string) =>
     req<{ sim: Sim; result: ActResult }>('POST', '/api/act', { city, loc, action, ...(slotId?{slotId}:{}) }),
