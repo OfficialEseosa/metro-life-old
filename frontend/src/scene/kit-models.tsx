@@ -1,6 +1,7 @@
 import { bakeBuildingContact } from './baked-contact'
 import { CarLights } from './car-lights'
 import { windowMask } from './window-mask'
+import { skylineWindows } from './skyline-windows'
 import { NightPools } from './night-pools'
 /* oxlint-disable react/immutability -- shared Three.js buffers and instance matrices are renderer resources. */
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
@@ -92,6 +93,7 @@ function SuppliedAtlantaModel({id,x,z,angle,asset,footprint,scale}:{id:string;x:
   for(const {parts,material,glow} of batches.values()){
    const geometry=mergeGeometries(parts);parts.forEach(p=>p.dispose())
    if(!geometry)throw Error(`Cannot merge supplied Atlanta model: ${asset.url}`)
+   if(scaleX!==undefined&&!glow)skylineWindows(geometry,material)
    const mesh=new THREE.Mesh(geometry,material);mesh.name=glow?asset.glowMesh!:`${id}-body`;mesh.castShadow=!glow;mesh.receiveShadow=!glow;mesh.raycast=noPick;mesh.updateMatrix();mesh.matrixAutoUpdate=false;root.add(mesh)
   }
   if(asset.glowMesh&&!root.getObjectByName(asset.glowMesh))throw Error(`Missing manifest glow mesh: ${asset.glowMesh}`)
@@ -104,8 +106,9 @@ function SuppliedAtlantaModel({id,x,z,angle,asset,footprint,scale}:{id:string;x:
  },[scene,id,x,z,angle,asset,footprint,scaleX,scaleY,scaleZ])
  useLayoutEffect(()=>{
   if(glowMaterial){glowMaterial.emissive.set(asset.nightColour);glowMaterial.emissiveIntensity=night?1.6:0}
+  for(const material of materials)if(material.userData.skylineNight)material.userData.skylineNight.value=night?1:0
   model.userData.atlantaModel.night=night;gl.shadowMap.needsUpdate=true;invalidate()
- },[model,glowMaterial,asset,night,gl,invalidate])
+ },[model,glowMaterial,materials,asset,night,gl,invalidate])
  useEffect(()=>()=>{model.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose()});materials.forEach(material=>material.dispose())},[model,materials])
  return <primitive object={model}/>
 }
