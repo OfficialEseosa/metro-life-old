@@ -1,13 +1,16 @@
 import residentRoutes from '../../shared/resident-routes.json'
-import venues from '../../shared/venues.json'
 import rooms from '../../shared/interiors.json'
 import data from '../../shared/navigation.json'
 import type { CityId, Sim, World } from './api/types'
 export type Position={x:number;z:number;face:number;place:string;room:string|null}
 export const interiors=rooms
-export type RoomLayout={name:string;exit:{x:number;z:number};stations:{id:string;name:string;action:string;x:number;z:number;face:number}[];boxes:Box[];furniture:{id:string;kind:string;x:number;z:number;w:number;d:number;angle:number;slots:import('./api/types').ActivitySlot[]}[];slots:import('./api/types').ActivitySlot[]}
+export type RoomActivity={station:string;pose:string}
+export type RoomLayout={name:string;exit:{x:number;z:number};stations:{id:string;name:string;action:string;x:number;z:number;face:number}[];boxes:Box[];furniture:{id:string;kind:string;x:number;z:number;w:number;d:number;angle:number;slots:import('./api/types').ActivitySlot[]}[];slots:import('./api/types').ActivitySlot[];activities?:Record<string,RoomActivity>;staff?:{id:string;name:string;x:number;z:number;face:number}[];labels?:{text:string;x:number;y:number;z:number}[]}
 export function roomLayout(city:CityId,type:keyof typeof rooms):RoomLayout{const base=rooms[type];return (city==='atl'?base:base.variants[city]) as RoomLayout}
-export function interiorType(world:World|null,city:CityId,loc:string){if(loc==='home')return 'home';if(venues[city].cafe===loc)return 'cafe';if(venues[city].club===loc)return 'club';const place=world?.cities.find(c=>c.id===city)?.landmarks.find(l=>l.id===loc);return place?.actions.some(a=>a.requires?.job)?'work':undefined}
+/** Every landmark assignment is authored in the same file the server loads. */
+export function interiorType(_world:World|null,city:CityId,loc:string){if(loc==='home')return 'home';return (Object.keys(rooms) as (keyof typeof rooms)[]).find(type=>(rooms[type].landmarks[city] as string[]).includes(loc))}
+export function activityUse(city:CityId,type:keyof typeof rooms,action:import('./api/types').Action){const rules=roomLayout(city,type).activities;return rules?.[action.requires?.job?'job':action.kind]??rules?.fun}
+export function stationActionFor(room:string|null,city:CityId,world:World|null,station:{id:string;action:string},jobTrack?:string){const content=world?.cities.find(c=>c.id===city),type=roomType(room);if(!type)return;const place=content?.landmarks.find(l=>l.id===room?.split(':')[1]);if(type==='home')return content?.homeActions.find(a=>a.id===station.action);return place?.actions.find(a=>(!a.requires?.job||a.requires.job===jobTrack)&&a.id!=='visit-workplace'&&activityUse(city,type,a)?.station===station.id)}
 export function roomType(room:string|null|undefined){return room?.split(':')[0] as keyof typeof interiors|undefined}
 export function nearbyStation(p:Position,city:CityId='atl'){const type=roomType(p.room);if(!type)return;const room=roomLayout(city,type);if(Math.hypot(p.x-room.exit.x,p.z-room.exit.z)<1.5)return {id:'exit',name:type==='home'?'Leave home':'Leave building',action:'exit',x:room.exit.x,z:room.exit.z,face:0};return room.stations.filter(s=>Math.hypot(s.x-p.x,s.z-p.z)<1.45).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0]}
 export const navigation=data.cities

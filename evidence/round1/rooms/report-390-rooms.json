@@ -1,0 +1,2656 @@
+{
+  "width": 390,
+  "mode": "rooms",
+  "views": [
+    {
+      "label": "museum-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.5930735840712946,
+            1.5371859714118394,
+            4.013517724868669
+          ],
+          "slot": null,
+          "position": [
+            0.511980000400544,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "museum",
+          "staff": 1,
+          "staffRoles": [
+            "Gallery attendant"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            7.4713575673376,
+            9.800000000000006,
+            17.207153637642822
+          ],
+          "target": [
+            0.5119090215579132,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 56.381002918768964,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.977792033333333,
+          "beautyGpuMs": 4.944463083333335,
+          "frameCpuMs": 1.899999976158142,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 29,
+          "textures": 36
+        }
+      },
+      "metrics": {
+        "calls": 57,
+        "triangles": 25015,
+        "fps": 58.61874014363043,
+        "p95Ms": 25.19999998807907,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "work-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.1495002577473504,
+            1.537113950897378,
+            4.013517558858497
+          ],
+          "slot": null,
+          "position": [
+            0.06845999929904811,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "work",
+          "staff": 0,
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            7.027856097054111,
+            9.800000000000006,
+            17.207153637642826
+          ],
+          "target": [
+            0.06840755127442802,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 56.381002918768964,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 3.0121457916666663,
+          "beautyGpuMs": 5.468916666666668,
+          "frameCpuMs": 1.800000011920929,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 34,
+          "textures": 43
+        }
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 16715,
+        "fps": 60.352278484570846,
+        "p95Ms": 22.30000001192093,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "work-type",
+      "status": {
+        "activity": {
+          "pose": "Type",
+          "head": [
+            0.0009980116487632903,
+            1.1881576103716098,
+            -1.177611045915416
+          ],
+          "slot": {
+            "id": "desk-0",
+            "pose": "Type",
+            "x": 0,
+            "z": -1.3000000000000003,
+            "face": 3.141592653589793,
+            "y": 0.61,
+            "station": "desk"
+          },
+          "position": [
+            0,
+            0,
+            -1.3000000000000003
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "work",
+          "staff": 0,
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            6.959448488741684,
+            9.800000000000006,
+            11.907173981880055
+          ],
+          "target": [
+            -5.703799793087928e-8,
+            -0.19999999999999998,
+            -2.4999796557627705
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 56.381002918768964,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.9888723666666666,
+          "beautyGpuMs": 5.501416641666665,
+          "frameCpuMs": 1.699999988079071,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 34,
+          "textures": 43
+        }
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 16967,
+        "fps": 60.39306241002833,
+        "p95Ms": 22.30000001192093,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "foodhall-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            -0.06440275026299205,
+            1.5373533790389444,
+            4.013517755005813
+          ],
+          "slot": null,
+          "position": [
+            -0.14574000070095103,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "foodhall",
+          "staff": 2,
+          "staffRoles": [
+            "Cook",
+            "Server"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            6.813557185536282,
+            9.800000000000006,
+            17.207153637642826
+          ],
+          "target": [
+            -0.14589136024340088,
+            -0.19999999999999996,
+            2.8000000000000007
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.170871979705396,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 1.577707883333334,
+          "beautyGpuMs": 3.141423125,
+          "frameCpuMs": 1.9000000357627869,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 46
+        }
+      },
+      "metrics": {
+        "calls": 41,
+        "triangles": 17667,
+        "fps": 60.229230653981574,
+        "p95Ms": 18.399999976158142,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "foodhall-eat",
+      "status": {
+        "activity": {
+          "pose": "Eat",
+          "head": [
+            0.31508191635221633,
+            1.2039808256646025,
+            1.3878562301089192
+          ],
+          "slot": {
+            "id": "table-1",
+            "pose": "Eat",
+            "x": 0.3,
+            "z": 1.4,
+            "face": 3.141592653589793,
+            "y": 0.61,
+            "station": "table"
+          },
+          "position": [
+            0.3,
+            0,
+            1.4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "foodhall",
+          "staff": 2,
+          "staffRoles": [
+            "Cook",
+            "Server"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            7.259449874229297,
+            9.800000000000006,
+            14.607181879645932
+          ],
+          "target": [
+            0.3000013284496153,
+            -0.19999999999999996,
+            0.20002824200310745
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.170871979705396,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 1.6388063833333342,
+          "beautyGpuMs": 3.8587699333333347,
+          "frameCpuMs": 2.800000011920929,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 38,
+          "textures": 46
+        }
+      },
+      "metrics": {
+        "calls": 42,
+        "triangles": 17655,
+        "fps": 60.280850828736746,
+        "p95Ms": 18.700000047683716,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "foodhall-night",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.3307369605326065,
+            1.5361842031433957,
+            1.4772570946187866
+          ],
+          "slot": null,
+          "position": [
+            0.3172191295280938,
+            0,
+            1.5592182945340034
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "foodhall",
+          "staff": 2,
+          "staffRoles": [
+            "Cook",
+            "Server"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "203e58"
+        },
+        "camera": {
+          "eye": [
+            7.276667614899173,
+            9.800000000000006,
+            14.76637160928465
+          ],
+          "target": [
+            0.31721906911949216,
+            -0.19999999999999998,
+            0.35921797164182556
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.24
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.170871979705396,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.161401016666667,
+          "beautyGpuMs": 4.048363683333333,
+          "frameCpuMs": 2.699999988079071,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 38,
+          "textures": 46
+        }
+      },
+      "metrics": {
+        "calls": 41,
+        "triangles": 17667,
+        "fps": 60.280850828736746,
+        "p95Ms": 18.700000047683716,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "cafe-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.2236559959168147,
+            1.537321012404993,
+            4.013517748254886
+          ],
+          "slot": null,
+          "position": [
+            0.1423799998998661,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "cafe",
+          "staff": 1,
+          "staffRoles": [
+            "Barista"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            7.101699066059848,
+            9.800000000000006,
+            17.207153637642826
+          ],
+          "target": [
+            0.14225052028016527,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.003315100281796,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.027904908333334,
+          "beautyGpuMs": 2.4944969416666667,
+          "frameCpuMs": 2.5,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 45
+        }
+      },
+      "metrics": {
+        "calls": 39,
+        "triangles": 15165,
+        "fps": 60.154466998604725,
+        "p95Ms": 18.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "theatre-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            1.1406420575187477,
+            1.5373831289949877,
+            4.013517763485909
+          ],
+          "slot": null,
+          "position": [
+            1.0592399999499338,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "theatre",
+          "staff": 1,
+          "staffRoles": [
+            "Venue host"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            8.018514533351677,
+            9.800000000000006,
+            17.207153637642822
+          ],
+          "target": [
+            1.0590659875719912,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 53.95742990435645,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 1.9703437000000004,
+          "beautyGpuMs": 2.6707607833333333,
+          "frameCpuMs": 0.9000000357627869,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 44
+        }
+      },
+      "metrics": {
+        "calls": 39,
+        "triangles": 26627,
+        "fps": 60.26170798886828,
+        "p95Ms": 18.19999998807907,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "theatre-sit",
+      "status": {
+        "activity": {
+          "pose": "Sit",
+          "head": [
+            1.8009532918564415,
+            1.1981638809636495,
+            1.441109632895564
+          ],
+          "slot": {
+            "id": "seat-1-3",
+            "pose": "Sit",
+            "x": 1.8,
+            "z": 1.5,
+            "face": 3.141592653589793,
+            "y": 0.61,
+            "station": "seats"
+          },
+          "position": [
+            1.8,
+            0,
+            1.5
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "theatre",
+          "staff": 1,
+          "staffRoles": [
+            "Venue host"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            8.759528411484965,
+            9.800000000000006,
+            14.707154494752015
+          ],
+          "target": [
+            1.8000798657052846,
+            -0.19999999999999998,
+            0.3000008571091894
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 53.95742990435645,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.5087925,
+          "beautyGpuMs": 2.7314734750000005,
+          "frameCpuMs": 1.5,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 44
+        }
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 26375,
+        "fps": 60.264769808034096,
+        "p95Ms": 18.299999952316284,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "theatre-night",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            2.7897065434082484,
+            1.5366800008788366,
+            1.4530324594609416
+          ],
+          "slot": null,
+          "position": [
+            2.776188813417674,
+            0,
+            1.5341961404587854
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "theatre",
+          "staff": 1,
+          "staffRoles": [
+            "Venue host"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "203e58"
+        },
+        "camera": {
+          "eye": [
+            9.735630200935018,
+            9.800000000000006,
+            14.741349067207603
+          ],
+          "target": [
+            2.776181655155336,
+            -0.19999999999999998,
+            0.33419542956477766
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.24
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 53.95742990435645,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.6949053583333322,
+          "beautyGpuMs": 2.889400150000002,
+          "frameCpuMs": 0.800000011920929,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 44
+        }
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 26375,
+        "fps": 60.264769808034096,
+        "p95Ms": 18.299999952316284,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "stadium-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.20866697618225127,
+            1.5373853836692977,
+            4.013517763923931
+          ],
+          "slot": null,
+          "position": [
+            0.12726000030040993,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "stadium",
+          "staff": 1,
+          "staffRoles": [
+            "Concessions host"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            7.086533360671431,
+            9.800000000000006,
+            17.207153637642826
+          ],
+          "target": [
+            0.12708481489174764,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 59.99400059970169,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 1.8758953916666676,
+          "beautyGpuMs": 2.5014322500000006,
+          "frameCpuMs": 1.399999976158142,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 44
+        }
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 15175,
+        "fps": 60.03328578200319,
+        "p95Ms": 18.099999964237213,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "arena-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.13138533669576852,
+            1.5373846321193425,
+            4.013517763726387
+          ],
+          "slot": null,
+          "position": [
+            0.04998000015020178,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "arena",
+          "staff": 1,
+          "staffRoles": [
+            "Concessions host"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            7.009253646174765,
+            9.800000000000006,
+            17.207153637642822
+          ],
+          "target": [
+            0.04980510039508087,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 59.99400059970169,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.6541562333333335,
+          "beautyGpuMs": 2.418965283333333,
+          "frameCpuMs": 1.7000000476837158,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 46
+        }
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 15771,
+        "fps": 60.13861951788118,
+        "p95Ms": 18.80000001192093,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "pavilion-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.06400287548377845,
+            1.5372881539960817,
+            4.013517742667276
+          ],
+          "slot": null,
+          "position": [
+            -0.017219999098775515,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "pavilion",
+          "staff": 1,
+          "staffRoles": [
+            "Visitor host"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            6.942117275408323,
+            9.800000000000006,
+            17.207153637642826
+          ],
+          "target": [
+            -0.01733127037135978,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.158872603023624,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 3.0699479000000007,
+          "beautyGpuMs": 2.8808463333333334,
+          "frameCpuMs": 2.700000047683716,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 35,
+          "textures": 46
+        }
+      },
+      "metrics": {
+        "calls": 36,
+        "triangles": 16671,
+        "fps": 60.15933288660562,
+        "p95Ms": 18.5,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "hospital-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.03166255453097195,
+            1.5372879560127317,
+            4.013517742629832
+          ],
+          "slot": null,
+          "position": [
+            -0.0495600000500679,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "hospital",
+          "staff": 1,
+          "staffRoles": [
+            "Reception nurse"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            6.909777243375207,
+            9.800000000000006,
+            17.207153637642826
+          ],
+          "target": [
+            -0.04967130240447569,
+            -0.19999999999999996,
+            2.8000000000000007
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.17087197970547,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.0813797750000007,
+          "beautyGpuMs": 3.9513624000000007,
+          "frameCpuMs": 1.800000011920929,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 38,
+          "textures": 47
+        }
+      },
+      "metrics": {
+        "calls": 40,
+        "triangles": 16321,
+        "fps": 60.20840215019334,
+        "p95Ms": 19,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "airport-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            -0.05432351857445035,
+            1.537353055132566,
+            4.0135177560811615
+          ],
+          "slot": null,
+          "position": [
+            -0.1356599997997298,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "airport",
+          "staff": 1,
+          "staffRoles": [
+            "Gate agent"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            6.823637784836249,
+            9.800000000000006,
+            17.207153637642826
+          ],
+          "target": [
+            -0.13581076094343397,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 59.99800006618765,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.039093716666667,
+          "beautyGpuMs": 1.7537669166666665,
+          "frameCpuMs": 1.300000011920929,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 38,
+          "textures": 47
+        }
+      },
+      "metrics": {
+        "calls": 39,
+        "triangles": 15589,
+        "fps": 60.31598373590572,
+        "p95Ms": 17.80000001192093,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "club-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.2615164830385768,
+            1.5373530552051526,
+            4.013517755443936
+          ],
+          "slot": null,
+          "position": [
+            0.18017999989986372,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "club",
+          "staff": 1,
+          "staffRoles": [
+            "Venue host"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            7.139477847367459,
+            9.800000000000006,
+            17.207153637642822
+          ],
+          "target": [
+            0.18002930158777572,
+            -0.19999999999999998,
+            2.8000000000000003
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.22
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.00331510028183,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 1.895160991666667,
+          "beautyGpuMs": 2.9351870666666655,
+          "frameCpuMs": 1.0999999642372131,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 46
+        }
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 15539,
+        "fps": 60.09812547544872,
+        "p95Ms": 17.80000001192093,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "home-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.5432759960167595,
+            1.5373210124048748,
+            2.313517748254886
+          ],
+          "slot": null,
+          "position": [
+            0.4620000000000016,
+            0,
+            2.3
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "home",
+          "staff": 0,
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            7.421316944953057,
+            9.800000000000006,
+            15.507153637642825
+          ],
+          "target": [
+            0.4618683991733766,
+            -0.19999999999999998,
+            1.1
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.00331510028183,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.225541233333333,
+          "beautyGpuMs": 2.719427466666666,
+          "frameCpuMs": 2.600000023841858,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 36,
+          "textures": 45
+        }
+      },
+      "metrics": {
+        "calls": 38,
+        "triangles": 11801,
+        "fps": 59.76608010200139,
+        "p95Ms": 18.69999998807907,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "home-sleep",
+      "status": {
+        "activity": {
+          "pose": "Sleep",
+          "head": [
+            2.837075709468272,
+            0.7373091618097599,
+            -1.65099397101228
+          ],
+          "slot": {
+            "id": "bed",
+            "pose": "Sleep",
+            "x": 2.25,
+            "z": -1.65,
+            "face": -1.5707963267948966,
+            "y": 0.78
+          },
+          "position": [
+            2.25,
+            0,
+            -1.65
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "home",
+          "staff": 0,
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            9.209378103575029,
+            9.800000000000006,
+            11.557154136051302
+          ],
+          "target": [
+            2.249929557795347,
+            -0.19999999999999998,
+            -2.849999501591523
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.00331510028183,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 3.309035058333334,
+          "beautyGpuMs": 2.9723593416666656,
+          "frameCpuMs": 2,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 36,
+          "textures": 45
+        }
+      },
+      "metrics": {
+        "calls": 33,
+        "triangles": 11629,
+        "fps": 60.01330671989354,
+        "p95Ms": 19.099999964237213,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "home-shower",
+      "status": {
+        "activity": {
+          "pose": "Interact",
+          "head": [
+            -2.713518437336825,
+            1.5463052989876886,
+            -1.8136655676044493
+          ],
+          "slot": {
+            "id": "shower",
+            "pose": "Interact",
+            "x": -2.7,
+            "z": -1.9,
+            "face": 0
+          },
+          "position": [
+            -2.7,
+            0,
+            -1.9
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "home",
+          "staff": 0,
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            4.259581168766941,
+            9.800000000000006,
+            11.307153371706539
+          ],
+          "target": [
+            -2.69986737701274,
+            -0.19999999999999998,
+            -3.1000002659362864
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 390,
+            "fullHeight": 812,
+            "offsetX": 0,
+            "offsetY": 46,
+            "width": 390,
+            "height": 812
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60.00331510028183,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 2.7407950666666663,
+          "beautyGpuMs": 3.1781575416666663,
+          "frameCpuMs": 1.899999976158142,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 36,
+          "textures": 45
+        }
+      },
+      "metrics": {
+        "calls": 56,
+        "triangles": 20269,
+        "fps": 59.97334517992004,
+        "p95Ms": 19.400000035762787,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    }
+  ],
+  "errors": [],
+  "result": "FAIL",
+  "failure": "page.evaluate: TypeError: Cannot read properties of undefined (reading 'getState')\n    at eval (eval at evaluate (:311:30), <anonymous>:1:20)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at settle (C:\\Users\\rapha\\Last Night on Maple Street\\scripts\\r1-browser.cjs:10:101)\n    at async C:\\Users\\rapha\\Last Night on Maple Street\\scripts\\r1-browser.cjs:25:505",
+  "failureState": {}
+}

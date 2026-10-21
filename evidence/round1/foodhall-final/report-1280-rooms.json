@@ -1,0 +1,433 @@
+{
+  "width": 1280,
+  "mode": "rooms",
+  "views": [
+    {
+      "label": "foodhall-day",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            -0.0311437022996977,
+            1.5356951406710395,
+            4.013517979080121
+          ],
+          "slot": null,
+          "position": [
+            -0.11423999994993221,
+            0,
+            4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "foodhall",
+          "staff": 2,
+          "staffRoles": [
+            "Cook",
+            "Server"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            5.105345875527046,
+            9,
+            14.805365228232123
+          ],
+          "target": [
+            -0.11424053380771652,
+            1,
+            4
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 1280,
+            "fullHeight": 800,
+            "offsetX": 0,
+            "offsetY": -45,
+            "width": 1280,
+            "height": 800
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 5.112977841666668,
+          "beautyGpuMs": 6.115068549999999,
+          "frameCpuMs": 1.5999999642372131,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 36,
+          "textures": 38
+        }
+      },
+      "metrics": {
+        "calls": 40,
+        "triangles": 17163,
+        "fps": 59.78598132331183,
+        "p95Ms": 20.799999952316284,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "foodhall-eat",
+      "status": {
+        "activity": {
+          "pose": "Eat",
+          "head": [
+            0.3102212192897866,
+            1.2040187550591774,
+            1.3853615428997492
+          ],
+          "slot": {
+            "id": "table-1",
+            "pose": "Eat",
+            "x": 0.3,
+            "z": 1.4,
+            "face": 3.141592653589793,
+            "y": 0.61,
+            "station": "table"
+          },
+          "position": [
+            0.3,
+            0,
+            1.4
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "foodhall",
+          "staff": 2,
+          "staffRoles": [
+            "Cook",
+            "Server"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            5.519584271776344,
+            9,
+            12.205370676497497
+          ],
+          "target": [
+            0.29999786244158466,
+            1,
+            1.4000054482653783
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 1280,
+            "fullHeight": 800,
+            "offsetX": 0,
+            "offsetY": -45,
+            "width": 1280,
+            "height": 800
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 5.326524316666665,
+          "beautyGpuMs": 6.801792083333336,
+          "frameCpuMs": 2,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 38
+        }
+      },
+      "metrics": {
+        "calls": 41,
+        "triangles": 17403,
+        "fps": 59.80944432903052,
+        "p95Ms": 20.900000035762787,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "foodhall-night",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.1929957967860607,
+            1.5374469840409226,
+            1.5251418749046586
+          ],
+          "slot": null,
+          "position": [
+            0.1794780147485292,
+            0,
+            1.6067019851513356
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "foodhall",
+          "staff": 2,
+          "staffRoles": [
+            "Cook",
+            "Server"
+          ],
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": true
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "203e58"
+        },
+        "camera": {
+          "eye": [
+            5.399107232161458,
+            9,
+            12.412040781894046
+          ],
+          "target": [
+            0.17952082282669432,
+            1,
+            1.6066755536619226
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 1280,
+            "fullHeight": 800,
+            "offsetX": 0,
+            "offsetY": -45,
+            "width": 1280,
+            "height": 800
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18,
+          "active": false
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.24
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 5.268468716666667,
+          "beautyGpuMs": 6.433406191666664,
+          "frameCpuMs": 2.200000047683716,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 37,
+          "textures": 38
+        }
+      },
+      "metrics": {
+        "calls": 40,
+        "triangles": 17163,
+        "fps": 59.80944432903052,
+        "p95Ms": 20.900000035762787,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    }
+  ],
+  "errors": [],
+  "result": "PASS"
+}

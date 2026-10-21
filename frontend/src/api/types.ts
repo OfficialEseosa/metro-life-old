@@ -18,7 +18,7 @@ export type Look = {
   shoeColor: string
 }
 /** Authored visual hip slot; movement authority remains at the furniture approach. */
-export type ActivitySlot={id:string;pose:string;x:number;z:number;y?:number;face:number;bench?:boolean}
+export type ActivitySlot={id:string;pose:string;x:number;z:number;y?:number;face:number;bench?:boolean;station?:string}
 
 export type User = {
   id: string
@@ -33,7 +33,7 @@ export type WorldInfo = {
   id: string
   name: string
   mode: WorldMode
-  /** join code, only for private worlds the user belongs to */
+  /** Shared world has no join code; always null. */
   code: string | null
   ownerId: string | null
   /** humans who have a sim here / humans connected right now */

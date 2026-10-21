@@ -5,15 +5,17 @@ import * as THREE from 'three'
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { motion } from '../walking'
 import { useStore } from '../store'
+import { useNightLighting } from '../lighting'
 
 export function RoomLighting({club}:{club:boolean}){
+ const night=useNightLighting()
  const {gl,scene,invalidate}=useThree(),key=useRef<THREE.DirectionalLight>(null),previous=useRef(''),lastUpdate=useRef(0)
- useEffect(()=>{const room=new RoomEnvironment(),generator=new THREE.PMREMGenerator(gl),environment=generator.fromScene(room,.04),old=scene.environment,oldIntensity=scene.environmentIntensity;scene.environment=environment.texture;scene.environmentIntensity=club?.22:.4;room.dispose();generator.dispose();gl.shadowMap.needsUpdate=true;invalidate();return()=>{scene.environment=old;scene.environmentIntensity=oldIntensity;environment.dispose()}},[gl,scene,invalidate,club])
+ useEffect(()=>{const room=new RoomEnvironment(),generator=new THREE.PMREMGenerator(gl),environment=generator.fromScene(room,.04),old=scene.environment,oldIntensity=scene.environmentIntensity;scene.environment=environment.texture;scene.environmentIntensity=club?.22:night?.24:.4;room.dispose();generator.dispose();gl.shadowMap.needsUpdate=true;invalidate();return()=>{scene.environment=old;scene.environmentIntensity=oldIntensity;environment.dispose()}},[gl,scene,invalidate,club,night])
  useFrame(({clock})=>{
   const p=motion.position,sim=useStore.getState().sim,people=useStore.getState().players
   const signature=`${p?.x.toFixed(2)}:${p?.z.toFixed(2)}:${sim?.busyUntil}:${people.filter(x=>x.position?.room===p?.room).map(x=>`${x.id}:${x.position?.x.toFixed(2)}:${x.position?.z.toFixed(2)}`).join(',')}`
   const animated=!!sim?.busyUntil||people.some(x=>x.position?.room===p?.room&&x.activity&&x.activity!=='idle')
   if((signature!==previous.current||animated)&&clock.elapsedTime-lastUpdate.current>.067){if(key.current)key.current.shadow.needsUpdate=true;gl.shadowMap.needsUpdate=true;previous.current=signature;lastUpdate.current=clock.elapsedTime}
  })
- return <><hemisphereLight args={['#fff3df','#a79086',club?.25:.5]}/><directionalLight ref={key} name="room-shadow-key" position={[-4,7,5]} intensity={club?2.8:2.2} color="#ffe1b3" castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-8} shadow-camera-right={8} shadow-camera-top={8} shadow-camera-bottom={-8} shadow-camera-near={.5} shadow-camera-far={22} shadow-normalBias={.035} shadow-bias={-.00015}/></>
+ return <><hemisphereLight args={[night?'#aec8dd':'#fff3df',night?'#746f78':'#a79086',club?.25:night?.36:.5]}/><directionalLight ref={key} name="room-shadow-key" position={[-4,7,5]} intensity={club?2.8:night?1.25:2.2} color={night?'#b8cee1':'#ffe1b3'} castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-8} shadow-camera-right={8} shadow-camera-top={8} shadow-camera-bottom={-8} shadow-camera-near={.5} shadow-camera-far={22} shadow-normalBias={.035} shadow-bias={-.00015}/></>
 }

@@ -1,8 +1,8 @@
 # Metro Life (working title) — shared spec v2
 
 A life-sim in the spirit of The Sims, inspired by the owner's site lagoslife.app but set in the USA:
-**Atlanta, New York and the Bay Area**. Play **solo** (private world with NPC residents) or **online**
-(shared public world, or a private world friends join with a code). You build a life: keep your needs up,
+**Atlanta, New York and the Bay Area**. Everyone plays in one shared public world, with NPC residents
+and other players who open this server address. You build a life: keep your needs up,
 learn skills, get a job, earn money, pursue an aspiration, run for mayor, buy plots and billboards.
 
 Design pillars (from the owner): no emojis anywhere (SVG icons only), strong typography, better 3D models
@@ -33,17 +33,35 @@ actions, rules, economy) is owned by the **backend** and served by `/api/world`.
 `shared/world.json` (city ids `atl`, `nyc`, `bay`; landmark ids; neighborhood ids; billboard slots `1..N`;
 plots grid `cols x rows` cells with origin top-left, x right, y down).
 
+## Browser life and action feedback (Round 1 owner override)
+
+The game has no account, registration, password or sign-in interface. Opening the game automatically
+resumes the opaque browser session, or creates a guest session if one does not exist. The creator asks
+only for a character name, city and appearance. Progress is held on the local server and recovered with
+this browser’s site cookie; clearing site data loses that browser’s access to the life. Settings explains
+this and offers the existing explicit new-life confirmation.
+
+The only identity routes are `GET /api/auth/me`, `POST /api/auth/guest` and `POST /api/life/new`.
+There are no credential or world-selection endpoints. A `User` is `{ id, username, guest, look, createdAt }`,
+with `guest: true`. The schema-1 save migration marks retained users as guests, removes `passwordHash`
+and `lastWorld`, moves retained sessions to `public`, and backs up the original save before migration.
+
+Every disabled action button shows its specific reason inside the control, associated through
+`aria-describedby`, so touch and keyboard users can read it without a tooltip. This includes a missing
+or invalid creator name, first-day home/plot/billboard locks, insufficient cash, activity/story locks,
+workplace opening hours, policy locks and the one-game-day gifting rule. Waiting for a request also has
+a visible saving/sending explanation. Homes display resident counts and missing cash on separate lines.
+
 ## Core concepts
 
-- **User**: an account or a guest. Guests are created with one click (no password) so solo play starts instantly;
-  signing up while a guest upgrades the same user and keeps progress.
-- **World**: `public` (one shared world, always exists), `private` (join code, friends), `solo` (one human, NPCs).
-  All game state — sims, mayors, plots, billboards, chat — is scoped to a world. The session remembers the
-  current world; logged-out visitors read the public world.
+- **User**: an automatically created browser guest, resumed through the opaque `ml_session` cookie.
+  There is no account or credential flow. A confirmed new life replaces that browser guest and its progress.
+- **World**: `public`, the one shared world. All sims, mayors, plots, billboards and chat belong to it.
+  `WorldInfo.mode` is `public`; `code` and `ownerId` are null. There is no world picker or join code.
 - **Sim**: a user's character in one world: city, current landmark, home, cash, xp/level, needs, skills, job,
   aspiration, goals. One sim per (user, world).
 - **NPC residents**: server-driven sims that vote, buy plots, visit landmarks, chat a little and can be interacted
-  with. Solo worlds have ~40 per city; private ~20; public ~10. Same data shape as players, flagged `npc: true`.
+  with. The shared world seeds 40 per city. Same data shape as players, flagged `npc: true`.
 - **Clock**: per world. 1 game hour = 60 real seconds (a day is 24 minutes). Landmark opening hours use it.
   Days roll over at 00:00: rent is charged, daily goals reset.
 
@@ -102,14 +120,12 @@ plots grid `cols x rows` cells with origin top-left, x right, y down).
   story choices. Human targets must be online. Wave gives both +3 Social; hang out gives both +15, capped
   at 100. Gifts transfer an integer $1–$500 with matching income/spending ledger entries. A sender waits
   three seconds between social actions. Private cooldown and notification fields never enter the public sim.
-- **Presence and chat**: authenticated sockets are bound to their selected world and close on logout or
-  world switch. Online seats expire after 12 seconds without a live socket; multiple tabs count once.
+- **Presence and chat**: browser-session sockets are bound to the shared public world. Online seats expire after 12 seconds without a live socket; multiple tabs count once.
   Viewed-city presence includes offline human residents and NPCs; the HUD shows the online human count and a separate resident count.
   City chat retains the last 50 messages per world/city across restart. Sending requires physically being
   in that city, 1–240 plain-text characters, and a 1.5-second send cooldown. Reconnect refetches resources
   and deduplicates chat IDs. Socket writes run outside the simulation lock with bounded per-client queues.
-- **City residents**: each world lazily seeds 40 residents per city in solo mode, 20 in private mode and
-  10 in public mode. Synthetic residents have one authoritative location and persistent cash/home/needs.
+- **City residents**: the shared world lazily seeds 40 residents per city. Synthetic residents have one authoritative location and persistent cash/home/needs.
   Active worlds simulate movement every 45–96 seconds after staggered initial departures. Residents use
   a limited activity routine, rather than the full human career/story loop. Up to three residents per city
   vote once per term when a human candidate exists; up to two lease one-cell plots. They do not run for
@@ -128,7 +144,11 @@ plots grid `cols x rows` cells with origin top-left, x right, y down).
   while rent settles. Purchases, move fees and actual rent payments update `moneyToday.spent`; aspiration
   rewards update income. All civic and property mutations require a sim and no pending activity/story.
 
-## API (JSON; cookie session `ml_session`; errors `{ "error": "message" }` with 4xx; 401 = "Please log in")
+## API (JSON; cookie session `ml_session`; errors `{ "error": "message" }` with 4xx)
+
+A missing or expired required session returns 401 with `Your life could not be found. Reload to start again.`
+The client creates or resumes the browser guest automatically. The cookie is HttpOnly, SameSite=Lax,
+scoped to `/`, valid for 30 days, and Secure when the request uses HTTPS.
 
 Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl`).
 
@@ -140,14 +160,8 @@ Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl
 | GET | `/api/daily?city` | `{ date, weekday, weather, headline, tip }` (per city, per game day) |
 | GET | `/api/auth/me` | `{ now, user: User|null, world: WorldInfo|null, sim: Sim|null, clock: Clock }` |
 | POST | `/api/auth/guest` | `{ username? }` → `{ user }` (name applies to a new guest; an existing valid session is returned unchanged) |
-| POST | `/api/auth/signup` | `{ username, password, look? }` → `{ user }` (upgrades a guest in place) |
-| POST | `/api/auth/login` | `{ username, password }` → `{ user }` |
-| POST | `/api/auth/logout` | → `{ ok: true }` |
-| GET | `/api/worlds` | `{ worlds: WorldInfo[], current: string|null }` (public + mine) |
-| POST | `/api/worlds` | `{ name, mode: "solo"|"private" }` → `{ world }` (and selects it) |
-| POST | `/api/worlds/join` | `{ code }` → `{ world }` |
-| POST | `/api/worlds/select` | `{ worldId }` → `{ world, sim: Sim|null }` |
-| POST | `/api/sim/setup` | `{ city, neighborhood, aspiration, look? }` → `{ sim }` (creates the sim once in the current world; existing sim returns 409, later home/aspiration changes use their dedicated endpoints) |
+| POST | `/api/life/new` | `{ confirm: true }` → `{ user }` (replaces the browser life and issues a new session cookie) |
+| POST | `/api/sim/setup` | `{ username, pronouns, city, neighborhood, aspiration, look? }` → `{ sim }` (creates the sim once in the shared world; existing sim returns 409, later home/aspiration changes use their dedicated endpoints) |
 | GET | `/api/sim` | `{ sim, clock }` (applies decay up to now) |
 | POST | `/api/act` | `{ city, loc, action }` → `{ sim, result: ActResult }` |
 | POST | `/api/story/choose` | `{ beatId, choice }` → `{ sim, outcome: StoryOutcome }` |
@@ -191,7 +205,7 @@ No emoji in UI, scene, seeded data, generated images, NPC chat or story text. Ic
 ## Final review rule clarifications
 - Explore daily goals count distinct city/place pairs completed on that game day, independently of lifetime exploration.
 - Offline need decay and rent catch-up cover the first six game hours since the last update (six real minutes at the canonical clock rate). Only midnights in that capped interval charge rent. Recorded housing-policy changes and term boundaries determine the rate at each midnight. Policy dates before this migration cannot be reconstructed; legacy saves begin with their known current policy as the baseline.
-- A life must be at least one game day old (24 real minutes) to send cash gifts or cast a public/private-world ballot. Waves, chat and activities remain immediate. New sims expose authoritative createdAt; legacy sims fall back to account creation time.
+- A life must be at least one game day old (24 real minutes) to send cash gifts or cast a ballot. Waves, chat and activities remain immediate. New sims expose authoritative createdAt; legacy sims fall back to browser-guest creation time.
 - Job applications require the sim's actual location to be the open workplace, with no activity or story pending. The job listing's Visit workplace action takes two seconds, gives no XP or cash itself, and cannot trigger a story; Apply then hires in place. It uses normal authoritative activity/travel validation.
 - A campaign consumes its accepted game day even if it settles after midnight. Election wins are credited only when that term's winner is actually seated.
 - Read endpoints apply due simulation state in memory without fsync. Explicit mutations persist immediately; active worlds checkpoint every five seconds and at orderly shutdown. Accepted activity outcomes are durable before a response and replay once after a crash. Visit statistics are process-memory counters; online stats count current authenticated human users. Story chapter/total counts are separate from titles (optional on legacy saved beats).
@@ -204,3 +218,6 @@ Keyboard WASD/arrows, Shift, E/Enter and Escape; pointer joystick on narrow scre
 `POST /api/door {loc:"home",enter:true}` requires the actual home city, proximity to the home door, and an idle sim without a story. It changes `position.room` to `home:<userId>` and starts at the room exit. `{enter:false}` requires proximity to the room exit and restores the recorded outside position. `shared/interiors.json` supplies the same room bounds, furniture blockers and interaction stations to Java and TypeScript. Home `/api/act` requests now require that private room and the matching furniture station within1.45units; they retain the existing completion-only rewards, costs and busy rules. The client serializes its final movement before interacting. Home panels explain walking to furniture; their action lists are removed. General landmark map actions retain their prior rules until the P3 movement/travel integration.
 
 - Playable P3: workplace entry requires an open door within3units; application and shifts require the shared desk station. Every other activity requires a real doorway arrival. POST `/api/travel` accepts same-city locations only and settles after2seconds; city changes remain airport activities. Result `activity` separates actual cost/pay/daily rewards/milestone rewards from the net cash delta.
+
+## Round 1 landmark rooms
+Every landmark is assigned in shared/interiors.json to a theatre, food hall, stadium, arena, museum, office, cafe, club, hospital, airport or pavilion. Java and TypeScript use the same assignments, action-kind rules, collision boxes, approach stations, surveyed aisle paths and use slots. Public ActivitySlot may include station (the authored approach id); poses remain strings and use y as seated hip height or standing platform elevation. Food activities reserve Eat slots at dining tables; career shifts use the venue service counter except office typing desks. Room staff occupy authored positions behind counters. Same-city map travel validates its target before exiting a room, then arrives outside the destination after two seconds. Older generic workplace room ids migrate to the assigned room doorway.
