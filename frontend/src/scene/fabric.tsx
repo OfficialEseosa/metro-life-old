@@ -9,6 +9,7 @@ import osm from './atl-osm.json'
 import { metricPlacement } from './world-scale'
 import { fitMetricGroups } from './metric-layout'
 import { outsidePlots, outsideBoards } from './economy-sites'
+import { outsideAtlantaTowers } from './atlanta-models'
 
 const noPick = () => {}
 export type Placement = { x: number; y: number; z: number; sx: number; sy: number; sz: number; angle: number; color: string; pitch?:number; scale?:number }
@@ -71,7 +72,8 @@ export function kitFabric(){
   const count=Math.ceil(length/3.4)
   for(let j=0;j<count;j++){const t=(j+.5)/count,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;if(Math.abs(x)<46&&z>-20&&z<53&&clearRoad(x,z))add('kaykit/road_straight.gltf',{x,y:.025,z,sx:2,sy:.1,sz:length/count,angle,color:'#ffffff'})}
  }
- return fitMetricGroups('atl',groups)
+ const fitted=fitMetricGroups('atl',groups)
+ return Object.fromEntries(Object.entries(fitted).map(([url,placements])=>[url,placements.filter(p=>outsideAtlantaTowers(p.x,p.z,Math.hypot(p.sx,p.sz)/2+.5))]))
 }
 export function Fabric({night}:{night:boolean}){
  const groups=useMemo(()=>kitFabric(),[])

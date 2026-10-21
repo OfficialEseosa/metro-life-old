@@ -1,0 +1,95 @@
+{
+  "pairChecks": 10,
+  "doorChecks": 130,
+  "footprintChecks": 5,
+  "landChecks": 20,
+  "overlapChecks": 270,
+  "towers": [
+    {
+      "id": "atl-bofa-plaza",
+      "position": [
+        10.26,
+        -23.6
+      ],
+      "height": 14.040000000000001,
+      "collision": {
+        "id": "atl-bofa-plaza",
+        "x": 10.26,
+        "z": -23.6,
+        "w": 2.8000000000000003,
+        "d": 2.8000000000000003,
+        "h": 14.040000000000001,
+        "a": 0.7853981633974483
+      }
+    },
+    {
+      "id": "atl-truist-plaza",
+      "position": [
+        9.45,
+        2.3800000000000026
+      ],
+      "height": 12.375,
+      "collision": {
+        "id": "atl-truist-plaza",
+        "x": 9.45,
+        "z": 2.4000000000000026,
+        "w": 3.6,
+        "d": 2.8400000000000003,
+        "h": 12.375,
+        "a": 0
+      }
+    },
+    {
+      "id": "atl-westin-peachtree",
+      "position": [
+        3.9,
+        14.68
+      ],
+      "height": 12.105,
+      "collision": {
+        "id": "atl-westin-peachtree",
+        "x": 3.9,
+        "z": 14.2,
+        "w": 3.0400000000000005,
+        "d": 2.8800000000000003,
+        "h": 12.105,
+        "a": 0
+      }
+    },
+    {
+      "id": "atl-191-peachtree",
+      "position": [
+        8.04,
+        16.03
+      ],
+      "height": 11.25,
+      "collision": {
+        "id": "atl-191-peachtree",
+        "x": 8.04,
+        "z": 16.03,
+        "w": 2.6400000000000006,
+        "d": 4.960000000000001,
+        "h": 11.25,
+        "a": 0
+      }
+    },
+    {
+      "id": "atl-one-atlantic-center",
+      "position": [
+        6.66,
+        -77.50999999999999
+      ],
+      "height": 11.520000000000001,
+      "collision": {
+        "id": "atl-one-atlantic-center",
+        "x": 6.66,
+        "z": -77.50999999999999,
+        "w": 2.5600000000000005,
+        "d": 2.5600000000000005,
+        "h": 11.520000000000001,
+        "a": 0
+      }
+    }
+  ],
+  "result": "PASS"
+}

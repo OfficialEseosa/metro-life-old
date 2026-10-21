@@ -6,6 +6,7 @@ for(const ext of ['.ts','.tsx'])require.extensions[ext]=(module,file)=>module._c
 const {citySites,homeSitesFor}=require('../frontend/src/scene/cities');
 const {kitFabric}=require('../frontend/src/scene/fabric');
 const {metricPlacement}=require('../frontend/src/scene/world-scale');
+const {ATLANTA_TOWERS}=require('../frontend/src/scene/atlanta-models');
 const {dataFor,metropolitanGroups}=require('../frontend/src/scene/metropolitan-fabric');
 const {nycLand,nycEast}=require('../frontend/src/scene/cities/nyc'),{bayWest,bayEast,bayMarin}=require('../frontend/src/scene/cities/bay');
 const world=require('../shared/world.json'),out={version:1,cities:{}};
@@ -24,6 +25,7 @@ for(const city of ['atl','nyc','bay']){
   doors[id]={x:s.x+Math.sin(angle)*distance,z:s.z+Math.cos(angle)*distance,name:place.name};
  }
  const homes={};homeSitesFor(city).forEach((s,i)=>{homes[neighborhoods[city][i]]={x:s.x-2.5714,z:s.z+4.1,name:'Home'};const p=metricPlacement('kaykit/building_B_withoutBase.gltf',{x:s.x,y:0,z:s.z});boxes.push({x:s.x,z:s.z,w:p.sx,d:p.sz,h:p.sy,a:0})});
+ if(city==='atl')for(const tower of ATLANTA_TOWERS)boxes.push({id:tower.id,x:tower.footprintX,z:tower.footprintZ,w:tower.width,d:tower.depth,h:tower.height,a:tower.angle});
  out.cities[city]={land:city==='atl'?[[[-115,-110],[120,-110],[120,125],[-115,125]]]:city==='nyc'?[nycLand,nycEast,[[-60,70],[-42,70],[-42,88],[-60,88]]]:[bayWest,bayEast,bayMarin,[[5,-56],[28,-56],[28,-35],[5,-35]]],water:city==='atl'?[[[9,-36],[12,-40],[18,-39],[23,-33],[21,-27],[15,-28],[10,-31]]]:city==='bay'?[[[64,-5],[74,-8],[80,-2],[76,7],[68,6]]]:[],bridges:city==='nyc'?[{x:21,z:47,w:43,d:7,a:0}]:city==='bay'?[{x:-44,z:-58,w:8,d:64,a:-.16},{x:33,z:-8,w:49,d:6,a:0}]:[],boxes,doors,homes};
 // Keep walkable water boundaries aligned with the authored park meshes.
 const ellipse=(x,z,rx,rz)=>Array.from({length:40},(_,i)=>[x+Math.cos(i*Math.PI/20)*rx,z+Math.sin(i*Math.PI/20)*rz]);

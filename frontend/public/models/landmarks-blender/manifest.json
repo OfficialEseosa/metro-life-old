@@ -1,0 +1,43 @@
+{
+  "about": "Atlanta hero landmarks made in Blender, each checked against real photographs. Units are real metres (glTF +Y up). Origin is the centre of the footprint at ground level. The main entrance or signature face points to local -Z in glTF (-Y in Blender). Each file has a daytime mesh plus a glow mesh to make emissive at night. Vertex colours, no textures. These replace the existing ids listed in 'replaces'. Scale them with the city's building scales (the Atlanta research suggests 0.40 footprint and 0.45 height); do not stretch non-uniformly by more than that.",
+  "landmarks": [
+    {
+      "file": "atl-mercedes-benz-stadium.glb",
+      "replaces": "benz",
+      "name": "Mercedes-Benz Stadium",
+      "realSize": { "eastWest": 301, "northSouth": 256, "height": 93 },
+      "front": "The large blue glass 'window to the city' faces local -X (west).",
+      "glowMesh": "benz-halo",
+      "notes": "Faceted leaning wall panels, raised crown ring with eight half-open pinwheel petals; field and halo board visible through the oculus.",
+      "triangles": 382
+    },
+    {
+      "file": "atl-state-farm-arena.glb",
+      "replaces": "arena",
+      "name": "State Farm Arena",
+      "realSize": { "eastWest": 166, "northSouth": 156, "height": 40 },
+      "front": "Curved glass front with the giant steel ATLANTA letters faces local -Y (toward downtown).",
+      "glowMesh": "arena-letters",
+      "notes": "Light the letters at night; the real building colours them for events.",
+      "triangles": 748
+    },
+    {
+      "file": "atl-georgia-aquarium.glb",
+      "replaces": "aquarium",
+      "name": "Georgia Aquarium",
+      "realSize": { "eastWest": 213, "northSouth": 184, "height": 52 },
+      "front": "Prow and white arched canopy face local -Y (toward Centennial Olympic Park).",
+      "glowMesh": null,
+      "triangles": 790
+    },
+    {
+      "file": "atl-fox-theatre.glb",
+      "replaces": "fox",
+      "name": "Fox Theatre",
+      "realSize": { "alongPeachtree": 110, "depth": 60, "height": 43 },
+      "front": "Peachtree Street facade with marquee, blade sign and minarets faces local -Y; the onion-dome end faces +X (Ponce de Leon Avenue).",
+      "glowMesh": "fox-sign-glow",
+      "triangles": 3562
+    }
+  ]
+}

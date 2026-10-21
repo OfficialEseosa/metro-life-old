@@ -1,0 +1,55 @@
+{
+  "about": "Atlanta skyline towers made in Blender. Units are real metres (glTF +Y up). Origin is the centre of the footprint at ground level. Each file has one daytime mesh plus a *-glow mesh meant to be emissive at night (warm white or orange). Vertex colours, no textures. Real-world positions are offsets from Five Points (33.7545, -84.3898) with x = east and n = north; in the scene use z = -n. Apply the city's own map projection and building scales; the research note research/metro/03-atlanta-map-and-assets.md section 1.7 suggests a 0.30 map scale with 0.40 footprint and 0.45 height scales.",
+  "towers": [
+    {
+      "file": "atl-bofa-plaza.glb",
+      "name": "Bank of America Plaza",
+      "realHeightToTip": 312,
+      "realOffset": { "x": 342, "n": 1820 },
+      "rotationNote": "The tower is set at 45 degrees to the street grid; rotate it 45 degrees relative to the surrounding blocks.",
+      "glowMesh": "bofa-crown-glow",
+      "nightColour": "#FFB347",
+      "triangles": 2258
+    },
+    {
+      "file": "atl-truist-plaza.glb",
+      "name": "Truist Plaza",
+      "realHeightToTip": 275,
+      "realOffset": { "x": 315, "n": 954 },
+      "rotationNote": "Faces align with the street grid.",
+      "glowMesh": "truist-crown-glow",
+      "nightColour": "#FFF2D0",
+      "triangles": 2822
+    },
+    {
+      "file": "atl-westin-peachtree.glb",
+      "name": "Westin Peachtree Plaza",
+      "realHeightToTip": 269,
+      "realOffset": { "x": 130, "n": 544 },
+      "rotationNote": "Cylinder; the scenic elevator tube is on the +x side and should face Peachtree Street.",
+      "glowMesh": "westin-crown-glow",
+      "nightColour": "#FFD59A",
+      "triangles": 2748
+    },
+    {
+      "file": "atl-191-peachtree.glb",
+      "name": "191 Peachtree Tower",
+      "realHeightToTip": 250,
+      "realOffset": { "x": 268, "n": 499 },
+      "rotationNote": "The two shafts are linked along local y; the long side faces Peachtree Street.",
+      "glowMesh": "p191-crown-glow",
+      "nightColour": "#FFE8B8",
+      "triangles": 3548
+    },
+    {
+      "file": "atl-one-atlantic-center.glb",
+      "name": "One Atlantic Center",
+      "realHeightToTip": 256,
+      "realOffset": { "x": 222, "n": 3617 },
+      "rotationNote": "Faces align with the street grid; visible across Piedmont Park from the east.",
+      "glowMesh": "oac-crown-glow",
+      "nightColour": "#FFF0C8",
+      "triangles": 1434
+    }
+  ]
+}
