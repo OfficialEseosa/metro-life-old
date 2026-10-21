@@ -79,5 +79,5 @@ export function Fabric({night}:{night:boolean}){
  const groups=useMemo(()=>kitFabric(),[])
  // Start every kit request together; one slow file cannot hold back the whole city.
  useLayoutEffect(()=>{Object.keys(groups).forEach(url=>useGLTF.preload(`/models/${url}`))},[groups])
- return <group>{Object.entries(groups).filter(([url])=>!url.includes('car_')).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={`/models/${url}`} placements={placements} night={night} shadow={!/road_|tree-|car_|building_[ABC]_|building-type/.test(url)}/></Suspense>)}</group>
+ return <group>{Object.entries(groups).filter(([url])=>!url.includes('car_')&&!url.includes('road_')).map(([url,placements])=><Suspense key={url} fallback={null}><KitInstances url={`/models/${url}`} placements={placements} night={night} shadow={!/road_|tree-|car_|building_[ABC]_|building-type/.test(url)}/></Suspense>)}</group>
 }

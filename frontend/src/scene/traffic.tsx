@@ -1,27 +1,20 @@
-import { Suspense, useMemo } from 'react'
-import survey from '../../../shared/resident-routes.json'
-import { canStand, inBox } from '../navigation'
+/* oxlint-disable react/immutability -- Vehicle transforms belong to the Three instance batch. */
+import { Suspense,useEffect,useMemo,useRef } from 'react'
+import { useGLTF } from '@react-three/drei'
+import { useFrame,useThree } from '@react-three/fiber'
+import * as THREE from 'three'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import type { CityId } from '../api/types'
-import { KitInstances, type DriveRoute } from './kit-models'
-import { metricPlacement } from './world-scale'
+import { streets } from '../street-network'
 
-/** Surveyed asphalt spans only: cars turn at their ends, never cross landmark clearings. */
-export function Traffic({city,night}:{city:CityId;night:boolean}){
- const routes=useMemo(()=>{
-  const roads=survey.cities[city].roads,lines=new Map<string,typeof roads>();
-  for(const r of roads){const a=Math.round(r.a/(Math.PI/2))*Math.PI/2;if(Math.abs(a-r.a)>.01)continue;const cross=Math.abs(Math.sin(a))>.5?r.z:r.x,key=a+':'+cross.toFixed(2);const line=lines.get(key)??[];line.push(r);lines.set(key,line)}
-  const candidates:DriveRoute[]=[];
-  for(const line of lines.values()){
-   const a=line[0].a,s=Math.sin(a),c=Math.cos(a),cross=line[0].x*c-line[0].z*s,spans=line.map(r=>({lo:r.x*s+r.z*c-r.d/2,hi:r.x*s+r.z*c+r.d/2})).sort((a,b)=>a.lo-b.lo);
-   const merged:{lo:number;hi:number}[]=[];for(const span of spans){const last=merged.at(-1);if(last&&span.lo-last.hi<.25)last.hi=Math.max(last.hi,span.hi);else merged.push({...span})}
-   for(const span of merged){const lo=span.lo+1.5,hi=span.hi-1.5,point=(t:number)=>({x:s*t+c*(cross+1.6),z:c*t-s*(cross+1.6)});
-    const height=(p:{x:number;z:number})=>{const r=roads.find(r=>inBox(p.x,p.z,r))!;return r.y+.085-Math.sin(r.pitch)*((p.x-r.x)*Math.sin(r.a)+(p.z-r.z)*Math.cos(r.a))};
-    let run:number|null=null;const add=(end:number)=>{if(run===null||end-run<9)return;const start=point(run),finish=point(end);candidates.push({...start,ex:finish.x,ez:finish.z,y:height(start),ey:height(finish)})};
-    for(let t=lo;t<=hi+.5;t+=.5){const p=point(t),road=roads.find(r=>inBox(p.x,p.z,r,.02)),clear=t<=hi&&canStand(city,p.x,p.z)&&!!road&&Math.abs(road.pitch)<.2;if(clear){if(run===null)run=t}else{add(t-.5);run=null}}
-   }
-  }
-  return candidates.sort((a,b)=>Math.hypot(b.ex-b.x,b.ez-b.z)-Math.hypot(a.ex-a.x,a.ez-a.z)).filter((p,i,all)=>all.slice(0,i).every(q=>Math.hypot(q.x-p.x,q.z-p.z)>8)).slice(0,8)
- },[city])
- const placements=useMemo(()=>routes.map((p,i)=>metricPlacement('vehicles/sedan.glb',{x:p.x,y:p.y,z:p.z,sx:1,sy:1,sz:1,angle:0,color:['#e7d3ad','#a5c4d8','#e5aaa0','#e3e9de'][i%4]})),[routes])
- return <group name="traffic"><Suspense fallback={null}><KitInstances url="/models/vehicles/sedan.glb" placements={placements} drive={routes} shadow={false} night={night}/></Suspense></group>
+export function Traffic({city,night}:{city:CityId;night:boolean}){return <Suspense fallback={null}><StreetCars key={city} city={city} night={night}/></Suspense>}
+function StreetCars({city,night}:{city:CityId;night:boolean}){
+ const graph=streets[city],{scene}=useGLTF('/models/vehicles/sedan.glb'),{invalidate}=useThree(),meshes=useRef<(THREE.InstancedMesh|null)[]>([]),dummy=useMemo(()=>new THREE.Object3D(),[])
+ const batches=useMemo(()=>{scene.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(scene),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3()),matrix=new THREE.Matrix4().makeTranslation(-center.x,-bounds.min.y,-center.z),groups=new Map<string,{parts:THREE.BufferGeometry[];material:THREE.MeshStandardMaterial}>();scene.traverse(o=>{if(!(o instanceof THREE.Mesh))return;const material=(Array.isArray(o.material)?o.material[0]:o.material) as THREE.MeshStandardMaterial,group=groups.get(material.uuid)??{parts:[],material:material.clone()},g=o.geometry.clone();g.applyMatrix4(o.matrixWorld);g.applyMatrix4(matrix);g.scale(2.7/Math.max(size.x,size.z),2.7/Math.max(size.x,size.z),2.7/Math.max(size.x,size.z));group.parts.push(g);groups.set(material.uuid,group)});return [...groups.values()].map(({parts,material})=>{const geometry=mergeGeometries(parts)!;parts.forEach(g=>g.dispose());return{geometry,material}})},[scene])
+ const cars=useMemo(()=>{const candidates=graph.links.flatMap((links,i)=>links.length?[i]:[]);return Array.from({length:Math.min(8,candidates.length)},(_,i)=>{const from=candidates[Math.floor(i*candidates.length/8)],to=graph.links[from][0];return{from,to,previous:-1,t:i/11,yaw:0,turn:i}})},[graph])
+ useEffect(()=>{const timer=setInterval(()=>{if(!document.hidden)invalidate()},1000/30);return()=>clearInterval(timer)},[invalidate])
+ useEffect(()=>()=>batches.forEach(b=>{b.geometry.dispose();b.material.dispose()}),[batches])
+ useEffect(()=>{for(const batch of batches){batch.material.emissive.set(night?'#152126':'#000000');batch.material.emissiveIntensity=night?.18:0}},[batches,night])
+ useFrame((_,dt)=>{for(let i=0;i<cars.length;i++){const car=cars[i];let a=graph.nodes[car.from],b=graph.nodes[car.to],length=Math.hypot(b[0]-a[0],b[2]-a[2]);car.t+=Math.min(dt,.05)*2.8/Math.max(.1,length);if(car.t>=1){car.previous=car.from;car.from=car.to;const options=graph.links[car.from].filter(n=>n!==car.previous),choices=options.length?options:graph.links[car.from];car.to=choices[(++car.turn+i)%choices.length];car.t-=1;a=graph.nodes[car.from];b=graph.nodes[car.to];length=Math.hypot(b[0]-a[0],b[2]-a[2])}const dx=b[0]-a[0],dz=b[2]-a[2],target=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(target-car.yaw),Math.cos(target-car.yaw));car.yaw+=delta*(1-Math.exp(-dt*12));dummy.position.set(a[0]+dx*car.t+Math.cos(target)*.55,a[1]+(b[1]-a[1])*car.t+.09,a[2]+dz*car.t-Math.sin(target)*.55);dummy.rotation.set(0,car.yaw,0);dummy.scale.setScalar(1);dummy.updateMatrix();for(const mesh of meshes.current)mesh?.setMatrixAt(i,dummy.matrix)}for(const mesh of meshes.current)if(mesh){mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere()}})
+ return <group name="street-traffic">{batches.map((batch,i)=><instancedMesh key={i} name="driving-cars" ref={m=>{meshes.current[i]=m}} args={[batch.geometry,batch.material,cars.length]} castShadow receiveShadow raycast={()=>{}}/>)}</group>
 }

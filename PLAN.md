@@ -6,7 +6,7 @@
 - Round 3 item 2, isolated interiors and room framing: not done.
 - Round 3 item 3, unified animated characters and forward walking: in progress.
 - Round 3 item 4, zoned landmark interiors and shared moments: not done.
-- Round 3 item 5, connected streets and common travel network: in progress.
+- Round 3 item 5, connected streets and common travel network: done (shared graph, plaza ends, turning traffic).
 - Round 3 item 6, procedural music, ambience and sound controls: in progress.
 - Round 3 item 7, Sunday Morning UI and phone layouts: in progress.
 - Round 3 item 8, quick start, emotes, events, celebrations and social fun: not done.

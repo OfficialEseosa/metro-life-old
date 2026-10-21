@@ -1,3 +1,4 @@
+import { streetRoute } from '../street-network'
 import { canStand, homeLayoutRevision, inBox, inPolygon, interiors, navigation, roomLayout, roomType } from '../navigation'
 import type { CityId } from '../api/types'
 
@@ -41,7 +42,11 @@ function crossesBox(a:Point,b:Point,box:Obstacle){const c=Math.cos(box.a),s=Math
  * Paths omit the start. Every edge is sampled at <=.125m and checked analytically
  * against rotated furniture/building boxes; the final result is rechecked by canStand.
  */
-export function navigationRoute(city:CityId,room:string|null,start:Point,end:Point):Point[]{return route(city,room,start,end,performance.now()+480)}
+export function navigationRoute(city:CityId,room:string|null,start:Point,end:Point):Point[]{
+ const deadline=performance.now()+480
+ if(!room&&Math.hypot(start.x-end.x,start.z-end.z)>16){const shared=streetRoute(city,start,end);if(shared.length>1){const first=route(city,null,start,shared[0],deadline),last=route(city,null,shared[shared.length-1],end,deadline);if(first.length&&last.length)return [...first,...shared.slice(1),...last]}}
+ return route(city,room,start,end,deadline)
+}
 function route(city:CityId,room:string|null,start:Point,end:Point,overallDeadline:number):Point[]{
  if(![start.x,start.z,end.x,end.z].every(Number.isFinite))return[]
  const s=survey(city,room);if(!s||!canStand(city,start.x,start.z,room)||!canStand(city,end.x,end.z,room))return[]
