@@ -1,5 +1,7 @@
 import skyline from './atlanta-skyline-manifest.json'
 import landmarks from './atlanta-landmarks-manifest.json'
+import { venueName } from '../content-names'
+const skylineNames:Record<string,string>={'atl-bofa-plaza.glb':'Peachtree Crown','atl-truist-plaza.glb':'Terrace Tower','atl-westin-peachtree.glb':'Roundhouse Hotel','atl-191-peachtree.glb':'Twin Lantern Tower','atl-one-atlantic-center.glb':'Coppercrest Tower'}
 
 // Section 1.7's 0.30 core projection, reduced uniformly by 0.1 for this
 // existing diorama. Five Points is anchored at (0, 31); north remains -Z.
@@ -25,7 +27,7 @@ export const ATLANTA_TOWERS = skyline.towers.map(tower => {
   const bounds = towerBounds[tower.file]
   const position = projectAtlanta(tower.realOffset.x, tower.realOffset.n)
   return {
-    ...tower, ...position,
+    ...tower, ...position,name:skylineNames[tower.file]??'Downtown Tower',
     id: tower.file.replace('.glb', ''),
     url: `/models/skyline/${tower.file}`,
     angle: tower.file === 'atl-bofa-plaza.glb' ? Math.PI / 4 : 0,
@@ -42,7 +44,7 @@ export const ATLANTA_TOWERS = skyline.towers.map(tower => {
   }
 })
 export const ATLANTA_BLENDER_LANDMARKS = Object.fromEntries(landmarks.landmarks.map(landmark => [landmark.replaces, {
-  ...landmark, url: `/models/landmarks-blender/${landmark.file}`,
+  ...landmark,name:venueName(landmark.replaces,landmark.name), url: `/models/landmarks-blender/${landmark.file}`,
   nightColour: landmark.replaces === 'benz' ? '#90c9ff' : landmark.replaces === 'arena' ? '#ff8070' : '#ffd59a',
 }]))
 

@@ -17,6 +17,15 @@ export const useInteractions=create<{menu:{target:PickTarget;title:string;option
 let interactionEpoch=0,pathSyncing=false,cancelling=false,sequence=0,path:Point[]=[],settleAt=0,manualAt=0,lastRepath=0,stuckAt=0,lastProgress:Point|null=null,cancelled=new Set<string>()
 const state=()=>useInteractions.getState()
 const personPoint=(p:Player)=>p.activitySlot??p.position
+let socialRouteTarget='',socialAnchor:Point|null=null,socialRetries=0
+/** Reach a free point near the current person, rather than their old clicked body position. */
+function socialApproach(city:CityId,room:string|null,person:Player,from:Point){
+ const point=personPoint(person);if(!point)return
+ const toward=Math.atan2(from.x-point.x,from.z-point.z),candidates:Point[]=[]
+ for(const r of [1.15,1.65,2.1])for(let i=0;i<8;i++){const a=toward+i*Math.PI/4,next={x:point.x+Math.sin(a)*r,z:point.z+Math.cos(a)*r};if(canStand(city,next.x,next.z,room))candidates.push(next)}
+ candidates.sort((a,b)=>Math.hypot(a.x-from.x,a.z-from.z)-Math.hypot(b.x-from.x,b.z-from.z))
+ for(const candidate of candidates.slice(0,12)){const route=navigationRoute(city,room,from,candidate);if(route.length)return {point:candidate,route}}
+}
 function approach(city:CityId,room:string|null,point:Point,from:Point,radius=1.3){
  const candidates:Point[]=[]
  if(canStand(city,point.x,point.z,room))candidates.push(point)
@@ -47,6 +56,7 @@ export function openObjectMenu(target:PickTarget){
    const reason=!point?'There is no clear use point':occupied?'This place is occupied':action.requires?.job&&sim.job?.track===action.requires.job&&(sim.job.city!==sim.city||sim.job.loc!==loc)?'Your workplace is elsewhere':actionReason(action,{...sim,busyUntil:null},closed(loc),serverNow())
    add(action.id,action.label,action.icon,{...base,kind:'act',loc,actionId:action.id,slotId:slot?.id,point:point??target.point,label:action.label,icon:action.icon},reason)
   }
+  if(type==='airport'&&(furniture?.kind==='counter'||furniture?.kind==='desk')&&!options.some(o=>o.id==='departures')){const point=approach(sim.city,p.room,target.point,p)??layout.stations.find(st=>st.id===target.stationId)??target.point;add('departures','Book a flight','plane',{...base,kind:'transit',point,label:'Book a flight',icon:'plane'})}
   const desk=layout.stations.find(st=>st.id==='desk');if(supported.has('desk')&&desk&&!sim.job){for(const career of s.world?.careers??[]){const level=career.levels.find(l=>l.level===1);if(!level||!actions?.some(action=>action.requires?.job===career.track))continue;const label=`Apply: ${level.title}`;add(`apply-${career.track}`,label,'briefcase',{...base,point:desk,kind:'apply',jobId:`${sim.city==='atl'?'':sim.city+'-'}${career.track}-1`,label,icon:'briefcase'},closed(loc)?'Apply while the workplace is open':'')}}
  }else if(target.kind==='door'){
   const entering=!p.room,door=entering?doorsFor(sim)[target.id as keyof ReturnType<typeof doorsFor>]:roomLayout(sim.city,roomType(p.room)!).exit,loc=entering?target.id:p.place,point=door?(entering?approach(sim.city,null,door,p,2.5):door):undefined
@@ -57,7 +67,7 @@ export function openObjectMenu(target:PickTarget){
   add('posture',label,'moon',{...base,kind:'posture',point:point??target.point,benchId:label==='Stand up'?undefined:target.id,label,icon:'moon'},point?'':'There is no clear approach')
  }else if(target.kind==='person'){
   const person=s.players.find(other=>other.id===target.id);title=person?.username??'Neighbour'
-  for(const [kind,label,icon]of [['wave','Wave','users'],['hangout','Hang out','messages-square'],['gift','Give $25','hand-coins']] as const){const reason=socialReason(person)||(kind==='gift'?serverNow()-sim.createdAt<1440000?'Live here for one game day before sending gifts':sim.cash<25?'Needs $25':'':'');add(kind,label,icon,{...base,kind:'social',targetId:target.id,socialKind:kind,label:`${label}: ${title}`,icon},reason)}
+  for(const [kind,label,icon]of [['wave','Wave','users'],['hangout','Hang out','messages-square'],['gift','Give $25','hand-coins']] as const){const reason=socialReason(person)||(kind==='gift'?(s.clock?.msPerMinute??1000)>=1000&&serverNow()-sim.createdAt<1440000?'Live here for one game day before sending gifts':sim.cash<25?'Needs $25':'':'');add(kind,label,icon,{...base,kind:'social',targetId:target.id,socialKind:kind,label:`${label}: ${title}`,icon},reason)}
  }
  if(!options.length)add('none','No activity here','map-pin',{...base,kind:'walk',label:'Walk here',icon:'footprints'},'Choose another usable object')
  const full=state().waiting.length>=3
@@ -88,7 +98,10 @@ async function perform(task:QueuedAction){
   else if(task.kind==='door'){const r=await api.door(task.loc!,!!task.enter);if(epoch!==interactionEpoch)return;s.setSim(r.sim);s.selectLocation(r.sim.loc);s.openPanel(null)}
   else if(task.kind==='transit'){s.openPanel('travel')}
   else if(task.kind==='posture'){const r=await api.posture(task.benchId??null);if(epoch!==interactionEpoch)return;s.setSim(r.sim)}
-  else if(task.kind==='social'){const r=await api.social(task.targetId!,task.socialKind!,task.socialKind==='gift'?25:undefined);if(epoch!==interactionEpoch)return;s.setSim(r.sim);useStore.setState({socialNotice:r.text})}
+  else if(task.kind==='social'){
+   try{const r=await api.social(task.targetId!,task.socialKind!,task.socialKind==='gift'?25:undefined);if(epoch!==interactionEpoch)return;s.setSim(r.sim);useStore.setState({socialNotice:r.text})}
+   catch(error){if(epoch===interactionEpoch&&socialRetries<3&&error instanceof Error&&/walk up|same place|nearby/i.test(error.message)){socialRetries++;path=[];socialAnchor=null;lastRepath=0;useInteractions.setState({phase:'walking'});return}throw error}
+  }
   else if(task.kind==='apply'){const r=await api.applyJob(task.jobId!);if(epoch!==interactionEpoch)return;s.setSim(r.sim);useStore.setState({socialNotice:r.hired?`You joined as ${r.sim.job?.title??'a new colleague'}.`:r.reason??'Your application was received.'})}
   if(cancelled.has(task.id)){if(useStore.getState().sim?.busyUntil||useStore.getState().sim?.activitySlot){const r=await api.cancelAction();if(epoch!==interactionEpoch)return;s.setSim(r.sim);s.setLastResult(null)}finish();return}
   if(task.kind==='walk'||task.kind==='door'||task.kind==='apply'||task.kind==='transit'){finish();return}
@@ -111,8 +124,10 @@ export function interactionSteering(now:number,manual:boolean):Point{
  if(task.kind==='social'){
   const person=s.players.find(other=>other.id===task.targetId),reason=socialReason(person),point=person&&personPoint(person)
   if(reason||!point){finish(reason||'Your neighbour has left');return{x:0,z:0}}
-  if(now-lastRepath>700&&Math.hypot(point.x-endpoint.x,point.z-endpoint.z)>1){const next=approach(task.city,task.room,point,p,1.8);if(!next){finish('There is no clear way to your neighbour.');return{x:0,z:0}}task.point=next;endpoint=next;path=[];lastRepath=now}
-  if(Math.hypot(point.x-p.x,point.z-p.z)<2.4){void perform(task);return{x:0,z:0}}
+  if(socialRouteTarget!==task.id){socialRouteTarget=task.id;socialAnchor=null;socialRetries=0;path=[];lastRepath=0}
+  if(Math.hypot(point.x-p.x,point.z-p.z)<2.1){void perform(task);return{x:0,z:0}}
+  const moved=!socialAnchor||Math.hypot(point.x-socialAnchor.x,point.z-socialAnchor.z)>.6
+  if(!path.length||moved&&now-lastRepath>400){const next=socialApproach(task.city,task.room,person!,p);if(!next){finish('There is no clear way to your neighbour. Try meeting on open floor.');return{x:0,z:0}}task.point=next.point;endpoint=next.point;path=next.route;socialAnchor={x:point.x,z:point.z};lastRepath=now;lastProgress={...p};stuckAt=now}
  }
  if(Math.hypot(endpoint.x-p.x,endpoint.z-p.z)<.12){void perform(task);return{x:0,z:0}}
  if(!path.length){path=navigationRoute(task.city,task.room,p,endpoint);lastProgress={...p};stuckAt=now;if(!path.length){finish('There is no clear walking path to that spot.');return{x:0,z:0}}}
