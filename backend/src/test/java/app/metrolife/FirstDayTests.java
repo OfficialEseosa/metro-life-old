@@ -7,7 +7,7 @@ import java.nio.file.*;
 import static org.junit.jupiter.api.Assertions.*;
 class FirstDayTests {
  @TempDir Path dir;ObjectMapper m=new ObjectMapper();GameService g;String token;long now=System.currentTimeMillis();
- @BeforeEach void start()throws Exception{g=new GameService(new JsonStore(m,dir.resolve("save.json").toString()),new Content(m),m);g.time=()->now;g.world(null).put("startedAt",now);token=g.guest(null,g.object()).token();}
+ @BeforeEach void start()throws Exception{g=new GameService(new JsonStore(m,dir.resolve("save.json").toString()),new Content(m),m);g.time=()->now;ActivityFixture.classicClock(g);g.world(null).put("startedAt",now);token=g.guest(null,g.object()).token();}
  ObjectNode input(String name){return g.object().put("username",name).put("pronouns","they").put("city","atl").put("neighborhood","midtown").put("aspiration","founder");}
  ObjectNode sim(){return g.sim(g.session(token,true));}
  void create(){g.setup(token,input("River O'Neil"));}

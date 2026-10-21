@@ -45,8 +45,8 @@ class RequestedSlotTests {
 
  @Test void clickedFurnitureRejectsForgedRemoteAndBlockedApproachesWithoutSpending(){
   approach(token,tables().get(0));
-  for(String id:new String[]{"not-a-slot","service-0",""})assertEquals(400,assertThrows(ApiException.class,()->act(token,id)).status,id);
-  ObjectNode numeric=body("table-0").put("slotId",42);assertEquals(400,assertThrows(ApiException.class,()->g.act(token,numeric)).status);
+  for(String id:new String[]{"not-a-slot","stall-south-0-service",""})assertEquals(400,assertThrows(ApiException.class,()->act(token,id)).status,id);
+  ObjectNode numeric=body(tables().get(0).path("id").asText()).put("slotId",42);assertEquals(400,assertThrows(ApiException.class,()->g.act(token,numeric)).status);
   assertFalse(sim(token).has("_pendingAction"));assertTrue(sim(token).path("busyUntil").isNull());assertEquals(2500,sim(token).path("cash").asInt());
  
  {
@@ -81,9 +81,9 @@ class RequestedSlotTests {
  
 
  @Test void explicitHomeSlotsKeepTheCanonicalFurnitureApproachRules(){
-  ObjectNode s=sim(token);s.put("loc","home");s.remove("position");ObjectNode p=g.navigation.position(s);p.put("room","home:"+s.path("userId").asText()).put("x",-1.2).put("z",.1);
+  ObjectNode s=sim(token);s.put("loc","home");s.remove("position");ObjectNode p=g.navigation.position(s);JsonNode stove=ActivityFixture.station(g,s,"stove");p.put("room","home:"+s.path("userId").asText()).put("x",stove.path("x").asDouble()).put("z",stove.path("z").asDouble());
   ObjectNode request=g.object().put("city","atl").put("loc","home").put("action","cook").put("slotId","bed");assertEquals(400,assertThrows(ApiException.class,()->g.act(token,request)).status);
   request.put("slotId","stove");assertEquals("stove",g.act(token,request).path("sim").path("activitySlot").path("id").asText());g.cancelAction(token);
-  p.put("x",0).put("z",2.3);assertEquals(409,assertThrows(ApiException.class,()->g.act(token,request)).status);
+  JsonNode exit=g.navigation.layoutFor(s,"home").path("exit");p.put("x",exit.path("x").asDouble()).put("z",exit.path("z").asDouble());assertEquals(409,assertThrows(ApiException.class,()->g.act(token,request)).status);
  }
 }

@@ -18,7 +18,7 @@ class FinalRulesTests {
   double cash=sim().path("cash").asDouble();g.getSim(token);assertEquals(cash-28,sim().path("cash").asDouble());assertEquals(0,sim().path("rentDebt").asInt());g.getSim(token);assertEquals(cash-28,sim().path("cash").asDouble());
  }
  
- @Test void newLivesCannotGiftOrVoteButBecomeEligibleAfterOneGameDay()throws Exception{
+ @Test void classicPaceLivesBecomeGiftAndVoteEligibleAfterOneGameDay()throws Exception{
   g.players(token,"atl");ObjectNode target=(ObjectNode)g.community.residents().path(world().path("id").asText()).get("npc-atl-0");sim().put("loc",target.path("loc").asText());ObjectNode gift=g.object().put("kind","gift").put("targetId",target.path("userId").asText()).put("amount",25);
   assertEquals(403,assertThrows(ApiException.class,()->g.social(token,gift)).status);sim().withObject("skills").withObject("charisma").put("level",2);g.mayorAction(token,"run",g.object().put("city","atl").put("slogan","More places for neighbours"));ObjectNode vote=g.object().put("city","atl").put("candidateId",sim().path("userId").asText());assertEquals(403,assertThrows(ApiException.class,()->g.mayorAction(token,"vote",vote)).status);assertTrue(g.mayor(token,"atl").path("canVote").isTextual());now+=1440000L;g.social(token,gift);g.mayorAction(token,"vote",vote);assertEquals(sim().path("userId").asText(),g.mayor(token,"atl").path("myVote").asText());
  }

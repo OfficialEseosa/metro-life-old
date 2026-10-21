@@ -19,8 +19,7 @@ class ProgressionTests {
     JsonNode hire(JsonNode body){String track=body.path("jobId").asText().split("-")[0];sim().put("loc",Content.workplace(sim().path("city").asText(),track));game.world(game.session(token,true)).put("startedAt",now-4*60000);return ActivityFixture.apply(game,token,body);}
     void refresh(){for(String n:Content.NEEDS)sim().withObject("needs").put(n,100);sim().put("updatedAt",now);}
     JsonNode shift(String track)throws Exception{
-        refresh();String city=sim().path("city").asText(),loc=sim().path("job").path("loc").asText();
-        ObjectNode w=game.world(game.session(token,true));w.put("startedAt",now-4*60000); // 08:00 + four game hours
+        now=ActivityFixture.nextWorkOpening(game,sim());game.getSim(token);refresh();String city=sim().path("city").asText(),loc=sim().path("job").path("loc").asText();
         String action="shift-"+track;for(JsonNode a:content.landmark(city,loc).path("actions"))if(a.path("requires").path("job").asText().equals(track)){action=a.path("id").asText();break;}
         return ActivityFixture.act(game,token,json("{\"city\":\""+city+"\",\"loc\":\""+loc+"\",\"action\":\""+action+"\"}"));
     }

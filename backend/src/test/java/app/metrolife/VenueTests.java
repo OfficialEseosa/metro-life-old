@@ -27,7 +27,9 @@ now=sim().path("busyUntil").asLong();g.getSim(token);station("club","dance");Str
  @Test void publicSeatsAreReservedWithoutOverlappingHumans(){
   arrive("krog");enter("krog");station("cafe","table");act("krog","a0");String first=sim().path("activitySlot").path("id").asText();
   String other=g.guest(null,g.object()).token();ActivityFixture.setup(g,other,g.object().put("city","atl").put("neighborhood","midtown").put("aspiration","founder"));ActivityFixture.act(g,other,g.object().put("city","atl").put("loc","krog").put("action","a0"));assertNotEquals(first,g.sim(g.session(other,true)).path("activitySlot").path("id").asText());
-  String third=g.guest(null,g.object()).token();ActivityFixture.setup(g,third,g.object().put("city","atl").put("neighborhood","midtown").put("aspiration","founder"));assertEquals(409,assertThrows(ApiException.class,()->ActivityFixture.act(g,third,g.object().put("city","atl").put("loc","krog").put("action","a0"))).status);
+  int capacity=0;for(JsonNode slot:g.navigation.layout("atl","cafe").path("slots"))if(slot.path("pose").asText().equals("Eat")&&slot.path("station").asText().equals("table"))capacity++;
+  for(int index=2;index<capacity;index++){String guest=g.guest(null,g.object()).token();ActivityFixture.setup(g,guest,g.object().put("city","atl").put("neighborhood","midtown").put("aspiration","founder"));assertNotNull(ActivityFixture.act(g,guest,g.object().put("city","atl").put("loc","krog").put("action","a0")).path("sim").path("activitySlot"));}
+  String full=g.guest(null,g.object()).token();ActivityFixture.setup(g,full,g.object().put("city","atl").put("neighborhood","midtown").put("aspiration","founder"));assertEquals(409,assertThrows(ApiException.class,()->ActivityFixture.act(g,full,g.object().put("city","atl").put("loc","krog").put("action","a0"))).status);
  }
  
  @Test void parkSeatingRejectsRemoteAndForgedSeatsAndClearsOnMovement(){

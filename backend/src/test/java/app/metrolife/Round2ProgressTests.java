@@ -15,7 +15,7 @@ class Round2ProgressTests {
  ObjectNode sim(){return g.sim(g.session(token,true));}
  JsonNode goal(String id){for(JsonNode row:sim().path("daily"))if(row.path("id").asText().equals(id))return row;throw new AssertionError(id);}
  @BeforeEach void start()throws Exception{
-  g=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),new Content(mapper),mapper);g.time=()->now;
+  g=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),new Content(mapper),mapper);g.time=()->now;ActivityFixture.classicClock(g);
   g.world(null).put("startedAt",now-4*60000); // 13:00, all tested public venues open.
   token=g.guest(null,g.object()).token();g.setup(token,g.object().put("username","Rowan Progress").put("pronouns","they").put("city","atl").put("neighborhood","midtown").put("aspiration","founder"));g.finishIntro(token);
  }

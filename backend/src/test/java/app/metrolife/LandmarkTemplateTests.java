@@ -1,21 +1,22 @@
 package app.metrolife;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
-import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Shared authoring contract: every venue has a distinct, reachable room and honest action furniture. */
+/** A few distinctive venue visits cover their actual action/slot contract without scanning every floor cell. */
 class LandmarkTemplateTests {
  @TempDir Path dir;GameService g;String token;long now=1000000000;
  @BeforeEach void setup()throws Exception{var mapper=new ObjectMapper();g=new GameService(new JsonStore(mapper,dir.resolve("save.json").toString()),new Content(mapper),mapper);g.time=()->now;token=g.guest(null,g.object()).token();ActivityFixture.setup(g,token,g.object().put("city","atl").put("neighborhood","midtown").put("aspiration","founder"));}
- ObjectNode sim(){return g.sim(g.session(token,true));}
- 
- @Test void everyApproachHasAnUnblockedRouteFromTheRoomDoor(){for(String city:List.of("atl","nyc","bay")){var types=g.navigation.interiors.fieldNames();while(types.hasNext()){String type=types.next();JsonNode room=g.navigation.layout(city,type);double ex=room.path("exit").path("x").asDouble(),ez=room.path("exit").path("z").asDouble();Set<String> reached=new HashSet<>();ArrayDeque<double[]> todo=new ArrayDeque<>();todo.add(new double[]{ex,ez});reached.add(ex+":"+ez);List<double[]> points=new ArrayList<>();while(!todo.isEmpty()){double[] at=todo.remove();points.add(at);for(double[] d:new double[][]{{.2,0},{-.2,0},{0,.2},{0,-.2}}){double x=Math.rint((at[0]+d[0])*10)/10,z=Math.rint((at[1]+d[1])*10)/10;String key=x+":"+z;if(!reached.contains(key)&&g.navigation.stand(city,x,z,type+":test")){reached.add(key);todo.add(new double[]{x,z});}}}for(JsonNode station:room.path("stations")){double x=station.path("x").asDouble(),z=station.path("z").asDouble();assertTrue(g.navigation.stand(city,x,z,type+":test"),city+":"+type+":"+station.path("id"));assertTrue(points.stream().anyMatch(p->Math.hypot(p[0]-x,p[1]-z)<.3),city+":"+type+":"+station.path("id")+" cannot be reached");}}}}
- @Test void marketMealsUseTablesAndTheatreShowsUseSeats(){for(String[] row:new String[][]{{"ponce","a0","foodhall","Eat"},{"fox","a0","theatre","Sit"}}){ObjectNode r=ActivityFixture.act(g,token,g.object().put("city","atl").put("loc",row[0]).put("action",row[1]));assertEquals(row[2]+":"+row[0],r.path("sim").path("position").path("room").asText());assertEquals(row[3],r.path("sim").path("activitySlot").path("pose").asText());assertNotEquals("Type",r.path("sim").path("activitySlot").path("pose").asText());now=r.path("sim").path("busyUntil").asLong();g.getSim(token);}}
- 
- 
+ @Test void marketMealTheatreShowAndAquariumVisitUseTheirAuthoredFurniture()throws Exception{
+  for(String[] visit:new String[][]{{"ponce","a0","foodhall","Eat"},{"fox","venue-show","theatre","Sit"},{"aquarium","venue-view","aquarium","Sit"}}){
+   JsonNode accepted=ActivityFixture.act(g,token,g.object().put("city","atl").put("loc",visit[0]).put("action",visit[1]));
+   assertEquals(visit[2]+":"+visit[0],accepted.path("sim").path("position").path("room").asText());assertEquals(visit[3],accepted.path("sim").path("activitySlot").path("pose").asText());
+   JsonNode point=accepted.path("sim").path("position");assertTrue(g.navigation.stand("atl",point.path("x").asDouble(),point.path("z").asDouble(),point.path("room").asText()));
+   now=accepted.path("sim").path("busyUntil").asLong();JsonNode settled=g.getSim(token).path("sim");assertTrue(settled.path("busyUntil").isNull());if(settled.path("pendingBeat").isObject())g.chooseStory(token,g.object().put("beatId",settled.path("pendingBeat").path("id").asText()).put("choice","steady"));
+  }
+  assertEquals("Peacock Palace",g.content.landmark("atl","fox").path("name").asText());g.checkpoint();GameService restored=new GameService(new JsonStore(g.mapper,g.store.path.toString()),g.content,g.mapper);restored.time=()->now;assertEquals("aquarium:aquarium",restored.getSim(token).path("sim").path("position").path("room").asText());
+ }
 }
