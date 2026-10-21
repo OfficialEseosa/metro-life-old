@@ -78,7 +78,7 @@ function City({ onHover }: { onHover: (name: string | null, x?: number, y?: numb
   const { camera, gl, invalidate, size, scene, frameloop } = useThree()
   const controls = useRef<Controls>(null)
   const city=useStore(s=>s.city),homeCity=useStore(s=>s.sim?.home.city),homeNeighborhood=useStore(s=>s.sim?.home.neighborhood),home=useMemo(()=>homeCity&&homeNeighborhood?{city:homeCity,neighborhood:homeNeighborhood,rent:0}:undefined,[homeCity,homeNeighborhood]),atlSites=sitesFor(city)
-  const room=useStore(s=>s.sim?.city===s.city?s.sim.position?.room:null)
+  const room=useStore(s=>s.sim?.city===s.city&&!s.sim.trip?s.sim.position?.room:null)
   const playing=useStore(s=>!!s.sim),insets=useStore(s=>s.hudInsets),panel=useStore(s=>s.panel),beat=useStore(s=>!!s.sim?.pendingBeat)
   const focus = useStore(s => s.focus), night = useNightLighting()
   const destination = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)

@@ -9,13 +9,14 @@ const {metricPlacement}=require('../frontend/src/scene/world-scale');
 const {ATLANTA_TOWERS}=require('../frontend/src/scene/atlanta-models');
 const {dataFor,metropolitanGroups}=require('../frontend/src/scene/metropolitan-fabric');
 const {nycLand,nycEast}=require('../frontend/src/scene/cities/nyc'),{bayWest,bayEast,bayMarin}=require('../frontend/src/scene/cities/bay');
-const world=require('../shared/world.json'),out={version:1,cities:{}};
+const world=require('../shared/world.json'),transit=require('../shared/transit.json'),out={version:1,cities:{}};
 const dimensions={techCampus:[24,24],empire:[14,11],oneWtc:[19,19],grandCentral:[21,15],met:[29,20],cityHall:[18,12],ferryBuilding:[27,12],salesforce:[15,22],sfCityHall:[30,18],paintedLadies:[20,14]};
 const neighborhoods={atl:['midtown','buckhead','o4w','eastAtlanta','westEnd','decatur'],nyc:['harlem','uws','soho','williamsburg','bedstuy','astoria'],bay:['mission','soma','sunset','oakland','berkeley','paloAlto']};
 for(const city of ['atl','nyc','bay']){
  const data=city==='atl'?null:dataFor(city),groups=data?metropolitanGroups(data,city):kitFabric(),boxes=[],doors={};
  for(const [url,placements] of Object.entries(groups))if(/building|painted-row/.test(url))for(const p of placements)boxes.push({x:p.x,z:p.z,w:p.sx,d:p.sz,h:p.sy,y:p.y,windows:/kaykit\/building/.test(url),a:p.angle});
  for(const [id,s] of Object.entries(citySites[city])){
+  const hub=transit.cities[city].bus;if(id===hub.id){doors[id]={x:hub.x,z:hub.z,name:hub.name};continue}
   const place=world.cities.find(c=>c.id===city).landmarks.find(l=>l.id===id);
   const solid=!['park','waterfront'].includes(place.category)&&!['beltline','brooklynBridge','goldenGate','coney','liberty','alcatraz','pier39','highLine'].includes(id);
   const [w,d]=dimensions[id]??[s.size*.75,s.size*.65];

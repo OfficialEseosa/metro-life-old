@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { Builder } from './geometry'
+import { busStationGeometry } from './bus-station'
 const stone='#d9d3c2',glass='#54788b',brick='#ac6854',white='#eeeae0',roof='#758b82',green='#7da06a'
 function arch(b:Builder,x:number,y:number,z:number,w:number,h:number,d:number,c=stone,point=false){
  const outer=new THREE.Shape().moveTo(-w/2,0).lineTo(w/2,0).lineTo(w/2,h).lineTo(-w/2,h).closePath(),hole=new THREE.Path(),t=w*.16,top=h*.68
@@ -20,7 +21,7 @@ export function suspension(b:Builder,color:string,length=44,height=18,gothic=fal
  const cable=(z:number)=>Math.abs(z)<=length*.25?7+(height-7)*(z/(length*.25))**2:height-(height-3)*(Math.abs(z)-length*.25)/(length*.25)
  for(const x of[-2.25,2.25])for(let z=-length*.5;z<length*.5;z+=1){b.line([x,cable(z),z],[x,cable(z+1),z+1],.075,color);if(Math.abs(z)<length*.49)b.line([x,3.7,z],[x,cable(z),z],.035,color);if(gothic&&Math.abs(z)<length*.22)b.line([x,height,z<0?-length*.25:length*.25],[x,3.7,z],.035,color)}return b
 }
-export function nycGeometry(id:string){const b=new Builder()
+export function nycGeometry(id:string){if(id==='nycBus')return busStationGeometry('nyc');const b=new Builder()
  switch(id){
  case'empire':{b.box(0,2,0,11,4,8,stone);for(const[w,h,y]of[[8,6,7],[6.5,16,18],[4.8,4,28],[3.3,3,31.5]]){const first=b.parts.length;tower(b,w,h,5,stone);const part=b.parts.splice(first);for(const g of part){g.translate(0,y-h/2,0);b.parts.push(g)}}b.cylinder(0,34,0,.7,3,'#b4bcb9',12).cylinder(0,36,0,.15,3,'#d4d8d5',6);break}
  case'oneWtc':{b.box(0,2,0,8,4,8,'#afbbc0');const corners=[[-4,4,-4],[4,4,-4],[4,4,4],[-4,4,4]],top=[[0,34,-4],[4,34,0],[0,34,4],[-4,34,0]];for(let i=0;i<4;i++){const a=corners[i],c=corners[(i+1)%4],d=top[i],e=top[(i+1)%4];b.triangle([...a,...c,...d],i%2? '#7699af':'#a8c6d4').triangle([...c,...e,...d],i%2?'#a8c6d4':'#7699af')}b.box(0,34.2,0,5.6,.4,5.6,'#c0d0d5',Math.PI/4).cylinder(0,37.5,0,.15,7,'#c9d6d9',8);for(const x of[-6,6])b.box(x,.1,6,4,.2,4,'#486572').box(x,.21,6,3,.04,3,'#264957');break}
@@ -51,7 +52,7 @@ export function nycGeometry(id:string){const b=new Builder()
  case'nycAirport':airport(b,true);break
  default:throw Error('Missing New York model '+id)
  }return b.build()}
-export function bayGeometry(id:string){const b=new Builder()
+export function bayGeometry(id:string){if(id==='bayBus')return busStationGeometry('bay');const b=new Builder()
  switch(id){
  case'goldenGate':suspension(b,'#bd563e',52,21);break
  case'ferryBuilding':classic(b,17,3.5,5);b.roof(0,3.5,0,17,1,5,'#b17d64').box(0,6,0,2.8,5,2.8,stone);for(const y of[4,7,9])b.box(0,y,0,3.2,.3,3.2,white);b.box(0,9,0,2.6,2,2.6,stone).roof(0,10.2,0,3,1.8,3,roof);for(const z of[-1.32,1.32]){b.add(new THREE.CircleGeometry(.8,24),white,0,9,z,0,z<0?Math.PI:0).line([0,9,z*1.01],[0,9.5,z*1.01],.04,'#394f50').line([0,9,z*1.01],[.4,9,z*1.01],.04,'#394f50')}break

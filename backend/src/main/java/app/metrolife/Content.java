@@ -10,6 +10,7 @@ import java.util.*;
 public class Content {
     final ObjectMapper mapper;
     final ObjectNode world;
+    final JsonNode transit;
     static final String[] SKILLS = {"fitness","cooking","music","tech","charisma","creativity","business"};
     static final String[] NEEDS = {"energy","hunger","fun","social"};
     static final String[] TRACKS = {"tech","music","sports","food","finance","arts","civic","health"};
@@ -17,6 +18,7 @@ public class Content {
     static final String[] ASPIRATION_NAMES = {"Startup Founder","Headliner","Mayor","Restaurateur","Pro Athlete","Art Collector","Real-Estate Mogul"};
     public Content(ObjectMapper mapper) throws IOException {
         this.mapper = mapper;
+        try(var data=getClass().getResourceAsStream("/static-data/transit.json")){if(data==null)throw new IOException("Transit data missing");transit=mapper.readTree(data);}
         try(var in=getClass().getResourceAsStream("/static-data/world.json")) {
             if(in==null) throw new IOException("Canonical world content missing");
             world=(ObjectNode)mapper.readTree(in);
@@ -24,7 +26,8 @@ public class Content {
         world.put("startingCash",150);
         for(JsonNode c:world.withArray("cities")) {
             ObjectNode city=(ObjectNode)c; int n=0;
-            for(JsonNode nh:city.withArray("neighborhoods")) ((ObjectNode)nh).put("rent",(city.path("id").asText().equals("atl")?65:110)+15*n++);
+            for(JsonNode nh:city.withArray("neighborhoods")){String id=city.path("id").asText();((ObjectNode)nh).put("rent",n==0?starterRent(id):(id.equals("atl")?65:id.equals("nyc")?110:125)+15*n);n++;}
+            city.putObject("startingLife").put("neighborhood",city.path("neighborhoods").get(0).path("id").asText()).put("rent",starterRent(city.path("id").asText())).put("payPerShift",entryPay(city.path("id").asText())).put("startingCash",150);
             for(JsonNode l:city.withArray("landmarks")) {
                 ObjectNode loc=(ObjectNode)l; ArrayNode labels=(ArrayNode)loc.get("actions"),actions=mapper.createArrayNode();
                 for(int i=0;i<labels.size();i++) actions.add(expand(loc,labels.get(i).asText(),i));
@@ -55,6 +58,9 @@ public class Content {
             for(String other:new String[]{"nyc","bay"}){ArrayNode actions=landmark(other,workplace(other,TRACKS[t])).withArray("actions");boolean exists=false;for(JsonNode a:actions)if(a.path("requires").path("job").asText().equals(TRACKS[t]))exists=true;if(!exists)actions.add(shift.deepCopy());}
         }
         for(JsonNode city:world.path("cities"))for(JsonNode place:city.path("landmarks")){boolean workplace=false;for(String track:TRACKS)if(workplace(city.path("id").asText(),track).equals(place.path("id").asText()))workplace=true;if(workplace){((ObjectNode)place).putArray("open").add(0).add(24);((ObjectNode)place).withArray("actions").add(action("visit-workplace","Visit the workplace","rest","footprints",1,0,0,Map.of(),Map.of()).put("xp",0));}}
+        for(JsonNode row:world.path("cities")){ObjectNode city=(ObjectNode)row;JsonNode bus=transit.path("cities").path(city.path("id").asText()).path("bus");ObjectNode stop=city.withArray("landmarks").addObject().put("id",bus.path("id").asText()).put("name",bus.path("name").asText()).put("area","Downtown").put("category","transport").put("icon","train-front").put("blurb","Shared intercity departures. A bus ride costs a quarter of the plane fare and advances the shared clock by eight game hours.").put("transitHub",true);stop.putArray("open").add(0).add(24);stop.putArray("actions");}
+        // Legacy action callers use the same booking service; publish the same fare/game-time facts.
+        for(JsonNode city:world.path("cities"))for(JsonNode place:city.path("landmarks"))for(JsonNode node:place.path("actions"))if(node.has("to")){ObjectNode a=(ObjectNode)node;String from=city.path("id").asText(),to=a.path("to").asText();int fare=transit.path("fares").path(from+":"+to).asInt(transit.path("fares").path(to+":"+from).asInt());a.put("cost",fare).put("durationMin",transit.path("modes").path("plane").path("gameMinutes").asInt()).put("xp",0);a.putObject("needs");a.putObject("skills");}
         ArrayNode aspirations=world.putArray("aspirations");
         for(int i=0;i<ASPIRATIONS.length;i++) {
             ObjectNode aspiration=aspirations.addObject().put("id",ASPIRATIONS[i]).put("label",ASPIRATION_NAMES[i]).put("icon",new String[]{"rocket","mic-vocal","landmark","utensils","trophy","palette","house"}[i]).put("blurb","Build your own path, one good day at a time.");
@@ -93,6 +99,9 @@ public class Content {
     ObjectNode landmark(String city,String id) {for(JsonNode l:city(city).path("landmarks")) if(l.path("id").asText().equals(id)) return (ObjectNode)l;throw new ApiException(404,"That place could not be found");}
     ObjectNode neighborhood(String city,String id) {for(JsonNode n:city(city).path("neighborhoods")) if(n.path("id").asText().equals(id)) return (ObjectNode)n;throw new ApiException(400,"Choose a neighborhood in this city");}
     ObjectNode aspiration(String id) {for(JsonNode a:world.path("aspirations")) if(a.path("id").asText().equals(id)) return (ObjectNode)a;throw new ApiException(400,"Choose an aspiration");}
+    static int starterRent(String city){return city.equals("atl")?35:city.equals("nyc")?55:65;}
+    static int entryPay(String city){return city.equals("atl")?70:city.equals("nyc")?100:110;}
+    static int cityPay(String city,int base){return (int)Math.round(base*entryPay(city)/70.0);}
     static String title(String s) {return s.substring(0,1).toUpperCase(Locale.ROOT)+s.substring(1);}
     static String workplace(String city,String track){String[] places=city.equals("nyc")?new String[]{"dumbo","apollo","yankee","chinatown","wallStreet","met","cityHall","presbyterian"}:city.equals("bay")?new String[]{"techCampus","fillmore","chaseCenter","missionEats","sandHill","sfCityHall","sfCityHall","ucsf"}:new String[]{"techVillage","fox","benz","ponce","techVillage","high","capitol","grady"};return places[Arrays.asList(TRACKS).indexOf(track)];}
 }

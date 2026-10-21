@@ -1,4 +1,5 @@
 import { FirstDayGoals } from './entry'
+import { TravelPanel } from './travel-panel'
 import { enterBuilding } from './walking-actions'
 import { doorsFor,interiorType, nearbyStation } from '../navigation'
 import { serverNow } from '../server-time'
@@ -33,6 +34,7 @@ export function LocationPrimary(){
  if(sim.busyUntil)return <Busy/>
  if(sim.city!==cityId)return <button className="primary primary-action" aria-label={selected==='home'?'Find a flight home':'Go to your airport'} onClick={()=>{state().selectLocation(`${sim.city}Airport`);state().setFocus(`${sim.city}Airport`)}}><Icon name="plane"/><span>{selected==='home'?'Find a flight home':'Go to your airport'}<small>Fly here to take part.</small></span></button>
  if(!selected)return null
+ if(selected.endsWith('Airport')||selected.endsWith('Bus'))return <button className="primary full" onClick={()=>state().openPanel('travel')}><Icon name="train-front"/>See bus and plane departures</button>
  const p=sim.position,door=doorsFor(sim)[selected as keyof ReturnType<typeof doorsFor>],near=door&&p&&!p.room&&Math.hypot(door.x-p.x,door.z-p.z)<3,type=interiorType(world,cityId,selected)
  if(p?.room&&p.place===selected&&nearbyStation(p,cityId)?.id!=='exit'&&primary){const blocked=actionReason(primary,sim,closed,now);return <><ReasonButton className="primary full" reason={working?'Sending your activity…':blocked} onClick={()=>run(()=>perform(cityId,selected,primary))}>{blocked||primary.label}</ReasonButton><ErrorMessage text={error}/></>}
  if(p?.room)return <ReasonButton className="primary full" reason={working?'Travelling…':sim.pendingBeat?'Choose your story first':''} onClick={()=>{if(p.place===selected)state().openPanel(null);else state().setFocus(selected)}}>{p.place===selected?'Return to your room':'Travel here'}</ReasonButton>
@@ -45,6 +47,7 @@ export function LocationPrimary(){
 export function LocationPanel(){
  const{selected,world,cityId,sim,now,city,home,place,closed,actions,primary}=useLocation(),{working,error,run}=useTask(true)
  if(!city||!selected||(!home&&!place))return <p className="intro">Choose a pin on the map to explore.</p>
+ if(selected.endsWith('Airport')||selected.endsWith('Bus'))return <TravelPanel/>
  if(home)return <p className="intro">Step inside, then walk to the stove to cook, the bed to sleep, the shower to freshen up or the couch for company. Use E or your interact button.</p>
  if(interiorType(world,cityId,selected)&&(!sim?.position?.room||sim.position.place!==selected||!nearbyStation(sim.position,cityId)||nearbyStation(sim.position,cityId)?.id==='exit'))return <p className="intro">Enter through the door, then walk to the desk, counter or dance floor. Use E or your interact button.</p>
  if(sim&&sim.city===cityId&&sim.loc!==selected)return <p className="intro">Walk to the door, or use Travel here as a map shortcut.</p>

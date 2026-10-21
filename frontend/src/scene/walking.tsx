@@ -33,7 +33,7 @@ export function Walking({controls,cancelFlight}:{controls:RefObject<OrbitControl
  useEffect(()=>{if(!sim?.busyUntil)return;const timer=setInterval(()=>{if(!document.hidden)invalidate()},1000/30);return()=>clearInterval(timer)},[sim?.busyUntil,invalidate])
  useEffect(()=>{if(sim?.busyUntil&&sim.position&&motion.position)motion.position.face=sim.position.face},[sim?.busyUntil,sim?.position])
  useFrame((_,dt)=>{
-  if(!sim||sim.city!==city||!motion.position||!ref.current)return
+  if(!sim||sim.trip||sim.city!==city||!motion.position||!ref.current)return
   const s=useStore.getState(),blocked=s.sim?.introDone===false||!!(s.sim?.firstDay?.complete&&!s.sim.firstDay.closingSeen)||s.acting||!!s.sim?.busyUntil||!!s.sim?.pendingBeat||!!s.panel||s.searchOpen,p=motion.position,manual=Math.hypot(motion.x,motion.z)>0,auto=interactionSteering(performance.now(),manual),axis=manual?{x:motion.x,z:motion.z}:auto,length=Math.hypot(axis.x,axis.z),moving=length>0&&!blocked
   if(visualRevision.current!==motion.teleport){visualRevision.current=motion.teleport;visual.current.set(p.x,0,p.z);activityPath.current=[];lastSlot.current='';releasePoint.current=null;motion.follow=true}
   motion.moving=moving
@@ -58,6 +58,6 @@ export function Walking({controls,cancelFlight}:{controls:RefObject<OrbitControl
   const v=new THREE.Vector3(visual.current.x,3.2,visual.current.z).project(camera),el=document.querySelector<HTMLElement>('.walking-anchor');if(el?.firstElementChild)el.style.transform=`translate3d(${(v.x+1)*size.width/2}px,${(1-v.y)*size.height/2}px,0)`
   gl.shadowMap.autoUpdate=false
  })
- if(!sim||city!==sim.city)return null
+ if(!sim||sim.trip||city!==sim.city)return null
  return <><instancedMesh ref={waterRef} visible={!!sim.busyUntil&&(/shower|cook/i.test(sim.busyLabel??'')||sim.busyKind==='food')} args={[undefined,undefined,12]}><sphereGeometry args={[1,5,3]}/><meshBasicMaterial color={sim.busyKind==='food'?'#d69754':'#d8f7fa'} transparent opacity={.7} depthWrite={false}/></instancedMesh><group name="controlled-player" ref={ref}><Suspense fallback={null}><RiggedCharacter look={sim.look} readPose={()=>stagedPose.current} readHipHeight={()=>hip.current}/></Suspense></group><instancedMesh name="walk-doors" ref={doorRef} args={[undefined,undefined,doors.length]}><boxGeometry/><meshStandardMaterial color="#f3cd7b" emissive="#d2aa40" emissiveIntensity={.35}/></instancedMesh></>
 }

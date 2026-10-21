@@ -10,7 +10,7 @@ final class Civic {
     Civic(GameService g){this.g=g;}
     ObjectNode state(ObjectNode world,String city){return g.store.data.withObject("civic").withObject(world.path("id").asText()).withObject(city);}
     int day(ObjectNode w){return g.clock(w).path("day").asInt();}
-    long dayAt(ObjectNode w,int day){return w.path("startedAt").asLong()+((day-1)*1440L-540)*1000;}
+    long dayAt(ObjectNode w,int day){return w.path("startedAt").asLong()+((day-1)*1440L-540-w.path("transitMinutes").asLong())*1000;}
     void tick(ObjectNode w){for(JsonNode city:g.content.world.path("cities")){
         ObjectNode c=state(w,city.path("id").asText());int term=(day(w)-1)/3+1,old=c.path("term").asInt(1);if(!c.has("policyHistory"))c.putArray("policyHistory").addObject().put("at",w.path("startedAt").asLong()).put("policy",c.path("mayor").path("policy").asText(""));
         if(!c.has("candidates")){c.putArray("candidates");c.putObject("votes");c.putObject("campaignDays");c.putNull("mayor");c.put("term",term);}

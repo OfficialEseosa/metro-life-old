@@ -1,0 +1,30 @@
+import { useEffect, useState } from 'react'
+import type { TransitRoute, TransitState } from '../api/types'
+import { api } from '../api/client'
+import { useStore } from '../store'
+import { motion } from '../walking'
+import { clearQueuedInteractions } from '../interactions'
+import { ErrorMessage, Icon, ReasonButton } from './primitives'
+import { money, useTask } from './helpers'
+import { TravelRide } from './travel-ride'
+import './travel-panel.css'
+
+const state=()=>useStore.getState()
+const routeKey=(route:TransitRoute)=>`${route.to}:${route.mode}`
+export function TravelPanel(){
+ const sim=useStore(s=>s.sim),world=useStore(s=>s.world),[listing,setListing]=useState<TransitState|null>(null),[loadError,setLoadError]=useState(''),[selected,setSelected]=useState<string|null>(null),[acceptTime,setAcceptTime]=useState(false),{working,error,run}=useTask(true)
+ const city=sim?.city,user=sim?.userId
+ useEffect(()=>{if(!city)return;let live=true,inFlight=false;const load=async()=>{if(inFlight)return;inFlight=true;try{const r=await api.transit(city);if(live&&state().sim?.userId===user){setListing(r);setLoadError('')}}catch(e){if(live)setLoadError(e instanceof Error?e.message:'Could not read departures')}finally{inFlight=false}};void load();const timer=setInterval(()=>void load(),1500);return()=>{live=false;clearInterval(timer)}},[city,user])
+ if(!sim)return <p>Start a life before booking a trip.</p>
+ if(!listing||listing.city!==sim.city)return <p role="status">{loadError||'Reading departures…'}</p>
+ const route=listing.routes.find(r=>routeKey(r)===selected),origin=world?.cities.find(c=>c.id===sim.city),destination=world?.cities.find(c=>c.id===route?.to),busy=working?'Booking your seat…':sim.busyUntil?'Finish your current activity first':sim.pendingBeat?'Choose your story first':''
+ const hub=(r:TransitRoute)=>listing.hubs[r.mode]
+ return <><p className="intro">A visit starts at the station or airport. Your home stays in {world?.cities.find(c=>c.id===sim.home.city)?.name} until you deliberately move.</p><div className="travel-hub-links">{(['bus','plane'] as const).map(mode=><ReasonButton key={mode} className="secondary" reason={busy} onClick={()=>void run(()=>state().travelTo(listing.hubs[mode].loc,'travel'))}><Icon name={mode==='plane'?'plane':'train-front'}/><span>Go to {listing.hubs[mode].name}<small>Local map shortcut</small></span></ReasonButton>)}</div><h3>From {origin?.name}</h3><p className="small-copy">Three seconds to board together. Players booking the same departure share the ride and its chat.</p><div className="travel-routes">{world?.cities.filter(c=>c.id!==sim.city).map(city=><section key={city.id} aria-label={`Trips to ${city.name}`} className="travel-destination"><h3>{city.name}</h3>{listing.routes.filter(r=>r.to===city.id).map(r=><div key={routeKey(r)} className="travel-route"><span className="semantic-tile"><Icon name={r.mode==='plane'?'plane':'train-front'}/></span><div><strong>{r.mode==='plane'?'Plane':'Bus'} · {money(r.fare)}</strong><span>{r.durationSeconds} real seconds · {r.gameMinutes/60} game hours</span><small>Departs {hub(r).name}</small><ReasonButton className="secondary" reason={busy||r.reason} onClick={()=>{setSelected(routeKey(r));setAcceptTime(false)}}>Review {r.mode==='plane'?'flight':'bus trip'}</ReasonButton></div></div>)}</section>)}</div>{route&&<section className="travel-review" role="group" aria-label="Review your trip"><h3>{route.mode==='plane'?'Fly':'Ride the bus'} to {destination?.name}</h3><dl><div><dt>Fare, charged when booked</dt><dd>{money(route.fare)}</dd></div><div><dt>Ride after boarding</dt><dd>{route.durationSeconds} seconds</dd></div><div><dt>Shared game clock</dt><dd>+{route.gameMinutes/60} hours</dd></div><div><dt>Arrive at</dt><dd>{route.mode==='plane'?'Destination airport':'Downtown bus station'}</dd></div></dl><p className="notice">{route.mode==='bus'?'Eight game hours pass for everyone in this world. A workplace or venue may close, a shift may be missed, and midnight may bring rent. Nap on the bus for +25 energy when you arrive.':'Two game hours pass for everyone in this world. Check opening hours and leave time for work.'}</p>{route.mode==='bus'&&<label className="travel-time-accept"><input type="checkbox" checked={acceptTime} onChange={e=>setAcceptTime(e.target.checked)}/><span>I understand the shared clock will advance eight hours.</span></label>}<div className="travel-review-actions"><button className="secondary" onClick={()=>setSelected(null)}>Keep exploring</button><ReasonButton className="primary" reason={busy||route.reason||(route.mode==='bus'&&!acceptTime?'Acknowledge the eight-hour clock change':'')} onClick={()=>void run(async()=>{const owner=sim.userId;await motion.flush();if(state().sim?.userId!==owner)return;clearQueuedInteractions();const r=await api.bookTransit(route.to,route.mode,acceptTime);if(state().sim?.userId!==owner)return;state().openPanel(null);state().setSim(r.sim);useStore.setState({clock:r.clock})})}>Book {route.mode==='plane'?'flight':'bus'} · {money(route.fare)}</ReasonButton></div></section>}<ErrorMessage text={loadError||error}/></>
+}
+
+export function TravelRideGate(){
+ const trip=useStore(s=>s.sim?.trip),user=useStore(s=>s.sim?.userId),id=trip?.id
+ useEffect(()=>{if(!id)return;let live=true,inFlight=false;const update=async()=>{if(inFlight)return;inFlight=true;try{const r=await api.sim();if(live&&state().sim?.userId===user&&state().sim?.trip?.id===id){state().setSim(r.sim);useStore.setState({clock:r.clock})}}catch{/* The last confirmed itinerary remains visible; retry on the next poll. */}finally{inFlight=false}};void update();const timer=setInterval(()=>void update(),700);return()=>{live=false;clearInterval(timer)}},[id,user])
+ if(!trip)return null
+ return <TravelRide trip={trip} onNap={async()=>{const r=await api.napTransit();if(state().sim?.userId!==user||state().sim?.trip?.id!==id)return;state().setSim(r.sim);useStore.setState({clock:r.clock})}} onSendChat={async text=>{const r=await api.chatTransit(text);if(state().sim?.userId!==user||state().sim?.trip?.id!==id)return;useStore.setState(s=>({sim:s.sim?{...s.sim,trip:r.trip}:null,clock:r.clock}))}}/>
+}

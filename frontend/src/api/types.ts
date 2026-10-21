@@ -98,6 +98,7 @@ export type Landmark = {
 export type Neighborhood = { id: string; name: string; rent: number; blurb?: string }
 
 export type City = {
+  startingLife?: {neighborhood:string;rent:number;payPerShift:number;startingCash:number}
   id: CityId
   name: string
   short: string
@@ -163,6 +164,7 @@ export type Goal = {
 
 export type FirstDayStep='outside'|'job'|'shift'|'meal'|'neighbour'|'rent'
 export type Sim = {
+  trip?: TransitTrip | null
   pronouns?:'she'|'he'|'they'
   introDone?:boolean
   arrivalDay?:number
@@ -231,6 +233,8 @@ export type StoryOutcome = { win: boolean; text: string; deltas: Deltas; next: S
 // ---- people ---------------------------------------------------------------
 
 export type Player = {
+  travelStatus?:string|null
+  tripId?:string|null
   socialBusy?: boolean
   activity?: string
   position?: import('../navigation').Position
@@ -247,6 +251,12 @@ export type Player = {
 }
 
 export type ChatMessage = { id: string; city: CityId; userId: string; username: string; npc: boolean; text: string; at: number }
+
+export type TransitMode='plane'|'bus'
+export type TransitHub={loc:string;name:string;x:number;z:number}
+export type TransitRoute={to:CityId;mode:TransitMode;fare:number;durationSeconds:number;gameMinutes:number;boardingSeconds:number;fromHub:string;toHub:string;reason:string}
+export type TransitTrip={id:string;mode:TransitMode;from:CityId;to:CityId;fromName:string;toName:string;fromHub:string;toHub:string;fare:number;bookedAt:number;departAt:number;arriveAt:number;durationSeconds:number;gameMinutes:number;status:'boarding'|'riding';progress:number;seat:number;nap:boolean;napAvailable:boolean;passengers:{id:string;username:string;look:Look;seat:number;nap:boolean;online:boolean}[];messages:ChatMessage[];events:{id:string;text:string;at:number}[];warning:string}
+export type TransitState={city:CityId;hubs:{plane:TransitHub;bus:TransitHub};routes:TransitRoute[];trip:TransitTrip|null;clock:Clock}
 
 // ---- civic ----------------------------------------------------------------
 
@@ -308,7 +318,7 @@ export type Me = { now: number; user: User | null; world: WorldInfo | null; sim:
 export type ServerEvent =
   | { type: 'hello'; worldId: string; clock: Clock }
   | { type: 'presence'; city: CityId; players: Player[] }
-  | { type: 'positions'; city: CityId; at:number; players: Pick<Player,'id'|'position'|'activity'|'loc'|'activitySlot'|'socialBusy'>[] }
+  | { type: 'positions'; city: CityId; at:number; players: Pick<Player,'id'|'position'|'activity'|'loc'|'activitySlot'|'socialBusy'|'tripId'|'travelStatus'>[] }
   | { type: 'chat'; message: ChatMessage }
   | { type: 'event'; kind: 'mayor' | 'plots' | 'billboards' | 'homes' | 'story'; city: CityId; text?: string }
   | { type: 'clock'; clock: Clock }

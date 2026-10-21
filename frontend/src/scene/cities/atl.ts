@@ -1,3 +1,4 @@
+import transit from '../../../../shared/transit.json'
 export type Site = { x: number; z: number; size: number; height: number; angle?: number }
 export const atlSites: Record<string, Site> = {
   benz: { x: -32, z: 34, size: 28, height: 7.1 },
@@ -19,5 +20,6 @@ export const atlSites: Record<string, Site> = {
   l5p: { x: 53, z: 8, size: 12, height: 4 },
   truist: { x: -48, z: -53, size: 21, height: 6 },
   grady: { x: 21, z: 47, size: 12, height: 13 },
+  atlBus: transit.cities.atl.bus.site,
   atlAirport: { x: -16, z: 76, size: 42, height: 8 },
 }

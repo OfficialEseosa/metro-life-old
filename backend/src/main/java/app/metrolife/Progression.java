@@ -45,7 +45,7 @@ final class Progression {
                 boolean ready=true;var skills=next.path("requires").path("skills").fields();
                 while(skills.hasNext()){var e=skills.next();if(skill(s,e.getKey())<e.getValue().asInt())ready=false;}
                 if(ready){ObjectNode upgraded=((ObjectNode)next).deepCopy();String city=job.path("city").asText(),track=job.path("track").asText();
-                    upgraded.put("id",(city.equals("atl")?"":city+"-")+track+"-"+(level+1)).put("track",track).put("city",city).put("loc",Content.workplace(city,track)).put("shifts",0);
+                    upgraded.put("payPerHour",Content.cityPay(city,next.path("payPerHour").asInt())).put("id",(city.equals("atl")?"":city+"-")+track+"-"+(level+1)).put("track",track).put("city",city).put("loc",Content.workplace(city,track)).put("shifts",0);
                     s.set("job",upgraded);promoted=upgraded.path("title").asText();count(s,"promotions");
                 }
             }

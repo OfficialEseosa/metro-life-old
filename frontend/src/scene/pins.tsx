@@ -36,12 +36,12 @@ function iconTexture() {
 }
 
 export function Pins({ onHover }: { onHover: (name: string | null, x?: number, y?: number) => void }) {
-  const insets=useStore(s=>s.hudInsets),city=useStore(s=>s.city),homeCity=useStore(s=>s.sim?.home.city),homeNeighborhood=useStore(s=>s.sim?.home.neighborhood)
+  const world=useStore(s=>s.world),insets=useStore(s=>s.hudInsets),city=useStore(s=>s.city),homeCity=useStore(s=>s.sim?.home.city),homeNeighborhood=useStore(s=>s.sim?.home.neighborhood)
   const hasHome=homeCity===city&&!!homeNeighborhood
-  const locations=useMemo(()=>[...canonical.cities.find(c=>c.id===city)!.landmarks,...(hasHome?[{id:'home',name:'Your home',category:'home'}]:[])],[city,hasHome])
+  const locations=useMemo(()=>[...(world?.cities??canonical.cities).find(c=>c.id===city)!.landmarks,...(hasHome?[{id:'home',name:'Your home',category:'home'}]:[])],[city,hasHome,world])
   const atlSites=useMemo<Record<string,Site>>(()=>{const site=homeSite(city,homeCity&&homeNeighborhood?{city:homeCity,neighborhood:homeNeighborhood,rent:0}:undefined);return {...sitesFor(city),...(site?{home:site}:{})}},[city,homeCity,homeNeighborhood])
   const {camera,size,gl}=useThree(),lastCamera=useRef(new THREE.Matrix4()),selected=useStore(s=>s.selectedLoc)
-  const lastHover=useRef(0),clusters=useRef<number[]>([]),lens=useStore(s=>s.mapLens),sim=useStore(s=>s.sim),world=useStore(s=>s.world)
+  const lastHover=useRef(0),clusters=useRef<number[]>([]),lens=useStore(s=>s.mapLens),sim=useStore(s=>s.sim)
   const points=useRef<THREE.Points>(null)
   const data = useMemo(() => {
     const geometry = new THREE.BufferGeometry(), positions: number[] = [], icons: number[] = []

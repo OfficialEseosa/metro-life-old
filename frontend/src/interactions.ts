@@ -10,7 +10,7 @@ import { actionReason, policyHours } from './ui/action-rules'
 import { serverNow } from './server-time'
 
 type Point={x:number;z:number}
-export type QueuedAction={id:string;label:string;icon:string;kind:'walk'|'act'|'door'|'social'|'apply'|'posture';city:CityId;room:string|null;point:Point;loc?:string;actionId?:string;slotId?:string;targetId?:string;socialKind?:'wave'|'hangout'|'gift';jobId?:string;benchId?:string;enter?:boolean}
+export type QueuedAction={id:string;label:string;icon:string;kind:'walk'|'act'|'door'|'social'|'apply'|'posture'|'transit';city:CityId;room:string|null;point:Point;loc?:string;actionId?:string;slotId?:string;targetId?:string;socialKind?:'wave'|'hangout'|'gift';jobId?:string;benchId?:string;enter?:boolean}
 type Task=Omit<QueuedAction,'id'>
 type Option={id:string;label:string;icon:string;reason:string;task:Task}
 export const useInteractions=create<{menu:{target:PickTarget;title:string;options:Option[]}|null;current:QueuedAction|null;waiting:QueuedAction[];phase:'walking'|'starting'|'performing'|null;error:string}>(()=>({menu:null,current:null,waiting:[],phase:null,error:''}))
@@ -25,6 +25,7 @@ function approach(city:CityId,room:string|null,point:Point,from:Point,radius=1.3
 }
 function closed(loc:string){const s=useStore.getState(),place=s.world?.cities.find(c=>c.id===s.sim?.city)?.landmarks.find(l=>l.id===loc);if(!place)return false;const [a,b]=policyHours(place.open,place.category,s.mayor?.mayor?.policy),c=s.clock,h=c?((c.hour*60+c.minute+(serverNow()-c.at)/c.msPerMinute)%1440)/60:12;return a<b?h<a||h>=b:h<a&&h>=b}
 function socialReason(p:Player|undefined){const s=useStore.getState();return !p||!p.npc&&!p.online?'That neighbour has left':p.socialBusy?'Your neighbour is busy':p.city!==s.sim?.city||(p.position?.room??null)!==(s.sim?.position?.room??null)?'Meet in the same room first':s.sim?.loc==='home'?'Meet at a public place first':''}
+export function clearQueuedInteractions(){finish();useInteractions.setState({waiting:[],menu:null})}
 export function closeObjectMenu(){useInteractions.setState({menu:null})}
 export function openObjectMenu(target:PickTarget){
  const s=useStore.getState(),sim=s.sim,p=motion.position
@@ -38,6 +39,7 @@ export function openObjectMenu(target:PickTarget){
   title=station?.name??'Furniture'
   const actions=type==='home'?city?.homeActions:city?.landmarks.find(l=>l.id===loc)?.actions,supported=new Set([target.stationId,...(furniture?.slots.map(slot=>slot.station).filter(Boolean)??[])])
   for(const action of actions??[]){const counterOrder=type==='cafe'&&target.stationId==='counter'&&action.kind==='food',use=counterOrder?{station:'counter',pose:'Eat'}:type==='home'?{station:station?.id,pose:furniture?.slots[0]?.pose}:activityUse(sim.city,type,action);if(!use||action.id==='visit-workplace'||!supported.has(use.station)||type==='home'&&station?.action!==action.id)continue
+   if(action.to){if(!options.some(o=>o.id==='departures'))add('departures','View departures','plane',{...base,kind:'transit',point:layout.stations.find(st=>st.id===use.station)??target.point,label:'View departures',icon:'plane'});continue}
    const slots=furniture?.slots.filter(slot=>(slot.station??station?.id)===use.station&&(!use.pose||slot.pose===use.pose))??[]
    const slot:ActivitySlot|undefined=slots.find(slot=>!s.players.some(other=>other.id!==sim.userId&&(other.npc||other.online)&&other.city===sim.city&&other.position?.room===p.room&&other.activitySlot?.id===slot.id))??slots[0]
    const actionStation=layout.stations.find(st=>st.id===use.station),point=type==='home'&&actionStation?{x:actionStation.x,z:actionStation.z}:slot?approach(sim.city,p.room,slot,p):actionStation
@@ -49,7 +51,7 @@ export function openObjectMenu(target:PickTarget){
  }else if(target.kind==='door'){
   const entering=!p.room,door=entering?doorsFor(sim)[target.id as keyof ReturnType<typeof doorsFor>]:roomLayout(sim.city,roomType(p.room)!).exit,loc=entering?target.id:p.place,point=door?(entering?approach(sim.city,null,door,p,2.5):door):undefined
   title=entering?(target.id==='home'?'Home':s.world?.cities.find(c=>c.id===sim.city)?.landmarks.find(l=>l.id===target.id)?.name??'Building'):'Door'
-  const label=entering?`Enter ${title}`:'Leave building';add('door',label,'house',{...base,kind:'door',loc,point:point??target.point,enter:entering,label,icon:'house'},!point?'There is no clear doorway':entering&&closed(loc)?'Closed right now':'')
+  const bus=entering&&target.id.endsWith('Bus'),label=bus?'View departures':entering?`Enter ${title}`:'Leave building';add('door',label,bus?'train-front':'house',{...base,kind:bus?'transit':'door',loc,point:point??target.point,enter:entering,label,icon:'house'},!point?'There is no clear doorway':entering&&closed(loc)?'Closed right now':'')
  }else if(target.kind==='bench'){
   title='Park bench';const label=sim.activitySlot?.id===target.id?'Stand up':'Sit down',point=approach(sim.city,null,target.point,p,1.5)
   add('posture',label,'moon',{...base,kind:'posture',point:point??target.point,benchId:label==='Stand up'?undefined:target.id,label,icon:'moon'},point?'':'There is no clear approach')
@@ -84,11 +86,12 @@ async function perform(task:QueuedAction){
   const s=useStore.getState();if(!s.sim||s.sim.city!==task.city||(s.sim.position?.room??null)!==task.room)throw Error('The scene changed. Choose the action again.')
   if(task.kind==='act'){motion.useApproach=task.slotId?{slotId:task.slotId,...task.point}:null;const r=await api.act(task.city,task.loc!,task.actionId!,task.slotId);if(epoch!==interactionEpoch)return;s.setSim(r.sim);s.setLastResult(r.result)}
   else if(task.kind==='door'){const r=await api.door(task.loc!,!!task.enter);if(epoch!==interactionEpoch)return;s.setSim(r.sim);s.selectLocation(r.sim.loc);s.openPanel(null)}
+  else if(task.kind==='transit'){s.openPanel('travel')}
   else if(task.kind==='posture'){const r=await api.posture(task.benchId??null);if(epoch!==interactionEpoch)return;s.setSim(r.sim)}
   else if(task.kind==='social'){const r=await api.social(task.targetId!,task.socialKind!,task.socialKind==='gift'?25:undefined);if(epoch!==interactionEpoch)return;s.setSim(r.sim);useStore.setState({socialNotice:r.text})}
   else if(task.kind==='apply'){const r=await api.applyJob(task.jobId!);if(epoch!==interactionEpoch)return;s.setSim(r.sim);useStore.setState({socialNotice:r.hired?`You joined as ${r.sim.job?.title??'a new colleague'}.`:r.reason??'Your application was received.'})}
   if(cancelled.has(task.id)){if(useStore.getState().sim?.busyUntil||useStore.getState().sim?.activitySlot){const r=await api.cancelAction();if(epoch!==interactionEpoch)return;s.setSim(r.sim);s.setLastResult(null)}finish();return}
-  if(task.kind==='walk'||task.kind==='door'||task.kind==='apply'){finish();return}
+  if(task.kind==='walk'||task.kind==='door'||task.kind==='apply'||task.kind==='transit'){finish();return}
   settleAt=performance.now()+(task.kind==='social'?3200:task.kind==='posture'?600:0);useInteractions.setState({phase:'performing'})
  }catch(e){if(epoch===interactionEpoch)finish(e instanceof Error?e.message:'This action could not start.')}finally{cancelled.delete(task.id);if(epoch===interactionEpoch)useStore.setState({acting:false});motion.wake()}
 }

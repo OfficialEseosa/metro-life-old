@@ -34,6 +34,10 @@ public class ApiController {
     @PostMapping("/posture") ObjectNode posture(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.posture(token,body);}
     @PostMapping("/move") ObjectNode walk(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.movePosition(token,body);}
     @PostMapping("/act") ObjectNode act(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.act(token,body);}
+    @GetMapping("/transit") ObjectNode transit(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.transit(token,game.defaultCity(token,city));}
+    @PostMapping("/transit/book") ObjectNode bookTransit(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.bookTransit(token,body);}
+    @PostMapping("/transit/nap") ObjectNode napTransit(@CookieValue(name="ml_session",required=false)String token){return game.napTransit(token);}
+    @PostMapping("/transit/chat") ObjectNode chatTransit(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.chatTransit(token,body);}
     @PostMapping("/action/cancel") ObjectNode cancelAction(@CookieValue(name="ml_session",required=false)String token){return game.cancelAction(token);}
     @PostMapping("/aspiration") ObjectNode aspiration(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.setAspiration(token,body);}
     @PostMapping("/story/choose") ObjectNode choose(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){return game.chooseStory(token,body);}

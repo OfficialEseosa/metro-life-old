@@ -1,9 +1,11 @@
 import * as THREE from 'three'
 import { Builder } from './geometry'
+import { busStationGeometry } from './bus-station'
 
 const stone = '#e5d9bd', brick = '#a65c43', glass = '#5b8590', dark = '#35454b', white = '#f4f1e5', copper = '#648d7f'
 
 export function landmarkGeometry(id: string) {
+  if(id==='atlBus')return busStationGeometry('atl')
   const b = new Builder()
   const block = (x: number, z: number, w: number, h: number, d: number, color = stone) => {
     b.box(x, h / 2, z, w, h, d, color).box(x, h + .12, z, w + .25, .24, d + .25, white)

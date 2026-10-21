@@ -1,0 +1,22 @@
+{
+  "boardingSeconds": 3,
+  "modes": {
+    "plane": { "durationSeconds": 10, "gameMinutes": 120 },
+    "bus": { "durationSeconds": 50, "gameMinutes": 480 }
+  },
+  "fares": { "atl:nyc": 180, "atl:bay": 260, "nyc:bay": 280 },
+  "cities": {
+    "atl": {
+      "bus": { "id": "atlBus", "name": "Five Points Bus Station", "x": 0, "z": 34.2, "site": { "x": 0, "z": 31, "size": 10, "height": 3.8 } },
+      "airport": "atlAirport"
+    },
+    "nyc": {
+      "bus": { "id": "nycBus", "name": "Port Authority Bus Station", "x": -30, "z": -0.8, "site": { "x": -30, "z": -4, "size": 10, "height": 3.8 } },
+      "airport": "nycAirport"
+    },
+    "bay": {
+      "bus": { "id": "bayBus", "name": "Transbay Bus Station", "x": -24, "z": 26.2, "site": { "x": -24, "z": 23, "size": 10, "height": 3.8 } },
+      "airport": "bayAirport"
+    }
+  }
+}

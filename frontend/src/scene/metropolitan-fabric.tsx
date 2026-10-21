@@ -17,7 +17,7 @@ const noPick=()=>{}
 function inside(x:number,z:number,poly:number[][]){let yes=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])yes=!yes}return yes}
 function land(b:Builder,poly:number[][],color:string){const s=new THREE.Shape();poly.forEach(([x,z],i)=>i?s.lineTo(x,-z):s.moveTo(x,-z));s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:.8,bevelEnabled:true,bevelSize:.7,bevelThickness:.2,bevelSegments:1});g.rotateX(-Math.PI/2);b.add(g,color,0,-.95,0)}
 export function dataFor(city:'nyc'|'bay'){
- const b=new Builder(),shore=new Builder(),sites=sitesFor(city),polys=city==='nyc'?[nycLand,nycEast]:[bayWest,bayEast,bayMarin]
+ const b=new Builder(),shore=new Builder(),sites=Object.fromEntries(Object.entries(sitesFor(city)).filter(([id])=>!/Bus$/.test(id))),polys=city==='nyc'?[nycLand,nycEast]:[bayWest,bayEast,bayMarin]
  let seed=city==='nyc'?57:89;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
  const p=(x:number,y:number,z:number,sx:number,sy:number,sz:number,color:string,angle=0):Placement=>({x,y,z,sx,sy,sz,color,angle})
  const homes:Placement[]=[],blocks:Placement[]=[],towers:Placement[]=[],brownstones:Placement[]=[],victorianRows:Placement[]=[],trees:Placement[]=[],cars:Placement[]=[],roads:Placement[]=[]

@@ -15,7 +15,7 @@ class FinalRulesTests {
  @Test void theSameThreePlacesCompleteExplorationOnConsecutiveDays(){for(int day=1;day<=2;day++){if(day==2){now=g.civic.dayAt(world(),2)+9*60000;g.getSim(token);}for(String place:new String[]{"centennial","piedmont","beltline"})act(place,"a0");assertTrue(sim().path("daily").get(0).path("done").asBoolean());assertEquals(3,sim().path("daily").get(0).path("progress").asInt());act("centennial","a0");assertEquals(3,sim().path("daily").get(0).path("progress").asInt());}assertEquals(4,sim().path("visited").size());}
  @Test void rentUsesOnlySixGameHoursAndPolicyAtEachEligibleMidnight(){
   g.mayor(token,"atl");long midnight=g.civic.dayAt(world(),2);now=midnight-60000;sim().put("updatedAt",now);g.civic.recordPolicy(world(),"atl","housing",now);now=midnight+1000;g.civic.recordPolicy(world(),"atl","parks",now);now+=86400000L;
-  double cash=sim().path("cash").asDouble();g.getSim(token);assertEquals(cash-52,sim().path("cash").asDouble());assertEquals(0,sim().path("rentDebt").asInt());g.getSim(token);assertEquals(cash-52,sim().path("cash").asDouble());
+  double cash=sim().path("cash").asDouble();g.getSim(token);assertEquals(cash-28,sim().path("cash").asDouble());assertEquals(0,sim().path("rentDebt").asInt());g.getSim(token);assertEquals(cash-28,sim().path("cash").asDouble());
  }
  @Test void returningAfterAFullDayDoesNotChargeMidnightsOutsideTheCappedWindow(){double cash=sim().path("cash").asDouble();now+=86400000L;g.getSim(token);assertEquals(cash,sim().path("cash").asDouble());assertEquals(0,sim().path("rentDebt").asInt());}
  @Test void newLivesCannotGiftOrVoteButBecomeEligibleAfterOneGameDay()throws Exception{

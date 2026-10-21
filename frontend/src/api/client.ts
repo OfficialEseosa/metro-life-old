@@ -20,10 +20,13 @@ import type {
   StoryOutcome,
   User,
   World,
+  TransitState,
+  TransitTrip,
+  TransitMode,
 } from './types'
 import { syncServerTime } from '../server-time'
 
-let mutationRevision=0,mutations=0
+let mutationRevision=0,mutations=0,lastSimSnapshotAt=0
 
 export class ApiError extends Error {
   status: number
@@ -48,6 +51,8 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
   const data = await res.json().catch(() => null)
   if (!res.ok) throw new ApiError(res.status, data?.error ?? `Request failed (${res.status})`)
   if(path==='/api/sim'&&(mutations>0||revision!==mutationRevision))throw new ApiError(0,'A newer action is already in progress.')
+  if(path==='/api/sim'&&data?.clock?.at<lastSimSnapshotAt)throw new ApiError(0,'A newer city update has already arrived.')
+  if(data?.sim&&data?.clock?.at)lastSimSnapshotAt=Math.max(lastSimSnapshotAt,data.clock.at)
   if(data?.now||data?.clock?.at)syncServerTime(data.now??data.clock.at,performance.now()-started)
   return data as T
   } finally {if(mutation){mutations--;mutationRevision++}}
@@ -70,6 +75,10 @@ export const api = {
   outfit: (style:string) => req<{sim:Sim}>('POST','/api/sim/outfit',{style}),
 
   travel: (city:CityId,loc:string) => req<{sim:Sim;clock:Clock}>('POST','/api/travel',{city,loc}),
+  transit: (city?:CityId) => req<TransitState>('GET',`/api/transit${q(city)}`),
+  bookTransit: (to:CityId,mode:TransitMode,confirmTimeAdvance=false) => req<{sim:Sim;clock:Clock}>('POST','/api/transit/book',{to,mode,confirmTimeAdvance}),
+  napTransit: () => req<{sim:Sim;clock:Clock}>('POST','/api/transit/nap'),
+  chatTransit: (text:string) => req<{message:ChatMessage;trip:TransitTrip;clock:Clock}>('POST','/api/transit/chat',{text}),
   door: (loc:string,enter:boolean) => req<{sim:Sim}>('POST','/api/door',{loc,enter}),
   posture: (bench:string|null) => req<{sim:Sim}>('POST','/api/posture',{bench}),
   move: (city:CityId,p:import('../navigation').Position) => req<{position:import('../navigation').Position}>('POST','/api/move',{city,...p}),

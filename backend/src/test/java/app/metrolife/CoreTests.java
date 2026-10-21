@@ -69,12 +69,12 @@ class CoreTests {
         worldAndSim();JsonNode before=game.getSim(token).path("sim");
         assertEquals(403,assertThrows(ApiException.class,()->ActivityFixture.act(game,token,json("{\"city\":\"nyc\",\"loc\":\"nycAirport\",\"action\":\"a0\"}"))).status);
         JsonNode flight=ActivityFixture.act(game,token,json("{\"city\":\"atl\",\"loc\":\"atlAirport\",\"action\":\"a0\"}"));
-        assertEquals("atl",flight.path("sim").path("city").asText());assertEquals(2500,flight.path("sim").path("cash").asInt());
-        assertEquals(409,assertThrows(ApiException.class,()->ActivityFixture.apply(game,token,json("{\"jobId\":\"nyc-tech-1\"}"))).status);now+=7000;flight=game.getSim(token);
+        assertEquals("atl",flight.path("sim").path("city").asText());assertEquals(2320,flight.path("sim").path("cash").asInt());
+        assertEquals(409,assertThrows(ApiException.class,()->ActivityFixture.apply(game,token,json("{\"jobId\":\"nyc-tech-1\"}"))).status);now=flight.path("sim").path("busyUntil").asLong();flight=game.getSim(token);
         assertEquals("nyc",flight.path("sim").path("city").asText());assertEquals("nycAirport",flight.path("sim").path("loc").asText());assertEquals(2320,flight.path("sim").path("cash").asInt());assertEquals(before.path("home"),flight.path("sim").path("home"));assertEquals(before.path("worldId"),flight.path("sim").path("worldId"));
         assertEquals(403,assertThrows(ApiException.class,()->ActivityFixture.act(game,token,json("{\"city\":\"nyc\",\"loc\":\"home\",\"action\":\"sleep\"}"))).status);
         assertEquals(40,game.jobs(token,"nyc").path("jobs").size());game.sim(game.session(token,true)).put("loc","dumbo");assertEquals("dumbo",ActivityFixture.apply(game,token,json("{\"jobId\":\"nyc-tech-1\"}")).path("sim").path("job").path("loc").asText());game.quitJob(token);
-        ActivityFixture.act(game,token,json("{\"city\":\"nyc\",\"loc\":\"nycAirport\",\"action\":\"a1\"}"));now+=7000;assertEquals("bayAirport",game.getSim(token).path("sim").path("loc").asText());
+        JsonNode secondFlight=ActivityFixture.act(game,token,json("{\"city\":\"nyc\",\"loc\":\"nycAirport\",\"action\":\"a1\"}"));now=secondFlight.path("sim").path("busyUntil").asLong();assertEquals("bayAirport",game.getSim(token).path("sim").path("loc").asText());
         game.sim(game.session(token,true)).put("cash",0);assertEquals(402,assertThrows(ApiException.class,()->ActivityFixture.act(game,token,json("{\"city\":\"bay\",\"loc\":\"bayAirport\",\"action\":\"a0\"}"))).status);
         for(String city:new String[]{"atl","nyc","bay"})for(String track:Content.TRACKS)assertNotNull(content.landmark(city,Content.workplace(city,track)));
     }
@@ -112,8 +112,8 @@ class CoreTests {
     }
     @Test void actionAcrossMidnightPaysTodaysLedgerWithoutRestoringOldDailyGoals()throws Exception{
         worldAndSim();now+=15*60000-1000;JsonNode started=ActivityFixture.act(game,token,json("{\"city\":\"atl\",\"loc\":\"home\",\"action\":\"cook\"}"));long end=started.path("sim").path("busyUntil").asLong();
-        now+=1200;JsonNode midnight=game.getSim(token).path("sim");assertEquals(2435,midnight.path("cash").asInt());
-        now=end;JsonNode paid=game.getSim(token).path("sim");assertEquals(2440,paid.path("cash").asInt());assertEquals(5,paid.path("moneyToday").path("income").asInt());assertEquals(65,paid.path("moneyToday").path("spent").asInt());
+        now+=1200;JsonNode midnight=game.getSim(token).path("sim");assertEquals(2465,midnight.path("cash").asInt());
+        now=end;JsonNode paid=game.getSim(token).path("sim");assertEquals(2470,paid.path("cash").asInt());assertEquals(5,paid.path("moneyToday").path("income").asInt());assertEquals(35,paid.path("moneyToday").path("spent").asInt());
         for(JsonNode goal:paid.path("daily"))assertFalse(goal.path("done").asBoolean());
     }
 }

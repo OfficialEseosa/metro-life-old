@@ -36,6 +36,7 @@ export type Panel =
   | 'plots'
   | 'billboard' // selectedSlot
   | 'homes'
+  | 'travel'
 
 
 export type CityData = 'daily' | 'mayor' | 'plots' | 'billboards' | 'homes' | 'players' | 'chat'
