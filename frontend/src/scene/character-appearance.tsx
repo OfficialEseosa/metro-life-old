@@ -19,19 +19,22 @@ function makeAppearance(look:Look){
  const ball=(x:number,y:number,z:number,sx:number,sy:number,sz:number,mat=hair)=>{const geometry=new THREE.SphereGeometry(1,10,7),mesh=new THREE.Mesh(geometry,mat);geometries.push(geometry);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);mesh.castShadow=true;group.add(mesh);return mesh}
  const strand=(x:number,y:number,z:number,length:number,width=.026)=>ball(x,y,z,width,length,width)
  const style=look.hair||'short'
- // The head joint is at the neck; every dimension below is in final character metres.
+ // A continuous scalp cap follows the forehead and nape. Every style grows from it.
+ const cap=(width=.145,rise=.135,depth=.118)=>{
+  const points:number[]=[],rings=8,segments=20
+  const point=(ring:number,segment:number)=>{const az=segment/segments*Math.PI*2,edge=1.28+(1-Math.sin(az))*.38,theta=ring/rings*edge;return [Math.sin(theta)*Math.cos(az)*width,.15+Math.cos(theta)*rise,Math.sin(theta)*Math.sin(az)*depth-.008]}
+  for(let ring=0;ring<rings;ring++)for(let segment=0;segment<segments;segment++){const a=point(ring,segment),b=point(ring+1,segment),c=point(ring+1,segment+1),d=point(ring,segment+1);points.push(...a,...c,...b,...a,...d,...c)}
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(points,3));geometry.computeVertexNormals();geometries.push(geometry);const mesh=new THREE.Mesh(geometry,hair);mesh.castShadow=true;group.add(mesh)
+ }
  if(style!=='bald'){
-  if(style==='afro')ball(0,.205,-.005,.19,.18,.15)
-  else if(style==='curly'){for(let row=0;row<3;row++)for(let i=0;i<8;i++){const a=i*Math.PI/4;ball(Math.cos(a)*(.105-row*.025),.19+row*.045,Math.sin(a)*(.09-row*.02)-.01,.052,.052,.045)}}
-  else {
-   ball(0,.22,-.015,.14,.085,.115)
-   if(['bob','long','braids'].includes(style)){ball(-.115,.13,-.035,.045,style==='long'?.17:.10,.10);ball(.115,.13,-.035,.045,style==='long'?.17:.10,.10);ball(0,.13,-.10,.11,style==='long'?.17:.10,.035)}
-   if(style==='bun')ball(0,.29,-.075,.075,.075,.065)
-   if(style==='ponytail'){ball(0,.20,-.15,.065,.07,.065);strand(0,.08,-.17,.14,.046)}
-   if(style==='braids'){for(const x of [-.13,.13])for(let i=0;i<5;i++)ball(x,.13-i*.043,-.025,.027,.031,.028)}
-   if(style==='mohawk'){for(let i=0;i<5;i++)ball(0,.28,-.10+i*.046,.035,.075,.035)}
-   if(style==='short'){ball(-.07,.24,.04,.065,.035,.07);ball(.045,.25,.045,.07,.04,.06)}
-  }
+  cap(style==='afro'?.19:.145,style==='afro'?.185:.135,style==='afro'?.16:.118)
+  if(style==='curly'){for(let row=0;row<3;row++)for(let i=0;i<9;i++){const a=i*Math.PI*2/9;ball(Math.cos(a)*(.105-row*.028),.218+row*.025,Math.sin(a)*(.085-row*.02)-.015,.043,.045,.04)}}
+  if(['bob','long','braids'].includes(style)){ball(-.115,.13,-.035,.043,style==='long'?.16:.09,.085);ball(.115,.13,-.035,.043,style==='long'?.16:.09,.085);ball(0,.13,-.10,.108,style==='long'?.16:.09,.033)}
+  if(style==='bun')ball(0,.267,-.077,.067,.067,.059)
+  if(style==='ponytail'){ball(0,.192,-.13,.055,.065,.055);strand(0,.075,-.155,.135,.041)}
+  if(style==='braids'){for(const x of [-.13,.13])for(let i=0;i<5;i++)ball(x,.13-i*.041,-.025,.026,.03,.027)}
+  if(style==='mohawk'){for(let i=0;i<5;i++)ball(0,.27,-.10+i*.044,.033,.065,.033)}
+  if(style==='short'){ball(-.055,.263,.02,.065,.025,.065);ball(.045,.264,.025,.06,.025,.06)}
  }
  const face=(look as WardrobeLook).face??'soft',wide=face==='bright'?.055:face==='angular'?.044:.049,y=face==='angular'?.142:.148
  for(const x of [-wide,wide]){
@@ -50,21 +53,38 @@ function makeAppearance(look:Look){
  return {group,dispose:()=>{geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose())}}
 }
 
-/** Attach to the actual animated head bone, so hair and facial choices follow every pose. */
-export function mountCharacterAppearance(root:THREE.Object3D,look:Look,actorScale:number){
- const head=root.getObjectByName('Head')??root.getObjectByName('head')
- if(!head)return ()=>{}
+const softenedHeads=new WeakMap<THREE.BufferGeometry,THREE.BufferGeometry>()
+function skinIndices(object:THREE.Mesh){const palette=Array.isArray(object.material)?object.material:[object.material],index=object.geometry.index,vertices=new Set<number>();for(const part of object.geometry.groups)if(/^Skin/.test(palette[part.materialIndex??0]?.name??''))for(let at=part.start;at<part.start+part.count;at++)vertices.add(index?index.getX(at):at);return vertices}
+/** Keep the original skinned head, with a rounded ear silhouette and welded face normals. */
+export function softenCharacterHeads(root:THREE.Object3D){
+ root.updateMatrixWorld(true);const rootInverse=root.matrixWorld.clone().invert(),point=new THREE.Vector3()
+ root.traverse(object=>{
+  if(!(object instanceof THREE.SkinnedMesh)||!/Head/i.test(object.name))return
+  const source=object.geometry,cached=softenedHeads.get(source);if(cached){object.geometry=cached;return}
+  const vertices=skinIndices(object),coordinates=new Map<number,THREE.Vector3>(),xs:number[]=[]
+  for(const vertex of vertices){object.getVertexPosition(vertex,point);point.applyMatrix4(object.matrixWorld).applyMatrix4(rootInverse);coordinates.set(vertex,point.clone());xs.push(point.x)}
+  if(!xs.length)return
+  xs.sort((a,b)=>a-b);const left=xs[Math.floor(xs.length*.06)],right=xs[Math.floor(xs.length*.94)],centre=(left+right)/2,half=(right-left)*.54,geometry=source.clone(),positions=geometry.getAttribute('position'),skinIndex=geometry.getAttribute('skinIndex'),skinWeight=geometry.getAttribute('skinWeight'),meshInverse=object.matrixWorld.clone().invert(),weighted=new THREE.Matrix4(),bone=new THREE.Matrix4()
+  for(const [vertex,at]of coordinates){if(Math.abs(at.x-centre)<=half)continue;at.x=THREE.MathUtils.clamp(at.x,centre-half,centre+half);weighted.elements.fill(0)
+   for(let component=0;component<4;component++){const i=skinIndex.getComponent(vertex,component),weight=skinWeight.getComponent(vertex,component);if(!weight)continue;bone.fromArray(object.skeleton.boneMatrices,i*16);for(let k=0;k<16;k++)weighted.elements[k]+=bone.elements[k]*weight}
+   weighted.premultiply(object.bindMatrixInverse).multiply(object.bindMatrix);at.applyMatrix4(root.matrixWorld).applyMatrix4(meshInverse).applyMatrix4(weighted.invert());positions.setXYZ(vertex,at.x,at.y,at.z)
+  }
+  const index=geometry.index,count=index?.count??positions.count,sums=new Map<string,THREE.Vector3>(),keys=Array.from({length:positions.count},(_,i)=>`${Math.round(positions.getX(i)*100000)}:${Math.round(positions.getY(i)*100000)}:${Math.round(positions.getZ(i)*100000)}`),a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3(),normal=new THREE.Vector3()
+  for(let face=0;face<count;face+=3){const ids=[0,1,2].map(j=>index?index.getX(face+j):face+j);a.fromBufferAttribute(positions,ids[0]);b.fromBufferAttribute(positions,ids[1]);c.fromBufferAttribute(positions,ids[2]);normal.subVectors(b,a).cross(c.sub(a));for(const vertex of ids){const key=keys[vertex];if(!sums.has(key))sums.set(key,new THREE.Vector3());sums.get(key)!.add(normal)}}
+  const normals=new Float32Array(positions.count*3);for(let i=0;i<positions.count;i++)sums.get(keys[i])!.normalize().toArray(normals,i*3);geometry.setAttribute('normal',new THREE.BufferAttribute(normals,3));geometry.computeBoundingBox();geometry.computeBoundingSphere();softenedHeads.set(source,geometry);object.geometry=geometry
+ })
+}
+
+/** Fit in the body's upright frame, then convert the finished attachment into the animated bone frame. */
+export function mountCharacterAppearance(root:THREE.Object3D,look:Look,_actorScale:number){
+ const head=root.getObjectByName('Head')??root.getObjectByName('head');if(!head)return ()=>{}
  root.updateMatrixWorld(true)
- const appearance=makeAppearance(look),scale=head.getWorldScale(new THREE.Vector3())
- // Fit to the skin vertices of this modular head, including its bind-pose transform.
- const inverse=head.matrixWorld.clone().invert(),point=new THREE.Vector3(),bounds=new THREE.Box3(),visited=new Set<number>()
- root.traverse(object=>{if(!(object instanceof THREE.Mesh)||!/Head/i.test(object.name))return;const palette=Array.isArray(object.material)?object.material:[object.material],geometry=object.geometry,index=geometry.index;visited.clear();for(const part of geometry.groups){if(!/^Skin/.test(palette[part.materialIndex??0]?.name??''))continue;for(let at=part.start;at<part.start+part.count;at++){const vertex=index?index.getX(at):at;if(visited.has(vertex))continue;visited.add(vertex);object.getVertexPosition(vertex,point);point.applyMatrix4(object.matrixWorld).applyMatrix4(inverse);bounds.expandByPoint(point)}}})
- if(!bounds.isEmpty()){
-  const centre=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3()),physical=new THREE.Vector3(size.x*scale.x*actorScale,size.y*scale.y*actorScale,size.z*scale.z*actorScale)
-  if(physical.x>.1&&physical.x<.8&&physical.y>.1&&physical.y<.8){appearance.group.position.set(centre.x,bounds.min.y,centre.z);appearance.group.scale.set(physical.x/.28,physical.y/.27,physical.z/.22)}
- }
- appearance.group.scale.divide(new THREE.Vector3(Math.max(.00001,scale.x*actorScale),Math.max(.00001,scale.y*actorScale),Math.max(.00001,scale.z*actorScale)))
- root.traverse(o=>{if(o instanceof THREE.Mesh&&/Head/i.test(o.name)){for(const material of Array.isArray(o.material)?o.material:[o.material])if(!/^Skin/.test(material.name))material.visible=false}})
+ const appearance=makeAppearance(look),rootInverse=root.matrixWorld.clone().invert(),point=new THREE.Vector3(),bounds=new THREE.Box3()
+ root.traverse(object=>{if(!(object instanceof THREE.Mesh)||!/Head/i.test(object.name))return;for(const vertex of skinIndices(object)){object.getVertexPosition(vertex,point);bounds.expandByPoint(point.applyMatrix4(object.matrixWorld).applyMatrix4(rootInverse))}})
+ if(bounds.isEmpty()){appearance.dispose();return ()=>{}}
+ const centre=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3()),frame=new THREE.Matrix4().compose(new THREE.Vector3(centre.x,bounds.min.y,centre.z),new THREE.Quaternion(),new THREE.Vector3(size.x/.28,size.y/.27,size.z/.22)),attachment=head.matrixWorld.clone().invert().multiply(root.matrixWorld).multiply(frame)
+ attachment.decompose(appearance.group.position,appearance.group.quaternion,appearance.group.scale)
+ root.traverse(object=>{if(object instanceof THREE.Mesh&&/Head/i.test(object.name))for(const material of Array.isArray(object.material)?object.material:[object.material])if(!/^Skin/.test(material.name))material.visible=false})
  head.add(appearance.group)
  return ()=>{head.remove(appearance.group);appearance.dispose()}
 }
