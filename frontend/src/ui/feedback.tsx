@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Volume2, VolumeX } from 'lucide-react'
 import { useStore } from '../store'
 import { money } from './helpers'
 import { Icon } from './primitives'
 
-import { sound, toggleSound, isMuted, resumeSound } from './sound'
-export function SoundButton(){const[off,setOff]=useState(isMuted);return <button className="icon-button plate-button" aria-label={off?'Turn sound on':'Mute sound'} aria-pressed={!off} onClick={()=>{setOff(toggleSound());resumeSound('open')}}>{off?<VolumeX size={20}/>:<Volume2 size={20}/>}</button>}
+import { sound, toggleSound, unlockAudio } from './sound'
+import { useAudioMix } from './audio'
+export function SoundButton(){const mix=useAudioMix(),off=mix.muted;return <button className="icon-button plate-button sound-toggle" aria-label={off?'Turn music and sound on (M)':'Mute music and sound (M)'} title={off?'Turn music on · M':'Music and sound · M to mute'} aria-pressed={!off} onClick={()=>{toggleSound();void unlockAudio()}}><Icon name={off?'speaker-off':'speaker-high'} size={22}/></button>}
 export function CashCounter({cash}:{cash:number}){
   const ref=useRef<HTMLSpanElement>(null),shown=useRef(cash),[initial]=useState(cash)
   useEffect(()=>{const from=shown.current,target=cash,at=performance.now(),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;let frame=0;const tick=(now:number)=>{const t=reduced?1:Math.min(1,(now-at)/650);shown.current=from+(target-from)*(1-(1-t)**3);if(ref.current)ref.current.textContent=money(shown.current);if(t<1)frame=requestAnimationFrame(tick)};frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame)},[cash])
