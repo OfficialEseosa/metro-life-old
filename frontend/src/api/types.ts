@@ -165,8 +165,11 @@ export type Goal = {
   reward: { cash?: number; xp?: number }
 }
 
+export type Friendship={value:number;label:string;nextAt:number;nextLabel:string;lastAt:number;lastGain?:number}
 export type FirstDayStep='outside'|'job'|'shift'|'meal'|'neighbour'|'rent'
 export type Sim = {
+  /** Private relationships for this life; omitted from public player presence. */
+  relationships?:Record<string,Friendship>
   trip?: TransitTrip | null
   pronouns?:'she'|'he'|'they'
   introDone?:boolean
@@ -192,6 +195,7 @@ export type Sim = {
   traits?:string[]
   traitMoodlets?:{id:string;label:string;detail:string}[]
   wants?:Goal[]
+  economy?:import("../ui/money-ledger").EconomySnapshot
   moneyToday?: { income: number; spent: number }
   xp: number
   level: number

@@ -9,7 +9,7 @@
 - Round 2 item 7, ledger, purchase clarity and slower needs: done.
 - Round 2 item 8, distinct room shapes/materials: done.
 - Round 2 item 9, full-height warm night skyline: done.
-- Round 2 item 10, friendship meters: not done.
+- Round 2 item 10, friendship meters: done (persistent reciprocal bonds and nearby chat).
 - Test cleanup: in progress; own commit required.
 - Latest owner rule: no more builds/lint/tests, screenshots, evidence or per-item browser checks.
 - Final verification: one quick browser startup/load check only, after all features.

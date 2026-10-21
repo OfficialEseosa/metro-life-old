@@ -1,0 +1,5 @@
+import { useStore } from '../store'
+import './friendships.css'
+export type Friendship={value:number;label:string;nextAt:number;nextLabel:string;lastAt:number;lastGain?:number}
+export function friendshipFor(targetId:string){const sim=useStore.getState().sim as (ReturnType<typeof useStore.getState>['sim']&{relationships?:Record<string,Friendship>});return sim?.relationships?.[targetId]??{value:0,label:'Stranger',nextAt:8,nextLabel:'Acquaintance',lastAt:0}}
+export function FriendshipMeter({targetId,compact=false}:{targetId:string;compact?:boolean}){useStore(s=>s.sim);const friendship=friendshipFor(targetId),value=Math.max(0,Math.min(100,friendship.value)),next=friendship.nextAt??(value>=80?100:value>=50?80:value>=25?50:value>=8?25:8);return <div className={`friendship-meter ${compact?'compact':''}`} aria-label={`${friendship.label}, friendship ${value} out of 100`}><div><strong>{friendship.label}</strong><span>{value}/100</span></div><progress value={value} max={100}/>{!compact&&<small>{value>=80?'A close connection. Keep making time for each other.':`${next-value} more to ${friendship.nextLabel??'grow closer'}. Wave +2 · Hang out +10 · Gift +5.`}</small>}</div>}

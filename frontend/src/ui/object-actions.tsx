@@ -5,6 +5,7 @@ import { useInteractions, chooseObjectAction, closeObjectMenu, cancelInteraction
 import { useStore } from '../store'
 import { Icon, ReasonButton } from './primitives'
 import './object-actions.css'
+import { FriendshipMeter } from './friendships'
 
 function useViewport(){
  const [viewport,setViewport]=useState(()=>({width:window.innerWidth,height:window.innerHeight}))
@@ -58,7 +59,7 @@ export function ObjectActions(){
   {showMenu&&menu&&<div className="object-actions-layer" onContextMenu={event=>{event.preventDefault();event.stopPropagation()}}>
    <div className="object-menu-outside" aria-hidden="true" onPointerDownCapture={event=>{event.preventDefault();event.stopPropagation();closeObjectMenu()}} onClickCapture={event=>{event.preventDefault();event.stopPropagation()}}/>
    <section ref={menuRef} className={`object-pie${list?' is-list':''}`} role="menu" aria-label={`${menu.title} actions`} style={{left,top,width:size,height:size}} onPointerDownCapture={event=>event.stopPropagation()} onClick={event=>event.stopPropagation()} onKeyDown={moveMenuFocus}>
-    <div className="object-pie-center"><strong>{menu.title}</strong><button type="button" className="object-pie-close" aria-label="Close object actions" onClick={closeObjectMenu}><X size={20}/></button></div>
+    <div className="object-pie-center"><strong>{menu.title}</strong>{menu.target.kind==='person'&&<FriendshipMeter targetId={menu.target.id} compact/>}<button type="button" className="object-pie-close" aria-label="Close object actions" onClick={closeObjectMenu}><X size={20}/></button></div>
     <div className="object-pie-options">{menu.options.map((option,index)=>{
      const angle=-Math.PI/2+index*Math.PI*2/Math.max(1,menu.options.length),radius=size*.35
      const style=list?undefined:{left:size/2+Math.cos(angle)*radius,top:size/2+Math.sin(angle)*radius}
