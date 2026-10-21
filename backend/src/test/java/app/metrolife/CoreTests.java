@@ -45,10 +45,10 @@ class CoreTests {
         JsonNode meal=restarted.getSim(token).path("sim");assertEquals(80,meal.path("moneyToday").path("income").asInt());assertEquals(0,meal.path("moneyToday").path("spent").asInt());
         now+=24*60000;JsonNode nextDay=restarted.getSim(token).path("sim");assertEquals(0,nextDay.path("moneyToday").path("income").asInt());assertEquals(0,nextDay.path("moneyToday").path("spent").asInt()); // Offline window ends before midnight; rent is capped with needs.
     }
-    @Test void criticalNeedsBlockWorkAndLowMoodPayStillSettlesAtCompletion()throws Exception{
+    @Test void criticalNeedsAllowWorkWithReducedPaySettledAtCompletion()throws Exception{
         worldAndSim();game.sim(game.session(token,true)).put("loc","techVillage");ActivityFixture.apply(game,token,json("{\"jobId\":\"tech-1\"}"));ObjectNode s=game.sim(game.session(token,true));s.withObject("needs").put("energy",0);
-        assertEquals(409,assertThrows(ApiException.class,()->ActivityFixture.act(game,token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"))).status);
-        s.withObject("needs").put("energy",10);JsonNode started=ActivityFixture.act(game,token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"));
+        long acceptedAt=now;JsonNode started=ActivityFixture.act(game,token,json("{\"city\":\"atl\",\"loc\":\"techVillage\",\"action\":\"shift-tech\"}"));
+        assertEquals(25000,started.path("sim").path("busyUntil").asLong()-acceptedAt);
         assertEquals(2500,started.path("sim").path("cash").asInt());assertEquals(54,started.path("result").path("deltas").path("cash").asInt());now=started.path("sim").path("busyUntil").asLong();assertEquals(2554,game.getSim(token).path("sim").path("cash").asInt());
     }
     @Test void actionAcrossMidnightPaysTodaysLedgerWithoutRestoringOldDailyGoals()throws Exception{
