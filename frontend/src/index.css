@@ -1,5 +1,10 @@
-@import '@fontsource-variable/geist/wght.css';
-@import '@fontsource-variable/bricolage-grotesque/wght.css';
+@import '@fontsource/fredoka/400.css';
+@import '@fontsource/fredoka/500.css';
+@import '@fontsource/fredoka/600.css';
+@import '@fontsource/nunito/400.css';
+@import '@fontsource/nunito/600.css';
+@import '@fontsource/nunito/700.css';
+@import '@fontsource/nunito/800.css';
 
 /* ------------------------------------------------------------------ *
  * Design tokens. Everything in src/ui reads from these.
@@ -8,28 +13,28 @@
   color-scheme: light;
 
   /* colour */
-  --c-primary: #12784a; /* white text on this = 5.4:1 */
-  --c-primary-hover: #0f6a41;
-  --c-primary-deep: #0b5234; /* banner; white text = 9.6:1 */
-  --c-primary-soft: #e3f1e9;
-  --c-primary-text: #0e6a40; /* green text on light surfaces = 6.3:1 */
-  --c-accent: #e9a23b; /* warm amber, highlights only */
-  --c-accent-soft: #fcf1dc;
-  --c-accent-text: #8a5306; /* amber text on light surfaces = 6.2:1 */
-  --c-danger: #b93a4b;
-  --c-danger-soft: #fbe9ec;
-  --c-ink: #1b2230;
-  --c-ink-soft: #566072; /* 6.1:1 on surface */
-  --c-ink-faint: #7a8494;
-  --c-surface: #fbfaf7; /* warm off-white */
-  --c-surface-glass: rgba(251, 250, 247, 0.9);
-  --c-sunken: #f1efea;
-  --c-line: rgba(27, 34, 48, 0.1);
-  --c-line-strong: rgba(27, 34, 48, 0.18);
-  --c-scrim: rgba(20, 26, 36, 0.36);
+  --c-primary: #2FA36B; /* white text on this = 5.4:1 */
+  --c-primary-hover: #278E5D;
+  --c-primary-deep: #1F8455; /* banner; white text = 9.6:1 */
+  --c-primary-soft: #E0F3E7;
+  --c-primary-text: #1F8455; /* green text on light surfaces = 6.3:1 */
+  --c-accent: #F5B43C; /* warm amber, highlights only */
+  --c-accent-soft: #FFF0CB;
+  --c-accent-text: #8B5C12; /* amber text on light surfaces = 6.2:1 */
+  --c-danger: #C74D46;
+  --c-danger-soft: #FDE4DE;
+  --c-ink: #2E2433;
+  --c-ink-soft: #6B5E6E; /* 6.1:1 on surface */
+  --c-ink-faint: #807285;
+  --c-surface: #FFF8EE; /* warm off-white */
+  --c-surface-glass: #FFF8EE;
+  --c-sunken: #F4EAD9;
+  --c-line: #E3D3BE;
+  --c-line-strong: #CEBCA4;
+  --c-scrim: rgba(46,36,51,.35);
   --c-scrim-light: rgba(20, 26, 36, 0.14);
-  --c-focus: #1d6fd6;
-  --c-page: #e9eeec;
+  --c-focus: #4C8DF6;
+  --c-page: #E5EADF;
 
   /* spacing, 4px grid */
   --s-1: 4px;
@@ -41,14 +46,14 @@
   --s-8: 32px;
 
   /* radius */
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
+  --r-sm: 14px;
+  --r-md: 20px;
+  --r-lg: 24px;
   --r-pill: 999px;
 
   /* elevation: hairline first, shadow second */
-  --shadow-1: 0 1px 2px rgba(20, 26, 36, 0.06), 0 4px 14px rgba(20, 26, 36, 0.07);
-  --shadow-2: 0 2px 4px rgba(20, 26, 36, 0.06), 0 16px 40px rgba(20, 26, 36, 0.16);
+  --shadow-1: 0 2px 0 rgba(46,36,51,.06), 0 12px 32px -8px rgba(46,36,51,.25);
+  --shadow-2: 0 2px 0 rgba(46,36,51,.08), 0 20px 60px -14px rgba(46,36,51,.3);
 
   /* layers */
   --z-hud: 10;
@@ -57,8 +62,8 @@
   --z-modal: 40;
 
   /* type */
-  --font-ui: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Bricolage Grotesque Variable', 'Geist Variable', system-ui, sans-serif;
+  --font-ui: 'Nunito', system-ui, sans-serif;
+  --font-display: 'Fredoka', 'Nunito', system-ui, sans-serif;
   --t-12: 0.75rem;
   --t-13: 0.8125rem;
   --t-14: 0.875rem;
@@ -72,15 +77,15 @@
   --w-regular: 400;
   --w-medium: 500;
   --w-semibold: 600;
-  --w-display: 650;
-  --w-display-bold: 700;
-  --track-display: -0.02em;
+  --w-display: 600;
+  --w-display-bold: 600;
+  --track-display: -.01em;
   --track-micro: 0.04em;
 
   /* motion */
-  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out: cubic-bezier(.34,1.56,.64,1);
   --dur-1: 150ms;
-  --dur-2: 200ms;
+  --dur-2: 220ms;
 
   font-family: var(--font-ui);
   font-size: 16px;
@@ -133,3 +138,7 @@ select {
 .scene-failure{position:fixed;inset:auto 20px 80px;margin:auto;max-width:400px;background:#fff7e9;color:#23443b;padding:24px;border-radius:20px;border:2px solid #c3b090;z-index:19;font-size:16px;box-shadow:0 4px 0 #aa957a}.scene-failure p{margin:12px 0}.scene-failure button{min-height:48px;border:0;border-radius:12px;background:#216546;color:white;padding:12px 16px;cursor:pointer}
 
 .scale-label{display:block;white-space:nowrap;background:#fff3dd;color:#315248;padding:4px 7px;border-radius:5px;font:600 11px sans-serif;box-shadow:0 2px 6px #24352b22}
+
+/* Sunday Morning: the paper palette follows the game clock, including first entry. */
+:root[data-time="night"]{color-scheme:dark;--c-surface:#2B2433;--c-surface-glass:#2B2433;--c-sunken:#352D3D;--c-ink:#F6EEE3;--c-ink-soft:#C9BACD;--c-ink-faint:#AB9BB1;--c-line:#55465F;--c-line-strong:#75617E;--c-primary-soft:#253F36;--c-primary-text:#8DDCAD;--c-accent-soft:#493A28;--c-accent-text:#F1C86D;--c-danger-soft:#4B2E36;--c-page:#292B39;--shadow-1:0 2px 0 #1A152140,0 12px 32px -8px #17111D70;--shadow-2:0 2px 0 #1A152140,0 20px 60px -14px #17111DA0}
+body{font-weight:600;font-variant-numeric:tabular-nums}h1,h2,h3,h4,.display,.wordmark{font-family:var(--font-display);font-weight:600;letter-spacing:-.01em}button,input,select,textarea{font-family:var(--font-ui);font-weight:700}button{touch-action:manipulation}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--c-focus);outline-offset:3px}svg[weight="duotone"]{overflow:visible}.scale-label{font-family:var(--font-ui);font-size:14px;border-radius:10px;background:var(--c-surface);color:var(--c-ink);border:1px solid var(--c-line)}
