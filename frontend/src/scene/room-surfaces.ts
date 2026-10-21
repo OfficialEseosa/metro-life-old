@@ -11,13 +11,13 @@ const venuePalettes:Record<string,Partial<RoomPalette>>={
  foodhall:{wall:'#f0e1c9',accent:'#528279',wood:'#b27d53',floor:'#c5bc9f',fabric:'#b97554'},
  stadium:{wall:'#d8e3df',accent:'#416d7b',wood:'#849b98',floor:'#b9c5bf',fabric:'#64899c'},
  arena:{wall:'#dce5e5',accent:'#59799c',wood:'#9d8870',floor:'#c3c6b8',fabric:'#798fbb'},
- museum:{wall:'#eee9dd',accent:'#618783',wood:'#ae8b65',floor:'#d8d0bd',fabric:'#8a9b8b'},
+ museum:{wall:'#fafaf6',accent:'#6b8a8a',wood:'#c4b59c',floor:'#e4e3da',fabric:'#869695',trim:'#ffffff'},
  hospital:{wall:'#e2ece4',accent:'#518d8a',wood:'#b3a086',floor:'#d6ddd1',fabric:'#7aa4a4'},
  airport:{wall:'#e1e7e2',accent:'#406a86',wood:'#9a9c86',floor:'#c4ceca',fabric:'#6e8b9e'},
  pavilion:{wall:'#e4e3cc',accent:'#6b9476',wood:'#a6865c',floor:'#c4b795',fabric:'#8d9b67'}
 }
 const paletteCache=new Map<string,RoomPalette>()
-export function roomPalette(city:CityId,type:string){const key=city+type;let palette=paletteCache.get(key);if(!palette){palette=colours[city][type]??{...colours[city].work,...venuePalettes[type]};paletteCache.set(key,palette)}return palette}
+export function roomPalette(city:CityId,type:string){const key=city+type;let palette=paletteCache.get(key);if(!palette){palette=type==='club'?{...colours[city].club,wall:'#252330',wood:'#38313e',floor:'#282733',trim:'#696074'}:colours[city][type]??{...colours[city].work,...venuePalettes[type]};paletteCache.set(key,palette)}return palette}
 /** Small owned tiling surfaces: no downloaded images or per-frame texture work. */
 export function roomTexture(kind:'wood'|'tile'|'paper',palette:RoomPalette,seed:number){
  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d')!;let value=seed+1;const random=()=>{value=(Math.imul(value,1664525)+1013904223)>>>0;return value/4294967296}
