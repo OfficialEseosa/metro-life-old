@@ -3,7 +3,10 @@ import * as THREE from 'three'
 import { roomLayout, roomType } from '../navigation'
 import { useStore } from '../store'
 import { Builder } from './geometry'
-import { bakeContact } from './baked-contact'
+import { buildVenueArchitecture } from './venue-architecture'
+import { VenueLiveProps } from './venue-live-props'
+import { WorldText } from './world-text'
+import { venueName } from '../content-names'
 import { useNightLighting } from '../lighting'
 import { roomPalette, roomTexture } from './room-surfaces'
 import { RoomWalls, WallMounted } from './room-walls'
@@ -13,12 +16,10 @@ import { FurnishedHome } from './furnished-home'
 /** Room-specific furniture, collisions and use points come from one authored layout. */
 export function Interior({room}:{room:string}){return roomType(room)==='home'?<FurnishedHome/>:<PublicInterior room={room}/>}
 function PublicInterior({room}:{room:string}){
- const night=useNightLighting(),type=roomType(room)!,world=useStore(s=>s.world),city=useStore(s=>s.city),layout=roomLayout(city,type),palette=roomPalette(city,type),hw=(layout.bounds?.w??12)/2,hd=(layout.bounds?.d??10)/2,height=layout.height??3,windowed=['work','cafe','hospital','airport'].includes(type)
- const name=world?.cities.find(c=>c.id===city)?.landmarks.find(l=>l.id===room.split(':')[1])?.name??'Welcome home'
+ const night=useNightLighting(),type=roomType(room)!,world=useStore(s=>s.world),city=useStore(s=>s.city),layout=roomLayout(city,type),palette=roomPalette(city,type),hw=(layout.bounds?.w??12)/2,hd=(layout.bounds?.d??10)/2,height=layout.height??3,windowed=['work','skyoffice','campus','cafe','hospital','airport'].includes(type)
+ const loc=room.split(':')[1],name=venueName(loc,world?.cities.find(c=>c.id===city)?.landmarks.find(l=>l.id===loc)?.name??layout.name)
  const surfaces=useMemo(()=>({floor:roomTexture(['cafe','foodhall','hospital','airport','museum','arena','stadium'].includes(type)?'tile':'wood',palette,city.length+type.length),paper:roomTexture('paper',palette,city.charCodeAt(0))}),[type,palette,city])
  useEffect(()=>()=>{surfaces.floor.dispose();surfaces.paper.dispose()},[surfaces])
- const signs=useMemo(()=>[{text:name,x:0,y:Math.min(height-.3,3.4),z:-hd+.13},...(layout.labels??[])].map(row=>{const c=document.createElement('canvas');c.width=1024;c.height=128;const x=c.getContext('2d')!;x.fillStyle=palette.accent;x.fillRect(0,0,1024,128);x.fillStyle='#fff1d9';x.font='bold 48px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(row.text,512,64,980);const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;return {...row,texture}}),[layout.labels,name,palette,hd,height])
- useEffect(()=>()=>signs.forEach(s=>s.texture.dispose()),[signs])
  const built=useMemo(()=>{
   const b=new Builder(),glass=new Builder(),glow=new Builder(),back=new Builder(),front=new Builder(),wallglow=new Builder()
   const chair=(x:number,z:number,face:number,width=.65,baseY=0)=>{const c=new Builder();c.box(0,.405,0,width,.09,.65,palette.fabric);c.box(0,.76,-.29,width,.65,.08,palette.fabric);for(const dx of [-width*.38,width*.38])for(const dz of [-.25,.25])c.box(dx,.2,dz,.065,.4,.065,palette.wood);const g=c.build();g.rotateY(face);const colour=g.getAttribute('color').clone();b.add(g,'#ffffff',x,baseY,z);b.parts.at(-1)!.setAttribute('color',colour)}
@@ -28,10 +29,12 @@ function PublicInterior({room}:{room:string}){
   for(const x of [-.77,.77])front.box(x,1.05,hd-.04,.1,2.1,.2,palette.trim);front.box(0,2.15,hd-.04,1.64,.1,.2,palette.trim)
   if(windowed){for(const x of [-1.6,.2])back.box(x,1.85,-hd+.1,.08,1.4,.13,palette.trim);for(const y of [1.17,1.85,2.53])back.box(-.7,y,-hd+.1,1.85,.07,.13,palette.trim)}
   for(const f of layout.furniture){const {x,z}=f
+   if(['stadium','arena','ballpark'].includes(type)&&['stadium','arena','stands'].includes(f.kind))continue
+   if(type==='aquarium'&&f.id==='touch-pool')continue
    if(f.kind==='bed'){
     b.box(x,.2,z,2,.35,1.5,palette.wood);b.box(x,.48,z,1.96,.2,1.46,'#f6edd9');const direction=f.angle?-1:1
     b.box(x-direction*.25,.79,z,1.36,.16,1.44,palette.fabric);b.box(x+direction*.68,.67,z,.46,.19,1.16,'#fff5e2');b.box(x+direction*.98,.62,z,.1,1.05,1.6,palette.wood)
-   }else if(f.kind==='chair')chair(x,z,f.angle,f.w,(f as typeof f&{baseY?:number}).baseY??0)
+   }else if(f.kind==='chair')chair(x,z,f.angle,f.w,(f as typeof f&{baseY?:number}).baseY??Math.max(0,(f.slots[0]?.y??.48)-.48))
    else if(f.kind==='bench')chair(x,z,Math.PI,f.w)
    else if(f.kind==='stove'){
     b.box(x,.41,z,.9,.82,1.1,palette.trim);b.box(x,.86,z,1,.08,1.2,'#435354');b.box(x+(x>0?-.46:.46),.45,z,.035,.5,.75,'#34494b');for(const dz of [-.28,.28])b.cylinder(x,.915,z+dz,.18,.025,'#24363a',12);b.cylinder(x,1.04,z+.28,.2,.22,palette.wood,12)
@@ -71,52 +74,32 @@ function PublicInterior({room}:{room:string}){
    }
   }
   if(['cafe','hospital','airport','work','pavilion'].includes(type))plant(hw-.7,hd-1.1,city==='bay'?1.15:.85)
-  if(city==='nyc'&&type==='home'){b.box(-hw+.5,1.1,-hd+.5,.65,2.2,.6,palette.wood);for(let i=0;i<7;i++)b.box(-hw+.5,.5+i*.23,-hd+.15,.48,.15,.3,i%2?palette.accent:palette.fabric)}
-  if(city==='bay'&&['cafe','work','pavilion'].includes(type))plant(-hw+.7,hd-1.1,1)
-  if(city==='atl'&&type==='home'){back.box(1.7,1.9,-hd+.13,.9,1,.06,palette.wood);back.box(1.7,1.9,-hd+.17,.75,.85,.025,palette.fabric)}
-  if(type==='theatre'){
-   const stage=layout.furniture.find(f=>f.kind==='stage')!,backZ=-hd+.3
-   // A proper tall proscenium, folded velvet curtains and a stepped audience rake.
-   back.box(0,height-.3,stage.z,hw*1.7,.35,2.6,'#252d45');back.box(0,height/2,backZ,hw*1.55,height,.14,'#26334d')
-   for(const side of [-1,1]){back.box(side*hw*.65,2.2,stage.z,.32,4.4,.6,'#d2ac68');for(let i=0;i<6;i++)back.cylinder(side*(hw*.47+i*.18),2.2,stage.z-.25,.16,4.2,i%2?'#862c49':'#a04457',8)}
-   back.box(0,4.45,stage.z,hw*1.4,.6,.4,'#9c3e54');back.box(0,4.8,stage.z,hw*1.5,.13,.6,'#d8ba7b')
-   for(let row=0;row<2;row++){const seat=layout.furniture.find(f=>f.id===`seat-${row}-0`);if(seat)b.box(0,(.12+row*.28)/2,seat.z,hw*.8,.12+row*.28,1.1,'#604b5a')}
-   for(let i=0;i<60;i++){const x=Math.sin(i*7.17)*hw*.55,z=backZ+.1+((i*37)%100)/100*2;wallglow.sphere(x,height-.5,z,.025,'#f8e6b6',1,.6,1)}
-  }
-  if(type==='foodhall'){
-   for(const x of [-hw*.75,-hw*.25,hw*.25,hw*.75]){back.box(x,height/2,-hd+.2,.16,height,.24,'#ae7950');back.box(x,height-.2,-hd/2,.16,.25,hd,'#ae7950');glow.box(x,height-.5,-hd/2,.8,.07,.2,'#ffe1a2')}
-   for(const x of [-hw*.6,0,hw*.6])b.box(x,.012,0,.045,.018,hd*1.65,'#b6ad96')
-   for(let i=0;i<8;i++)back.box(-hw+.7+i*(hw*2-1.4)/7,2.8,-hd+.12,.85,1.6,.04,i%2?'#b4d2cd':'#d9e6db')
-  }
-  if(type==='arena'||type==='stadium'){
-   // The public floor opens into an octagonal bowl, with terraced seats around the playing area.
-   for(const side of [-1,1])for(let row=0;row<4;row++){
-    const xx=side*(hw-1.6+row*.3),yy=.25+row*.38
-    b.box(xx,yy/2,-1.0,.4,yy,hd*1.2,'#929f9d')
-    for(let j=0;j<9;j++)b.box(xx,yy+.12,-hd*.6+j*hd*.13,.4,.22,.55,palette.fabric)
-   }
-   for(let row=0;row<4;row++){const zz=-hd+.4+row*.42,yy=1.45-row*.3;b.box(0,yy/2,zz,hw*1.45,yy,.4,'#9aa5a2');for(let col=-7;col<=7;col++)b.box(col*.7,yy+.1,zz,.5,.2,.32,palette.fabric)}
-   back.box(0,height-1.1,-hd+.25,4.6,1.6,.3,'#243942');glow.box(0,height-1.1,-hd+.43,4.2,1.2,.035,'#b3d7bb');back.text(0,height-1.1,-hd+.46,'HOME',.13,'#315152')
-   for(const side of [-1,1])for(let n=0;n<3;n++)glow.box(side*(hw-.5),height-.4,-hd*.7+n*hd*.7,.35,.12,1.4,'#edf3df')
-  }
-  if(type==='museum'){
-   for(const side of [-1,1]){back.box(side*(hw-.35),height/2,-hd*.25,.3,height,hd*1.4,'#faf8ef');for(let j=0;j<3;j++){const zz=-hd*.6+j*hd*.55;back.box(side*(hw-.52),2.4,zz,.07,2.5,1.75,'#c5b7a1');back.box(side*(hw-.57),2.4,zz,.04,2.23,1.48,j%2?'#799ca2':'#c39178')}}
-   for(const x of [-hw*.5,0,hw*.5]){back.box(x,height-.3,0,.16,.2,hd*1.6,'#c5c7bf');glow.box(x,height-.43,0,.1,.025,hd*1.5,'#fffff1')}
-   // Sculptures stand on real plinths rather than a generic bookshelf or desk.
-   for(const side of [-1,1]){const x=side*hw*.4;b.box(x,.4,hd*.52,1,.8,1,'#f5f1e6');b.torus(x,1.55,hd*.52,.55,.14,side<0?'#927b58':'#819c98');b.sphere(x,2.35,hd*.52,.23,'#b4c6bf')}
-  }
-  if(type==='club'){
-   for(const x of [-hw*.6,hw*.6]){back.box(x,height-.5,-hd*.25,.09,.12,hd*1.3,'#30313d');for(let n=0;n<4;n++){const z=-hd*.7+n*hd*.35;b.cylinder(x,height-.7,z,.14,.3,'#262731',8);glow.cylinder(x,height-.89,z,.1,.025,n%2?'#b497ff':'#f27ebc',8)}}
-   for(const x of [-hw+.12,hw-.12])wallglow.box(x,1.7,0,.035,.08,hd*1.5,'#9e6de1')
-  }
-  if(type==='hospital'){back.box(3.9,2.05,-4.82,.23,1,.06,'#4f8c89');back.box(3.9,2.05,-4.8,.8,.23,.07,'#4f8c89')}
-  if(type==='airport'){back.box(2.8,1.9,-4.8,4.5,1.45,.08,'#3d7189');back.box(2.8,1.62,-4.73,4.4,.08,.05,'#cadbd6');back.box(2.8,1.45,-4.72,4.4,.23,.05,'#768e91');back.box(2.8,1.85,-4.7,2,.08,.04,'#eff1df')}
-  if(type==='pavilion'){for(const x of [-5.6,5.6])for(const z of [-4.6,4.6])b.box(x,1.5,z,.2,3,.2,palette.wood);back.box(0,2.9,-4.6,11.4,.25,.35,palette.wood);back.box(0,1.7,-4.85,4.8,1.2,.05,'#739d8e');for(let i=-2;i<=2;i++)back.sphere(i*1.1,1.9,-4.78,.45,'#53816b',1,.8,.1)}
-  if(['work','cafe','hospital','airport','pavilion'].includes(type)){b.cylinder(0,height-.08,0,.15,.06,palette.trim,12);b.cylinder(0,height-.2,0,.025,.18,palette.wood,8);b.cylinder(0,height-.31,0,.38,.16,palette.accent,16,.24);glow.cylinder(0,height-.4,0,.32,.025,'#ffe0a5',16)}
-  const floor=new THREE.ShapeGeometry(shape).toNonIndexed();floor.rotateX(-Math.PI/2);floor.translate(0,-.016,0);const pos=floor.getAttribute('position'),uv=floor.getAttribute('uv');for(let i=0;i<uv.count;i++)uv.setXY(i,pos.getX(i)*.7,pos.getZ(i)*.7);floor.setAttribute('color',new THREE.Float32BufferAttribute(new Float32Array(pos.count*3).fill(1),3));bakeContact([...b.parts,floor]);const props=b.build();props.userData.bakedContact=true
-  return {props,floor,glass:glass.parts.length?glass.build():null,glow:glow.parts.length?glow.build():null,back:back.build(),front:front.build(),wallglow:wallglow.parts.length?wallglow.build():null}
- },[layout,palette,hw,hd,type,city,height,windowed])
- useEffect(()=>()=>Object.values(built).forEach(g=>g?.dispose()),[built])
+  const architecture=buildVenueArchitecture(b,glow,glass,layout,type,loc)
+  const floor=new THREE.ShapeGeometry(shape).toNonIndexed();floor.rotateX(-Math.PI/2);floor.translate(0,-.016,0);const pos=floor.getAttribute('position'),uv=floor.getAttribute('uv');for(let i=0;i<uv.count;i++)uv.setXY(i,pos.getX(i)*.7,pos.getZ(i)*.7);floor.setAttribute('color',new THREE.Float32BufferAttribute(new Float32Array(pos.count*3).fill(1),3));const props=b.build()
+  return {props,floor,glass:glass.parts.length?glass.build():null,glow:glow.parts.length?glow.build():null,back:back.parts.length?back.build():null,front:front.build(),wallglow:wallglow.parts.length?wallglow.build():null,...architecture}
+ },[layout,palette,hw,hd,type,city,height,windowed,loc])
+ useEffect(()=>()=>Object.values(built).forEach(g=>{if(g instanceof THREE.BufferGeometry)g.dispose()}),[built])
  const stove=layout.furniture.find(f=>f.kind==='stove'),desk=layout.furniture.find(f=>f.kind==='desk')
- return <><RoomWalls hw={hw} hd={hd} palette={palette} paper={surfaces.paper} open={['pavilion','stadium','arena'].includes(type)} height={height} floor={layout.floor} windows={windowed}/><mesh geometry={built.floor} receiveShadow><meshStandardMaterial map={surfaces.floor} vertexColors roughness={.88}/></mesh><mesh name={`${type}-interior`} geometry={built.props} castShadow receiveShadow userData={{template:type,stationCount:layout.stations.length}}><meshStandardMaterial vertexColors roughness={.85}/></mesh><WallMounted side="front"><mesh geometry={built.front} castShadow><meshStandardMaterial vertexColors roughness={.85}/></mesh></WallMounted><WallMounted side="back">{built.wallglow&&<mesh name="starlit-ceiling" geometry={built.wallglow}><meshStandardMaterial vertexColors emissive="#ffe6b6" emissiveIntensity={1.5}/></mesh>}<mesh name="room-wall-decor" geometry={built.back} castShadow><meshStandardMaterial vertexColors roughness={.85}/></mesh>{windowed&&<mesh name="room-window" position={[-.7,1.85,-hd+.08]}><planeGeometry args={[1.7,1.3]}/><meshStandardMaterial color={night?'#203e58':'#cde1db'} emissive={night?'#28455f':'#c8d9db'} emissiveIntensity={night?.25:.55}/></mesh>}{type!=='home'&&signs.map((sign,i)=><mesh key={i} position={[sign.x,sign.y,sign.z]}><planeGeometry args={[i===0?5.4:3.1,i===0?.42:.36]}/><meshBasicMaterial map={sign.texture} toneMapped={false}/></mesh>)}</WallMounted>{built.glass&&<mesh name="frosted-shower" geometry={built.glass}><meshStandardMaterial vertexColors transparent opacity={.88} roughness={1} depthWrite={false} side={THREE.DoubleSide}/></mesh>}{built.glow&&<mesh name="room-glowing-surfaces" geometry={built.glow}><meshStandardMaterial vertexColors emissive="#ffe0cb" emissiveIntensity={type==='club'?1.7:type==='museum'?.8:night?.85:.5}/></mesh>}<pointLight position={[0,Math.min(height-.5,4),0]} intensity={type==='club'?3:type==='museum'?45:night?30:22} color={type==='museum'?'#fff9eb':'#ffe2b5'} distance={Math.max(hw,hd)*2.6} decay={2}/>{stove&&<pointLight position={[stove.x,1.5,stove.z]} intensity={4} color="#ffc57e" distance={4}/>} {desk&&<pointLight position={[desk.x,1.35,desk.z+.25]} intensity={4} color="#bbd9ed" distance={5}/>} {type==='club'&&<><pointLight position={[-2.6,2.7,-2]} intensity={28} color="#ef65ad" distance={12}/><pointLight position={[2.6,2.7,-2]} intensity={23} color="#6ca5f5" distance={12}/></>}<RoomStaff staff={layout.staff??[]}/></>
+ return <>
+  <RoomWalls hw={hw} hd={hd} palette={palette} paper={surfaces.paper} open={['pavilion','stadium','arena','ballpark'].includes(type)} height={height} floor={layout.floor} windows={windowed}/>
+  <mesh geometry={built.floor} receiveShadow><meshStandardMaterial map={surfaces.floor} vertexColors roughness={.88}/></mesh>
+  <mesh name={`${type}-interior`} geometry={built.props} castShadow receiveShadow userData={{template:type,stationCount:layout.stations.length}}><meshStandardMaterial vertexColors roughness={.82}/></mesh>
+  <WallMounted side="front"><mesh geometry={built.front} castShadow><meshStandardMaterial vertexColors roughness={.85}/></mesh></WallMounted>
+  <WallMounted side="back">
+   {built.wallglow&&<mesh geometry={built.wallglow}><meshStandardMaterial vertexColors emissive="#ffe6b6" emissiveIntensity={1.5}/></mesh>}
+   {built.back&&<mesh name="room-wall-decor" geometry={built.back} castShadow><meshStandardMaterial vertexColors roughness={.85}/></mesh>}
+   {windowed&&<mesh name="room-window" position={[-.7,1.85,-hd+.08]}><planeGeometry args={[1.7,1.3]}/><meshStandardMaterial color={night?'#203e58':'#cde1db'} emissive={night?'#28455f':'#c8d9db'} emissiveIntensity={night?.25:.55}/></mesh>}
+   <WorldText position={[0,Math.min(height-.6,8.5),-hd+.5]} fontSize={Math.max(.6,Math.min(1.2,hw*.065))} maxWidth={hw*1.6} distance={500} color={palette.trim}>{name}</WorldText>
+  </WallMounted>
+  {built.signs.map((sign,i)=><WorldText key={i} position={[sign.x,sign.y,sign.z]} fontSize={.5} maxWidth={7} distance={500} color={sign.color??'#f7e2b9'}>{sign.text}</WorldText>)}
+  {built.glass&&<mesh name="room-glass" geometry={built.glass}><meshStandardMaterial vertexColors transparent opacity={type==='aquarium'?.16:.3} roughness={.2} depthWrite={false} side={THREE.DoubleSide}/></mesh>}
+  {built.glow&&<mesh name="room-glowing-surfaces" geometry={built.glow}><meshStandardMaterial vertexColors emissive="#ffe0cb" emissiveIntensity={type==='club'?1.7:type==='aquarium'?.75:type==='museum'?.8:night?.85:.5}/></mesh>}
+  <pointLight position={[0,Math.min(height-.5,7),0]} intensity={type==='club'?35:type==='aquarium'?18:type==='museum'?110:night?90:75} color={type==='aquarium'?'#67b9ce':type==='museum'?'#fff9eb':'#ffe2b5'} distance={Math.max(hw,hd)*2.6} decay={2}/>
+  {stove&&<pointLight position={[stove.x,1.5,stove.z]} intensity={4} color="#ffc57e" distance={4}/>}
+  {desk&&<pointLight position={[desk.x,1.35,desk.z+.25]} intensity={4} color="#bbd9ed" distance={5}/>}
+  {type==='club'&&<><pointLight position={[-6,4,-2]} intensity={90} color="#ef65ad" distance={23}/><pointLight position={[6,4,-2]} intensity={75} color="#6ca5f5" distance={23}/></>}
+  {type==='foodhall'&&<><pointLight position={[-13,4,3]} intensity={90} color="#ffd798" distance={22}/><pointLight position={[11,7,-9]} intensity={100} color="#ffd8a6" distance={21}/></>}
+  <VenueLiveProps type={type} loc={loc} layout={layout} crowd={built.crowd}/>
+  <RoomStaff staff={layout.staff??[]}/>
+ </>
 }

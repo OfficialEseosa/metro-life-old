@@ -12,6 +12,7 @@ import type { Player } from '../api/types'
 import { motion } from '../walking'
 import { roomLayout,roomType } from '../navigation'
 import { LifeBubble,StinkCloud } from './speech-bubbles'
+import { roomFloorHeight } from './venue-zones'
 
 type ResidentMotion={position:THREE.Vector3;speed:number;yaw:number;distance:number;pose:CharacterPose;hidden:boolean;hip?:number}
 function NearResident({person,read,ready}:{person:Player;read:()=>ResidentMotion|undefined;ready:Set<string>}){
@@ -54,9 +55,9 @@ export function Residents(){
   if(gap>.0001){if(snapped)at.copy(person.target);else at.lerp(person.target,1-Math.exp(-Math.min(dt,.05)*10));changed=true}
   const vx=at.x-oldX,vz=at.z-oldZ,speed=snapped?0:Math.hypot(vx,vz)/Math.max(.001,dt),distance=player?Math.hypot(at.x-player.x,at.z-player.z):camera.position.distanceTo(at),previous=states.current.get(person.id),settled=at.distanceToSquared(person.target)<.0025;
   const yaw=velocityFacing(previous?.yaw??person.face,speed>.08?Math.atan2(vx,vz):settled?person.face:previous?.yaw??person.face,dt,speed>.08);
-  dummy.position.copy(at);if(!room)dummy.position.y=groundHeight(cityScene,city,at.x,at.z);point.copy(dummy.position);point.y+=1;point.project(camera);
+  dummy.position.copy(at);dummy.position.y=room?roomFloorHeight(city,roomType(room)!,at.x,at.z):groundHeight(cityScene,city,at.x,at.z);if(room&&settled&&person.person.activitySlot?.y!==undefined&&!['Sit','Type','Eat','Sleep','Lie'].includes(person.person.activitySlot.pose))dummy.position.y=person.person.activitySlot.y;point.copy(dummy.position);point.y+=1;point.project(camera);
   const clip=distance>70||camera.position.distanceTo(dummy.position)<.85||point.z>1||point.z< -1;if(clip)hidden.current.add(person.id);else hidden.current.delete(person.id);
-  const state:ResidentMotion={position:dummy.position.clone(),speed,yaw,distance,pose:movingPose(person.person,speed),hidden:clip,hip:settled&&person.person.activitySlot&&['Sit','Type','Eat','Sleep','Lie'].includes(person.person.activitySlot.pose)?person.person.activitySlot.y:undefined};states.current.set(person.id,state);rendered.current.set(person.id,state.position);
+  const state:ResidentMotion={position:dummy.position.clone(),speed,yaw,distance,pose:movingPose(person.person,speed),hidden:clip,hip:settled&&person.person.activitySlot&&['Sit','Type','Eat','Sleep','Lie'].includes(person.person.activitySlot.pose)&&person.person.activitySlot.y!==undefined?person.person.activitySlot.y-dummy.position.y:undefined};states.current.set(person.id,state);rendered.current.set(person.id,state.position);
   model.poses.setX(i,speed>.08?(state.pose==='Run'?2:1):crowdPose(lifePose(person.person)));model.near.setX(i,nearSet.current.has(person.id)&&ready.current.has(person.id)?1:0);
   dummy.scale.setScalar(clip?0:1);dummy.rotation.y=yaw;dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
  }

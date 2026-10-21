@@ -58,7 +58,7 @@ function route(city:CityId,room:string|null,start:Point,end:Point,overallDeadlin
   }
  }
 
- const started=performance.now(),deadline=Math.min(started+(room?40:220),overallDeadline-15),step=room?.25:.6,maxNodes=room?9000:50000,navigationCity=navigation[city]
+ const started=performance.now(),deadline=Math.min(started+(room?120:220),overallDeadline-15),step=room?.25:.6,maxNodes=room?40000:50000,navigationCity=navigation[city]
  const stand=(x:number,z:number)=>{if(x<=s.minX||x>=s.maxX||z<=s.minZ||z>=s.maxZ)return false;const boxes=s.buckets.get(key(Math.floor(x/bucketSize),Math.floor(z/bucketSize)));if(boxes?.some(b=>inBox(x,z,b)))return false;if(room)return canStand(city,x,z,room);return(navigationCity.land.some(p=>inPolygon(x,z,p))||navigationCity.bridges.some(b=>inBox(x,z,b,-.35)))&&!navigationCity.water.some(p=>inPolygon(x,z,p))}
  const clear=(a:Point,b:Point,authority=false)=>{const seen=new Set<Obstacle>(),seenEdges=new Set<Boundary>(),cuts=[0,1],dx=b.x-a.x,dz=b.z-a.z
   for(let x=Math.floor(Math.min(a.x,b.x)/bucketSize);x<=Math.floor(Math.max(a.x,b.x)/bucketSize);x++)for(let z=Math.floor(Math.min(a.z,b.z)/bucketSize);z<=Math.floor(Math.max(a.z,b.z)/bucketSize);z++){
