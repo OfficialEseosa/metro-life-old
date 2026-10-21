@@ -1,8 +1,15 @@
-/* oxlint-disable react/immutability -- Owned Three instancing buffers update after terrain loads. */
-import { useEffect, useMemo } from 'react'
+/* oxlint-disable react/immutability -- Owned sign positions follow loaded terrain. */
+import { useMemo,useRef } from 'react'
 import * as THREE from 'three'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame,useThree } from '@react-three/fiber'
 import { groundHeight } from './ground'
 import { useStore } from '../store'
 import { navigation } from '../navigation'
-export function HelpWanted(){const scene=useThree(s=>s.scene),city=useStore(s=>s.city),world=useStore(s=>s.world),room=useStore(s=>s.sim?.position?.room);const built=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=256;canvas.height=96;const c=canvas.getContext('2d')!;c.fillStyle='#fff0d0';c.fillRect(0,0,256,96);c.fillStyle='#315d43';c.font='bold 31px sans-serif';c.textAlign='center';c.fillText('HELP WANTED',128,40);c.font='22px sans-serif';c.fillText('Apply inside',128,76);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide,toneMapped:false}),geometry=new THREE.PlaneGeometry(1.6,.6),doors=navigation[city].doors as Record<string,{x:number;z:number}>,locations=world?.cities.find(c=>c.id===city)?.landmarks.filter(l=>l.actions.some(a=>a.requires?.job))??[];const mesh=new THREE.InstancedMesh(geometry,material,locations.length),matrix=new THREE.Matrix4();locations.forEach((l,i)=>{const door=doors[l.id];matrix.makeTranslation(door.x+1.3,1.35,door.z+.25);mesh.setMatrixAt(i,matrix)});mesh.name='help-wanted-signs';return{mesh,geometry,material,texture,locations,doors,placed:false}},[city,world]);useEffect(()=>()=>{built.mesh.dispose();built.geometry.dispose();built.material.dispose();built.texture.dispose()},[built]);useFrame(()=>{if(built.placed||!scene.getObjectByName('terrain'))return;built.placed=true;const matrix=new THREE.Matrix4();built.locations.forEach((l,i)=>{const d=built.doors[l.id],x=d.x+1.3,z=d.z+.25;matrix.makeTranslation(x,groundHeight(scene,city,x,z)+1.35,z);built.mesh.setMatrixAt(i,matrix)});built.mesh.instanceMatrix.needsUpdate=true});return room?null:<primitive object={built.mesh}/>}
+import { WorldText } from './world-text'
+import type { CityId } from '../api/types'
+function HiringSign({door,city}:{door:{x:number;z:number};city:CityId}){
+ const ref=useRef<THREE.Group>(null),placed=useRef(false),scene=useThree(s=>s.scene)
+ useFrame(()=>{if(!ref.current||placed.current||!scene.getObjectByName('terrain'))return;ref.current.position.y=groundHeight(scene,city,door.x+1.3,door.z+.25);placed.current=true})
+ return <group ref={ref} position={[door.x+1.3,0,door.z+.25]}><mesh position={[0,.65,-.04]}><boxGeometry args={[.07,1.3,.07]}/><meshStandardMaterial color="#674c3e"/></mesh><mesh position={[0,1.45,0]}><boxGeometry args={[2.2,.85,.1]}/><meshStandardMaterial color="#f5e6ca"/></mesh><WorldText position={[0,1.45,.065]} fontSize={.29} maxWidth={2} color="#315d43" outlineColor="#fff5df">We're hiring</WorldText></group>
+}
+export function HelpWanted(){const city=useStore(s=>s.city),world=useStore(s=>s.world),room=useStore(s=>s.sim?.position?.room),locations=useMemo(()=>world?.cities.find(c=>c.id===city)?.landmarks.filter(l=>l.actions.some(a=>a.requires?.job))??[],[world,city]),doors=navigation[city].doors as Record<string,{x:number;z:number}>;return room?null:<group name="help-wanted-signs">{locations.filter(l=>doors[l.id]).map(l=><HiringSign key={`${city}:${l.id}`} door={doors[l.id]} city={city}/>)}</group>}

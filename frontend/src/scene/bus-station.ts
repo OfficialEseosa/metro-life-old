@@ -20,7 +20,7 @@ export function busStationGeometry(city:CityId){
  b.cylinder(4.55,1.9,1.7,.065,3.8,metal,8).box(4.55,3.35,1.7,1.05,.85,.16,accent)
  b.box(4.55,3.35,1.8,.66,.34,.025,pale);for(const dx of [-.23,.23])b.sphere(4.55+dx,3.14,1.83,.075,metal,1,1,.25)
  b.box(-4.1,1.65,.1,.14,1.8,1.15,accent);for(let i=0;i<5;i++)b.box(-4.01,1.14+i*.2,.1,.025,.06,.8,pale)
- b.box(0,2.4,-1.7,4.5,.7,.13,accent).text(0,2.44,-1.61,'BUS',.105,pale)
+ b.box(0,2.4,-1.7,4.5,.7,.13,accent)
  // A compact timetable case on the front rail supplies a human-scale focal point.
  b.box(2.9,1.45,1.5,.85,1.2,.16,metal).box(2.9,1.45,1.6,.7,1.04,.035,pale)
  for(let i=0;i<5;i++)b.box(2.9,1.08+i*.16,1.63,.5,.035,.02,accent)

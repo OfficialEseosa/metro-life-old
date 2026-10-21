@@ -17,7 +17,7 @@ public class Content {
     static final String[] ASPIRATIONS = {"founder","headliner","mayor","restaurateur","athlete","collector","mogul"};
     static final String[] ASPIRATION_NAMES = {"Startup Founder","Headliner","Mayor","Restaurateur","Pro Athlete","Art Collector","Real-Estate Mogul"};
     public Content(ObjectMapper mapper) throws IOException {
-        this.mapper = mapper;
+        this.mapper = mapper;DisplayNames.load(mapper);
         try(var data=getClass().getResourceAsStream("/static-data/transit.json")){if(data==null)throw new IOException("Transit data missing");transit=mapper.readTree(data);}
         try(var in=getClass().getResourceAsStream("/static-data/world.json")) {
             if(in==null) throw new IOException("Canonical world content missing");
@@ -70,6 +70,7 @@ public class Content {
                 m.putObject("reward").put("cash",150*(step+1)).put("xp",50*(step+1));
             }
         }
+        DisplayNames.apply(world);
     }
     ObjectNode action(String id,String label,String kind,String icon,int duration,int cost,int pay,Map<String,Integer> needs,Map<String,Integer> skills) {
         ObjectNode a=mapper.createObjectNode().put("id",id).put("label",label).put("kind",kind).put("icon",icon).put("durationMin",duration).put("cost",cost).put("pay",pay).put("xp",15);

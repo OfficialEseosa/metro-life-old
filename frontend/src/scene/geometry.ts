@@ -30,11 +30,8 @@ export class Builder {
     const start = new THREE.Vector3(...a), end = new THREE.Vector3(...b), delta = end.clone().sub(start)
     const g = new THREE.CylinderGeometry(width, width, delta.length(), 5); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.normalize())); return this.add(g, color, ...start.add(end).multiplyScalar(.5).toArray())
   }
-  text(x:number,y:number,z:number,text:string,scale:number,color:string){
-    const glyphs:Record<string,string[]>={L:['100','100','100','100','111'],D:['110','101','101','101','110'],B:['110','101','110','101','110'],S:['111','100','111','001','111'],U:['101','101','101','101','111'],V:['101','101','101','101','010'],G:['111','100','101','101','111'],W:['101','101','111','111','101'],J:['001','001','001','101','111'],Q:['111','101','101','111','001'],Z:['111','001','010','100','111'],T:['111','010','010','010','010'],E:['111','100','110','100','111'],C:['111','100','100','100','111'],H:['101','101','111','101','101'],P:['110','101','110','100','100'],O:['111','101','101','101','111'],N:['101','111','111','111','101'],I:['111','010','010','010','111'],Y:['101','101','010','010','010'],M:['101','111','111','101','101'],A:['010','101','111','101','101'],R:['110','101','110','101','101'],K:['101','110','100','110','101'],F:['111','100','110','100','100'],X:['101','101','010','101','101'],' ':['000','000','000','000','000']}
-    for(let i=0;i<text.length;i++)for(let row=0;row<5;row++)for(let col=0;col<3;col++)if(glyphs[text[i]]?.[row][col]==='1')this.box(x+(i*4+col-text.length*2)*scale,y+(2-row)*scale,z,scale*.9,scale*.9,.04,color)
-    return this
-  }
+  /** Lettering is rendered with WorldText SDF; keep authored sign boards without pixel glyphs. */
+  text(_x:number,_y:number,_z:number,_text:string,_scale:number,_color:string){return this}
   windows(x: number, y: number, z: number, w: number, h: number, d: number, columns: number, rows: number, color = '#557984') {
     for (let row = 0; row < rows; row++) for (let col = 0; col < columns; col++) {
       const px = x - w / 2 + (col + .5) * w / columns, py = y - h / 2 + (row + .5) * h / rows
