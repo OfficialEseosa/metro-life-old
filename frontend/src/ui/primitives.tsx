@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Bike, Bridge, ChartCandlestick, Disc3, Drama, CircleDot, FerrisWheel, Fish, Flame, Footprints, GraduationCap, HandCoins, KeyRound, Lamp, MonitorPlay, Sailboat, ShoppingBag, Soup, Sun, Target, TrainFront, Trees, Waves, Droplets, Activity, ArrowUpRight, BookOpen, BriefcaseBusiness, Building2, Check, ChefHat, ChevronRight, CircleUserRound, Compass, Dumbbell, HeartPulse, House, Landmark, MapPin, Moon, Music2, Palette, Plane, Rocket, Sparkles, Trophy, Users, Utensils, Wallet, X, Zap } from 'lucide-react'
 import { CharacterPortrait } from './character-preview'
 import type { Look } from '../api/types'
@@ -9,6 +9,11 @@ import { sound } from './sound'
 const icons:Record<string,typeof House>={check:Check,'arrow-up-right':ArrowUpRight,bike:Bike,bridge:Bridge,'chart-candlestick':ChartCandlestick,'disc-3':Disc3,drama:Drama,dribbble:CircleDot,'ferris-wheel':FerrisWheel,fish:Fish,flame:Flame,footprints:Footprints,'graduation-cap':GraduationCap,'hand-coins':HandCoins,'key-round':KeyRound,lamp:Lamp,'monitor-play':MonitorPlay,sailboat:Sailboat,'shopping-bag':ShoppingBag,soup:Soup,sun:Sun,target:Target,'train-front':TrainFront,trees:Trees,waves:Waves,building:Building2,'building-2':Building2,home:House,droplets:Droplets,wallet:Wallet,sparkles:Sparkles,'book-open':BookOpen,house:House,moon:Moon,'map-pin':MapPin,briefcase:BriefcaseBusiness,'briefcase-business':BriefcaseBusiness,users:Users,'cooking-pot':ChefHat,utensils:Utensils,dumbbell:Dumbbell,music:Music2,'mic-vocal':Music2,cpu:Building2,'messages-square':Users,palette:Palette,landmark:Landmark,rocket:Rocket,trophy:Trophy,'heart-pulse':HeartPulse,plane:Plane,'chart-no-axes-combined':Activity}
 export function Icon({name,size=20}:{name?:string;size?:number}){const Component=name==='zap'?Zap:icons[name??'']??Compass;return <Component size={size} strokeWidth={2.5} aria-hidden="true"/>}
 export function ErrorMessage({text}:{text:string}){return text?<p className="error-message" role="alert">{text}</p>:null}
+/** Keep each gate visible on touch screens and associated with its own control. */
+export function ReasonButton({reason,children,className='',...props}:Omit<ButtonHTMLAttributes<HTMLButtonElement>,'disabled'> & {reason:string}){
+ const id=useId()
+ return <button {...props} className={`${className}${reason?' has-gate-reason':''}`} disabled={!!reason} aria-describedby={reason?[props['aria-describedby'],id].filter(Boolean).join(' '):props['aria-describedby']} title={reason||props.title}>{children}{reason&&<small id={id} className="gate-reason">{reason}</small>}</button>
+}
 export function Avatar({look,size=60}:{look:Look;size?:number}){return <CharacterPortrait look={look} size={size}/>}
 export function Sheet({title,kicker,children,close,modal=false,primary,icon='map-pin',color,peek=false,notice,dismissible=true}:{title:string;kicker?:string;children:ReactNode;close:()=>void;modal?:boolean;primary?:ReactNode;icon?:string;color?:string;peek?:boolean;notice?:ReactNode;dismissible?:boolean}){
  const ref=useRef<HTMLElement>(null),[extent,setExtent]=useState<'peek'|'half'|'full'>(peek?'peek':'half'),start=useRef(0),dragged=useRef(false)

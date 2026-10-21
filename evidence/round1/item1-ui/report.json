@@ -1,0 +1,133 @@
+{
+  "url": "http://127.0.0.1:5173",
+  "views": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "automaticGuest": true,
+      "sameGuestAfterSetup": true,
+      "sharedWorld": "public",
+      "emptyReasons": [
+        {
+          "text": "Begin my story\nEnter your name to begin.",
+          "reason": "Enter your name to begin.",
+          "descriptionId": "_r_6_"
+        }
+      ],
+      "invalidReasons": [
+        {
+          "text": "Begin my story\nUse 2–20 letters, spaces, hyphens or apostrophes.",
+          "reason": "Use 2–20 letters, spaces, hyphens or apostrophes.",
+          "descriptionId": "_r_6_"
+        }
+      ],
+      "homeReasons": [
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_c_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_d_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_e_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_f_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_g_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_h_"
+        }
+      ],
+      "noCredentialUi": true,
+      "refreshPreservesLife": true,
+      "userId": "8cb091b7-051c-462c-8ea5-cac5a3a1a535",
+      "characterName": "Rowan fekhesqz",
+      "screenshots": [
+        "1280-creator-empty.png",
+        "1280-home-first-day-gate.png"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 812
+      },
+      "automaticGuest": true,
+      "sameGuestAfterSetup": true,
+      "sharedWorld": "public",
+      "emptyReasons": [
+        {
+          "text": "Begin my story\nEnter your name to begin.",
+          "reason": "Enter your name to begin.",
+          "descriptionId": "_r_9_"
+        }
+      ],
+      "invalidReasons": [
+        {
+          "text": "Begin my story\nUse 2–20 letters, spaces, hyphens or apostrophes.",
+          "reason": "Use 2–20 letters, spaces, hyphens or apostrophes.",
+          "descriptionId": "_r_9_"
+        }
+      ],
+      "homeReasons": [
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_l_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_m_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_n_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_o_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_p_"
+        },
+        {
+          "text": "Move here\nFinish your first-day goals before moving",
+          "reason": "Finish your first-day goals before moving",
+          "descriptionId": "_r_q_"
+        }
+      ],
+      "noCredentialUi": true,
+      "refreshPreservesLife": true,
+      "userId": "35fa890a-d6d7-4981-bd4a-a84e5a6cdc57",
+      "characterName": "Rowan hnxhjcop",
+      "screenshots": [
+        "390-creator-empty.png",
+        "390-home-first-day-gate.png"
+      ]
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

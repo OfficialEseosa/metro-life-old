@@ -119,6 +119,7 @@ export const getPanelTrigger=()=>panelTrigger
 function rememberTrigger(){const active=document.activeElement;if(active instanceof HTMLElement&&active.matches('button')&&!active.closest('.sheet'))panelTrigger=active}
 const realtimeEnabled = true
 let socketEpoch=0,presenceRevision=0,resourceRevision=0,sessionChanging=false
+let indoorTravelPending=false
 export const mergeChat=(current:ChatMessage[],incoming:ChatMessage[])=>[...new Map([...current,...incoming].map(m=>[m.id,m])).values()].sort((a,b)=>a.at-b.at||a.id.localeCompare(b.id)).slice(-50)
 
 export const useStore = create<State>((set, get) => {
@@ -281,6 +282,28 @@ export const useStore = create<State>((set, get) => {
       set({ selectedLoc: id, panel: id ? 'location' : null,searchOpen:false })
     },
     selectSlot: (slot) => set({ selectedSlot: slot, panel: slot === null ? null : 'billboard' }),
-    setFocus: (focus) => set({ focus }),
+    setFocus: (focus) => {
+      const state=get(),sim=state.sim
+      // Map destinations use world coordinates. Keep an indoor camera attached to
+      // its room until the server has accepted the transition to the street.
+      if(focus&&sim?.position?.room&&state.city===sim.city){
+        const destination=focus==='homes'?'home':focus
+        const landmark=destination==='home'||state.world?.cities.find(c=>c.id===sim.city)?.landmarks.some(l=>l.id===destination)
+        if(!landmark||destination===sim.position.place){set({focus:null});motion.follow=true;motion.wake();return}
+        if(indoorTravelPending)return
+        if(sim.busyUntil||sim.pendingBeat){useWalking.setState({error:sim.busyUntil?'Finish this activity before travelling.':'Make your story choice before travelling.'});return}
+        indoorTravelPending=true;set({focus:null,acting:true});motion.x=motion.z=0
+        void (async()=>{try{
+          await motion.flush()
+          const result=await api.travel(sim.city,destination)
+          if(get().sim?.worldId!==sim.worldId)return
+          get().setSim(result.sim);set({panel:null,searchOpen:false,cameraMoving:false})
+          motion.follow=true;motion.wake();useWalking.setState({error:''})
+        }catch(error){useWalking.setState({error:error instanceof Error?error.message:'Could not travel. Try again.'})}
+        finally{indoorTravelPending=false;set({acting:false})}})()
+        return
+      }
+      set({ focus })
+    },
   }
 })

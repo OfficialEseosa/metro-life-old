@@ -1,0 +1,421 @@
+{
+  "width": 1280,
+  "mode": "travel",
+  "views": [
+    {
+      "label": "search-arrival-ponce",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            0.013518037943519625,
+            1.5354761959406014,
+            2.216467704719673
+          ],
+          "slot": null,
+          "position": [
+            0,
+            0,
+            2.3
+          ],
+          "walls": [
+            {
+              "name": "front",
+              "upper": false,
+              "lower": 1
+            },
+            {
+              "name": "back",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "left",
+              "upper": true,
+              "lower": 1
+            },
+            {
+              "name": "right",
+              "upper": false,
+              "lower": 1
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "home",
+          "staff": 0,
+          "wallDecor": [
+            {
+              "side": "front",
+              "visible": false
+            },
+            {
+              "side": "back",
+              "visible": false
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ],
+          "window": "cde1db"
+        },
+        "camera": {
+          "eye": [
+            5.2195864087425665,
+            9,
+            13.105365228367667
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 1280,
+            "fullHeight": 800,
+            "offsetX": 206,
+            "offsetY": -45,
+            "width": 1280,
+            "height": 800
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 0,
+          "method": "dither",
+          "remainingOpacity": 0.18
+        },
+        "atlantaModels": [],
+        "roomLighting": {
+          "shadowSize": 1024,
+          "environmentIntensity": 0.4
+        },
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 6.026608916666668,
+          "beautyGpuMs": 28.502956124999983,
+          "frameCpuMs": 1,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 28,
+          "textures": 32
+        }
+      },
+      "metrics": {
+        "calls": 13,
+        "triangles": 13,
+        "fps": 0,
+        "p95Ms": 0,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    },
+    {
+      "label": "home-arrival",
+      "status": {
+        "activity": {
+          "pose": "Idle",
+          "head": [
+            -24.557881735029653,
+            1.5329630568385042,
+            -58.98516242156972
+          ],
+          "slot": null,
+          "position": [
+            -24.5714,
+            1.3078427230084344e-14,
+            -58.9
+          ],
+          "walls": [
+            {
+              "name": "front"
+            },
+            {
+              "name": "back"
+            },
+            {
+              "name": "left"
+            },
+            {
+              "name": "right"
+            }
+          ]
+        },
+        "roomDetails": {
+          "template": "",
+          "staff": 0,
+          "wallDecor": [
+            {
+              "side": "front"
+            },
+            {
+              "side": "back"
+            },
+            {
+              "side": "left"
+            },
+            {
+              "side": "right"
+            }
+          ]
+        },
+        "camera": {
+          "eye": [
+            -24.571394882925937,
+            9.999999986824426,
+            -42.899994653004356
+          ],
+          "target": [
+            -24.571394882925937,
+            1.0000000000000127,
+            -58.899994600301994
+          ],
+          "offset": {
+            "enabled": true,
+            "fullWidth": 1280,
+            "fullHeight": 800,
+            "offsetX": 0,
+            "offsetY": -45,
+            "width": 1280,
+            "height": 800
+          }
+        },
+        "cameraOcclusion": {
+          "meshes": 38,
+          "method": "dither",
+          "remainingOpacity": 0.18
+        },
+        "atlantaModels": [
+          {
+            "source": "/models/skyline/atl-bofa-plaza.glb",
+            "name": "Bank of America Plaza",
+            "glowMesh": "bofa-crown-glow",
+            "scale": [
+              0.04000000000000001,
+              0.044856230031948885,
+              0.04000000000000001
+            ],
+            "position": [
+              10.26,
+              0,
+              -23.6
+            ],
+            "triangles": 1250,
+            "drawCalls": 2,
+            "night": false
+          },
+          {
+            "source": "/models/skyline/atl-truist-plaza.glb",
+            "name": "Truist Plaza",
+            "glowMesh": "truist-crown-glow",
+            "scale": [
+              0.04000000000000001,
+              0.04435483870967742,
+              0.04000000000000001
+            ],
+            "position": [
+              9.45,
+              0,
+              2.3800000000000026
+            ],
+            "triangles": 644,
+            "drawCalls": 2,
+            "night": false
+          },
+          {
+            "source": "/models/skyline/atl-westin-peachtree.glb",
+            "name": "Westin Peachtree Plaza",
+            "glowMesh": "westin-crown-glow",
+            "scale": [
+              0.04000000000000001,
+              0.045033484187965586,
+              0.04000000000000001
+            ],
+            "position": [
+              3.9,
+              0,
+              14.68
+            ],
+            "triangles": 2548,
+            "drawCalls": 2,
+            "night": false
+          },
+          {
+            "source": "/models/skyline/atl-191-peachtree.glb",
+            "name": "191 Peachtree Tower",
+            "glowMesh": "p191-crown-glow",
+            "scale": [
+              0.04000000000000001,
+              0.045090180360721446,
+              0.04000000000000001
+            ],
+            "position": [
+              8.04,
+              0,
+              16.03
+            ],
+            "triangles": 1284,
+            "drawCalls": 2,
+            "night": false
+          },
+          {
+            "source": "/models/skyline/atl-one-atlantic-center.glb",
+            "name": "One Atlantic Center",
+            "glowMesh": "oac-crown-glow",
+            "scale": [
+              0.04000000000000001,
+              0.045000000000000005,
+              0.04000000000000001
+            ],
+            "position": [
+              6.66,
+              0,
+              -77.50999999999999
+            ],
+            "triangles": 494,
+            "drawCalls": 2,
+            "night": false
+          },
+          {
+            "source": "/models/landmarks-blender/atl-mercedes-benz-stadium.glb",
+            "name": "Mercedes-Benz Stadium",
+            "glowMesh": "benz-halo",
+            "scale": [
+              0.056874999999999995,
+              0.063984375,
+              0.056874999999999995
+            ],
+            "position": [
+              -32,
+              0,
+              34
+            ],
+            "triangles": 740,
+            "drawCalls": 2,
+            "night": false
+          },
+          {
+            "source": "/models/landmarks-blender/atl-state-farm-arena.glb",
+            "name": "State Farm Arena",
+            "glowMesh": "arena-letters",
+            "scale": [
+              0.08766233766233766,
+              0.09862012987012987,
+              0.08766233766233766
+            ],
+            "position": [
+              -39,
+              0,
+              8
+            ],
+            "triangles": 664,
+            "drawCalls": 2,
+            "night": false
+          },
+          {
+            "source": "/models/landmarks-blender/atl-georgia-aquarium.glb",
+            "name": "Georgia Aquarium",
+            "glowMesh": null,
+            "scale": [
+              0.08177570158244973,
+              0.09199766428025595,
+              0.08177570158244973
+            ],
+            "position": [
+              -25,
+              0,
+              -14
+            ],
+            "triangles": 515,
+            "drawCalls": 1,
+            "night": false
+          },
+          {
+            "source": "/models/landmarks-blender/atl-fox-theatre.glb",
+            "name": "Fox Theatre",
+            "glowMesh": "fox-sign-glow",
+            "scale": [
+              0.10452961741942307,
+              0.11759581959685095,
+              0.10452961741942307
+            ],
+            "position": [
+              1,
+              0,
+              -24
+            ],
+            "triangles": 3520,
+            "drawCalls": 2,
+            "night": false
+          }
+        ],
+        "roomLighting": null,
+        "imageQuality": {
+          "adaptive": {
+            "seconds": 0,
+            "frames": 0,
+            "slowWindows": 0,
+            "fps": 60,
+            "changed": false
+          },
+          "quality": "normal",
+          "halfResolutionAO": true,
+          "transparencyAware": false,
+          "automaticBeauty": false,
+          "dpr": 1,
+          "postGpuMs": 4.920761250000002,
+          "beautyGpuMs": 17.15747431666667,
+          "frameCpuMs": 2.400000035762787,
+          "passes": [
+            "beauty",
+            "N8AO half",
+            "SMAA",
+            "gentle bloom",
+            "warm grade",
+            "AgX output"
+          ]
+        },
+        "nightLights": {
+          "pools": 0,
+          "cars": 0
+        },
+        "memory": {
+          "geometries": 61,
+          "textures": 41
+        }
+      },
+      "metrics": {
+        "calls": 43,
+        "triangles": 117279,
+        "fps": 0,
+        "p95Ms": 0,
+        "renderer": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "dpr": 1
+      }
+    }
+  ],
+  "errors": [],
+  "result": "FAIL",
+  "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Election/ })\u001b[22m\n\n    at C:\\Users\\rapha\\Last Night on Maple Street\\scripts\\r1-browser.cjs:19:136"
+}
