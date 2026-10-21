@@ -1,22 +1,18 @@
 # Metro Life checklist
-- Round 1: done (V4 preserved; four polish items committed).
-- Round 2 item 4, bugs: done — 2363d69.
-- Round 2 item 5, mouse/object interaction: done — 9a8dbde.
-- Round 2 item 1, city choice and shared bus/plane travel: done — 7e9e5a7.
-- Round 2 item 6, visible life: done (poses, gestures, shared labels and low needs).
-- Round 2 item 3, deeper character creation: done (creator, wardrobe, traits and wants).
-- Round 2 item 2, Buy mode and home space: done (catalogue, grid, paint and saved layouts).
-- Round 2 item 7, ledger, purchase clarity and slower needs: done.
-- Round 2 item 8, distinct room shapes/materials: done.
-- Round 2 item 9, full-height warm night skyline: done.
-- Round 2 item 10, friendship meters: done (persistent reciprocal bonds and nearby chat).
-- Test cleanup: done; separate R2: replace narrow unit tests with player-flow tests commit.
-- Tests before: backend 134 cases / 20 suites, 26.142 s wall; frontend CPU/route checks 6.565 s wall.
-- Tests after: backend 75 cases / 18 suites + one optional browser player journey; 92 obsolete scripts removed.
-- After suite time/pass status: unmeasured, suite deliberately not run under latest owner instruction.
-- Latest owner rule: no more builds/lint/tests, screenshots, evidence or per-item browser checks.
-- Final startup: current backend started; one browser load at :5173 passed with zero page/console/server errors.
-- Delivery: finish Round 2 by 2026-10-22; commit locally per item; never push/deploy.
-- Current backend/API: http://127.0.0.1:8080/ (bundled static UI is the previous package).
-- Play current Round 2: http://127.0.0.1:5173/ (current frontend and backend).
-- Isolated development: http://127.0.0.1:5174/ → backend 8081.
+- Rounds 1 and 2: implemented and committed; R2 independent audit pending.
+- R2 test cleanup: a3f283c, backend 134 to 75 cases / 20 to 18 suites; 92 obsolete scripts removed.
+- Prior times: backend 26.142 s; frontend checks 6.565 s. Revised suite deliberately unrun.
+- Round 3 item 1, sharp rendering and designed SDF signs: in progress.
+- Round 3 item 2, isolated interiors and room framing: not done.
+- Round 3 item 3, unified animated characters and forward walking: in progress.
+- Round 3 item 4, zoned landmark interiors and shared moments: not done.
+- Round 3 item 5, connected streets and common travel network: in progress.
+- Round 3 item 6, procedural music, ambience and sound controls: in progress.
+- Round 3 item 7, Sunday Morning UI and phone layouts: in progress.
+- Round 3 item 8, quick start, emotes, events, celebrations and social fun: not done.
+- Round 3 item 9, remaining audit fixes: waiting for research/metro/audit-R2.md.
+- Rules: no per-item build/lint/tests, screenshots, evidence folders or long log.
+- Final R3 startup/load: not done; one quick load after integration.
+- Commit per item R3:, never push/deploy; preserve browser lives and canonical world.
+- Play current source: http://127.0.0.1:5173/ ; API: http://127.0.0.1:8080/ .
+- Isolated development: http://127.0.0.1:5174/ ; API: http://127.0.0.1:8081/ .
