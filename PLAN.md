@@ -10,10 +10,13 @@
 - Round 2 item 8, distinct room shapes/materials: done.
 - Round 2 item 9, full-height warm night skyline: done.
 - Round 2 item 10, friendship meters: done (persistent reciprocal bonds and nearby chat).
-- Test cleanup: in progress; own commit required.
+- Test cleanup: done; separate R2: replace narrow unit tests with player-flow tests commit.
+- Tests before: backend 134 cases / 20 suites, 26.142 s wall; frontend CPU/route checks 6.565 s wall.
+- Tests after: backend 75 cases / 18 suites + one optional browser player journey; 92 obsolete scripts removed.
+- After suite time/pass status: unmeasured, suite deliberately not run under latest owner instruction.
 - Latest owner rule: no more builds/lint/tests, screenshots, evidence or per-item browser checks.
-- Final verification: one quick browser startup/load check only, after all features.
+- Final startup: current backend started; one browser load at :5173 passed with zero page/console/server errors.
 - Delivery: finish Round 2 by 2026-10-22; commit locally per item; never push/deploy.
-- Compiled local game: http://127.0.0.1:8080/ (item 5 package).
-- Development local game: http://127.0.0.1:5173/ (current source).
-- Isolated development QA: http://127.0.0.1:5174/ → backend 8081.
+- Current backend/API: http://127.0.0.1:8080/ (bundled static UI is the previous package).
+- Play current Round 2: http://127.0.0.1:5173/ (current frontend and backend).
+- Isolated development: http://127.0.0.1:5174/ → backend 8081.

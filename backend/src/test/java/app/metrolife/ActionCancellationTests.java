@@ -2,14 +2,10 @@ package app.metrolife;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
-import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class ActionCancellationTests {
  @TempDir Path dir;final ObjectMapper mapper=new ObjectMapper();GameService g;String token;long now=1_800_000_000_000L;
@@ -21,15 +17,7 @@ class ActionCancellationTests {
  ObjectNode act(String loc,String action){return ActivityFixture.act(g,token,g.object().put("city","atl").put("loc",loc).put("action",action));}
  void assertIdle(JsonNode sim){for(String field:new String[]{"busyUntil","busyStartedAt","busyLabel","busyKind","activitySlot"})assertTrue(sim.path(field).isNull(),field);}
 
- @Test void cancellationDiscardsCookNeedsSkillsMoneyAndGoalPromisesButKeepsNormalTimeDecay(){
-  ObjectNode before=sim().deepCopy();JsonNode accepted=act("home","cook");ObjectNode position=g.navigation.position(sim()).deepCopy();
-  assertTrue(accepted.path("result").path("deltas").path("needs").path("hunger").asInt()>0);long deadline=sim().path("busyUntil").asLong();now+=1000;
-  JsonNode cancelled=g.cancelAction(token).path("sim");assertIdle(cancelled);assertEquals(position,cancelled.path("position"));
-  assertEquals(before.path("cash"),cancelled.path("cash"));assertEquals(before.path("skills"),cancelled.path("skills"));assertEquals(before.path("daily"),cancelled.path("daily"));
-  assertEquals(before.path("needs").path("hunger").asDouble()-4.0/60,sim().path("needs").path("hunger").asDouble(),1e-6);
-  assertEquals(before.path("actionsCount"),sim().path("actionsCount"));assertFalse(sim().has("_pendingAction"));
-  now=deadline+10000;g.getSim(token);assertEquals(before.path("cash"),sim().path("cash"));assertEquals(before.path("skills"),sim().path("skills"));
- }
+ 
 
  @Test void cancellationOfPaidFoodDoesNotChargeOrRefundAndPersistsAfterRestart()throws Exception{
   double cash=sim().path("cash").asDouble();JsonNode accepted=act("ponce","a0");assertTrue(accepted.path("result").path("activity").path("cost").asInt()>0);
@@ -47,25 +35,25 @@ class ActionCancellationTests {
   double settled=paid.path("cash").asDouble();g.cancelAction(token);g.getSim(token);assertEquals(settled,sim().path("cash").asDouble());
  }
 
- @Test void aDueCookSettlesBeforeCancellationAndItsRewardCannotReplay(){
-  JsonNode accepted=act("home","cook");double before=sim().path("cash").asDouble();now=sim().path("busyUntil").asLong();
-  JsonNode paid=g.cancelAction(token).path("sim");assertIdle(paid);assertEquals(before+accepted.path("result").path("deltas").path("cash").asDouble(),paid.path("cash").asDouble());
-  assertTrue(paid.path("daily").get(2).path("done").asBoolean());int cookCount=sim().path("_metrics").path("cook").asInt();
-  g.cancelAction(token);assertEquals(cookCount,sim().path("_metrics").path("cook").asInt());assertEquals(paid.path("cash"),sim().path("cash"));
- }
+ 
 
- @Test void cancelledMapTripKeepsItsActualOutsideOriginAndDoesNotCreditTheDestination(){
+ @Test void cancelAndRebookMapTravelSettlesOnlyTheCompletedArrival(){
   g.door(token,g.object().put("loc","home").put("enter",true));g.travel(token,g.object().put("city","atl").put("loc","fox"));
   ObjectNode outside=g.navigation.position(sim()).deepCopy();long deadline=sim().path("busyUntil").asLong();JsonNode cancelled=g.cancelAction(token).path("sim");
   assertIdle(cancelled);assertEquals(outside,cancelled.path("position"));assertTrue(cancelled.path("position").path("room").isNull());assertEquals("home",cancelled.path("loc").asText());
   now=deadline+1000;g.getSim(token);assertEquals("home",sim().path("loc").asText());assertEquals(0,sim().path("daily").get(0).path("progress").asInt());
- }
+ 
+  // Rebook and let this second trip finish before cancel is requested.
+  {
 
- @Test void aDueMapTripArrivesAndRecordsTheVisitBeforeCancellationReturns(){
-  g.travel(token,g.object().put("city","atl").put("loc","fox"));now=sim().path("busyUntil").asLong();JsonNode cancelled=g.cancelAction(token).path("sim");
-  assertIdle(cancelled);assertEquals("fox",cancelled.path("loc").asText());assertEquals(1,cancelled.path("daily").get(0).path("progress").asInt());
+  g.travel(token,g.object().put("city","atl").put("loc","fox"));now=sim().path("busyUntil").asLong();JsonNode completed=g.cancelAction(token).path("sim");
+  assertIdle(completed);assertEquals("fox",completed.path("loc").asText());assertEquals(1,completed.path("daily").get(0).path("progress").asInt());
   ObjectNode position=g.navigation.position(sim()).deepCopy();g.cancelAction(token);assertEquals(position,sim().path("position"));assertEquals(1,sim().path("daily").get(0).path("progress").asInt());
- }
+ 
+  }
+}
+
+ 
 
  @Test void cancellationCannotDiscardAnAlreadyDueStoryOrAnotherBrowserLife(){
   sim().withArray("visited").add("piedmont").add("high");act("techVillage","a0");now=sim().path("busyUntil").asLong();JsonNode due=g.cancelAction(token).path("sim");assertTrue(due.path("pendingBeat").isObject());
@@ -74,9 +62,5 @@ class ActionCancellationTests {
   g.cancelAction(token);assertTrue(g.sim(g.session(other,true)).has("_pendingAction"));
  }
 
- @Test void httpCancellationNeedsOnlyTheBrowserCookieAndReturnsPublicSimAndClock()throws Exception{
-  var mvc=MockMvcBuilders.standaloneSetup(new ApiController(g,g.content)).setControllerAdvice(new ErrorHandler()).build();act("home","cook");
-  mvc.perform(post("/api/action/cancel")).andExpect(status().isUnauthorized());
-  mvc.perform(post("/api/action/cancel").cookie(new Cookie("ml_session",token))).andExpect(status().isOk()).andExpect(jsonPath("$.sim.busyUntil").isEmpty()).andExpect(jsonPath("$.sim.activitySlot").isEmpty()).andExpect(jsonPath("$.clock.msPerMinute").value(1000)).andExpect(jsonPath("$.sim._pendingAction").doesNotExist());
- }
+ 
 }

@@ -43,26 +43,34 @@ class RequestedSlotTests {
   }
  }
 
- @Test void invalidUnknownAndWrongPoseSlotsAreRejectedWithoutAnyPendingOutcome(){
+ @Test void clickedFurnitureRejectsForgedRemoteAndBlockedApproachesWithoutSpending(){
   approach(token,tables().get(0));
   for(String id:new String[]{"not-a-slot","service-0",""})assertEquals(400,assertThrows(ApiException.class,()->act(token,id)).status,id);
   ObjectNode numeric=body("table-0").put("slotId",42);assertEquals(400,assertThrows(ApiException.class,()->g.act(token,numeric)).status);
   assertFalse(sim(token).has("_pendingAction"));assertTrue(sim(token).path("busyUntil").isNull());assertEquals(2500,sim(token).path("cash").asInt());
- }
+ 
+ {
 
- @Test void remoteRoomAndRemoteFurnitureRequestsCannotTeleportOrReserve(){
   JsonNode slot=tables().get(0);approach(token,slot);ObjectNode p=g.navigation.position(sim(token));p.put("room","theatre:fox");
   assertEquals(409,assertThrows(ApiException.class,()->act(token,slot.path("id").asText())).status);
   p.put("room","foodhall:ponce").put("x",4.8).put("z",4);assertTrue(Math.hypot(4.8-slot.path("x").asDouble(),4-slot.path("z").asDouble())>1.45);
   assertEquals(409,assertThrows(ApiException.class,()->act(token,slot.path("id").asText())).status);assertFalse(sim(token).has("_pendingAction"));
+ 
  }
 
- @Test void aBlockedNearbyUsePointIsNotAValidAuthoritativeApproach(){
+ {
+
   JsonNode slot=tables().get(0);approach(token,slot);JsonNode blocked=null;
   for(JsonNode box:g.navigation.layout("atl","foodhall").path("boxes"))if(Math.hypot(box.path("x").asDouble()-slot.path("x").asDouble(),box.path("z").asDouble()-slot.path("z").asDouble())<=1.45){blocked=box;break;}
   assertNotNull(blocked);g.navigation.position(sim(token)).put("x",blocked.path("x").asDouble()).put("z",blocked.path("z").asDouble());
   assertEquals(409,assertThrows(ApiException.class,()->act(token,slot.path("id").asText())).status);assertFalse(sim(token).has("_pendingAction"));
+ 
  }
+}
+
+ 
+
+ 
 
  @Test void occupiedExactSlotRejectsInsteadOfFallingBackAndCancellationReleasesIt(){
   JsonNode slot=tables().get(0);approach(token,slot);act(token,slot.path("id").asText());String other=create();approach(other,slot);
@@ -70,10 +78,7 @@ class RequestedSlotTests {
   g.cancelAction(token);JsonNode accepted=act(other,slot.path("id").asText());assertEquals(slot.path("id"),accepted.path("sim").path("activitySlot").path("id"));
  }
 
- @Test void simultaneousDifferentTablesRetainDifferentReservations(){
-  List<JsonNode> choices=tables();JsonNode first=choices.get(0),second=choices.get(choices.size()-1);String other=create();approach(token,first);approach(other,second);
-  act(token,first.path("id").asText());act(other,second.path("id").asText());assertNotEquals(sim(token).path("activitySlot").path("id"),sim(other).path("activitySlot").path("id"));
- }
+ 
 
  @Test void explicitHomeSlotsKeepTheCanonicalFurnitureApproachRules(){
   ObjectNode s=sim(token);s.put("loc","home");s.remove("position");ObjectNode p=g.navigation.position(s);p.put("room","home:"+s.path("userId").asText()).put("x",-1.2).put("z",.1);

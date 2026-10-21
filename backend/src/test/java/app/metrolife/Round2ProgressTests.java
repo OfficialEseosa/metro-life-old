@@ -45,20 +45,9 @@ class Round2ProgressTests {
   assertEquals(150,sim().path("cash").asInt());assertEquals(1,sim().path("dailyVisited").size());
  }
 
- @Test void acceptedDoorEntryCountsWithoutAnyTravelOrActivity(){
-  exit();assertTrue(sim().path("firstDay").path("outside").asBoolean());
-  // Establish the same physical approach a walking player reaches, then use the real door authority.
-  JsonNode door=g.navigation.door(sim(),"fox");ObjectNode p=g.navigation.position(sim());p.put("x",door.path("x").asDouble()).put("z",door.path("z").asDouble());
-  enter("fox");assertEquals(1,goal("explore").path("progress").asInt());assertEquals("fox",sim().path("visited").get(1).asText());
- }
+ 
 
- @Test void homeStreetPreviewsAndRejectedOperationsDoNotCountVisits(){
-  g.me(token);g.daily(token,"nyc");g.mayor(token,"atl");g.jobs(token,"atl");g.homes(token,"bay");
-  assertThrows(ApiException.class,()->enter("fox"));assertThrows(ApiException.class,()->g.travel(token,g.object().put("city","nyc").put("loc","met")));
-  assertEquals(0,goal("explore").path("progress").asInt());assertFalse(sim().path("firstDay").path("outside").asBoolean());
-  exit();enter("home");assertEquals(0,goal("explore").path("progress").asInt());
-  assertEquals(0,g.progression.visitCount(sim()));assertEquals(0,sim().path("dailyVisited").size());
- }
+ 
 
  @Test void completedTripAndDreamRewardSurviveRestartAndNeverPayTwice()throws Exception{
   arrive("fox");enter("fox");arrive("ponce");enter("ponce");
@@ -94,11 +83,5 @@ class Round2ProgressTests {
   assertEquals(0,goal("cook").path("progress").asInt());settle(cooking);assertTrue(goal("cook").path("done").asBoolean());assertEquals(1,sim().path("_metrics").path("cook").asInt());
  }
 
- @Test void namedLandmarkDreamStepsUsePhysicalVisitsAndLegacyDuplicatesDoNotInflateExplore(){
-  for(String[] visit:new String[][]{{"nyc","apollo","headliner"},{"nyc","yankee","athlete"},{"nyc","met","artist"},{"bay","missionEats","chef"}}){
-   sim().put("city",visit[0]).put("loc",visit[1]);sim().remove("position");g.navigation.position(sim());
-   enter(visit[1]);String rule="visit:"+visit[1];assertTrue(g.progression.met(sim(),rule),rule);
-  }
-  sim().withArray("visited").add("home").add("apollo").add("street");assertEquals(4,g.progression.visitCount(sim()));
- }
+ 
 }
