@@ -76,8 +76,9 @@ export const api = {
   sim: () => req<{ sim: Sim; clock: Clock }>('GET', '/api/sim'),
   setupSim: (setup: { username:string;pronouns: 'she'|'he'|'they';city: CityId; neighborhood: string; aspiration: string; look?: Partial<Look> }) =>
     req<{ sim: Sim }>('POST', '/api/sim/setup', setup),
-  act: (city: CityId, loc: string, action: string) =>
-    req<{ sim: Sim; result: ActResult }>('POST', '/api/act', { city, loc, action }),
+  act: (city: CityId, loc: string, action: string, slotId?: string) =>
+    req<{ sim: Sim; result: ActResult }>('POST', '/api/act', { city, loc, action, ...(slotId?{slotId}:{}) }),
+  cancelAction: () => req<{sim:Sim;clock:Clock}>('POST','/api/action/cancel'),
   choose: (beatId: string, choice: string) =>
     req<{ sim: Sim; outcome: StoryOutcome }>('POST', '/api/story/choose', { beatId, choice }),
   moveHome: (city: CityId, neighborhood: string) => req<{ sim: Sim }>('POST', '/api/home/move', { city, neighborhood }),

@@ -34,17 +34,36 @@ final class Navigation {
  JsonNode activityUse(String city,String type,JsonNode action){JsonNode rules=layout(city,type).path("activities"),rule=rules.path(action.path("requires").has("job")?"job":action.path("kind").asText());return rule.isObject()?rule:rules.path("fun");}
  String roomId(ObjectNode s,String loc){String type=type(s.path("city").asText(),loc);return type+":"+(loc.equals("home")?s.path("userId").asText():loc);}
  void idle(ObjectNode s){GameService.require(s.path("busyUntil").isNull()&&s.path("pendingBeat").isNull(),409,"Finish this moment first");}
- void stage(ObjectNode s,String loc,JsonNode action){
-  String city=s.path("city").asText(),type=type(city,loc),id=action.path("id").asText();s.putNull("activitySlot");if(type.isEmpty())return;
+ void stage(ObjectNode s,String loc,JsonNode action){stage(s,loc,action,"");}
+ void stage(ObjectNode s,String loc,JsonNode action,String slotId){
+  String city=s.path("city").asText(),type=type(city,loc),id=action.path("id").asText();if(type.isEmpty()){s.putNull("activitySlot");return;}
   String chosen=type.equals("home")?switch(id){case "sleep"->"bed";case "cook"->"stove";case "shower"->"shower";case "invite"->"chair";default->"";}:"";
   JsonNode use=activityUse(city,type,action);String pose=use.path("pose").asText(),station=use.path("station").asText();
   JsonNode winner=null;double nearest=Double.MAX_VALUE;JsonNode at=position(s);
   for(JsonNode slot:layout(city,type).path("slots")){
+   if(!slotId.isEmpty()&&!slot.path("id").asText().equals(slotId))continue;
    if(type.equals("home")?!slot.path("id").asText().equals(chosen):(!slot.path("pose").asText().equals(pose)||!slot.path("station").asText().equals(station)))continue;
    boolean occupied=occupied(s,slot,at.path("room").asText());
    double distance=Math.hypot(slot.path("x").asDouble()-at.path("x").asDouble(),slot.path("z").asDouble()-at.path("z").asDouble());if(!occupied&&distance<nearest){winner=slot;nearest=distance;}
   }
   GameService.require(winner!=null,409,"The furniture is in use. Wait for a free place.");s.set("activitySlot",winner.deepCopy());
+ }
+ JsonNode requestedSlot(ObjectNode s,String loc,JsonNode action,String slotId){
+  String city=s.path("city").asText(),type=type(city,loc),home=type.equals("home")?switch(action.path("id").asText()){case "sleep"->"bed";case "cook"->"stove";case "shower"->"shower";case "invite"->"chair";default->"";}:"";
+  JsonNode use=activityUse(city,type,action);
+  for(JsonNode slot:layout(city,type).path("slots"))if(slot.path("id").asText().equals(slotId)){
+   boolean compatible=type.equals("home")?slotId.equals(home):slot.path("station").equals(use.path("station"))&&slot.path("pose").equals(use.path("pose"));
+   GameService.require(compatible,400,"Choose furniture that supports this activity");return slot;
+  }
+  throw new ApiException(400,"Choose furniture in this room");
+ }
+ void requireSlotAction(ObjectNode s,String loc,JsonNode action,String slotId){
+  JsonNode slot=requestedSlot(s,loc,action,slotId);String city=s.path("city").asText();
+  if(type(city,loc).equals("home")){requireAction(s,loc,action.path("id").asText());return;}
+  ObjectNode p=position(s);String room=roomId(s,loc);
+  GameService.require(p.path("room").asText().equals(room),409,"Walk inside first");
+  GameService.require(stand(city,p.path("x").asDouble(),p.path("z").asDouble(),room)&&Math.hypot(p.path("x").asDouble()-slot.path("x").asDouble(),p.path("z").asDouble()-slot.path("z").asDouble())<=1.45,409,"Walk up to the selected furniture first");
+  GameService.require(!occupied(s,slot,room),409,"The furniture is in use. Wait for a free place.");p.put("face",slot.path("face").asDouble());
  }
  boolean occupied(ObjectNode s,JsonNode slot,String room){String wid=s.path("worldId").asText();List<JsonNode> people=new ArrayList<>();g.table("sims").forEach(people::add);g.community.residents().path(wid).forEach(people::add);for(JsonNode other:people)if(!other.path("userId").equals(s.path("userId"))&&other.path("worldId").asText().equals(wid)&&other.path("city").equals(s.path("city"))&&other.path("position").path("room").asText().equals(room)&&(other.path("activitySlot").path("id").equals(slot.path("id"))||other.path("npc").asBoolean()&&other.path("_phase").asText().equals("approach")&&other.path("_roomSlot").path("id").equals(slot.path("id")))&&(other.path("busyUntil").asLong()>g.now()||other.path("npc").asBoolean()&&(other.path("_phase").asText().equals("dwell")||other.path("_phase").asText().equals("approach"))))return true;return false;}
  void resumePosture(ObjectNode s){if(s.path("activitySlot").path("bench").asBoolean()&&!g.community.isOnline(s.path("worldId").asText(),s.path("userId").asText()))s.putNull("activitySlot");rejoin(s);}

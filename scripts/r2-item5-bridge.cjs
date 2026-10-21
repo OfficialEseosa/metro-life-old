@@ -1,0 +1,53 @@
+// Serial GPU fixture. Run only when the root agent releases the browser/GPU slot.
+const {chromium}=require('C:/Users/rapha/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const fs=require('fs'),path=require('path'),assert=require('assert/strict'),{attach,walk}=require('./playable-browser.cjs');
+const width=Number(process.env.METRO_WIDTH||1280),height=width===1280?800:812,base='http://127.0.0.1:5174',out=path.resolve('evidence/round2/item5-bridge');
+fs.mkdirSync(out,{recursive:true});
+(async()=>{
+ const browser=await chromium.launch({headless:true,executablePath:'C:/Users/rapha/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe',args:['--use-angle=d3d11']});
+ const report={width,height,url:base,views:[],checks:[],errors:[],positions:[],assets:{}},context=await browser.newContext({viewport:{width,height}});let page;
+ try{
+  const post=async(route,data={})=>{const r=await context.request.post(base+'/api/'+route,{data});assert(r.ok(),route+': '+await r.text());return r.json()},read=async()=>{const r=await context.request.get(base+'/api/sim');assert(r.ok(),await r.text());return r.json()};
+  const worldResponse=await context.request.get(base+'/api/world');assert(worldResponse.ok(),await worldResponse.text());const world=await worldResponse.json(),bay=world.cities.find(c=>c.id==='bay'),neighborhood=bay.neighborhoods[0].id;
+  const suffix=Array.from({length:8},()=>String.fromCharCode(97+Math.floor(Math.random()*26))).join('');
+  await post('auth/guest');await post('sim/setup',{username:'Bridge '+suffix,pronouns:'they',city:'bay',neighborhood,aspiration:'founder'});await post('intro/complete');
+  const settle=async()=>{for(let i=0;i<100;i++){const r=await read();if(!r.sim.busyUntil)return r;await new Promise(resolve=>setTimeout(resolve,100))}throw Error('Timed travel did not settle')};
+  await post('travel',{city:'bay',loc:'home'});const outside=await settle();assert.equal(outside.sim.position.room,null);assert.equal(outside.sim.city,'bay');report.checks.push('Fresh Bay life, first world neighborhood, intro complete, authoritative home travel exits private room');
+  await post('travel',{city:'bay',loc:'ferryBuilding'});const arrival=await settle();assert.equal(arrival.sim.position.room,null);assert.equal(arrival.sim.position.place,'ferryBuilding');report.arrival=arrival.sim.position;
+  page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text())});page.on('requestfailed',r=>{if(r.url().includes('/models/'))report.assets[r.url()]={failed:r.failure()}});page.on('response',r=>{if(r.url().includes('/models/'))report.assets[r.url()]={status:r.status()}});
+  await page.goto(base);await attach(page);await page.evaluate(async()=>{window.__bridgeActions=await import(performance.getEntriesByType('resource').map(r=>r.name).find(u=>/\/src\/interactions\.ts(?:\?|$)/.test(u))??'/src/interactions.ts');window.__bridgeNav=await import('/src/navigation.ts');window.__bridgeRoute=await import('/src/scene/navigation-route.ts');window.__store.getState().setSceneTheme('day');window.__store.getState().openPanel(null);window.__store.getState().setSearchOpen(false);window.__metroScene.hidePins(true)});
+  await page.waitForFunction(()=>{const s=window.__metroScene.status();return window.__store.getState().city==='bay'&&!window.__store.getState().sim.position.room&&s.playerParts.length>50&&s.kits.length>8&&!s.roomDetails.template},null,{timeout:90000});await page.waitForTimeout(2400);
+  const snapshot=()=>page.evaluate(()=>({status:window.__metroScene.status(),metrics:window.__metroScene.metrics(),sim:window.__store.getState().sim,queue:window.__bridgeActions.useInteractions.getState(),walking:{...window.__walk.motion.position}}));
+  const shot=async(label)=>{await page.waitForTimeout(300);await page.screenshot({path:path.join(out,`${width}-${label}.png`),timeout:20000});const r=await snapshot();report.views.push({label,...r});assert(r.metrics.calls<150&&r.metrics.triangles<300000,JSON.stringify({label,metrics:r.metrics}));console.log(width,label,r.metrics.calls,r.metrics.triangles,r.metrics.fps.toFixed(2));return r};
+  await page.evaluate(()=>{window.__walk.motion.follow=false;window.__metroScene.focus('overview')});await page.waitForTimeout(1600);await shot('bay-overview-day');
+  const endpoints=await page.evaluate(()=>{const n=window.__bridgeNav,b=n.navigation.bay.bridges[1],start={x:6,z:-2.8},candidates=[{x:56.5,z:-7.9},{x:56,z:-7.8},{x:57,z:-8},{x:56.5,z:-7.5}];if(!n.canStand('bay',start.x,start.z,null))throw Error('SF bridge approach is blocked');const end=candidates.find(p=>n.canStand('bay',p.x,p.z,null)&&n.inBox(p.x,p.z,b,-.6)&&n.inPolygon(p.x,p.z,n.navigation.bay.land[1]));if(!end)throw Error('No valid Oakland bridge endpoint');return{start,end,bridge:b}});report.endpoints=endpoints;
+  const approach=await page.evaluate(target=>window.__bridgeRoute.navigationRoute('bay',null,window.__walk.motion.position,target),endpoints.start);assert(approach.length,'No real walking route from Ferry Building to SF bridge approach');report.approach=approach;
+  // Fixture preparation uses real keyboard/joystick movement along the checked route, never a position teleport.
+  for(const point of approach)await walk(page,point.x,point.z,width<700);await page.evaluate(()=>window.__walk.motion.flush());
+  const prepared=await read();assert(Math.hypot(prepared.sim.position.x-endpoints.start.x,prepared.sim.position.z-endpoints.start.z)<.35);report.prepared=prepared.sim.position;
+  await page.evaluate(()=>{window.__walk.motion.follow=false;window.__metroScene.focus('overview')});await page.waitForTimeout(1200);await shot('bridge-span-before-click');
+  const click=await page.evaluate(p=>window.__metroScene.screenPoint(p.x,3.85,p.z),endpoints.end);assert(click.x>0&&click.x<width&&click.y>65&&click.y<height-100,JSON.stringify({click,width,height}));report.click=click;
+  await page.evaluate(()=>{window.__bridgeFrames=[];window.__bridgeSample=true;const frame=t=>{if(!window.__bridgeSample)return;window.__bridgeFrames.push(t);window.__bridgeRaf=requestAnimationFrame(frame)};window.__bridgeRaf=requestAnimationFrame(frame)});
+  await page.mouse.click(click.x,click.y);await page.waitForFunction(()=>window.__bridgeActions.useInteractions.getState().current?.kind==='walk',null,{timeout:5000});
+  const picked=await page.evaluate(()=>window.__bridgeActions.useInteractions.getState().current);assert(Math.hypot(picked.point.x-endpoints.end.x,picked.point.z-endpoints.end.z)<.4,JSON.stringify({picked,expected:endpoints.end}));report.picked= picked;
+  let crossingShot=false,finished=false;const began=Date.now();
+  for(let tick=0;tick<120;tick++){
+   await page.waitForTimeout(200);const r=await read();report.positions.push({at:Date.now()-began,position:r.sim.position});
+   const live=await page.evaluate(()=>({position:{...window.__walk.motion.position},current:window.__bridgeActions.useInteractions.getState().current,error:window.__bridgeActions.useInteractions.getState().error,walkingError:window.__walk.useWalking.getState().error}));
+   assert.equal(live.error,'',live.error);assert.equal(live.walkingError,'',live.walkingError);
+   if(!crossingShot&&live.position.x>=25){await shot('walking-across-bay-bridge');crossingShot=true}
+   if(!live.current){assert(Math.hypot(live.position.x-endpoints.end.x,live.position.z-endpoints.end.z)<.35,JSON.stringify(live));finished=true;break}
+  }
+  assert(finished,'The actual ground click did not finish crossing the bridge');assert(crossingShot,'No on-span movement was observed');
+  const raf=await page.evaluate(()=>{window.__bridgeSample=false;cancelAnimationFrame(window.__bridgeRaf);const times=window.__bridgeFrames,gaps=times.slice(1).map((t,i)=>t-times[i]),sorted=[...gaps].sort((a,b)=>a-b);return{frames:times.length,elapsedMs:times.at(-1)-times[0],fps:(times.length-1)*1000/(times.at(-1)-times[0]),p95Ms:sorted[Math.floor(sorted.length*.95)]}});report.crossingRaf=raf;
+  await page.evaluate(()=>window.__walk.motion.flush());const done=await read();assert(Math.hypot(done.sim.position.x-endpoints.end.x,done.sim.position.z-endpoints.end.z)<.35);report.final=done.sim.position;
+  const samples=await page.evaluate(rows=>{const n=window.__bridgeNav;let checked=0;for(let i=1;i<rows.length;i++){const a=rows[i-1].position,b=rows[i].position,count=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.z-a.z)/.075));for(let j=0;j<=count;j++){checked++;if(!n.canStand('bay',a.x+(b.x-a.x)*j/count,a.z+(b.z-a.z)*j/count,null))throw Error('Authoritative crossing segment entered water or a footprint')}}return checked},report.positions);report.authoritativeSegmentSamples=samples;
+  report.checks.push('Actual projected ground click queues Walk here; crosses the full bridge from SF land to Oakland land with server-authoritative movement and no teleport');await shot('oakland-arrival');
+  // Separate active keyboard sample feeds the existing renderer metric, which tracks manual motion.
+  const safeAxis=await page.evaluate(()=>{const n=window.__bridgeNav,p=window.__walk.motion.position;for(const [back,forward,dx,dz]of [['a','d',1,0],['w','s',0,1]]){let safe=true;for(let i=-12;i<=12;i++)if(!n.canStand('bay',p.x+dx*i*.15,p.z+dz*i*.15,null))safe=false;if(safe)return{back,forward}}return null});assert(safeAxis,'No clear axis for the local active-motion sample');
+  await page.evaluate(()=>window.__metroScene.resetMetrics());for(let i=0;i<5;i++){await page.keyboard.down(safeAxis.back);await page.waitForTimeout(350);await page.keyboard.up(safeAxis.back);await page.keyboard.down(safeAxis.forward);await page.waitForTimeout(350);await page.keyboard.up(safeAxis.forward)}await page.evaluate(()=>window.__walk.motion.flush());await shot('bridge-active-motion-budget');
+  await page.evaluate(()=>{window.__walk.motion.follow=false;window.__metroScene.focus('overview');window.__store.getState().setSceneTheme('night')});await page.waitForTimeout(1300);await shot('bay-overview-night');
+  assert.deepEqual(report.errors,[]);report.result='PASS';await context.close();
+ }catch(e){report.result='FAIL';report.failure=e.stack;if(page){report.failureState=await page.evaluate(()=>({status:window.__metroScene?.status(),sim:window.__store?.getState().sim,queue:window.__bridgeActions?.useInteractions.getState(),walking:window.__walk?.motion.position})).catch(()=>null);await page.screenshot({path:path.join(out,`${width}-failure.png`),timeout:20000}).catch(()=>{})}throw e}
+ finally{fs.writeFileSync(path.join(out,`report-${width}.json`),JSON.stringify(report,null,2)+'\n');await browser.close()}
+})().catch(e=>{console.error(e);process.exitCode=1});

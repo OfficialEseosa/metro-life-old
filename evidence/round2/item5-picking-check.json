@@ -1,0 +1,409 @@
+{
+  "result": "PASS",
+  "checks": [
+    {
+      "name": "furniture:stove",
+      "result": {
+        "kind": "furniture",
+        "city": "atl",
+        "room": "home:self",
+        "id": "stove",
+        "point": {
+          "x": -2.604929577464785,
+          "z": 0.44859154929578293
+        },
+        "screen": {
+          "x": 413.09968681881764,
+          "y": 365.15837011674466
+        },
+        "stationId": "stove"
+      }
+    },
+    {
+      "name": "furniture:bed",
+      "result": {
+        "kind": "furniture",
+        "city": "atl",
+        "room": "home:self",
+        "id": "bed",
+        "point": {
+          "x": 2.111301369863014,
+          "z": -0.931849315068511
+        },
+        "screen": {
+          "x": 838.0542633582438,
+          "y": 296.0725125832283
+        },
+        "stationId": "bed"
+      }
+    },
+    {
+      "name": "furniture:shower",
+      "result": {
+        "kind": "furniture",
+        "city": "atl",
+        "room": "home:self",
+        "id": "shower",
+        "point": {
+          "x": -2.5298319327731043,
+          "z": -1.15
+        },
+        "screen": {
+          "x": 434.779714657145,
+          "y": 228.90919750285454
+        },
+        "stationId": "shower"
+      }
+    },
+    {
+      "name": "furniture:chair",
+      "result": {
+        "kind": "furniture",
+        "city": "atl",
+        "room": "home:self",
+        "id": "chair",
+        "point": {
+          "x": 2.4,
+          "z": 1.3599999999999994
+        },
+        "screen": {
+          "x": 894.0948686834145,
+          "y": 430.4055995133547
+        },
+        "stationId": "couch"
+      }
+    },
+    {
+      "name": "door:exit",
+      "result": {
+        "kind": "door",
+        "city": "atl",
+        "room": "home:self",
+        "id": "exit",
+        "point": {
+          "x": 0,
+          "z": 2.3
+        },
+        "screen": {
+          "x": 742.6675302915935,
+          "y": 541.1523886310919
+        },
+        "stationId": "exit"
+      }
+    },
+    {
+      "name": "ground:ground",
+      "result": {
+        "kind": "ground",
+        "city": "atl",
+        "room": "home:self",
+        "id": "ground",
+        "point": {
+          "x": -0.40000000000000013,
+          "z": 0.499999999999984
+        },
+        "screen": {
+          "x": 621.5938329432768,
+          "y": 450.6475715165244
+        }
+      }
+    },
+    {
+      "name": "ground:ground",
+      "result": {
+        "kind": "ground",
+        "city": "atl",
+        "room": "home:self",
+        "id": "ground",
+        "point": {
+          "x": -0.40000000000000013,
+          "z": 0.499999999999984
+        },
+        "screen": {
+          "x": 621.5938329432768,
+          "y": 450.6475715165244
+        }
+      }
+    },
+    {
+      "name": "six-pixel drag",
+      "result": "ignored"
+    },
+    {
+      "name": "right orbit",
+      "result": "ignored"
+    },
+    {
+      "name": "HUD target",
+      "result": "ignored"
+    },
+    {
+      "name": "multitouch gesture",
+      "result": "ignored"
+    },
+    {
+      "name": "cancelled pointer",
+      "result": "ignored"
+    },
+    {
+      "name": "room changed during gesture",
+      "result": "ignored"
+    },
+    {
+      "name": "furniture:table-2",
+      "result": {
+        "kind": "furniture",
+        "city": "atl",
+        "room": "foodhall:ponce",
+        "id": "table-2",
+        "point": {
+          "x": 3.5357142857142834,
+          "z": 0.38839285714285143
+        },
+        "screen": {
+          "x": 947.5272062768494,
+          "y": 403.9746981137561
+        },
+        "stationId": "table"
+      }
+    },
+    {
+      "name": "furniture:reception",
+      "result": {
+        "kind": "furniture",
+        "city": "atl",
+        "room": "cafe:krog",
+        "id": "reception",
+        "point": {
+          "x": -3.1472222222222244,
+          "z": -2.3
+        },
+        "screen": {
+          "x": 395.1959434235813,
+          "y": 204.9364032360705
+        },
+        "stationId": "counter"
+      }
+    },
+    {
+      "name": "person:other",
+      "result": {
+        "kind": "person",
+        "city": "atl",
+        "room": "home:self",
+        "id": "other",
+        "point": {
+          "x": 0.5,
+          "z": 0.30000001192092896
+        },
+        "screen": {
+          "x": 702.7540682868904,
+          "y": 375.8391392239257
+        }
+      }
+    },
+    {
+      "name": "ground:ground",
+      "result": {
+        "kind": "ground",
+        "city": "atl",
+        "room": "home:self",
+        "id": "ground",
+        "point": {
+          "x": 0.5633802816901413,
+          "z": -0.9295774647887214
+        },
+        "screen": {
+          "x": 702.7540682868904,
+          "y": 375.8391392239257
+        }
+      }
+    },
+    {
+      "name": "ground:ground",
+      "result": {
+        "kind": "ground",
+        "city": "atl",
+        "room": "home:self",
+        "id": "ground",
+        "point": {
+          "x": 0.5633802816901413,
+          "z": -0.9295774647887214
+        },
+        "screen": {
+          "x": 702.7540682868904,
+          "y": 375.8391392239257
+        }
+      }
+    },
+    {
+      "name": "door:high",
+      "result": {
+        "kind": "door",
+        "city": "atl",
+        "room": null,
+        "id": "high",
+        "point": {
+          "x": -8,
+          "z": -35.75,
+          "name": "High Museum of Art"
+        },
+        "screen": {
+          "x": 657,
+          "y": 299.8372191278963
+        }
+      }
+    },
+    {
+      "name": "foreground visible map pin owns tap",
+      "result": "ignored"
+    },
+    {
+      "name": "door:high",
+      "result": {
+        "kind": "door",
+        "city": "atl",
+        "room": null,
+        "id": "high",
+        "point": {
+          "x": -8,
+          "z": -35.75,
+          "name": "High Museum of Art"
+        },
+        "screen": {
+          "x": 657,
+          "y": 299.8372191278963
+        }
+      }
+    },
+    {
+      "name": "door:high",
+      "result": {
+        "kind": "door",
+        "city": "atl",
+        "room": null,
+        "id": "high",
+        "point": {
+          "x": -8,
+          "z": -35.75,
+          "name": "High Museum of Art"
+        },
+        "screen": {
+          "x": 657,
+          "y": 299.8372191278963
+        }
+      }
+    },
+    {
+      "name": "same landmark pin owns tap despite nearer building facade",
+      "result": "ignored"
+    },
+    {
+      "name": "door:high",
+      "result": {
+        "kind": "door",
+        "city": "atl",
+        "room": null,
+        "id": "high",
+        "point": {
+          "x": -8,
+          "z": -35.75,
+          "name": "High Museum of Art"
+        },
+        "screen": {
+          "x": 657,
+          "y": 299.8372191278963
+        }
+      }
+    },
+    {
+      "name": "ground:ground",
+      "result": {
+        "kind": "ground",
+        "city": "atl",
+        "room": null,
+        "id": "ground",
+        "point": {
+          "x": -8,
+          "z": -51.428571428571544
+        },
+        "screen": {
+          "x": 657,
+          "y": 299.8372191278963
+        }
+      }
+    },
+    {
+      "name": "bench:centennial:0",
+      "result": {
+        "kind": "bench",
+        "city": "atl",
+        "room": null,
+        "id": "centennial:0",
+        "point": {
+          "x": -15,
+          "z": 0
+        },
+        "screen": {
+          "x": 657,
+          "y": 381.5807424202819
+        }
+      }
+    },
+    {
+      "name": "ground:ground",
+      "result": {
+        "kind": "ground",
+        "city": "nyc",
+        "room": null,
+        "id": "ground",
+        "point": {
+          "x": 21,
+          "z": 47.00000000000025
+        },
+        "screen": {
+          "x": 656.9999999999999,
+          "y": 422.99999999999983
+        }
+      }
+    },
+    {
+      "name": "ground:ground",
+      "result": {
+        "kind": "ground",
+        "city": "atl",
+        "room": "home:self",
+        "id": "ground",
+        "point": {
+          "x": -0.40000000000000013,
+          "z": 0.499999999999984
+        },
+        "screen": {
+          "x": 621.5938329432768,
+          "y": 450.6475715165244
+        }
+      }
+    },
+    {
+      "name": "ground:ground",
+      "result": {
+        "kind": "ground",
+        "city": "atl",
+        "room": "home:self",
+        "id": "ground",
+        "point": {
+          "x": -0.40000000000000013,
+          "z": 0.499999999999984
+        },
+        "screen": {
+          "x": 621.5938329432768,
+          "y": 450.6475715165244
+        }
+      }
+    },
+    {
+      "name": "listener cleanup",
+      "result": "PASS"
+    }
+  ]
+}

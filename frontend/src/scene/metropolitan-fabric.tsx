@@ -44,7 +44,7 @@ export function dataFor(city:'nyc'|'bay'){
  for(const poly of polys){land(shore,poly,city==='nyc'?'#91ab8d':'#7fae80');for(let i=0;i<poly.length;i++){const a=poly[i],c=poly[(i+1)%poly.length];shore.line([a[0],.2,a[1]],[c[0],.2,c[1]],.75,'#d7d9cd')}}
  // Separate island and hills: geometry, not a flat square edge.
  if(city==='nyc'){shore.sphere(-51,0,79,1,'#a7c28e',9,.7,8);b.box(-20,.25,-45,22,.1,34,'#82b478')}
- else {for(const[x,z,s]of[[-75,-85,19],[-42,-92,17],[-65,27,12]])shore.sphere(x,-1,z,1,'#9db68d',s,4,s);const bridge=suspension(new Builder(),'#9daeb2',49,14).build();bridge.rotateY(Math.PI/2);bridge.translate(33,0,-8);b.add(bridge,'#a4b2b3')}
+ else {for(const[x,z,s]of[[-75,-85,19],[-42,-92,17],[-65,27,12]])shore.sphere(x,-1,z,1,'#9db68d',s,4,s);const bridge=suspension(new Builder(),'#9daeb2',55,14).build();bridge.rotateY(Math.PI/2+.10);bridge.translate(30,0,-5.25);b.add(bridge,'#a4b2b3')}
  for(let z=-83;z<118;z+=8)for(let x=-83;x<114;x+=8){
   if(!isLand(x,z)||city==='bay'&&z<-49&&x<40||city==='nyc'&&x>-33&&x<-7&&z>-65&&z<-27)continue
   const clear=clearSite(x,z,2.4)&&!victorianRows.some(r=>Math.abs(x-r.x)<9&&Math.abs(z-r.z)<6);if(!clear)continue

@@ -163,7 +163,8 @@ Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl
 | POST | `/api/life/new` | `{ confirm: true }` → `{ user }` (replaces the browser life and issues a new session cookie) |
 | POST | `/api/sim/setup` | `{ username, pronouns, city, neighborhood, aspiration, look? }` → `{ sim }` (creates the sim once in the shared world; existing sim returns 409, later home/aspiration changes use their dedicated endpoints) |
 | GET | `/api/sim` | `{ sim, clock }` (applies decay up to now) |
-| POST | `/api/act` | `{ city, loc, action }` → `{ sim, result: ActResult }` |
+| POST | `/api/act` | `{ city, loc, action, slotId? }` → `{ sim, result: ActResult }` |
+| POST | `/api/action/cancel` | no body → `{ sim, clock }` |
 | POST | `/api/story/choose` | `{ beatId, choice }` → `{ sim, outcome: StoryOutcome }` |
 | POST | `/api/home/move` | `{ city, neighborhood }` → `{ sim }` |
 | GET | `/api/jobs?city` | `{ jobs: Job[] }` |
@@ -227,3 +228,10 @@ Actual public landmark arrivals (door entry, walking into a doorway area, or com
 Player presence and position patches include optional `socialBusy:boolean`, true for an active activity or pending story. Human trips/actions settle before presence snapshots. Nearby social controls require an online player or NPC within three metres, the same exact public room (or both outdoors), and no pending activity/story. Private home locations are not shared social places. The endpoint checks the same effective use-slot position. New arrivals and reconnects use a valid free spot near the authored door, including current actors, staff and reservations.
 
 The client serializes map travel, waits for its authoritative settlement, then snaps motion/visual position before restoring follow or opening the requested panel. Movement request revisions discard pre-travel replies. City election travels to that city's civic destination and opens the working ballot after arrival. Find a home opens its list without travel. `POST /api/travel` returns `{sim,clock}`. HUD gestures prevent text selection while text inputs remain editable.
+
+
+### Round 2 mouse interaction contract
+- Ground clicks follow collision-checked walking paths. Usable furniture, doors, park benches and rendered residents open an action menu at the pointer. Accepted object actions walk to their valid approach before requesting the action; manual keyboard or joystick movement interrupts the current walking leg.
+- The local queue holds one current action and up to three waiting actions, with individual cancellation. It is cleared when the browser life changes; pending responses from the previous life cannot restore it. Server activity cancellation is serialized, settles already-due rewards once, and otherwise discards pending effects/travel without paying unearned rewards. It clears the use slot. Waiting actions are local intentions, revalidated against server state when they start.
+- Optional `slotId` targets an exact compatible furniture use slot. Public slots must match the action station and pose, be free, and have a valid approach within 1.45m. There is no fallback to another table or chair if the selected piece is occupied. Home activities retain their authored canonical approaches. Omission preserves existing keyboard and panel behavior.
+- Mouse wheel zooms and right drag orbits. The chosen camera offset persists while walking until the room/city changes. Phone room framing includes the whole studio; keyboard, touch joystick and touch camera rotation remain available.

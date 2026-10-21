@@ -123,6 +123,13 @@ public class GameService {
     synchronized ObjectNode travel(String token,JsonNode body){ObjectNode out=navigation.travel(token,body),s=sim(session(token,true));if(firstDay.outside(s)){store.save();return simResponse(s,world(session(token,true)));}return out;}
     synchronized ObjectNode door(String token,JsonNode body){navigation.door(token,body);ObjectNode ses=session(token,true),s=sim(ses);if(body.path("enter").asBoolean())recordArrival(s);firstDay.outside(s);store.save();return simResponse(s,world(ses));}
     synchronized ObjectNode posture(String token,JsonNode body){return navigation.posture(token,body);}
+    /** Settle due work first; unfinished promises have never charged or rewarded the live sim. */
+    synchronized ObjectNode cancelAction(String token){
+        ObjectNode ses=session(token,true),s=sim(ses),w=world(ses);decay(s,w);
+        s.remove(List.of("_pendingAction","_pendingTravel"));
+        s.putNull("busyUntil").putNull("busyStartedAt").putNull("busyLabel").putNull("busyKind").putNull("activitySlot");
+        store.save();return simResponse(s,w);
+    }
     synchronized ObjectNode movePosition(String token,JsonNode body){ObjectNode out=navigation.move(token,body),s=sim(session(token,true));boolean changed=firstDay.outside(s);if(s.path("position").path("room").isNull())changed=recordArrival(s)||changed;if(changed)store.save();return out;}
     synchronized ObjectNode getSim(String token) {ObjectNode session=session(token,true),s=sim(session),w=world(session);navigation.resumePosture(s);decay(s,w);return simResponse(s,w);}
     void decay(ObjectNode s,ObjectNode w) {
@@ -194,6 +201,7 @@ public class GameService {
     synchronized ObjectNode act(String token,JsonNode body) {
         ObjectNode session=session(token,true),live=sim(session),w=world(session);decay(live,w);ObjectNode s=live.deepCopy();
         String city=body.path("city").asText(),loc=body.path("loc").asText(),action=body.path("action").asText();content.city(city);
+        String slotId=body.path("slotId").asText("");require(!body.hasNonNull("slotId")||body.path("slotId").isTextual()&&!slotId.isBlank(),400,"Choose a valid furniture slot");
         require(s.path("city").asText().equals(city),403,"Fly to this city before doing an activity here");
         require(s.path("busyUntil").isNull(),409,"Finish your current activity first");
         require(s.path("pendingBeat").isNull(),409,"Choose what happens in your story first");
@@ -211,7 +219,7 @@ public class GameService {
         if(a.path("requires").has("job")){a=a.deepCopy();a.put("pay",s.path("job").path("payPerHour").asInt());s.withObject("job").put("shifts",s.path("job").path("shifts").asInt()+1);}
         a=civic.action(w,city,loc.equals("home")?object():content.landmark(city,loc),a);
         require(s.path("cash").asDouble()>=a.path("cost").asDouble(),402,"You do not have enough cash for this activity");
-        navigation.requireAction(live,loc,action);s.set("position",live.path("position").deepCopy());
+        if(slotId.isEmpty())navigation.requireAction(live,loc,action);else navigation.requireSlotAction(live,loc,a,slotId);s.set("position",live.path("position").deepCopy());
         boolean campaign=a.path("label").asText().equals("Campaign");if(campaign)civic.campaignCheck(w,s,city);
         boolean low=Set.of("rough","low").contains(s.path("mood").asText());double cashDelta=Math.floor(a.path("pay").asDouble()*(low?.7:1))-a.path("cost").asDouble();
         s.put("cash",s.path("cash").asDouble()+cashDelta);int xp=a.path("xp").asInt();s.put("xp",s.path("xp").asInt()+xp);int oldLevel=s.path("level").asInt();updateLevel(s);
@@ -233,7 +241,7 @@ public class GameService {
         ObjectNode deltas=result.putObject("deltas").put("cash",s.path("cash").asDouble()-cashBefore).put("xp",s.path("xp").asInt()-xpBefore);deltas.set("needs",needDeltas);deltas.set("skills",skillDeltas);result.set("goalsCompleted",completed);result.putObject("activity").put("id",action).put("label",a.path("label").asText()).put("cost",a.path("cost").asDouble()).put("pay",Math.floor(a.path("pay").asDouble()*(low?.7:1))).put("dailyCash",dailyCash).put("bonusCash",s.path("cash").asDouble()-cashBefore-cashDelta-dailyCash);
         // Persist the accepted outcome; readers settle it exactly once at its deadline,
         // including after a restart. Clients cannot mint or accelerate the reward.
-        navigation.stage(live,loc,a);
+        navigation.stage(live,loc,a,slotId);
         ObjectNode pending=live.putObject("_pendingAction").put("cost",a.path("cost").asDouble()).put("shift",a.path("requires").has("job")).put("meal",a.path("kind").asText().equals("food")&&a.path("cost").asDouble()>0);pending.set("state",s);pending.set("deltas",deltas.deepCopy());if(campaign)pending.put("campaignCity",city).put("campaignTerm",civic.state(w,city).path("term").asInt()).put("campaignDay",civic.day(w));
         live.put("loc",loc).put("busyKind",a.path("kind").asText()).put("busyStartedAt",now()).put("busyUntil",busyUntil).put("busyLabel",a.path("label").asText());store.save();
         out.set("sim",publicSim(live));out.set("result",result);return out;
