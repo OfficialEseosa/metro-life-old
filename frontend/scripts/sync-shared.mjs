@@ -1,7 +1,7 @@
 // Copies the repository's shared/*.json game data into src/shared-data so the frontend builds
 // from its own folder (for example on a static host whose root directory is frontend/).
 // The copy is generated and ignored by git; shared/ stays the single source of truth.
-import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -19,5 +19,14 @@ if (!existsSync(source)) {
 }
 mkdirSync(target, { recursive: true })
 const names = readdirSync(source).filter(name => name.endsWith('.json'))
-for (const name of names) copyFileSync(join(source, name), join(target, name))
-console.log(`[shared-data] copied ${names.length} file(s) from ../shared`)
+// Only rewrite files whose content changed: a second dev server or a build must not make an
+// already running dev server reload every page that imports the game data.
+const same = (a, b) => existsSync(b) && readFileSync(a).equals(readFileSync(b))
+let copied = 0
+for (const name of names) {
+  const from = join(source, name), to = join(target, name)
+  if (same(from, to)) continue
+  copyFileSync(from, to)
+  copied++
+}
+console.log(`[shared-data] ${copied} of ${names.length} file(s) updated from ../shared`)
