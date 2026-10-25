@@ -69,6 +69,39 @@ final class Civic {
         c.putObject("votes");
         c.putObject("campaignDays");
       }
+      seedBallot(w, city.path("id").asText(), c);
+    }
+  }
+
+  static final String[] SLOGANS = {
+    "More shade, more benches, more neighbours",
+    "Late buses and later music",
+    "Fresh food on every corner",
+    "Parks open until the stars come out",
+    "Small shops, big dreams",
+    "A stage on every block",
+  };
+
+  /** Every term opens with two residents on the ballot, so there is always someone to vote for. */
+  void seedBallot(ObjectNode w, String city, ObjectNode c) {
+    if (c.path("candidates").size() > 0) return;
+    List<JsonNode> locals = new ArrayList<>();
+    for (JsonNode n : g.community.residents().path(w.path("id").asText()))
+      if (n.path("city").asText().equals(city)) locals.add(n);
+    if (locals.size() < 2) return;
+    int term = c.path("term").asInt(1);
+    for (int k = 0; k < 2; k++) {
+      JsonNode n = locals.get(Math.floorMod(term * 7 + k * 13 + city.hashCode(), locals.size()));
+      if (candidate(c, n.path("userId").asText()) != null) continue;
+      ObjectNode row = c
+        .withArray("candidates")
+        .addObject()
+        .put("id", n.path("userId").asText())
+        .put("username", n.path("username").asText())
+        .put("slogan", SLOGANS[Math.floorMod(term + k * 3 + city.hashCode(), SLOGANS.length)])
+        .put("npc", true)
+        .put("support", 1);
+      row.set("look", n.path("look").deepCopy());
     }
   }
 
@@ -168,7 +201,7 @@ final class Civic {
       out.put("canRun", "Travel here to take part").put("canVote", "Travel here to vote");
     } else {
       if (running) out.put("canRun", "You are on the ballot");
-      else if (g.progression.skill(s, "charisma") < 2) out.put("canRun", "Reach Charisma 2 to run");
+      else if (g.progression.skill(s, "charisma") < 1) out.put("canRun", "Reach Charisma 1 to run");
       else out.put("canRun", true);
       if (c.path("votes").has(uid)) out.put("canVote", "Your vote is counted for this term");
       else if (!g.established(s)) out.put("canVote", "Live here for one game day before voting");
@@ -186,7 +219,7 @@ final class Civic {
     String uid = s.path("userId").asText();
     switch (kind) {
       case "run" -> {
-        GameService.require(g.progression.skill(s, "charisma") >= 2, 403, "Reach Charisma 2 to run");
+        GameService.require(g.progression.skill(s, "charisma") >= 1, 403, "Reach Charisma 1 to run");
         GameService.require(candidate(c, uid) == null, 409, "You are already on the ballot");
         String slogan = text(body, "slogan", 3, 80);
         ObjectNode row = c

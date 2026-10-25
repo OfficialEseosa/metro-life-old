@@ -94,8 +94,7 @@ export function Walking({
     city = useStore((s) => s.city),
     { invalidate, camera, gl, size, scene } = useThree(),
     ref = useRef<THREE.Group>(null),
-    doorRef = useRef<THREE.InstancedMesh>(null),
-    waterRef = useRef<THREE.InstancedMesh>(null);
+    doorRef = useRef<THREE.InstancedMesh>(null);
   const visual = useRef(new THREE.Vector3()),
     renderedSpeed = useRef(0),
     stagedPose = useRef<CharacterPose>("Idle"),
@@ -237,18 +236,13 @@ export function Walking({
     }
   }, [key, city, invalidate, camera, controls]);
   useEffect(() => {
+    // Server relocations (doors, travel, flights) arrive through store.setSim, which moves
+    // `motion`; here only a room mismatch is repaired. Distance alone is not a reason to snap: on
+    // a slow link or at a low frame rate the confirmed position trails the walking player.
     if (
       sim?.position &&
       motion.position &&
-      (Math.hypot(
-        sim.position.x - motion.position.x,
-        sim.position.z - motion.position.z,
-      ) > 4 ||
-        (!sim.busyUntil &&
-          Math.hypot(
-            sim.position.x - visual.current.x,
-            sim.position.z - visual.current.z,
-          ) > 4))
+      (sim.position.room ?? null) !== (motion.position.room ?? null)
     ) {
       motion.position = { ...sim.position };
       visual.current.set(sim.position.x, 0, sim.position.z);
@@ -373,7 +367,8 @@ export function Walking({
       return;
     // Real elapsed time drives walking, so speed is the same at 10 or 60 frames a second. Long
     // stalls (a hidden tab) are capped so nobody teleports across the map.
-    const elapsed = Math.min(dt, 0.25);
+    const elapsed = Math.min(dt, 0.5);
+    motion.walkClock += elapsed;
     const s = useStore.getState(),
       blocked =
         useHomeDesign.getState().open ||
@@ -506,7 +501,11 @@ export function Walking({
       ),
       gap = visual.current.distanceTo(goal),
       staging = gap > 0.035 || activityPath.current.length > 1,
-      step = Math.min(1, (4.2 * Math.min(dt, 0.05)) / Math.max(gap, 0.001));
+      // Catch up faster when far behind, so the body never trails the walking position.
+      step = Math.min(
+        1,
+        (Math.max(4.2, gap * 3) * Math.min(dt, 0.5)) / Math.max(gap, 0.001),
+      );
     visual.current.lerp(goal, step);
     if (staging) invalidate();
     const seated =
@@ -523,11 +522,8 @@ export function Walking({
     else if (at.room?.startsWith("club:") && visual.current.z < -2.3)
       groundY.current = 0.36;
     if (!at.room) groundY.current = groundHeight(scene, city, at.x, at.z);
-    const pose = sim.busyUntil ? (sim.busyLabel ?? "").toLowerCase() : "",
-      cook = pose.includes("cook"),
-      shower = pose.includes("shower"),
-      eating = sim.busyKind === "food",
-      busy = !!pose;
+    // Activity effects (steam, spray, Zs) are drawn by scene/activity.tsx for everyone.
+    const busy = !!sim.busyUntil;
     if (busy) {
       phase.current += Math.min(dt, 0.05) * 5;
       invalidate();
@@ -584,37 +580,6 @@ export function Walking({
                       ? "Wave"
                       : "Talk"
                     : "Idle"));
-    if (waterRef.current && (shower || cook || eating)) {
-      for (let i = 0; i < 12; i++) {
-        const t = (phase.current * 0.4 + i / 12) % 1;
-        dummy.position.set(
-          visual.current.x +
-            (cook ? Math.sin(face) * 0.65 : 0) +
-            Math.sin(i * 4.2) * (shower ? 0.27 : 0.18),
-          shower ? 2.8 - t * 2.5 : 1.1 + t * 0.8,
-          visual.current.z + Math.cos(i * 3.8) * 0.2,
-        );
-        if (eating) {
-          const hand =
-            ref.current.getObjectByName("Wrist.L") ??
-            ref.current.getObjectByName("WristL");
-          if (hand) hand.getWorldPosition(dummy.position);
-          else dummy.position.set(visual.current.x, 1, visual.current.z);
-          dummy.position.y += 0.035;
-        }
-        dummy.rotation.set(0, 0, 0);
-        dummy.scale.set(
-          shower ? 0.025 : 0.06,
-          shower ? 0.17 : 0.07,
-          shower ? 0.025 : 0.06,
-        );
-        if (eating) dummy.scale.setScalar(i === 0 ? 0.075 : 0);
-        dummy.updateMatrix();
-        waterRef.current.setMatrixAt(i, dummy.matrix);
-      }
-      waterRef.current.instanceMatrix.needsUpdate = true;
-      waterRef.current.computeBoundingSphere();
-    }
     // After a teleport the camera jumps to the player instead of sweeping across the map.
     const snap = motion.snapCamera && motion.follow;
     if (snap) {
@@ -849,22 +814,6 @@ export function Walking({
     });
   return (
     <>
-      <instancedMesh
-        ref={waterRef}
-        visible={
-          !!sim.busyUntil &&
-          (/shower|cook/i.test(sim.busyLabel ?? "") || sim.busyKind === "food")
-        }
-        args={[undefined, undefined, 12]}
-      >
-        <sphereGeometry args={[1, 5, 3]} />
-        <meshBasicMaterial
-          color={sim.busyKind === "food" ? "#d69754" : "#d8f7fa"}
-          transparent
-          opacity={0.7}
-          depthWrite={false}
-        />
-      </instancedMesh>
       <group name="controlled-player" ref={ref}>
         <Suspense fallback={null}>
           <RiggedCharacter

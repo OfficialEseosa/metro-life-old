@@ -31,6 +31,10 @@ final class Personality {
     "ponytail",
     "braids",
     "mohawk",
+    "quiff",
+    "spiky",
+    "messy",
+    "sideshave",
     "bald"
   );
   static final List<String> FACES = List.of("soft", "bright", "angular", "freckled");

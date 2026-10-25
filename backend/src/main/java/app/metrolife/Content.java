@@ -70,6 +70,20 @@ public class Content {
         ArrayNode labels = (ArrayNode) loc.get("actions"),
           actions = mapper.createArrayNode();
         for (int i = 0; i < labels.size(); i++) actions.add(expand(loc, labels.get(i).asText(), i));
+        // Music venues and clubs always offer the dance floor by name.
+        if (Set.of("nightlife", "music").contains(loc.path("category").asText())) actions.add(
+          action(
+            "dance",
+            "Dance the night away",
+            "fun",
+            "music",
+            30,
+            10,
+            0,
+            Map.of("fun", 28, "social", 12, "energy", -8, "hygiene", -4),
+            Map.of("music", 12)
+          )
+        );
         loc.set("actions", actions);
       }
       ArrayNode home = city.putArray("homeActions");

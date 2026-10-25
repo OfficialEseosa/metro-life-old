@@ -856,14 +856,21 @@ export const useStore = create<State>((set, get) => {
       if (sim && sim.worldId !== get().worldInfo?.id) return;
       installHomeDesign(sim?.homeDesign, sim?.homeLayout);
       const travelled = sim && get().sim && sim.city !== get().sim?.city;
+      const before = get().sim?.position;
+      // Snap only when the server itself moved the player (door, travel, a refused step): a
+      // snapshot that merely trails a walking player must not pull them back.
       if (
         sim?.position &&
         motion.position &&
         (sim.position.room !== motion.position.room ||
-          Math.hypot(
+          (Math.hypot(
             sim.position.x - motion.position.x,
             sim.position.z - motion.position.z,
-          ) > 4)
+          ) > 4 &&
+            (!before ||
+              (before.room ?? null) !== (sim.position.room ?? null) ||
+              Math.hypot(sim.position.x - before.x, sim.position.z - before.z) >
+                4)))
       ) {
         motion.revision++;
         motion.teleport++;
@@ -952,14 +959,18 @@ export const useStore = create<State>((set, get) => {
           searchOpen: false,
           cameraMoving: false,
         });
-        const deadline = Date.now() + 15000;
+        const deadline = Date.now() + 30000;
         while (result.sim.busyUntil) {
           if (Date.now() > deadline)
             throw Error(
               "Your trip is taking longer than expected. Please try again.",
             );
           await new Promise((resolve) => setTimeout(resolve, 300));
-          result = await api.sim();
+          // A refused or late read (another request in flight) is simply tried again.
+          result = await api.sim().catch((error: unknown) => {
+            if (error instanceof ApiError && error.status === 0) return result;
+            throw error;
+          });
           if (get().sim?.worldId !== world) return;
         }
         const arrived = result.sim.position;

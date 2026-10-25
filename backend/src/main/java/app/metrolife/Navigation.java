@@ -717,8 +717,9 @@ final class Navigation {
     route.add(new double[] { x, z });
     String key = s.path("worldId").asText() + s.path("userId").asText();
     long at = g.now();
+    // 7.5 m/s of credit, saved up to 12 m so one slow round trip never reads as speeding.
     double budget = Math.min(
-        5,
+        12,
         credits.getOrDefault(key, 2d) + Math.max(0, at - times.getOrDefault(key, at)) * .0075
       ),
       distance = 0;

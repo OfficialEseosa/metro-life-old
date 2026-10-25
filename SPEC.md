@@ -303,7 +303,7 @@ Newly started browser lives opt their shared world into a seven-minute day (`Clo
   3-second cooldown instead of failing.
 - **Movement.** `POST /api/move` may carry `via: [{x,z}]` (up to 16 corners walked since the last confirmed
   position). The server checks every straight piece of that polyline for collisions and the whole length against
-  the speed budget (7.5 m/s, 5 m burst), so walking never pauses at a corner to wait for the server.
+  the speed budget (7.5 m/s, saved up to 12 m), so walking never pauses at a corner to wait for the server.
 - **Settlement.** The client learns that an activity finished from the socket `event: sim` (the server settles
   due activities for connected players every second) or from any fresher sim; one fallback `GET /api/sim` runs
   1.5 s after the deadline only if neither arrived. The accepted result is shown once.

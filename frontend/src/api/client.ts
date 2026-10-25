@@ -83,7 +83,8 @@ async function req<T>(
     if (signIn && session.wanted) headers["X-Metro-Token-Fallback"] = "1";
     try {
       res = await fetch(apiUrl(path), {
-        signal: AbortSignal.timeout(15000),
+        // Reads give up sooner so an unreachable city is noticed; a slow action gets more time.
+        signal: AbortSignal.timeout(mutation ? 30000 : 15000),
         method,
         credentials: "include",
         headers,

@@ -32,6 +32,9 @@ export const motion = {
   trail: [] as { x: number; z: number }[],
   /** Set after a teleport (map shortcut, flight, door): the follow camera jumps instead of gliding. */
   snapCamera: false,
+  /** Seconds of walking simulated so far. Stuck detection counts this, not wall time, so a slow or
+   * stalled frame never reads as "blocked". */
+  walkClock: 0,
   flush: async () => {},
   wake: () => {},
 };

@@ -874,7 +874,7 @@ export function interactionSteering(now: number, manual: boolean): Point {
       socialAnchor = { x: point.x, z: point.z };
       lastRepath = now;
       lastProgress = { ...p };
-      stuckAt = now;
+      stuckAt = motion.walkClock * 1000;
     }
   }
   if (Math.hypot(endpoint.x - p.x, endpoint.z - p.z) < 0.12) {
@@ -884,7 +884,7 @@ export function interactionSteering(now: number, manual: boolean): Point {
   if (!path.length) {
     path = navigationRoute(task.city, task.room, p, endpoint);
     lastProgress = { ...p };
-    stuckAt = now;
+    stuckAt = motion.walkClock * 1000;
     if (!path.length) {
       finish("There is no clear walking path to that spot.");
       return { x: 0, z: 0 };
@@ -904,19 +904,21 @@ export function interactionSteering(now: number, manual: boolean): Point {
     void perform(task);
     return { x: 0, z: 0 };
   }
+  // Measured in simulated walking time: at a low frame rate a frame is long, not blocked.
+  const walked = motion.walkClock * 1000;
   if (
-    lastProgress &&
+    !lastProgress ||
     Math.hypot(lastProgress.x - p.x, lastProgress.z - p.z) > 0.2
   ) {
     lastProgress = { ...p };
-    stuckAt = now;
-  } else if (now - stuckAt > 4000) {
+    stuckAt = walked;
+  } else if (walked - stuckAt > 2500) {
     // Something moved into the way: look for a fresh route once before giving up.
     if (repaths < 2) {
       repaths++;
       path = navigationRoute(task.city, task.room, p, endpoint);
       lastProgress = { ...p };
-      stuckAt = now;
+      stuckAt = walked;
       if (path.length) return { x: path[0].x - p.x, z: path[0].z - p.z };
     }
     finish("Something is in the way. Choose another spot.");
