@@ -1,14 +1,27 @@
-.runtime/
+# Dependencies and build output
 **/node_modules/
 **/target/
-backend/data/
 **/dist/
-**/.git/
+frontend/src/shared-data/
+*.log
+*.trace.zip
+
+# Local saves and secrets
+backend/data/
+.env
+.env.local
+frontend/.env.local
+frontend/.env.*.local
+.vercel/
+
+# Verification output stays outside git
+/evidence/
+/audits/
+/verification/
+/screenshots/
+/shots/
+/e2e/output/
+/e2e/screenshots/
 playwright-report/
 test-results/
-*.log
-.env
-evidence/**/*.cookies
-evidence/**/request.json
-evidence/rea-*-input/
-evidence/art-rebuild/**/*.html
+/game/

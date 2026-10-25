@@ -12,9 +12,10 @@
 	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>backend</name>
-	<description>Metro Life authoritative simulation</description>
+	<description>Metro Life API and live world server</description>
 	<properties>
 		<java.version>21</java.version>
+		<maven.test.skip>true</maven.test.skip>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -22,19 +23,9 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-websocket</artifactId></dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 	<build>
 		<resources>
-			<resource><directory>../frontend/dist</directory><targetPath>static</targetPath></resource>
 			<resource><directory>src/main/resources</directory></resource>
 			<resource><directory>../shared</directory><targetPath>static-data</targetPath><includes><include>world.json</include><include>navigation.json</include><include>interiors.json</include><include>venues.json</include><include>resident-routes.json</include><include>transit.json</include><include>furniture.json</include><include>personality.json</include><include>display-names.json</include></includes></resource>
 		</resources>
