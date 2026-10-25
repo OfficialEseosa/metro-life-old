@@ -8,7 +8,8 @@ import {
 } from "react";
 import { useStore } from "../store";
 import { useNightLighting } from "../lighting";
-import { motion } from "../walking";
+import { motion, useWalking } from "../walking";
+import { useInteractions } from "../interactions";
 import { venueZoneAt } from "../scene/venue-zones";
 import { interiors } from "../navigation";
 import {
@@ -19,6 +20,7 @@ import {
   unlockAudio,
   setAudioScene,
   sound,
+  cue,
   pauseAudio,
   continueAudio,
 } from "./sound";
@@ -206,6 +208,19 @@ function AudioSceneContent() {
         );
       }
     });
+  }, []);
+  useEffect(() => {
+    // Client-side refusals (a blocked path, a full queue) show in the HUD; give them a sound too.
+    const offInteractions = useInteractions.subscribe((state, before) => {
+      if (state.error && state.error !== before.error) cue("error");
+    });
+    const offWalking = useWalking.subscribe((state, before) => {
+      if (state.error && state.error !== before.error) cue("error");
+    });
+    return () => {
+      offInteractions();
+      offWalking();
+    };
   }, []);
   useEffect(() => {
     let previous = motion.position ? { ...motion.position } : null;
