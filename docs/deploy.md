@@ -49,10 +49,41 @@ Create a service from the Git repository with the Dockerfile builder, Dockerfile
 
 ## Frontend on Vercel
 
-1. Import the repository and set **Root Directory** to `frontend`. `frontend/vercel.json` sets the install command, the build command and the `dist` output.
-2. Keep **Include files outside the root directory in the Build Step** enabled (the default). The build copies `../shared/*.json` into `src/shared-data` before compiling.
-3. Add the environment variable `VITE_API_URL` with the API origin, without a trailing slash, for example `https://metro-life-api.fly.dev`. It is read at build time, so redeploy after changing it.
-4. Put the Vercel production URL (and a preview pattern if you want previews to work) into the API's `METRO_ORIGINS`.
+Project settings (team "Raphael Omorose's projects", project name `metro-life`):
+
+| Setting | Value |
+|---|---|
+| Git repository | `OfficialEseosa/metro-life`, production branch `main` (every push deploys) |
+| Root Directory | `frontend` |
+| Framework preset | Vite |
+| Install / build / output | `npm ci` / `npm run build` / `dist` (also set in `frontend/vercel.json`) |
+| Include files outside the root directory in the Build Step | **on** (the default) |
+| Node.js | 22.x |
+| `VITE_API_URL` | the API origin without a trailing slash, for example `https://metro-life-api.fly.dev`; leave unset until an API exists |
+
+Steps:
+
+1. Vercel dashboard, Add New, Project, import `OfficialEseosa/metro-life` (install the Vercel GitHub app for the repository if asked), then set the values above. The quickest link is https://vercel.com/new/import?s=https://github.com/OfficialEseosa/metro-life .
+2. Keep **Include files outside the root directory** on: `npm run build` first copies `../shared/*.json` into `src/shared-data` and stops with a clear message if `../shared` is missing.
+3. Once an API is running, add `VITE_API_URL` (Production and Preview) and redeploy: the value is read at build time.
+4. Put the Vercel production URL, and a preview pattern if you want previews to reach the API (for example `https://metro-life-*-raphael-omoroses-projects.vercel.app`), into the API's `METRO_ORIGINS`.
+
+Without `VITE_API_URL` the page calls `/api` on its own origin, which Vercel answers with 404, so players see the "server unreachable" card instead of a blank page.
+
+`frontend/vercel.json` also:
+
+- rewrites page paths to `index.html`, but never `api/`, `ws`, `assets/`, `audio/`, `models/` or any path with a file extension, so a missing model or sound is a real 404;
+- caches `assets/` (content-hashed JS, CSS and fonts) for a year as immutable, `audio/` and `models/` for a day with a 30-day stale-while-revalidate window (they are not hashed), and serves `index.html` with `no-cache`.
+
+## Free API hosts
+
+Any of these runs the `backend/Dockerfile` image. Whatever the host: one instance, a persistent volume at `/data`, `METRO_ORIGINS` set to the Vercel URL, health check `GET /api/version`.
+
+| Host | Free tier notes |
+|---|---|
+| Render | Free web services sleep after idle time and have no disk, so the city resets on each restart; a paid instance adds a disk at `/data`. |
+| Fly.io | Small machines and a 1 GB volume fit the free allowance on most accounts; set `min_machines_running = 1` to avoid cold starts. |
+| Koyeb | One free instance; volumes depend on the plan, otherwise the save file is lost on redeploy. |
 
 ## Sessions across origins
 

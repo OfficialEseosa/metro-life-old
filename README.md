@@ -52,7 +52,25 @@ METRO_STATIC_LOCATIONS=file:../frontend/dist/ java -jar target/backend-0.0.1-SNA
 | `VITE_API_URL` | frontend build | empty (same origin) | API origin when the frontend is hosted elsewhere. |
 | `METRO_API_PROXY` | frontend dev | `http://localhost:8080` | Target of the dev server's `/api` and `/ws` proxy. |
 
-Run exactly one API instance: the save file has a single writer and sessions live in memory. Deployment steps for Vercel and a container host are in [docs/deploy.md](docs/deploy.md).
+Run exactly one API instance: the save file has a single writer and sessions live in memory.
+
+## Deploy
+
+- Frontend: Vercel project `metro-life`, Root Directory `frontend`, connected to this repository's `main` branch. Set `VITE_API_URL` once an API is running.
+- API: the `backend/Dockerfile` image on one instance with a persistent volume at `/data` (Render, Fly.io or Koyeb), with `METRO_ORIGINS` set to the Vercel URL.
+
+Step by step in [docs/deploy.md](docs/deploy.md).
+
+## End-to-end journeys
+
+`e2e/` holds Playwright journeys that play the real game: first start, resuming after a reload, two players meeting online, and a server outage with recovery, at 1366x768 and at 667x375 with touch. They start the API on :8090 and the Vite dev server on :5190 by themselves (or reuse running ones).
+
+```sh
+(cd backend && mvn -q package) && (cd frontend && npm ci)
+cd e2e && npm ci && npm run e2e
+```
+
+See [e2e/README.md](e2e/README.md) for options.
 
 ## Playing
 
