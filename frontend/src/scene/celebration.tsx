@@ -317,7 +317,8 @@ export function Celebration() {
       if (any) invalidate();
     }
     // Confetti
-    const t = (now - started.current) / 1000;
+    // Dev captures on slow machines stretch the burst; production always runs at 1x.
+    const t = (now - started.current) / 1000 / (feedbackHold() ? 12 : 1);
     if (!mesh.current) return;
     mesh.current.visible = t >= 0 && t < 2.4;
     if (!mesh.current.visible) return;

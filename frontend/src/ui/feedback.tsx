@@ -534,7 +534,7 @@ export function FeedbackLayer() {
           : [
               {
                 transform: `translate(${x}px,${y + 14}px) translate(-50%,-100%) scale(.6)`,
-                opacity: 0,
+                opacity: 1,
               },
               {
                 transform: `translate(${x}px,${y - 6}px) translate(-50%,-100%) scale(1.08)`,
@@ -586,7 +586,7 @@ export function FeedbackLayer() {
           [
             {
               transform: `translate(${fromX}px,${fromY}px) scale(.4)`,
-              opacity: 0,
+              opacity: 1,
             },
             {
               transform: `translate(${fromX}px,${fromY - 10}px) scale(1)`,
