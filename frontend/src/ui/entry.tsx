@@ -105,7 +105,7 @@ const GOALS: { id: FirstDayStep; label: string; hint: string; icon: string }[] =
     {
       id: "job",
       label: "Find your first job",
-      hint: "Walk to a Help wanted sign. Apply at the workplace desk.",
+      hint: "Open Career. The role hiring nearest you is first; Apply in person walks you to its desk. Workplaces show a We're hiring sign.",
       icon: "briefcase",
     },
     {
@@ -162,8 +162,12 @@ function FirstDayCue() {
   return (
     <button
       className="first-day-cue plate"
-      aria-label={`First day, ${done} of ${GOALS.length} done. Next: ${next.label}`}
-      onClick={() => state().openPanel("sim")}
+      aria-label={`First day, ${done} of ${GOALS.length} done. Next: ${next.label}. ${next.id === "job" ? "Open the job hiring near you" : next.id === "shift" ? "Open your next shift" : "Open your first-day goals"}`}
+      onClick={() =>
+        state().openPanel(
+          next.id === "job" || next.id === "shift" ? "jobs" : "sim",
+        )
+      }
     >
       <span className="semantic-tile work">
         <Icon name={next.icon} />
@@ -185,6 +189,14 @@ export function FirstDayGoals({ compact = false }: { compact?: boolean }) {
   return (
     <section className="first-day-goals">
       <h3>Your first day</h3>
+      <p className="first-day-time">
+        <Icon name="clock" size={20} />
+        <span>
+          A game day lasts about seven real minutes. Rent is taken at midnight,
+          places keep opening hours and needs fall as hours pass. Tap the clock
+          for more.
+        </span>
+      </p>
       {GOALS.map((g) => (
         <div
           key={g.id}

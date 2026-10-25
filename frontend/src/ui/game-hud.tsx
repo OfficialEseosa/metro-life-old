@@ -1,4 +1,6 @@
 import "./hud.css";
+import type { Clock } from "../api/types";
+import { useHudUi } from "./hud-ui";
 import "./panels.css";
 import { ConnectionGate, ReconnectBanner } from "./connection-gate";
 import { VenueMomentBridge } from "./venue-moments";
@@ -69,19 +71,77 @@ type Panel = ReturnType<typeof useStore.getState>["panel"];
 
 const state = () => useStore.getState();
 
+function clockMinutes(clock: Clock, now: number) {
+  const elapsed = Math.max(0, now - clock.at) / clock.msPerMinute;
+  return clock.hour * 60 + clock.minute + Math.floor(elapsed);
+}
+
 function Time() {
   const clock = useStore((s) => s.clock),
     now = useNow();
   if (!clock) return <time>Welcome home</time>;
-  const elapsed = Math.max(0, now - clock.at) / clock.msPerMinute,
-    total = clock.hour * 60 + clock.minute + Math.floor(elapsed),
+  const total = clockMinutes(clock, now),
     minutes = total % 1440;
   return (
     <time>
+      <Icon name="clock" size={16} />
       Day {clock.day + Math.floor(total / 1440)} ·{" "}
       {String(Math.floor(minutes / 60)).padStart(2, "0")}:
       {String(minutes % 60).padStart(2, "0")}
     </time>
+  );
+}
+
+/** What the fast clock means: the length of a day, rent at midnight, opening hours and needs. */
+function ClockDetail({ close }: { close: () => void }) {
+  const clock = useStore((s) => s.clock),
+    rent = useStore((s) => s.sim?.home.rent ?? 0),
+    now = useNow();
+  if (!clock) return null;
+  const minutes = clockMinutes(clock, now) % 1440,
+    toMidnight = 1440 - minutes,
+    fast = clock.msPerMinute < 1000,
+    realMinutes = (m: number) => (m * clock.msPerMinute) / 60000;
+  return (
+    <div
+      className="cash-detail clock-detail plate"
+      role="dialog"
+      aria-label="How time works"
+    >
+      <strong>
+        {fast ? "Time moves fast here" : "The city keeps real time"}
+      </strong>
+      {fast && (
+        <span>
+          A game day lasts about {Math.round(realMinutes(1440))} real minutes;
+          an hour passes in about {Math.round(realMinutes(60) * 60)} seconds.
+        </span>
+      )}
+      <ul className="clock-facts">
+        <li>
+          <Icon name="moon" size={20} />
+          <span>
+            Rent{rent ? ` of ${money(rent)}` : ""} is taken at midnight, in{" "}
+            {Math.floor(toMidnight / 60)}h {toMidnight % 60}m
+            {fast
+              ? ` (about ${Math.max(1, Math.round(realMinutes(toMidnight)))} real min)`
+              : ""}
+            .
+          </span>
+        </li>
+        <li>
+          <Icon name="building" size={20} />
+          <span>Shops, cafés and workplaces open and close by this clock.</span>
+        </li>
+        <li>
+          <Icon name="heart-pulse" size={20} />
+          <span>Needs fall as the hours pass. Eat, rest and see people.</span>
+        </li>
+      </ul>
+      <button className="text-button" onClick={close}>
+        Close
+      </button>
+    </div>
   );
 }
 
@@ -114,6 +174,12 @@ function CashDetail({ close }: { close: () => void }) {
       <span>
         Spent <b>{money(today?.spent ?? 0)}</b>
       </span>
+      <button
+        className="text-button"
+        onClick={() => useHudUi.setState({ sheet: "clock" })}
+      >
+        How the clock works
+      </button>
       <button className="text-button" onClick={close}>
         Close
       </button>
@@ -128,7 +194,8 @@ const needLevel = (value: number) =>
 function Vitals() {
   const vitals = useSimVitals(),
     identity = useSimIdentity(),
-    [cashOpen, setCashOpen] = useState(false),
+    sheet = useHudUi((s) => s.sheet),
+    cashOpen = sheet !== "",
     compact = useCompact(),
     lowCount = useRef(0);
   const low = vitals
@@ -141,7 +208,7 @@ function Vitals() {
   // The money sheet is a quick peek: Escape, a tap elsewhere or opening a panel puts it away.
   useEffect(() => {
     if (!cashOpen) return;
-    const closeIt = () => setCashOpen(false);
+    const closeIt = () => useHudUi.setState({ sheet: "" });
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.stopImmediatePropagation();
@@ -205,9 +272,17 @@ function Vitals() {
         <button
           className="cash-button"
           data-cash
-          aria-label={`Cash ${money(vitals.cash)}. Today's income and spending`}
+          aria-label={`Cash ${money(vitals.cash)}. Today's income and spending, and how the clock works`}
           aria-expanded={cashOpen}
-          onClick={() => setCashOpen(!cashOpen)}
+          onClick={(e) =>
+            useHudUi.setState({
+              sheet: cashOpen
+                ? ""
+                : (e.target as Element).closest("time")
+                  ? "clock"
+                  : "money",
+            })
+          }
         >
           <span className="cash-line">
             <span className="coin-token" aria-hidden="true">
@@ -239,7 +314,12 @@ function Vitals() {
           );
         })}
       </button>
-      {cashOpen && <CashDetail close={() => setCashOpen(false)} />}
+      {sheet === "money" && (
+        <CashDetail close={() => useHudUi.setState({ sheet: "" })} />
+      )}
+      {sheet === "clock" && (
+        <ClockDetail close={() => useHudUi.setState({ sheet: "" })} />
+      )}
     </header>
   );
 }

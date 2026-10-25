@@ -15,15 +15,15 @@
 
 .metro-hud {
   --hud-gap: var(--s-4);
-  --hud-top: 112px; /* below the vitals plate */
+  --hud-top: 128px; /* below the vitals plate */
   --hud-bottom: 112px; /* above dock and action button */
   /* The feedback toast stack (ui/feedback.css) starts right of the vitals
      plate, on the same column as the event banner, so neither can cover the
      needs; it flows under the banner when one is showing. */
   --feedback-top: calc(max(var(--hud-gap), env(safe-area-inset-top)) + 0px);
-  --feedback-left: 540px;
+  --feedback-left: 572px;
   --feedback-shift: 0;
-  --feedback-max-width: max(280px, min(440px, calc(100vw - 540px - 340px)));
+  --feedback-max-width: max(280px, min(440px, calc(100vw - 572px - 340px)));
   --feedback-z: var(--z-toast);
   position: absolute;
   inset: 0;
@@ -634,7 +634,7 @@
   border-radius: 6px;
   border: 1px solid var(--c-line-strong);
   color: var(--c-ink-soft);
-  font-size: 13px;
+  font-size: var(--t-body);
   font-weight: 800;
 }
 .chat-unread {
@@ -696,8 +696,15 @@
   color: var(--c-ink-soft);
   box-shadow: none;
 }
+.walk-social button:has(.gate-reason) {
+  flex-basis: 100%;
+}
 .walk-social .gate-reason {
-  display: none;
+  display: block;
+  font-size: var(--t-body);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: normal;
 }
 .walk-more {
   min-height: var(--touch);
@@ -731,7 +738,7 @@
   padding: 0 6px;
   border-radius: 6px;
   border: 1px solid color-mix(in srgb, var(--c-on-primary) 50%, transparent);
-  font-size: 13px;
+  font-size: var(--t-body);
   font-weight: 800;
   color: var(--c-on-primary);
 }
@@ -1027,12 +1034,35 @@
        where neither the cue column, the queue pill nor the event chip can reach them. */
     --feedback-top: auto;
     --feedback-bottom: calc(var(--hud-bottom) + var(--s-2));
-    --feedback-left: 50%;
+    /* centred between the joystick (left 120px) and the action stack (right 200px) */
+    --feedback-left: calc(50vw - 40px);
     --feedback-shift: -50%;
-    --feedback-max-width: min(380px, calc(100vw - 32px));
+    --feedback-max-width: min(380px, calc(100vw - 330px));
   }
   .metro-hud:has(.walk-help) {
     --feedback-bottom: calc(var(--hud-bottom) + var(--s-2) + 68px);
+  }
+  .cash-detail {
+    max-height: calc(100dvh - 84px);
+    padding: var(--s-3);
+  }
+  .clock-detail {
+    gap: var(--s-1);
+    width: min(420px, calc(100vw - 16px));
+  }
+  /* With an event chip on the right, the cue column keeps to the left half. */
+  .metro-hud:has(.world-event-banner) .hud-left {
+    width: calc(50vw - 16px);
+  }
+  /* During a shift the rhythm card says what is happening; the cue column, the event
+     chip and the dock step aside so toasts can rise above the card without covering anything. */
+  .metro-hud:has(.shift-timing) :is(.hud-left, .world-event-banner, .bottom-dock) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  /* The shift rhythm card owns the bottom centre while it shows; toasts rise above it. */
+  .metro-hud:has(.shift-timing) {
+    --feedback-bottom: calc(var(--s-2) * 2 + var(--shift-card, 128px));
   }
 
   /* vitals: one 60px strip */
@@ -1056,11 +1086,11 @@
     height: 14px;
   }
   .cash-line {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-}
-.cash-value {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+  }
+  .cash-value {
     font-size: 24px;
   }
   .coin-token,
@@ -1230,9 +1260,10 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
+  /* Clear of the joystick and of the action stack on both sides of the centre. */
   .walk-help {
-    max-width: min(400px, calc(100vw - 360px));
-    min-width: 260px;
+    max-width: min(400px, calc(100vw - 416px));
+    min-width: 0;
   }
   .walk-help .semantic-tile {
     display: none;
@@ -1285,4 +1316,46 @@
   color: var(--c-ink);
   border-color: var(--need-energy);
   box-shadow: 0 4px 0 color-mix(in srgb, var(--need-energy) 55%, transparent);
+}
+
+/* ---------------- clock (inside the cash button) ---------------- */
+.cash-button time {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  text-decoration: underline dotted
+    color-mix(in srgb, var(--c-ink) 45%, transparent);
+  text-underline-offset: 4px;
+}
+.clock-detail > span {
+  display: block;
+  color: var(--c-ink-soft);
+}
+.clock-facts {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.clock-facts li {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: start;
+  gap: var(--s-2);
+}
+.clock-facts svg {
+  margin-top: 2px;
+  color: var(--c-primary-text);
+}
+.first-day-time {
+  display: flex;
+  gap: var(--s-2);
+  align-items: flex-start;
+  margin: var(--s-2) 0 var(--s-3);
+  color: var(--c-ink-soft);
+}
+.first-day-time svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
 }

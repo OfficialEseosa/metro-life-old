@@ -798,3 +798,34 @@ blockquote {
 .mode-card strong {
   font-size: var(--t-lead);
 }
+.job-card.is-hiring-here {
+  border-color: var(--c-primary);
+  background: color-mix(
+    in srgb,
+    var(--c-primary-soft) 70%,
+    var(--c-money-soft)
+  );
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--c-primary) 30%, transparent),
+    0 3px 0 var(--c-primary-edge);
+}
+.hiring-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin-bottom: var(--s-2);
+  padding: 2px var(--s-3) 2px var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--c-primary);
+  color: var(--c-on-primary);
+  font-size: var(--t-body);
+  font-weight: 800;
+}
+.hiring-badge.is-near {
+  background: var(--c-surface);
+  color: var(--c-primary-text);
+  border: 2px solid var(--c-primary);
+}
+.job-card .hiring-badge + .eyebrow {
+  display: block;
+}

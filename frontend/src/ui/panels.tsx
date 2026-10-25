@@ -16,7 +16,8 @@ import { useEffect, useState } from "react";
 import { api } from "../api/client";
 import type { Action, Job, Sim, StoryBeat } from "../api/types";
 import { useStore } from "../store";
-import { useWalking } from "../walking";
+import { motion, useWalking } from "../walking";
+import { useHudUi } from "./hud-ui";
 import {
   ReasonButton,
   Avatar,
@@ -481,6 +482,9 @@ export function JobsPanel() {
     world = useStore((s) => s.world),
     // Applying means walking to the hiring desk, which needs the player standing in the city.
     placed = useWalking((s) => !!s.position),
+    here = useWalking((s) => s.position?.place) ?? sim?.position?.place,
+    [from] = useState(() => motion.position ?? sim?.position ?? null),
+    focusJob = useHudUi((s) => s.jobFocus),
     [listing, setListing] = useState<{
       city: string;
       jobs: Job[];
@@ -490,6 +494,25 @@ export function JobsPanel() {
     jobs = listing.city === city ? listing.jobs : [],
     loading = listing.city !== city,
     loadError = listing.city === city ? listing.error : "";
+  // The role hiring where the player stands comes first, then the nearest workplaces.
+  const doors = sim && sim.city === city ? doorsFor(sim) : {},
+    distance = (job: Job) => {
+      const door = doors[job.loc];
+      return door && from ? Math.hypot(door.x - from.x, door.z - from.z) : 1e9;
+    },
+    sorted = [...jobs].sort(
+      (a, b) =>
+        Number(b.loc === here) - Number(a.loc === here) ||
+        distance(a) - distance(b),
+    ),
+    highlighted = sorted.find((j) => j.loc === here || j.loc === focusJob)?.id;
+  useEffect(() => {
+    if (!highlighted) return;
+    document
+      .querySelector(".job-card.is-hiring-here")
+      ?.scrollIntoView({ block: "nearest" });
+    useHudUi.setState({ jobFocus: "" });
+  }, [highlighted]);
   useEffect(() => {
     let live = true;
     api
@@ -553,7 +576,7 @@ export function JobsPanel() {
           </p>
           {sim.busyUntil && <Busy />}
           {loading && <p role="status">Finding opportunities…</p>}
-          {jobs.map((job) => {
+          {sorted.map((job, index) => {
             const place = world?.cities
                 .find((c) => c.id === job.city)
                 ?.landmarks.find((l) => l.id === job.loc),
@@ -574,8 +597,25 @@ export function JobsPanel() {
                   ? hour < open[0] || hour >= open[1]
                   : hour < open[0] && hour >= open[1];
             return (
-              <div key={job.id} className="job-card">
+              <div
+                key={job.id}
+                className={`job-card${job.id === highlighted ? " is-hiring-here" : ""}`}
+              >
                 <div>
+                  {job.loc === here ? (
+                    <span className="hiring-badge">
+                      <Icon name="map-pin" size={18} />
+                      Hiring here
+                    </span>
+                  ) : (
+                    index === 0 &&
+                    distance(job) < 1e9 && (
+                      <span className="hiring-badge is-near">
+                        <Icon name="compass" size={18} />
+                        Closest to you
+                      </span>
+                    )
+                  )}
                   <span className="eyebrow">{titleCase(job.track)}</span>
                   <h3>{job.title}</h3>
                   <p>
