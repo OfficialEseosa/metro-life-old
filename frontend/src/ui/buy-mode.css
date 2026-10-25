@@ -1,6 +1,274 @@
-.buy-mode-trigger{position:fixed;right:22px;bottom:126px;z-index:30;display:flex;align-items:center;gap:8px;background:#fff5df;border:1px solid #ccbba0;border-radius:16px;padding:12px 16px;color:#315d47;box-shadow:0 4px 14px #3e3a2420}.buy-mode.buy-mode--3d{position:fixed;inset:88px auto 20px 16px;width:330px;max-height:calc(100vh - 108px);z-index:220;display:flex;flex-direction:column;padding:18px;background:#fff9ed;color:#334d3c;border:2px solid #fffdf6;border-radius:28px;box-shadow:0 10px 35px #30413230;pointer-events:auto;font-family:Nunito,sans-serif}.buy-mode--3d header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding-bottom:8px}.buy-mode--3d header b{display:block;font:600 21px Fredoka,sans-serif;margin-top:4px}.buy-mode--3d header small{display:block;font-size:12px;color:#7c715f;margin-top:5px}.buy-mode--3d .eyebrow{font-size:9px;letter-spacing:.11em;color:#60906d}.buy-mode--3d button{cursor:pointer;border:1px solid #d9ccb5;background:#fffdf5;color:#35573f;padding:9px 10px;border-radius:12px;font:800 12px Nunito,sans-serif}.buy-mode--3d button.primary{background:#2fa36b;color:#fffdf1;border-color:#2c925f;box-shadow:0 3px 0 #22784d}.buy-mode--3d button:disabled{cursor:default;opacity:.65}.buy-mode--3d .buy-room-help{display:block;font-size:11px;line-height:1.65;color:#7b715e;background:#f1eddb;padding:9px 11px;border-radius:13px;margin:5px 0 10px}.buy-room-help svg{vertical-align:middle;margin-right:4px}.buy-room-help kbd,.buy-placement kbd{font-size:10px;padding:1px 4px;border:1px solid #d4cdbb;background:#fff8e6;border-radius:4px;color:#52694d}.buy-mode--3d .buy-body{display:flex;overflow:hidden;min-height:60px;flex:1}.buy-mode--3d .buy-catalog{display:flex;flex-direction:column;overflow:hidden;width:100%}.buy-mode--3d .buy-catalog nav{display:flex;flex-wrap:wrap;gap:5px;padding-bottom:12px}.buy-mode--3d .buy-catalog nav button{padding:6px 9px;text-transform:capitalize;font-size:11px;min-height:32px}.buy-mode--3d .buy-catalog nav button[aria-pressed=true],.buy-mode--3d .buy-products button.selected{background:#d7edda;border-color:#71a27b;color:#285d3d}.buy-mode--3d .buy-products{display:flex;flex-direction:column;gap:7px;overflow:auto;padding-right:4px;padding-bottom:8px;min-height:50px}.buy-mode--3d .buy-products>button{text-align:left;padding:11px 12px}.buy-products b{display:flex;justify-content:space-between;gap:10px;font-size:12px}.buy-products b span{color:#9b7951;font-weight:900;white-space:nowrap}.buy-products small{display:block;font-size:10px;color:#7e755f;margin-top:5px;line-height:1.55}.buy-products h3{font:600 16px Fredoka,sans-serif;margin:12px 0 3px}.buy-swatches{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}.buy-mode--3d .buy-swatches button{width:34px;height:34px;border-radius:10px;border:2px solid #fff;box-shadow:0 0 0 1px #d2c8b4}.buy-mode--3d .buy-swatches button[aria-pressed=true]{box-shadow:0 0 0 3px #2fa36b}.buy-mode--3d .buy-placement{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #e4dac6;flex-shrink:0}.buy-placement strong{font:600 16px Fredoka,sans-serif}.buy-placement span{display:block;font-size:11px;line-height:1.5;margin-top:3px}.buy-placement span.valid{color:#478859}.buy-placement span.invalid{color:#b2584d}.buy-placement-buttons{display:flex;gap:6px;flex-wrap:wrap}.buy-coordinate-controls summary{font-size:11px;color:#81705b;cursor:pointer}.buy-coordinate-controls label{display:inline-flex;align-items:center;gap:6px;font-size:11px;margin-top:7px;margin-right:7px}.buy-coordinate-controls input{width:82px;padding:6px;font:700 12px Nunito,sans-serif;background:#fffdf7;border:1px solid #cfbea3;border-radius:8px}.buy-mode--3d .buy-error,.buy-mode--3d .buy-saved{font-size:11px;line-height:1.5;border-radius:10px;padding:8px 10px;margin:4px 0 8px}.buy-error{color:#a44039;background:#f7dfd8}.buy-saved{color:#376d49;background:#e5f0da}.metro-hud:has(.buy-mode--3d)>:not(.buy-mode--3d):not(.purchase-confirmation){visibility:hidden!important;pointer-events:none!important}.metro-hud:has(.buy-mode--3d) .buy-mode--3d{visibility:visible!important}.metro-hud:has(.buy-mode--3d) .purchase-confirmation{visibility:visible!important;pointer-events:auto!important}@media(max-width:700px){.buy-mode.buy-mode--3d{inset:auto 6px 6px;max-height:48vh;width:auto;border-radius:25px;padding:12px 14px 10px;box-shadow:0 -7px 26px #2d382622}.buy-mode--3d header{padding-bottom:3px}.buy-mode--3d header b{font-size:18px}.buy-mode--3d header small{font-size:10px;margin-top:2px}.buy-mode--3d .eyebrow{font-size:8px}.buy-mode--3d .buy-room-help{font-size:10px;padding:6px 9px;margin-bottom:7px}.buy-mode--3d .buy-catalog nav{flex-wrap:nowrap;overflow:auto;flex-shrink:0;padding-bottom:8px;gap:4px}.buy-mode--3d .buy-catalog nav button{white-space:nowrap;min-height:29px;padding:5px 8px}.buy-mode--3d .buy-products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;min-height:70px;max-height:18vh}.buy-mode--3d .buy-products>button{padding:8px}.buy-products b{display:block;font-size:11px}.buy-products b span{display:block;margin-top:2px}.buy-products small{font-size:9px;margin-top:3px}.buy-products h3,.buy-products .buy-swatches,.buy-products>small{grid-column:1/-1}.buy-mode--3d .buy-placement{padding-top:7px;margin-top:7px;gap:5px}.buy-placement strong{font-size:14px}.buy-placement span{font-size:10px}.buy-placement-buttons{flex-wrap:nowrap;gap:4px}.buy-mode--3d .buy-placement-buttons button{font-size:10px;padding:7px 9px;white-space:nowrap}.buy-coordinate-controls summary{font-size:9px}.buy-mode--3d .buy-error,.buy-mode--3d .buy-saved{font-size:10px;padding:5px 8px;margin:2px 0 4px}.buy-mode-trigger{right:12px;bottom:130px;padding:9px;font-size:12px}}
-/* Buy mode uses light catalogue paper even while the world is at night. */
-.buy-mode.buy-mode--3d{--c-ink:#334d3c;--c-ink-soft:#5d6256;--c-surface:#fff9ed;--c-sunken:#f1eddb;--c-line:#d9ccb5;--c-primary-text:#285d3d;--c-primary-soft:#d7edda;color:#334d3c}
-.buy-mode.buy-mode--3d header small{color:#5d6256}
-.buy-mode.buy-mode--3d .buy-products :is(small,span){color:#625640}
-.buy-mode.buy-mode--3d .buy-coordinate-controls input{color:#334d3c}
+/* Decorate mode: the catalogue panel over the dollhouse view. */
+.buy-mode.buy-mode--3d {
+  position: absolute;
+  z-index: var(--z-popover);
+  top: var(--s-4);
+  left: var(--s-4);
+  bottom: var(--s-4);
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--s-4);
+  border-radius: var(--r-xl);
+  border: 2px solid var(--c-line);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  box-shadow: var(--shadow-float);
+  pointer-events: auto;
+  animation: sheet-in var(--dur-2) var(--ease-out) both;
+}
+/* While decorating, the rest of the HUD steps aside. */
+.metro-hud:has(.buy-mode--3d) > :not(.buy-mode):not(.purchase-confirmation):not(.hud-toasts) {
+  visibility: hidden;
+  pointer-events: none;
+}
+.buy-mode--3d header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding-bottom: var(--s-2);
+}
+.buy-mode--3d header .eyebrow {
+  color: var(--c-primary-text);
+}
+.buy-mode--3d header b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--t-h2);
+  font-weight: 600;
+  line-height: 1.15;
+}
+.buy-mode--3d header small {
+  display: block;
+  color: var(--c-ink-soft);
+  font-weight: 700;
+}
+.buy-mode--3d header .secondary {
+  flex: none;
+  min-height: var(--touch);
+  padding: 0 var(--s-4);
+}
+.buy-mode--3d button:not(.primary):not(.secondary) {
+  min-height: var(--touch);
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--r-md);
+  border: 2px solid var(--c-line);
+  background: var(--c-raised);
+  color: var(--c-ink);
+  font-size: var(--t-body);
+}
+.buy-mode--3d button.primary {
+  min-height: var(--touch);
+  padding: 0 var(--s-4);
+}
+.buy-room-help {
+  display: block;
+  margin: var(--s-1) 0 var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--c-sunken);
+  color: var(--c-ink-soft);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.buy-room-help svg {
+  margin-right: var(--s-1);
+  vertical-align: middle;
+}
+.buy-room-help kbd,
+.buy-placement kbd {
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--c-line-strong);
+  background: var(--c-raised);
+  color: var(--c-ink);
+  font-size: 14px;
+}
+.buy-body {
+  display: flex;
+  flex: 1;
+  min-height: 60px;
+  overflow: hidden;
+}
+.buy-catalog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+}
+.buy-catalog nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  padding-bottom: var(--s-3);
+}
+.buy-mode--3d .buy-catalog nav button {
+  border-radius: var(--r-pill);
+}
+.buy-catalog nav button::first-letter {
+  text-transform: uppercase;
+}
+.buy-mode--3d .buy-catalog nav button[aria-pressed="true"],
+.buy-mode--3d .buy-products button.selected {
+  border-color: var(--c-primary);
+  background: var(--c-primary-soft);
+  color: var(--c-primary-text);
+}
+.buy-products {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-height: 50px;
+  padding: 0 var(--s-1) var(--s-2) 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.buy-mode--3d .buy-products > button {
+  padding: var(--s-2) var(--s-3);
+  text-align: left;
+}
+.buy-products b {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+.buy-products b span {
+  color: var(--c-money-text);
+  font-weight: 800;
+  white-space: nowrap;
+}
+.buy-products small {
+  display: block;
+  margin-top: 2px;
+  color: var(--c-ink-soft);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.buy-products h3 {
+  margin: var(--s-3) 0 var(--s-1);
+  font-size: var(--t-lead);
+}
+.buy-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-bottom: var(--s-2);
+}
+.buy-mode--3d .buy-swatches button {
+  width: var(--touch);
+  height: var(--touch);
+  padding: 0;
+  border-radius: var(--r-sm);
+  border: 3px solid var(--c-surface);
+  box-shadow: 0 0 0 2px var(--c-line-strong);
+}
+.buy-mode--3d .buy-swatches button[aria-pressed="true"] {
+  box-shadow: 0 0 0 3px var(--c-primary);
+}
+.buy-placement {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+  padding-top: var(--s-3);
+  border-top: 2px solid var(--c-line);
+}
+.buy-placement strong {
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+  font-weight: 600;
+}
+.buy-placement span {
+  display: block;
+  margin-top: 2px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.buy-placement span.valid {
+  color: var(--c-primary-text);
+}
+.buy-placement span.invalid {
+  color: var(--c-danger-text);
+}
+.buy-placement-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.buy-coordinate-controls summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch);
+  color: var(--c-ink-soft);
+  font-weight: 800;
+  cursor: pointer;
+}
+.buy-coordinate-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: var(--s-1) var(--s-2) 0 0;
+  font-weight: 700;
+}
+.buy-mode .buy-coordinate-controls input {
+  width: 92px;
+  min-height: var(--touch);
+}
+.buy-error,
+.buy-saved {
+  margin: var(--s-1) 0 var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-sm);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.buy-error {
+  background: var(--c-danger-soft);
+  color: var(--c-danger-text);
+}
+.buy-saved {
+  background: var(--c-primary-soft);
+  color: var(--c-primary-text);
+}
+@media (max-width: 760px), (max-height: 520px) {
+  .buy-mode.buy-mode--3d {
+    top: var(--s-2);
+    left: var(--s-2);
+    bottom: var(--s-2);
+    width: min(360px, 54vw);
+    padding: var(--s-3);
+    border-radius: var(--r-lg);
+  }
+  .buy-mode--3d header b {
+    font-size: var(--t-title);
+  }
+  .buy-room-help {
+    display: none;
+  }
+  .buy-catalog nav {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    overflow-x: auto;
+    padding-bottom: var(--s-2);
+    scrollbar-width: none;
+  }
+  .buy-mode--3d .buy-catalog nav button {
+    white-space: nowrap;
+  }
+  .buy-products small {
+    display: none;
+  }
+  .buy-placement {
+    gap: var(--s-1);
+    padding-top: var(--s-2);
+  }
+  .buy-placement-buttons {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .buy-mode--3d .buy-placement-buttons button {
+    white-space: nowrap;
+  }
+}
