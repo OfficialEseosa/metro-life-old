@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import personality from '../../../shared/personality.json'
-import { api } from '../api/client'
+import personality from '../shared-data/personality.json'
+import { api, apiRequest } from '../api/client'
 import type { CityId, Look } from '../api/types'
 import { useStore } from '../store'
 import { CharacterPreview } from './character-preview'
@@ -26,7 +26,7 @@ export function CharacterCreator(){
  function toggleTrait(id:string){setTraits(current=>current.includes(id)?current.filter(t=>t!==id):current.length<3?[...current,id]:current)}
  function randomise(){
   clearError()
-  if(page==='identity'){void run(async()=>{const response=await fetch('/api/name',{credentials:'include',signal:AbortSignal.timeout(10000)}),data=await response.json();if(!response.ok)throw Error(data.message??'Could not suggest a name. Try again.');setName(data.name)});return}
+  if(page==='identity'){void run(async()=>{const data=await apiRequest<{name:string}>('GET','/api/name');setName(data.name)});return}
   if(page==='appearance'){setLook(current=>({...current,skin:pick(SKINS),hair:pick(personality.hair).id,hairColor:pick(HAIR),face:pick(personality.faces).id}));return}
   if(page==='outfits'){updateOutfit({top:pick(COLOURS),bottom:pick(COLOURS),shoeColor:pick(COLOURS),style:occasion==='work'?pick(['work','smart']):pick(['casual','street'])});return}
   if(page==='traits'){const choices=[...personality.traits],next:string[]=[];for(let i=0;i<3;i++){const index=Math.floor(Math.random()*choices.length);next.push(choices.splice(index,1)[0].id)}setTraits(next);return}

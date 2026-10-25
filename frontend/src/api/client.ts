@@ -25,10 +25,15 @@ import type {
   TransitMode,
 } from './types'
 import { syncServerTime } from '../server-time'
+import { apiUrl, session, sessionHeaders, socketUrl } from './base'
 import { useStore } from '../store'
 import { confirmPurchase } from '../ui/purchase-confirmation'
 
 let mutationRevision=0,mutations=0,lastSimSnapshotAt=0
+let unauthorized:((path:string)=>void)|null=null
+/** Called when the API answers 401: the saved session is no longer valid. */
+export function onUnauthorized(listener:((path:string)=>void)|null){unauthorized=listener}
+const signInPaths=new Set(['/api/auth/guest','/api/life/new'])
 
 export class ApiError extends Error {
   status: number
@@ -43,15 +48,21 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
   if(mutation){mutationRevision++;mutations++}
   try {
   let res: Response
-  try{res = await fetch(path, {
+  const signIn=signInPaths.has(path)
+  const headers:Record<string,string>={...sessionHeaders()}
+  if(body!==undefined)headers['Content-Type']='application/json'
+  if(signIn&&session.wanted)headers['X-Metro-Token-Fallback']='1'
+  try{res = await fetch(apiUrl(path), {
     signal:AbortSignal.timeout(15000),
     method,
     credentials: 'include',
-    headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+    headers,
     body: body === undefined ? undefined : JSON.stringify(body),
   })}catch{throw new ApiError(0,'Could not reach the city. Check your connection and try again.')}
   const data = await res.json().catch(() => null)
+  if (res.status===401&&!signIn) unauthorized?.(path)
   if (!res.ok) throw new ApiError(res.status, data?.error ?? `Request failed (${res.status})`)
+  if (signIn&&typeof data?.sessionToken==='string'){session.store(data.sessionToken);delete data.sessionToken}
   if(path==='/api/sim'&&(mutations>0||revision!==mutationRevision))throw new ApiError(0,'A newer action is already in progress.')
   if(path==='/api/sim'&&data?.clock?.at<lastSimSnapshotAt)throw new ApiError(0,'A newer city update has already arrived.')
   if(data?.sim&&data?.clock?.at)lastSimSnapshotAt=Math.max(lastSimSnapshotAt,data.clock.at)
@@ -119,38 +130,67 @@ export const api = {
   homes: (city?: CityId) => req<Homes>('GET', `/api/homes${q(city)}`),
 }
 
-/** Reconnecting JSON socket. Returns a handle to send and close. */
-export function connectSocket(onEvent: (e: ServerEvent) => void, onStatus?: (open: boolean) => void) {
+/**
+ * Reconnecting JSON socket. Backoff is capped at 8 s with jitter, and a lost connection is retried
+ * at once when the browser comes back online or the tab becomes visible. When an attempt fails
+ * before the socket ever opens, `verify` decides whether to keep trying (the server may be down)
+ * or stop (the session behind this socket no longer exists).
+ */
+export function connectSocket(onEvent: (e: ServerEvent) => void, onStatus?: (open: boolean) => void, verify?: () => Promise<boolean>) {
   let ws: WebSocket | null = null
   let closed = false
   let retry = 0
   let timer: ReturnType<typeof setTimeout> | undefined
   const queue: string[] = []
 
+  const schedule = (delay: number) => {
+    clearTimeout(timer)
+    timer = setTimeout(open, delay)
+  }
   const open = () => {
     if (closed) return
-    const proto = location.protocol === 'https:' ? 'wss' : 'ws'
-    ws = new WebSocket(`${proto}://${location.host}/ws`)
-    ws.onopen = () => {
+    clearTimeout(timer)
+    let opened = false
+    const socket = new WebSocket(socketUrl(session.token))
+    ws = socket
+    socket.onopen = () => {
+      if (ws !== socket) return
+      opened = true
       retry = 0
       onStatus?.(true)
-      while (queue.length) ws?.send(queue.shift()!)
+      while (queue.length) socket.send(queue.shift()!)
     }
-    ws.onmessage = (m) => {
+    socket.onmessage = (m) => {
+      if (ws !== socket) return
       try {
         onEvent(JSON.parse(m.data as string) as ServerEvent)
       } catch {
         // ignore malformed frames
       }
     }
-    ws.onclose = () => {
-      if (closed) return
+    socket.onclose = () => {
+      if (closed || ws !== socket) return
+      ws = null
       onStatus?.(false)
-      retry = Math.min(retry + 1, 6)
-      timer = setTimeout(open, 500 * 2 ** retry)
+      retry = Math.min(retry + 1, 4)
+      const delay = Math.min(8000, 500 * 2 ** retry) * (0.75 + Math.random() * 0.5)
+      if (opened || !verify) { schedule(delay); return }
+      void verify().then(keep => { if (keep && !closed) schedule(delay); else if (!keep) stop() }).catch(() => { if (!closed) schedule(delay) })
     }
-    ws.onerror = () => ws?.close()
+    socket.onerror = () => socket.close()
   }
+  const wake = () => {
+    if (closed || document.hidden) return
+    if (!ws || ws.readyState === WebSocket.CLOSED) { retry = 0; open() }
+  }
+  const stop = () => {
+    closed = true
+    clearTimeout(timer)
+    window.removeEventListener('online', wake)
+    document.removeEventListener('visibilitychange', wake)
+  }
+  window.addEventListener('online', wake)
+  document.addEventListener('visibilitychange', wake)
   open()
 
   return {
@@ -159,10 +199,17 @@ export function connectSocket(onEvent: (e: ServerEvent) => void, onStatus?: (ope
       if (ws?.readyState === WebSocket.OPEN) ws.send(text)
       else if (msg.type !== 'ping') queue.splice(0, queue.length, text)
     },
+    /** Try to connect now instead of waiting for the next backoff step. */
+    retryNow() {
+      if (closed) return
+      retry = 0
+      if (!ws || ws.readyState === WebSocket.CLOSED) open()
+    },
     close() {
-      closed = true
-      clearTimeout(timer)
-      ws?.close()
+      stop()
+      const socket = ws
+      ws = null
+      socket?.close()
     },
   }
 }

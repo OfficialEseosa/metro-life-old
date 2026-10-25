@@ -10,6 +10,7 @@ import { KitInstances } from './kit-models'
 import { Builder } from './geometry'
 import { WorldText } from './world-text'
 import { fictionalText } from '../content-names'
+import { apiFetch, apiUrl } from '../api/base'
 
 import { plotSite, boardSites } from './economy-sites'
 const noPick=()=>{}
@@ -29,7 +30,7 @@ function BookingPosters({ads,texture,width,height,cols,rows,night}:{ads:PlotAd[]
 function PlotField({city,night}:{city:CityId;night:boolean}){
  const plots=useStore(s=>s.plots),world=useStore(s=>s.world),selection=useStore(s=>s.plotSelection),username=useStore(s=>s.sim?.username),invalidate=useThree(s=>s.invalidate),site=plotSite(city),cfg=world?.cities.find(c=>c.id===city)?.plots,down=useRef<[number,number]>([0,0]),drag=useRef<[number,number]|null>(null),dragged=useRef(false)
  const texture=useMemo(()=>new THREE.Texture(),[])
- useLayoutEffect(()=>{const abort=new AbortController(),image=new Image();let objectUrl='';image.onload=()=>{if(!abort.signal.aborted){texture.image=image;texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=16;texture.needsUpdate=true;invalidate()}};if(plots?.atlas)void fetch(plots.atlas,{signal:abort.signal,credentials:'include'}).then(r=>r.ok?r.blob():null).then(blob=>{if(blob&&!abort.signal.aborted){objectUrl=URL.createObjectURL(blob);image.src=objectUrl}}).catch(()=>{});return()=>{abort.abort();image.onload=null;image.removeAttribute('src');if(objectUrl)URL.revokeObjectURL(objectUrl)}},[plots?.atlas,texture,invalidate])
+ useLayoutEffect(()=>{const abort=new AbortController(),image=new Image();let objectUrl='';image.onload=()=>{if(!abort.signal.aborted){texture.image=image;texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=16;texture.needsUpdate=true;invalidate()}};if(plots?.atlas)void apiFetch(plots.atlas,{signal:abort.signal}).then(r=>r.ok?r.blob():null).then(blob=>{if(blob&&!abort.signal.aborted){objectUrl=URL.createObjectURL(blob);image.src=objectUrl}}).catch(()=>{});return()=>{abort.abort();image.onload=null;image.removeAttribute('src');if(objectUrl)URL.revokeObjectURL(objectUrl)}},[plots?.atlas,texture,invalidate])
  useEffect(()=>()=>texture.dispose(),[texture])
  if(!cfg)return null
  const width=site.size,height=site.size*cfg.rows/cfg.cols
@@ -38,7 +39,7 @@ function PlotField({city,night}:{city:CityId;night:boolean}){
 }
 function AdImage({url}:{url:string}){
  const texture=useMemo(()=>new THREE.Texture(),[]),invalidate=useThree(s=>s.invalidate)
- useEffect(()=>{let active=true;const image=new Image();image.onload=()=>{if(active){texture.image=image;texture.colorSpace=THREE.SRGBColorSpace;texture.needsUpdate=true;invalidate()}};image.src=url;return()=>{active=false;image.onload=null;image.removeAttribute('src')}},[url,texture,invalidate]);useEffect(()=>()=>texture.dispose(),[texture])
+ useEffect(()=>{let active=true;const image=new Image();image.onload=()=>{if(active){texture.image=image;texture.colorSpace=THREE.SRGBColorSpace;texture.needsUpdate=true;invalidate()}};image.crossOrigin='anonymous';image.src=apiUrl(url);return()=>{active=false;image.onload=null;image.removeAttribute('src')}},[url,texture,invalidate]);useEffect(()=>()=>texture.dispose(),[texture])
  return <mesh position={[0,5,.17]} raycast={noPick}><planeGeometry args={[6,3.375]}/><meshBasicMaterial map={texture} toneMapped={false}/></mesh>
 }
 function Boards({city}:{city:CityId;night:boolean}){
