@@ -181,3 +181,27 @@ The five skyline towers in `models/skyline/` (Bank of America Plaza, Truist Plaz
 ## V4 activity sources
 
 `chars/activities-f.json` and `chars/activities-m.json`: retargeted/derived from Quaternius Universal Animation Libraries 1 and 2, CC0 1.0. Original author pages: [Library 1](https://quaternius.com/packs/universalanimationlibrary.html), [Library 2](https://quaternius.com/packs/universalanimationlibrary2.html). Source archives were downloaded from the Quaternius-authored OpenGameArt entries; original licences ship as `chars/UAL1-LICENSE.txt` and `chars/UAL2-LICENSE.txt`. Type, Eat, Lie, Sleep and Cheer combine or adapt these clips; no Mixamo data. Original shipped character GLBs remain unchanged.
+
+## Audio
+
+Short event sounds in `frontend/public/audio/` come from three Kenney packs, all CC0 1.0. They were trimmed to mono (jingles stay stereo), peak-normalised to -1 dB and re-encoded as MP3 so every browser can decode them. The licence text of each pack ships next to the files. The music score, ambience and footsteps remain procedural (WebAudio) and are original to Metro Life; when a sample cannot load, a procedural tone plays instead.
+
+| File | Source file | Source | Licence |
+|---|---|---|---|
+| `audio/ui-tap.mp3` | `click_003.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 (`audio/LICENSE-kenney-interface-sounds.txt`) |
+| `audio/ui-confirm.mp3` | `confirmation_001.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/ui-done.mp3` | `confirmation_003.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/ui-cancel.mp3` | `back_002.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/ui-error.mp3` | `error_004.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/ui-pop.mp3` | `select_002.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/chat-pop.mp3` | `drop_002.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/social-ding.mp3` | `glass_001.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/social-pluck.mp3` | `pluck_002.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/chime-arrive.mp3` | `glass_004.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/whoosh.mp3` | `maximize_001.ogg` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+| `audio/coins-gain.mp3` | `handleCoins.ogg` | [Kenney RPG Audio](https://kenney.nl/assets/rpg-audio) | CC0 1.0 (`audio/LICENSE-kenney-rpg-audio.txt`) |
+| `audio/coins-spend.mp3` | `handleCoins2.ogg` | [Kenney RPG Audio](https://kenney.nl/assets/rpg-audio) | CC0 1.0 |
+| `audio/jingle-goal.mp3` | `Pizzicato jingles/jingles_PIZZI04.ogg` | [Kenney Music Jingles](https://kenney.nl/assets/music-jingles) | CC0 1.0 (`audio/LICENSE-kenney-music-jingles.txt`) |
+| `audio/jingle-level.mp3` | `Pizzicato jingles/jingles_PIZZI02.ogg` | [Kenney Music Jingles](https://kenney.nl/assets/music-jingles) | CC0 1.0 |
+| `audio/jingle-milestone.mp3` | `Steel jingles/jingles_STEEL10.ogg` | [Kenney Music Jingles](https://kenney.nl/assets/music-jingles) | CC0 1.0 |
+| `audio/jingle-promotion.mp3` | `Steel jingles/jingles_STEEL02.ogg` | [Kenney Music Jingles](https://kenney.nl/assets/music-jingles) | CC0 1.0 |
