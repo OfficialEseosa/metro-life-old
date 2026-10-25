@@ -274,7 +274,8 @@ function layoutLabels(state: RootState) {
       interaction.menu?.target.kind === "person"
         ? interaction.menu.target.id
         : interaction.current?.targetId,
-    width = size.width < 500 ? 146 : 174,
+    // Wide enough that the name and role lines render at 16 px or more.
+    width = 256,
     halfWidth = width / 2,
     top = 64,
     bottom = size.height - (size.width < 600 ? 150 : 105);
@@ -325,6 +326,24 @@ function layoutLabels(state: RootState) {
   const { plain, persistent } = offsetsFor(width);
   let ordinary = 0,
     boxes = 0;
+  // The player's own figure is a box no plate may cover.
+  if (position) {
+    const ground = (position as { y?: number }).y ?? 0,
+      feet = screen.set(position.x, ground, position.z).project(camera),
+      feetX = ((feet.x + 1) * size.width) / 2,
+      feetY = ((1 - feet.y) * size.height) / 2,
+      feetZ = feet.z,
+      head = screen.set(position.x, ground + 2, position.z).project(camera),
+      headY = ((1 - head.y) * size.height) / 2;
+    if (feetZ < 1 && head.z < 1 && feetY > headY) {
+      const box = boxPool[0] ?? (boxPool[0] = { x: 0, y: 0, w: 0, h: 0 });
+      box.x = feetX;
+      box.y = (feetY + headY) / 2;
+      box.w = Math.max(36, (feetY - headY) * 0.45);
+      box.h = feetY - headY;
+      boxes = 1;
+    }
+  }
   for (const candidate of candidates) {
     const { entry, anchor, projected, focused, priority } = candidate,
       root = entry.root!;
