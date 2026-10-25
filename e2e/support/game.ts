@@ -93,3 +93,23 @@ export async function poll<T>(fn: () => Promise<T>, ok: (v: T) => boolean, timeo
   }
   return value;
 }
+
+/** The signed-in user as the API sees this browser (cookie or header session). */
+export async function whoAmI(page: Page) {
+  const { API } = await import("./env");
+  return page.evaluate(async (api) => {
+    const token = localStorage.getItem("metro:session");
+    const res = await fetch(`${api}/api/auth/me`, {
+      credentials: "include",
+      headers: token ? { "X-Metro-Session": token } : {},
+    });
+    const me = await res.json();
+    return { id: (me?.user?.id ?? null) as string | null, name: (me?.sim?.username ?? me?.user?.name ?? null) as string | null };
+  }, API);
+}
+
+/** Number shown in the HUD status, for example "2 online · 40 residents". */
+export async function onlineCount(page: Page) {
+  const text = (await page.locator("text=/\\d+ online/").first().textContent().catch(() => "")) ?? "";
+  return Number(/(\d+) online/.exec(text)?.[1] ?? 0);
+}
