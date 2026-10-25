@@ -7,6 +7,7 @@ import { useStore } from "../store";
 import { grassify, noiseChunk } from "./ground-material";
 import { timeOfDay } from "../lighting";
 import { Trees, type TreeSpot } from "./trees";
+import { RoomStreet } from "./room-street";
 
 const noPick = () => {};
 const lawnShade = new THREE.Color("#6f8f5e"),
@@ -15,7 +16,7 @@ const lawnShade = new THREE.Color("#6f8f5e"),
 
 /**
  * The room stands on a foundation in its own small world: a lawn around homes,
- * a paved forecourt around venues, both fading into the backdrop so the
+ * a paved forecourt around venues, with neighbouring facades and a road so the
  * cutaway reads as a building on a street, not a box in a void.
  */
 export function RoomPlinth({ room }: { room: string }) {
@@ -125,6 +126,7 @@ export function RoomPlinth({ room }: { room: string }) {
       >
         <circleGeometry args={[radius, 48]} />
       </mesh>
+      <RoomStreet w={w} d={d} home={home} />
       {trees.length > 0 && <Trees spots={trees} />}
     </group>
   );

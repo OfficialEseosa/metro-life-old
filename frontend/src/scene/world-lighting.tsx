@@ -58,7 +58,7 @@ const roomDay = {
     bottom: new THREE.Color("#1d1a26"),
   };
 
-/** The sky sphere follows the camera; in rooms it becomes a soft warm backdrop that still follows the clock. */
+/** The sky sphere follows the camera; in rooms it is the clock's sky graded warm behind the block. */
 export function SkyDome({ room }: { room: boolean }) {
   const ref = useRef<THREE.Mesh>(null),
     material = useMemo(() => skyMaterial(true), []);
@@ -69,16 +69,13 @@ export function SkyDome({ room }: { room: boolean }) {
       p = timeOfDay;
     u.interiorVoid.value = room ? 1 : 0;
     if (room) {
-      (u.top.value as THREE.Color).lerpColors(
-        roomDay.top,
-        roomNight.top,
-        p.nightFactor,
-      );
-      (u.bottom.value as THREE.Color).lerpColors(
-        roomDay.bottom,
-        roomNight.bottom,
-        p.nightFactor,
-      );
+      // The real sky above the block, softened towards a warm grade so the room stays the subject.
+      (u.top.value as THREE.Color)
+        .lerpColors(roomDay.top, roomNight.top, p.nightFactor)
+        .lerp(p.skyTop, 0.6);
+      (u.bottom.value as THREE.Color)
+        .lerpColors(roomDay.bottom, roomNight.bottom, p.nightFactor)
+        .lerp(p.skyBottom, 0.6);
     } else {
       (u.top.value as THREE.Color).copy(p.skyTop);
       (u.bottom.value as THREE.Color).copy(p.skyBottom);

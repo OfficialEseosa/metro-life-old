@@ -52,6 +52,7 @@ import { Pins } from "./pins";
 import { WorldActivity, PlayerMarker } from "./activity";
 import { Residents } from "./residents";
 import { Walking } from "./walking";
+import { roomView, zoomLimits } from "./room-camera";
 import { ObjectPicking } from "./object-picking";
 import { openObjectMenu } from "../interactions";
 import { motion } from "../walking";
@@ -238,6 +239,35 @@ function Lake({ city }: { city: CityId }) {
     </mesh>
   );
 }
+const NEAR_RADIUS = 140;
+/** Is a site close enough to the player to load with the first view? */
+function nearPlayer(site: { x: number; z: number }) {
+  const p = motion.position ?? useStore.getState().sim?.position;
+  return (
+    !!p &&
+    !p.room &&
+    Math.hypot(site.x - (p.x ?? 0), site.z - (p.z ?? 0)) < NEAR_RADIUS
+  );
+}
+/**
+ * Far landmarks and the skyline wait until the street kit around the player has streamed in
+ * (or a few seconds have passed), so a new browser spends its first bandwidth on what is visible.
+ */
+function useFarAssets() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (ready) return;
+    const timer = setTimeout(() => setReady(true), 6000),
+      stop = useProgress.subscribe((s) => {
+        if (!s.active && s.loaded > 0) queueMicrotask(() => setReady(true));
+      });
+    return () => {
+      clearTimeout(timer);
+      stop();
+    };
+  }, [ready]);
+  return ready;
+}
 function Architecture({ city }: { city: CityId }) {
   const buildings = useMemo(
     () =>
@@ -259,15 +289,16 @@ function Architecture({ city }: { city: CityId }) {
     () => () => buildings.forEach((b) => b.geometry.dispose()),
     [buildings],
   );
+  const far = useFarAssets();
   return (
     <group>
-      {city === "atl" && (
+      {city === "atl" && far && (
         <Suspense fallback={null}>
           <AtlantaSkyline />
         </Suspense>
       )}
       {Object.entries(sitesFor(city))
-        .filter(([id]) => blenderHeroes.has(id))
+        .filter(([id, s]) => blenderHeroes.has(id) && (far || nearPlayer(s)))
         .map(([id, s]) => (
           <Suspense key={id} fallback={null}>
             <BlenderLandmark id={id} x={s.x} z={s.z} angle={s.angle} />
@@ -339,7 +370,9 @@ function City({
   onHover: (name: string | null, x?: number, y?: number) => void;
 }) {
   const { camera, gl, invalidate, size, scene, frameloop } = useThree();
-  const controls = useRef<Controls>(null);
+  const controls = useRef<Controls>(null),
+    zooming = useRef(false),
+    zoomOffset = useRef(new THREE.Vector3());
   const city = useStore((s) => s.city),
     homeCity = useStore((s) => s.sim?.home.city),
     homeNeighborhood = useStore((s) => s.sim?.home.neighborhood),
@@ -365,6 +398,21 @@ function City({
     target: THREE.Vector3;
   } | null>(null);
   const [pinsHidden, setPinsHidden] = useState(false);
+  const followZoom = useMemo(
+    () =>
+      zoomLimits(
+        Boolean(room),
+        room
+          ? roomView(
+              roomLayout(city, roomType(room)!),
+              size.width / Math.max(1, size.height),
+              undefined,
+              size.width < 700,
+            ).reach
+          : 0,
+      ),
+    [room, city, size.width, size.height],
+  );
   const timings = useRef<number[]>([]),
     lastFrame = useRef(0);
   useEffect(() => {
@@ -1241,11 +1289,13 @@ function City({
         screenSpacePanning={false}
         zoomSpeed={0.7}
         onStart={() => {
+          zooming.current = true;
           destination.current = null;
           motion.follow = false;
           useStore.getState().setCameraMoving(true);
         }}
         onEnd={() => {
+          zooming.current = false;
           const c = controls.current;
           if (c && useStore.getState().sim) {
             const offset = c.object.position.clone().sub(c.target);
@@ -1281,6 +1331,22 @@ function City({
                 0.4,
                 (layout?.height ?? 3) * 0.55,
               );
+            // A wheel or pinch on the follow camera stays near the player; flights keep their reach.
+            if (zooming.current && useStore.getState().sim) {
+              const offset = zoomOffset.current
+                  .copy(c.object.position)
+                  .sub(c.target),
+                length = offset.length(),
+                clamped = THREE.MathUtils.clamp(
+                  length,
+                  followZoom.min,
+                  followZoom.max,
+                );
+              if (length > 0 && clamped !== length)
+                c.object.position
+                  .copy(c.target)
+                  .addScaledVector(offset, clamped / length);
+            }
           }
           invalidate();
         }}

@@ -16,7 +16,6 @@ import {
   inBox,
   roomLayout,
   roomType,
-  type RoomLayout,
 } from "../navigation";
 import { activityRoute } from "./activity-route";
 import { interactionSteering } from "../interactions";
@@ -26,62 +25,7 @@ import { activeLifeAction, lifeLabel, lifeTopic } from "../life-actions";
 import { bodyCondition, visiblePose, velocityFacing } from "./character-life";
 import { LifeBubble, StinkCloud } from "./speech-bubbles";
 import { roomFloorHeight } from "./venue-zones";
-
-/** Fit the room stage, including its height, rather than following feet into a wall. */
-function roomView(layout: RoomLayout | undefined, aspect: number) {
-  const bounds = layout?.bounds ?? { w: 12, d: 10 },
-    height = layout?.height ?? 3.6,
-    focus = (
-      layout as
-        (RoomLayout & { cameraFocus?: { x: number; y: number; z: number } })
-        | undefined
-    )?.cameraFocus,
-    yaw = 0.45,
-    pitch = (50 * Math.PI) / 180,
-    target = new THREE.Vector3(
-      focus?.x ?? 0,
-      focus?.y ?? height * 0.22,
-      focus?.z ?? 0,
-    ),
-    direction = new THREE.Vector3(
-      Math.sin(yaw) * Math.cos(pitch),
-      Math.sin(pitch),
-      Math.cos(yaw) * Math.cos(pitch),
-    ),
-    right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw)),
-    up = new THREE.Vector3().crossVectors(direction, right),
-    tanV = Math.tan((32 * Math.PI) / 360),
-    tanH = tanV * aspect;
-  let distance = 8;
-  for (const x of [-bounds.w / 2, bounds.w / 2])
-    for (const y of [0, height])
-      for (const z of [-bounds.d / 2, bounds.d / 2]) {
-        const corner = new THREE.Vector3(x, y, z).sub(target),
-          depth = corner.dot(direction);
-        distance = Math.max(
-          distance,
-          depth + Math.abs(corner.dot(right)) / (tanH * 0.88),
-          depth + Math.abs(corner.dot(up)) / (tanV * 0.82),
-        );
-      }
-  return {
-    target,
-    yaw,
-    height: distance * Math.sin(pitch),
-    distance: distance * Math.cos(pitch),
-    bounds,
-  };
-}
-
-/**
- * Outdoor follow framing: close enough that the player reads as a person (about 16% of the screen
- * height on a laptop, at least 60 px on a 375 px phone), far enough to see the street ahead.
- */
-function streetView(width: number) {
-  return width < 700
-    ? { distance: 14, height: 7.5, targetY: 1.1, lookAhead: 1.5 }
-    : { distance: 11, height: 6.5, targetY: 1, lookAhead: 1.2 };
-}
+import { roomView, streetView } from "./room-camera";
 
 export function Walking({
   controls,
@@ -208,6 +152,8 @@ export function Walking({
         const frame = roomView(
           roomLayout(city, type),
           size.width / size.height,
+          current.position,
+          size.width < 700,
         );
         camera.position
           .copy(frame.target)
@@ -591,9 +537,16 @@ export function Walking({
     }
     if (at.room && motion.follow && controls.current) {
       const type = roomType(at.room)!,
-        frame = roomView(roomLayout(city, type), size.width / size.height),
+        frame = roomView(
+          roomLayout(city, type),
+          size.width / size.height,
+          visual.current,
+          size.width < 700,
+        ),
         control = controls.current,
-        target = motion.camera
+        target = frame.follows
+          ? frame.target
+          : motion.camera
           ? new THREE.Vector3(
               THREE.MathUtils.clamp(
                 control.target.x,
