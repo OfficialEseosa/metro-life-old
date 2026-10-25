@@ -295,6 +295,9 @@ Newly started browser lives opt their shared world into a seven-minute day (`Clo
 - **Stories.** Any ordinary activity at a story landmark (not a shift or the workplace visit) opens that story's
   first beat when the activity finishes; there is no first-day gate. `Sim.storyLead` names the next story in the
   current city so the HUD can point at it.
+- **Venues and civic life.** Music and nightlife venues always offer "Dance the night away" ($10, fun +28,
+  social +12) on the dance floor. Every election term opens with two residents on the ballot, so there is always
+  someone to vote for; running for mayor needs Charisma 1.
 - **City events.** A 90-second shared event runs every nine minutes per city. `/api/social-life` returns
   `event: null` unless it starts within 90 seconds, is live, or finished and this player joined it; a finished
   event's `result` speaks only to people who joined.
