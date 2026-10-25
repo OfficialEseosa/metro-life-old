@@ -6,6 +6,7 @@ import { serverNow } from "../server-time";
 import { livePlayers, useStore } from "../store";
 import { lifePose, type VisibleLife } from "../life-actions";
 import { Icon } from "../ui/primitives";
+import { COOK_POT } from "./characters/actor";
 
 // ---- shared atlas: 4 x 4 cells of 128 px, drawn once ------------------------
 // 0 puff, 1 droplet, 2 note, 3 two notes, 4 Z, 5 dot, 6 sparkle, 7 heart,
@@ -398,15 +399,15 @@ function emit(
   const slow = reduced ? 0.35 : 1;
   switch (effect) {
     case "steam": {
-      // Pot centre in the cook's frame (characters' COOK_POT: 0.02, 0.94, 0.84); steam leaves its rim.
-      const px = localX(0.02, 0.84),
-        pz = localZ(0.02, 0.84);
+      // Steam leaves the rim of the characters' cooking pot (COOK_POT is in the cook's own frame).
+      const px = localX(COOK_POT.x, COOK_POT.z),
+        pz = localZ(COOK_POT.x, COOK_POT.z);
       for (let i = 0; i < 7; i++) {
         const f = (t * 0.42 * slow + i / 7) % 1,
           drift = Math.sin(a.seed + i * 1.7 + f * 3) * 0.1;
         batch.push(
           px + drift,
-          a.y + 1.02 + f * 0.95,
+          a.y + COOK_POT.y + 0.08 + f * 0.95,
           pz + Math.cos(a.seed + i * 2.3 + f * 2) * 0.08,
           0.16 + f * 0.36,
           0,
