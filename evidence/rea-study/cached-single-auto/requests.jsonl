@@ -1,3 +1,0 @@
-{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"owner-rea-diagnostic","version":"1.0"}}}
-{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
-{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"analyze_javascript_application","arguments":{"input_path":"C:\\Users\\rapha\\Last Night on Maple Street\\reference\\chunks\\296d7_9wj0wna.js","format":"auto"}}}

@@ -1,7 +1,0 @@
-{
-  "path": "C:/Users/rapha/.codex/logs_2.sqlite",
-  "mode": "read-only",
-  "search": "REA with transport closed, timed out, heap out of memory",
-  "actual_error_matches": 0,
-  "excluded": "One false-positive DEBUG row contained the owner request itself; no old crash stack retained here."
-}

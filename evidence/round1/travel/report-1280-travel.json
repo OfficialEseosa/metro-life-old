@@ -1,8 +1,0 @@
-{
-  "width": 1280,
-  "mode": "travel",
-  "views": [],
-  "errors": [],
-  "result": "FAIL",
-  "failure": "page.waitForFunction: Timeout 15000ms exceeded.\n    at C:\\Users\\rapha\\Last Night on Maple Street\\scripts\\r1-browser.cjs:17:215"
-}

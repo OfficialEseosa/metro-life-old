@@ -1,3 +1,0 @@
-{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"owner-rea-diagnostic","version":"1.0"}}}
-{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
-{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"capture_browser_scenario","arguments":{"browser":{"mode":"launch","executable_path":"C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe","headless":false},"start_url":{"url":"https://lagoslife.app"},"actions":[{"step_id":"passive-load","action":"wait_for_timeout","duration_ms":8000}],"capture":{"at_end":["screenshot","dom","accessibility","url"]}}}}

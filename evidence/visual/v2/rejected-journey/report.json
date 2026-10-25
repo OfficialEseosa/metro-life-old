@@ -1,6 +1,0 @@
-{
-  "views": [],
-  "errors": [
-    "Cannot read properties of null (reading 'startsWith')"
-  ]
-}
