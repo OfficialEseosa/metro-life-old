@@ -535,6 +535,9 @@ export class CharacterActor {
   private ikPole = new THREE.Vector3();
   private ikDir = new THREE.Vector3();
   private ikTmp = new THREE.Vector3();
+  private ikU = new THREE.Vector3();
+  private ikV = new THREE.Vector3();
+  private ikQ = new THREE.Quaternion();
   private speeds: { walk: number; jog: number; run: number };
   private personality: {
     idle: string;
@@ -1030,13 +1033,16 @@ export class CharacterActor {
         .copy(S)
         .addScaledVector(dir, la * cosA)
         .addScaledVector(bend, la * Math.sqrt(1 - cosA * cosA));
+    const u = this.ikU,
+      v = this.ikV,
+      parent = this.ikQ;
     const rotate = (bone: THREE.Bone, from: THREE.Vector3, to: THREE.Vector3, origin: THREE.Vector3) => {
       const q = this.scratch.q2.setFromUnitVectors(
-        from.clone().sub(origin).normalize(),
-        to.clone().sub(origin).normalize(),
+        u.subVectors(from, origin).normalize(),
+        v.subVectors(to, origin).normalize(),
       );
-      const world = bone.getWorldQuaternion(this.scratch.q).premultiply(q),
-        parent = bone.parent!.getWorldQuaternion(new THREE.Quaternion()).invert();
+      const world = bone.getWorldQuaternion(this.scratch.q).premultiply(q);
+      bone.parent!.getWorldQuaternion(parent).invert();
       bone.quaternion.copy(parent.multiply(world));
       bone.updateMatrixWorld(true);
     };
