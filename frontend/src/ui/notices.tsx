@@ -27,7 +27,10 @@ export function ToastPortal({ children }: { children: ReactNode }) {
   return target ? createPortal(children, target) : null;
 }
 
-/** One dismissable notice. It hides itself after `ttl` ms even if the store keeps the text. */
+/**
+ * One dismissable notice. It hides itself after `ttl` ms even if the store keeps the text;
+ * the countdown waits while the notice is hovered or focused.
+ */
 export function HudNotice({
   text,
   title = "Not right now",
@@ -43,17 +46,22 @@ export function HudNotice({
   ttl?: number;
   onDismiss: () => void;
 }) {
-  const [hidden, setHidden] = useState("");
+  const [hidden, setHidden] = useState(""),
+    [held, setHeld] = useState(false);
   useEffect(() => {
-    if (!text) return;
+    if (!text || held) return;
     const timer = setTimeout(() => setHidden(text), ttl);
     return () => clearTimeout(timer);
-  }, [text, ttl]);
+  }, [text, ttl, held]);
   if (!text || hidden === text) return null;
   return (
     <div
       className={`hud-toast ${tone === "error" ? "error-notice" : ""}`}
       role={tone === "error" ? "alert" : "status"}
+      onPointerEnter={() => setHeld(true)}
+      onPointerLeave={() => setHeld(false)}
+      onFocus={() => setHeld(true)}
+      onBlur={() => setHeld(false)}
     >
       <span className={`semantic-tile ${tone === "error" ? "hunger" : "travel"}`}>
         <Icon name={icon} />
