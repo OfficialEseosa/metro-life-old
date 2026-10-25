@@ -1,36 +1,342 @@
-import { Component, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
-import { useStore } from '../store'
-import { useNightLighting } from '../lighting'
-import { motion } from '../walking'
-import { venueZoneAt } from '../scene/venue-zones'
-import { interiors } from '../navigation'
-import { audioSnapshot, subscribeAudio, setAudioMix, toggleSound, unlockAudio, setAudioScene, sound, pauseAudio, continueAudio, type SoundKind } from './sound'
-import { Icon } from './primitives'
+import {
+  Component,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+import { useStore } from "../store";
+import { useNightLighting } from "../lighting";
+import { motion, useWalking } from "../walking";
+import { useInteractions } from "../interactions";
+import { venueZoneAt } from "../scene/venue-zones";
+import { interiors } from "../navigation";
+import {
+  audioSnapshot,
+  subscribeAudio,
+  setAudioMix,
+  toggleSound,
+  unlockAudio,
+  setAudioScene,
+  sound,
+  cue,
+  pauseAudio,
+  continueAudio,
+} from "./sound";
+import { Icon } from "./primitives";
 
-export function useAudioMix(){return useSyncExternalStore(subscribeAudio,audioSnapshot,audioSnapshot)}
-/** Always mounted, including the start screen. The browser's first gesture unlocks the original score. */
-function AudioSceneContent(){const city=useStore(s=>s.sim?.city??s.city),room=useStore(s=>s.sim?.position?.room),trip=useStore(s=>s.sim?.trip?.mode),location=useStore(s=>s.sim?.loc),world=useStore(s=>s.world),panel=useStore(s=>s.panel),story=useStore(s=>!!s.sim?.pendingBeat),notice=useStore(s=>!!s.socialNotice),result=useStore(s=>s.lastResult),until=useStore(s=>s.sim?.busyUntil),busyLabel=useStore(s=>s.sim?.busyLabel),gesture=useStore(s=>s.sim?.lifeAction),night=useNightLighting(),lastAction=useRef<number|null>(null),lastGesture=useRef(0),lastEntry=useRef(''),lastFriend=useRef<Record<string,number>|null>(null)
- const [zone,setZone]=useState<{id:string;ambient:string}|null>(null)
- const roomKind=typeof room==='string'?room.split(':')[0]:undefined,validRoom=!!roomKind&&Object.hasOwn(interiors,roomKind)
- useEffect(()=>{const update=()=>{const p=motion.position;let next:ReturnType<typeof venueZoneAt>=null;if(!trip&&validRoom&&p&&p.room===room&&Number.isFinite(p.x)&&Number.isFinite(p.z)){try{next=venueZoneAt(city,room,p.x,p.z)}catch{/* Transit and city changes can briefly retain a previous room. */}}setZone(previous=>previous?.id===next?.id&&previous?.ambient===next?.ambient?previous:next?{id:next.id,ambient:next.ambient}:null)};update();const timer=setInterval(update,400);return()=>clearInterval(timer)},[city,room,trip,validRoom])
- const category=world?.cities?.find(c=>c.id===city)?.landmarks?.find(l=>l.id===location)?.category,place=trip==='bus'||trip==='plane'?trip:validRoom?(roomKind==='pavilion'?'park':roomKind!):(category==='park'?'park':category==='waterfront'?'waterfront':'street')
- useEffect(()=>{document.documentElement.dataset.time=night?'night':'day'},[night])
- useEffect(()=>{setAudioScene({city,place,zone:zone?.id,ambient:zone?.ambient,night,duck:story||notice||!!result||panel==='chat'})},[city,place,zone,night,story,notice,result,panel])
- useEffect(()=>{const unlock=()=>{void unlockAudio()},visible=()=>document.hidden?pauseAudio():continueAudio(),key=(event:KeyboardEvent)=>{if(event.target instanceof Element&&event.target.closest('input,textarea,select,[contenteditable=true]'))return;if(event.key.toLowerCase()==='m'&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();toggleSound();void unlockAudio()}else void unlockAudio()};const click=(event:MouseEvent)=>{if(event.target instanceof Element&&event.target.closest('button,a,[role=button],summary'))sound('tap')};document.addEventListener('click',click,{passive:true});document.addEventListener('pointerdown',unlock,{passive:true});document.addEventListener('keydown',key);document.addEventListener('visibilitychange',visible);return()=>{document.removeEventListener('click',click);document.removeEventListener('pointerdown',unlock);document.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visible)}},[])
- useEffect(()=>{if(!until||lastAction.current===until)return;lastAction.current=until;const label=(busyLabel??'').toLowerCase();const effect:SoundKind=label.includes('cook')?'cook':label.includes('meal')||label.includes('eat')?'eat':label.includes('shower')?'shower':label.includes('sleep')?'sleep':label.includes('work')||label.includes('code')?'type':label.includes('fly')||label.includes('bus')?'arrival':'open';sound(effect)},[until,busyLabel])
- useEffect(()=>{if(!gesture||typeof gesture.pose!=='string'||gesture.until<=lastGesture.current)return;lastGesture.current=gesture.until;const pose=gesture.pose.toLowerCase();sound(pose.includes('wave')?'wave':pose.includes('dance')?'dance':pose.includes('cheer')?'cheer':pose.includes('laugh')?'laugh':gesture.topic==='honk'?'honk':'notification')},[gesture])
- useEffect(()=>{const initial=useStore.getState().sim,last=initial?.economy?.entries?.at(-1);lastEntry.current=last?.id??'';lastFriend.current=initial?.relationships?Object.fromEntries(Object.entries(initial.relationships).map(([id,row])=>[id,row.value])):{};return useStore.subscribe((state,previous)=>{if(state.sim?.userId!==previous.sim?.userId){lastEntry.current=state.sim?.economy?.entries?.at(-1)?.id??'';lastFriend.current=null;return}const entry=state.sim?.economy?.entries?.at(-1);if(entry&&entry.id!==lastEntry.current){lastEntry.current=entry.id;const reason=entry.reason.toLowerCase();sound(entry.amount<0?'purchase':reason.includes('pay')||reason.includes('shift')?'payday':'reward')}const friendship=state.sim?.relationships;if(friendship){const previousValues=lastFriend.current;for(const [id,row]of Object.entries(friendship))if(previousValues&&row.value>=(row.value>=80?80:row.value>=50?50:row.value>=25?25:8)&&(previousValues[id]??0)<(row.value>=80?80:row.value>=50?50:row.value>=25?25:8)){sound('friend');break}lastFriend.current=Object.fromEntries(Object.entries(friendship).map(([id,row])=>[id,row.value]))}})},[])
- useEffect(()=>{let previous=motion.position?{...motion.position}:null;const timer=setInterval(()=>{const at=motion.position,sim=useStore.getState().sim;if(at&&previous&&sim&&!sim.busyUntil&&at.room===previous.room&&Math.hypot(at.x-previous.x,at.z-previous.z)>.45)sound('step');previous=at?{...at}:null},280);return()=>clearInterval(timer)},[])
- return null
+export function useAudioMix() {
+  return useSyncExternalStore(subscribeAudio, audioSnapshot, audioSnapshot);
 }
-class AudioBoundary extends Component<{children:ReactNode},{failed:boolean;attempt:number}>{
- state={failed:false,attempt:0}
- private retryTimer:ReturnType<typeof setTimeout>|undefined
- static getDerivedStateFromError(){return {failed:true}}
- componentDidCatch(){pauseAudio();if(this.state.attempt===0)this.retryTimer=setTimeout(()=>this.setState({failed:false,attempt:1}),600)}
- componentWillUnmount(){clearTimeout(this.retryTimer)}
- render(){return this.state.failed?null:<span key={this.state.attempt} hidden>{this.props.children}</span>}
+/** Always mounted, including the start screen. The browser's first gesture unlocks the original score. */
+function AudioSceneContent() {
+  const city = useStore((s) => s.sim?.city ?? s.city),
+    room = useStore((s) => s.sim?.position?.room),
+    trip = useStore((s) => s.sim?.trip?.mode),
+    location = useStore((s) => s.sim?.loc),
+    world = useStore((s) => s.world),
+    panel = useStore((s) => s.panel),
+    story = useStore((s) => !!s.sim?.pendingBeat),
+    notice = useStore((s) => !!s.socialNotice),
+    result = useStore((s) => s.lastResult),
+    gesture = useStore((s) => s.sim?.lifeAction),
+    night = useNightLighting(),
+    lastGesture = useRef(0),
+    lastFriend = useRef<Record<string, number> | null>(null);
+  const [zone, setZone] = useState<{ id: string; ambient: string } | null>(
+    null,
+  );
+  const roomKind = typeof room === "string" ? room.split(":")[0] : undefined,
+    validRoom = !!roomKind && Object.hasOwn(interiors, roomKind);
+  useEffect(() => {
+    const update = () => {
+      const p = motion.position;
+      let next: ReturnType<typeof venueZoneAt> = null;
+      if (
+        !trip &&
+        validRoom &&
+        p &&
+        p.room === room &&
+        Number.isFinite(p.x) &&
+        Number.isFinite(p.z)
+      ) {
+        try {
+          next = venueZoneAt(city, room, p.x, p.z);
+        } catch {
+          /* Transit and city changes can briefly retain a previous room. */
+        }
+      }
+      setZone((previous) =>
+        previous?.id === next?.id && previous?.ambient === next?.ambient
+          ? previous
+          : next
+            ? { id: next.id, ambient: next.ambient }
+            : null,
+      );
+    };
+    update();
+    const timer = setInterval(update, 400);
+    return () => clearInterval(timer);
+  }, [city, room, trip, validRoom]);
+  const category = world?.cities
+      ?.find((c) => c.id === city)
+      ?.landmarks?.find((l) => l.id === location)?.category,
+    place =
+      trip === "bus" || trip === "plane"
+        ? trip
+        : validRoom
+          ? roomKind === "pavilion"
+            ? "park"
+            : roomKind!
+          : category === "park"
+            ? "park"
+            : category === "waterfront"
+              ? "waterfront"
+              : "street";
+  useEffect(() => {
+    document.documentElement.dataset.time = night ? "night" : "day";
+  }, [night]);
+  useEffect(() => {
+    setAudioScene({
+      city,
+      place,
+      zone: zone?.id,
+      ambient: zone?.ambient,
+      night,
+      duck: story || notice || !!result || panel === "chat",
+    });
+  }, [city, place, zone, night, story, notice, result, panel]);
+  useEffect(() => {
+    const unlock = () => {
+        void unlockAudio();
+      },
+      visible = () => (document.hidden ? pauseAudio() : continueAudio()),
+      key = (event: KeyboardEvent) => {
+        if (
+          event.target instanceof Element &&
+          event.target.closest("input,textarea,select,[contenteditable=true]")
+        )
+          return;
+        if (
+          event.key.toLowerCase() === "m" &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.altKey
+        ) {
+          event.preventDefault();
+          toggleSound();
+          void unlockAudio();
+        } else void unlockAudio();
+      };
+    document.addEventListener("pointerdown", unlock, { passive: true });
+    document.addEventListener("keydown", key);
+    document.addEventListener("visibilitychange", visible);
+    return () => {
+      document.removeEventListener("pointerdown", unlock);
+      document.removeEventListener("keydown", key);
+      document.removeEventListener("visibilitychange", visible);
+    };
+  }, []);
+  useEffect(() => {
+    if (
+      !gesture ||
+      typeof gesture.pose !== "string" ||
+      gesture.until <= lastGesture.current
+    )
+      return;
+    lastGesture.current = gesture.until;
+    const pose = gesture.pose.toLowerCase();
+    sound(
+      pose.includes("wave")
+        ? "wave"
+        : pose.includes("dance")
+          ? "dance"
+          : pose.includes("cheer")
+            ? "cheer"
+            : pose.includes("laugh")
+              ? "laugh"
+              : gesture.topic === "honk"
+                ? "honk"
+                : "notification",
+    );
+  }, [gesture]);
+  useEffect(() => {
+    const initial = useStore.getState().sim;
+    lastFriend.current = initial?.relationships
+      ? Object.fromEntries(
+          Object.entries(initial.relationships).map(([id, row]) => [
+            id,
+            row.value,
+          ]),
+        )
+      : {};
+    return useStore.subscribe((state, previous) => {
+      if (state.sim?.userId !== previous.sim?.userId) {
+        lastFriend.current = null;
+        return;
+      }
+      // Money moments (pay, rent, purchases, milestones) sound through the feedback bus.
+      const friendship = state.sim?.relationships;
+      if (friendship) {
+        const previousValues = lastFriend.current;
+        for (const [id, row] of Object.entries(friendship))
+          if (
+            previousValues &&
+            row.value >=
+              (row.value >= 80
+                ? 80
+                : row.value >= 50
+                  ? 50
+                  : row.value >= 25
+                    ? 25
+                    : 8) &&
+            (previousValues[id] ?? 0) <
+              (row.value >= 80
+                ? 80
+                : row.value >= 50
+                  ? 50
+                  : row.value >= 25
+                    ? 25
+                    : 8)
+          ) {
+            sound("friend");
+            break;
+          }
+        lastFriend.current = Object.fromEntries(
+          Object.entries(friendship).map(([id, row]) => [id, row.value]),
+        );
+      }
+    });
+  }, []);
+  useEffect(() => {
+    // Client-side refusals (a blocked path, a full queue) show in the HUD; give them a sound too.
+    const offInteractions = useInteractions.subscribe((state, before) => {
+      if (state.error && state.error !== before.error) cue("error");
+    });
+    const offWalking = useWalking.subscribe((state, before) => {
+      if (state.error && state.error !== before.error) cue("error");
+    });
+    return () => {
+      offInteractions();
+      offWalking();
+    };
+  }, []);
+  useEffect(() => {
+    let previous = motion.position ? { ...motion.position } : null;
+    const timer = setInterval(() => {
+      const at = motion.position,
+        sim = useStore.getState().sim;
+      if (
+        at &&
+        previous &&
+        sim &&
+        !sim.busyUntil &&
+        at.room === previous.room &&
+        Math.hypot(at.x - previous.x, at.z - previous.z) > 0.45
+      )
+        sound("step");
+      previous = at ? { ...at } : null;
+    }, 280);
+    return () => clearInterval(timer);
+  }, []);
+  return null;
+}
+class AudioBoundary extends Component<
+  { children: ReactNode },
+  { failed: boolean; attempt: number }
+> {
+  state = { failed: false, attempt: 0 };
+  private retryTimer: ReturnType<typeof setTimeout> | undefined;
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    pauseAudio();
+    if (this.state.attempt === 0)
+      this.retryTimer = setTimeout(
+        () => this.setState({ failed: false, attempt: 1 }),
+        600,
+      );
+  }
+  componentWillUnmount() {
+    clearTimeout(this.retryTimer);
+  }
+  render() {
+    return this.state.failed ? null : (
+      <span key={this.state.attempt} hidden>
+        {this.props.children}
+      </span>
+    );
+  }
 }
 /** Audio failures never unmount the HUD; a new city or ride starts a fresh boundary. */
-export function AudioScene(){const city=useStore(s=>s.sim?.city??s.city),trip=useStore(s=>s.sim?.trip?.id),room=useStore(s=>s.sim?.position?.room);return <AudioBoundary key={`${city}:${trip??'city'}:${typeof room==='string'?room:'street'}`}><AudioSceneContent/></AudioBoundary>}
-export function AudioSettings(){const mix=useAudioMix();return <section className="audio-settings" aria-label="Music and sound settings"><h3>Make yourself at home</h3><p className="small-copy">An original score for each city, softer evenings and little sounds for the things you do.</p><button className="secondary audio-mute" aria-pressed={!mix.muted} onClick={()=>{toggleSound();void unlockAudio()}}><Icon name={mix.muted?'speaker-off':'speaker-high'}/>{mix.muted?'Sound is off · turn on':'Sound is on · mute'}<kbd>M</kbd></button>{(['master','music','ambience','sfx','ui'] as const).map(bus=><label className="audio-slider" key={bus}><span>{bus==='sfx'?'Actions and rewards':bus==='ui'?'Button sounds':bus==='master'?'Overall volume':bus==='ambience'?'City ambience':'Music'}<b>{Math.round(mix[bus]*100)}%</b></span><input type="range" min="0" max="1" step="0.05" value={mix[bus]} aria-label={`${bus} volume`} onChange={e=>{setAudioMix({[bus]:Number(e.target.value)});void unlockAudio()}}/></label>)}<small>These settings stay on this browser. Music pauses while this tab is hidden. Music and sound effects are composed inside Metro Life; no third-party recordings.</small></section>}
+export function AudioScene() {
+  const city = useStore((s) => s.sim?.city ?? s.city),
+    trip = useStore((s) => s.sim?.trip?.id),
+    room = useStore((s) => s.sim?.position?.room);
+  return (
+    <AudioBoundary
+      key={`${city}:${trip ?? "city"}:${typeof room === "string" ? room : "street"}`}
+    >
+      <AudioSceneContent />
+    </AudioBoundary>
+  );
+}
+export function AudioSettings() {
+  const mix = useAudioMix();
+  return (
+    <section className="audio-settings" aria-label="Music and sound settings">
+      <h3>Make yourself at home</h3>
+      <p className="small-copy">
+        An original score for each city, softer evenings and little sounds for
+        the things you do.
+      </p>
+      <button
+        className="secondary audio-mute"
+        aria-pressed={!mix.muted}
+        onClick={() => {
+          toggleSound();
+          void unlockAudio();
+        }}
+      >
+        <Icon name={mix.muted ? "speaker-off" : "speaker-high"} />
+        {mix.muted ? "Sound is off · turn on" : "Sound is on · mute"}
+        <kbd>M</kbd>
+      </button>
+      {(["master", "music", "ambience", "sfx", "ui"] as const).map((bus) => (
+        <label className="audio-slider" key={bus}>
+          <span>
+            {bus === "sfx"
+              ? "Actions and rewards"
+              : bus === "ui"
+                ? "Button sounds"
+                : bus === "master"
+                  ? "Overall volume"
+                  : bus === "ambience"
+                    ? "City ambience"
+                    : "Music"}
+            <b>{Math.round(mix[bus] * 100)}%</b>
+          </span>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={mix[bus]}
+            aria-label={`${bus} volume`}
+            onChange={(e) => {
+              setAudioMix({ [bus]: Number(e.target.value) });
+              void unlockAudio();
+            }}
+          />
+        </label>
+      ))}
+      <small>
+        These settings stay on this browser. Music pauses while this tab is
+        hidden. The score is composed inside Metro Life; a few short effects are
+        free CC0 recordings by Kenney.
+      </small>
+    </section>
+  );
+}
