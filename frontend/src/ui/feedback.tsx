@@ -393,14 +393,25 @@ function playBatch(batch: FeedbackEvent[]) {
 }
 
 /** While the older HUD toasts are still mounted, do not show the same moment twice. */
-function legacyShowing(kind: FeedbackKind) {
-  if (kind === "actionDone")
+function legacyShowing(e: FeedbackEvent) {
+  if (e.kind === "actionDone")
     return !!document.querySelector(
       ".result-toast:not(.inline-result):not(.social-notice)",
     );
-  if (kind === "socialReceived" || kind === "social" || kind === "promotion")
-    return !!document.querySelector(".social-notice");
-  if (kind === "goal") return !!document.querySelector(".celebration-toast");
+  if (e.kind === "goal") return !!document.querySelector(".celebration-toast");
+  if (
+    e.kind === "social" ||
+    e.kind === "socialReceived" ||
+    e.kind === "promotion"
+  ) {
+    // Only when the older notice shows this very moment (same sentence or job title).
+    const text = document.querySelector(".social-notice")?.textContent ?? "";
+    const key =
+      e.kind === "promotion"
+        ? e.title.replace(/^(Promoted to|Hired as) /, "")
+        : e.title;
+    return !!text && !!key && text.includes(key);
+  }
   return false;
 }
 
@@ -619,7 +630,7 @@ export function FeedbackLayer() {
         if (performance.now() - lastChat.at < 2500) return;
         lastChat.at = performance.now();
       }
-      if (legacyShowing(e.kind)) {
+      if (legacyShowing(e)) {
         // The older HUD toast already shows it; still give the world response.
       } else showToast(e);
       const amount = e.amount ?? 0;
