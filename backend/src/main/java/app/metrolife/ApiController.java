@@ -8,6 +8,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -15,7 +16,12 @@ import java.util.Map;
 public class ApiController {
     final GameService game;final Content content;
     ApiController(GameService game,Content content){this.game=game;this.content=content;}
-    void cookie(HttpServletRequest req,HttpServletResponse res,String token){res.addHeader("Set-Cookie",ResponseCookie.from("ml_session",token).httpOnly(true).secure(req.isSecure()).sameSite("Lax").path("/").maxAge(token.isEmpty()?0:30L*86400).build().toString());res.setHeader("Cache-Control","no-store");}
+    /** True when the page that sent this request is on another host than the API (for example a static frontend host). */
+    static boolean crossSite(HttpServletRequest req){String origin=req.getHeader("Origin");if(origin==null||origin.isBlank()||origin.equals("null"))return false;try{String host=URI.create(origin).getHost();return host!=null&&!host.equalsIgnoreCase(req.getServerName());}catch(IllegalArgumentException e){return false;}}
+    /** Lax for same-site use; SameSite=None; Secure; Partitioned when a cross-site page talks to the API over HTTPS. */
+    void cookie(HttpServletRequest req,HttpServletResponse res,String token){boolean secure=req.isSecure(),thirdParty=secure&&crossSite(req);res.addHeader("Set-Cookie",ResponseCookie.from(SessionHeaderFilter.COOKIE,token).httpOnly(true).secure(secure).sameSite(thirdParty?"None":"Lax").partitioned(thirdParty).path("/").maxAge(token.isEmpty()?0:30L*86400).build().toString());res.setHeader("Cache-Control","no-store");}
+    /** Sets the cookie and, when the page asked for the cookie-less fallback, also returns the session token in the body. */
+    ObjectNode signedIn(HttpServletRequest req,HttpServletResponse res,GameService.AuthResult r){cookie(req,res,r.token());ObjectNode out=game.object();out.set("user",r.user());if("1".equals(req.getHeader(SessionHeaderFilter.FALLBACK_HEADER)))out.put("sessionToken",r.token());return out;}
     @GetMapping("/venue-moment") ObjectNode venueMoment(@CookieValue(name="ml_session",required=false)String token,@RequestParam String loc){synchronized(game){return game.landmarkLife.read(token,loc);}}
     @PostMapping("/venue-moment") ObjectNode venueMoment(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body){synchronized(game){return game.landmarkLife.mutate(token,body);}}
     @GetMapping("/social-life") ObjectNode socialLife(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){synchronized(game){return game.socialLife.read(token,game.defaultCity(token,city));}}
@@ -34,8 +40,8 @@ public class ApiController {
     @GetMapping("/stats") ObjectNode stats(){return game.stats();}
     @GetMapping("/daily") ObjectNode daily(@CookieValue(name="ml_session",required=false)String token,@RequestParam(defaultValue="")String city){return game.daily(token,game.defaultCity(token,city));}
     @GetMapping("/auth/me") ObjectNode me(@CookieValue(name="ml_session",required=false)String token){return game.me(token);}
-    @PostMapping("/auth/guest") ObjectNode guest(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){var r=game.guest(token,body);cookie(req,res,r.token());ObjectNode out=game.object();out.set("user",r.user());return out;}
-    @PostMapping("/life/new") ObjectNode newLife(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){var r=game.newLife(token,body);cookie(req,res,r.token());ObjectNode out=game.object();out.set("user",r.user());return out;}
+    @PostMapping("/auth/guest") ObjectNode guest(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){return signedIn(req,res,game.guest(token,body));}
+    @PostMapping("/life/new") ObjectNode newLife(@CookieValue(name="ml_session",required=false)String token,@RequestBody JsonNode body,HttpServletRequest req,HttpServletResponse res){return signedIn(req,res,game.newLife(token,body));}
     @PostMapping("/first-day/complete") ObjectNode firstDay(@CookieValue(name="ml_session",required=false)String token){return game.finishFirstDay(token);}
     @PostMapping("/intro/complete") ObjectNode intro(@CookieValue(name="ml_session",required=false)String token){return game.finishIntro(token);}
     @PostMapping("/home/rent") ObjectNode rent(@CookieValue(name="ml_session",required=false)String token){return game.payFirstRent(token);}

@@ -18,16 +18,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** World-bound subscriptions. No network write holds the simulation monitor. */
 @Configuration @EnableWebSocket @EnableScheduling
 public class LiveWire extends TextWebSocketHandler implements WebSocketConfigurer {
- @org.springframework.beans.factory.annotation.Value("${metro.ws.origins:http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080}")
- String origins="http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080";
+ /** Same allow-list as the HTTP API (metro.origins / METRO_ORIGINS). */
+ @org.springframework.beans.factory.annotation.Value("${metro.ws.origins}")
+ String origins;
  long lastCheckpoint;
  final GameService g;
  final ConcurrentHashMap<String,Client> clients=new ConcurrentHashMap<>();
  final ExecutorService sends=Executors.newVirtualThreadPerTaskExecutor();
  static final class Client {final WebSocketSession ws;final String token,wid;String uid="",city="atl",presence="",positions="",sim="",clock="";final Set<String> chatSeen=new LinkedHashSet<>();final Queue<String> outgoing=new ConcurrentLinkedQueue<>();final AtomicBoolean draining=new AtomicBoolean();final Map<String,Integer> resources=new HashMap<>();Client(WebSocketSession ws,String token,String wid){this.ws=new ConcurrentWebSocketSessionDecorator(ws,2000,65536);this.token=token;this.wid=wid;}}
  LiveWire(GameService g){this.g=g;}
- @Override public void registerWebSocketHandlers(WebSocketHandlerRegistry registry){registry.addHandler(this,"/ws").setAllowedOrigins(origins.split(",")).addInterceptors(new HandshakeInterceptor(){
-  public boolean beforeHandshake(ServerHttpRequest request,ServerHttpResponse response,WebSocketHandler handler,Map<String,Object> attributes){String token="";for(String cookie:request.getHeaders().getOrEmpty("Cookie"))for(String part:cookie.split(";"))if(part.trim().startsWith("ml_session="))token=part.trim().substring(11);synchronized(g){ObjectNode session=g.session(token,false);if(session==null){response.setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);return false;}attributes.put("token",token);attributes.put("wid",g.world(session).path("id").asText());return true;}}
+ /** Cookie-less fallback: the page passes its session as ?session= when the browser blocks the API cookie. */
+ static String querySession(ServerHttpRequest request){String query=request.getURI().getRawQuery();if(query==null)return "";for(String pair:query.split("&")){int eq=pair.indexOf('=');if(eq>0&&pair.substring(0,eq).equals("session")){String value=java.net.URLDecoder.decode(pair.substring(eq+1),java.nio.charset.StandardCharsets.UTF_8);return SessionHeaderFilter.validToken(value)?value:"";}}return "";}
+ @Override public void registerWebSocketHandlers(WebSocketHandlerRegistry registry){registry.addHandler(this,"/ws").setAllowedOriginPatterns(WebConfig.split(origins)).addInterceptors(new HandshakeInterceptor(){
+  public boolean beforeHandshake(ServerHttpRequest request,ServerHttpResponse response,WebSocketHandler handler,Map<String,Object> attributes){String token="";for(String cookie:request.getHeaders().getOrEmpty("Cookie"))for(String part:cookie.split(";"))if(part.trim().startsWith("ml_session="))token=part.trim().substring(11);if(token.isEmpty())token=querySession(request);synchronized(g){ObjectNode session=g.session(token,false);if(session==null){response.setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);return false;}attributes.put("token",token);attributes.put("wid",g.world(session).path("id").asText());return true;}}
   public void afterHandshake(ServerHttpRequest request,ServerHttpResponse response,WebSocketHandler handler,Exception exception){}
  });}
  @Override public void afterConnectionEstablished(WebSocketSession session){Client c=new Client(session,(String)session.getAttributes().get("token"),(String)session.getAttributes().get("wid"));clients.put(session.getId(),c);synchronized(g){ObjectNode ses=g.session(c.token,true),w=g.world(ses);g.community.touch(w);String uid=ses.path("userId").asText();c.uid=uid;JsonNode s=g.table("sims").get(g.simKey(ses));if(s instanceof ObjectNode sim){g.navigation.resumePosture(sim);c.city=sim.path("city").asText();}g.community.online.put(c.wid+":"+uid,g.now());send(c,g.object().put("type","hello").put("worldId",c.wid).set("clock",g.clock(w)).toString());}}
