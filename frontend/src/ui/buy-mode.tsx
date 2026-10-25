@@ -6,7 +6,7 @@ import { Icon,ReasonButton } from './primitives'
 import { confirmPurchase } from './purchase-confirmation'
 import { sound } from './sound'
 import './buy-mode.css'
-export function BuyModeButton(){const sim=useStore(s=>s.sim),open=useHomeDesign(s=>s.open);return sim?.position?.room===`home:${sim.userId}`&&!open?<button className="buy-mode-trigger" onClick={()=>useHomeDesign.getState().setOpen(true)}><Icon name="house" size={17}/>Buy mode</button>:null}
+export function BuyModeButton(){const sim=useStore(s=>s.sim),open=useHomeDesign(s=>s.open);return sim&&sim.position?.room===`home:${sim.userId}`&&!open?<button className="buy-mode-trigger" onClick={()=>useHomeDesign.getState().setOpen(true)}><Icon name="house" size={17}/>Buy mode</button>:null}
 export function BuyMode(){
  const {open,design,catalog}=useHomeDesign(),{product,moving,point,rotation,inside,busy,wallPreview,floorPreview}=useBuyPreview(),[category,setCategory]=useState('seating'),[error,setError]=useState(''),[notice,setNotice]=useState(''),setSim=useStore(s=>s.setSim),placeRef=useRef<()=>void>(()=>{}),mutation=useRef(false)
  useEffect(()=>()=>{useHomeDesign.getState().setOpen(false);useBuyPreview.getState().clear()},[])

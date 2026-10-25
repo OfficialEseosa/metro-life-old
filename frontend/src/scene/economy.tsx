@@ -41,7 +41,7 @@ function AdImage({url}:{url:string}){
  useEffect(()=>{let active=true;const image=new Image();image.onload=()=>{if(active){texture.image=image;texture.colorSpace=THREE.SRGBColorSpace;texture.needsUpdate=true;invalidate()}};image.src=url;return()=>{active=false;image.onload=null;image.removeAttribute('src')}},[url,texture,invalidate]);useEffect(()=>()=>texture.dispose(),[texture])
  return <mesh position={[0,5,.17]} raycast={noPick}><planeGeometry args={[6,3.375]}/><meshBasicMaterial map={texture} toneMapped={false}/></mesh>
 }
-function Boards({city,night}:{city:CityId;night:boolean}){
+function Boards({city}:{city:CityId;night:boolean}){
  const world=useStore(s=>s.world),boards=useStore(s=>s.billboards),selected=useStore(s=>s.selectedSlot),count=world?.cities.find(c=>c.id===city)?.billboardSlots??0,sites=useMemo(()=>boardSites(city,count),[city,count]),down=useRef<[number,number]>([0,0])
  const frame=useMemo(()=>new Builder().box(-1.8,2.5,0,.25,5,.25,'#566b60').box(1.8,2.5,0,.25,5,.25,'#566b60').box(0,5,0,6.3,3.6,.3,'#263f37').build(),[])
  useEffect(()=>()=>frame.dispose(),[frame])

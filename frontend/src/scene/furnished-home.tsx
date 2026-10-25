@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from 'react'
-import * as THREE from 'three'
 import { useHomeDesign } from '../home-design'
 import { roomLayout } from '../navigation'
 import { useStore } from '../store'

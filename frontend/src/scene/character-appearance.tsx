@@ -63,10 +63,10 @@ export function softenCharacterHeads(root:THREE.Object3D){
   const source=object.geometry,cached=softenedHeads.get(source);if(cached){object.geometry=cached;return}
   const vertices=skinIndices(object),coordinates=new Map<number,THREE.Vector3>(),xs:number[]=[]
   for(const vertex of vertices){object.getVertexPosition(vertex,point);point.applyMatrix4(object.matrixWorld).applyMatrix4(rootInverse);coordinates.set(vertex,point.clone());xs.push(point.x)}
-  if(!xs.length)return
+  const matrices=object.skeleton.boneMatrices;if(!xs.length||!matrices)return
   xs.sort((a,b)=>a-b);const left=xs[Math.floor(xs.length*.06)],right=xs[Math.floor(xs.length*.94)],centre=(left+right)/2,half=(right-left)*.54,geometry=source.clone(),positions=geometry.getAttribute('position'),skinIndex=geometry.getAttribute('skinIndex'),skinWeight=geometry.getAttribute('skinWeight'),meshInverse=object.matrixWorld.clone().invert(),weighted=new THREE.Matrix4(),bone=new THREE.Matrix4()
   for(const [vertex,at]of coordinates){if(Math.abs(at.x-centre)<=half)continue;at.x=THREE.MathUtils.clamp(at.x,centre-half,centre+half);weighted.elements.fill(0)
-   for(let component=0;component<4;component++){const i=skinIndex.getComponent(vertex,component),weight=skinWeight.getComponent(vertex,component);if(!weight)continue;bone.fromArray(object.skeleton.boneMatrices,i*16);for(let k=0;k<16;k++)weighted.elements[k]+=bone.elements[k]*weight}
+   for(let component=0;component<4;component++){const i=skinIndex.getComponent(vertex,component),weight=skinWeight.getComponent(vertex,component);if(!weight)continue;bone.fromArray(matrices,i*16);for(let k=0;k<16;k++)weighted.elements[k]+=bone.elements[k]*weight}
    weighted.premultiply(object.bindMatrixInverse).multiply(object.bindMatrix);at.applyMatrix4(root.matrixWorld).applyMatrix4(meshInverse).applyMatrix4(weighted.invert());positions.setXYZ(vertex,at.x,at.y,at.z)
   }
   const index=geometry.index,count=index?.count??positions.count,sums=new Map<string,THREE.Vector3>(),keys=Array.from({length:positions.count},(_,i)=>`${Math.round(positions.getX(i)*100000)}:${Math.round(positions.getY(i)*100000)}:${Math.round(positions.getZ(i)*100000)}`),a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3(),normal=new THREE.Vector3()
