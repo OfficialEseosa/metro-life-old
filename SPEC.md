@@ -301,7 +301,8 @@ Newly started browser lives opt their shared world into a seven-minute day (`Clo
 - **City events.** A 90-second shared event runs every nine minutes per city. `/api/social-life` returns
   `event: null` unless it starts within 90 seconds, is live, or finished and this player joined it; a finished
   event's `result` speaks only to people who joined.
-- **Social reach.** Wave, hang out and gift reach 3.3 m (3.8 m for walking residents). The client targets the
+- **Social reach.** A wave reaches 8 m; hang out and gift reach 3.3 m (3.8 m for walking residents). A greeted
+  resident stops for nine seconds so a hang out can follow. The client targets the
   nearest person the player faces, real players before residents (`SocialTarget` in the store), and waits out the
   3-second cooldown instead of failing.
 - **Movement.** `POST /api/move` may carry `via: [{x,z}]` (up to 16 corners walked since the last confirmed

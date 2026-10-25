@@ -225,6 +225,8 @@ let socketEpoch = 0,
   resourceRevision = 0,
   sessionChanging = false;
 let indoorTravelPending = false;
+/** Server time from which chat messages count as new (see the `chat` event). */
+let chatNewsSince = 0;
 let retryTimer: ReturnType<typeof setTimeout> | null = null,
   retryStep = 0,
   verifying: Promise<boolean> | null = null;
@@ -437,7 +439,13 @@ export const useStore = create<State>((set, get) => {
         if (e.message.city === city) {
           const known = get().chat.some((m) => m.id === e.message.id);
           set((s) => ({ chat: mergeChat(s.chat, [e.message]) }));
-          if (!known && e.message.userId !== get().user?.id)
+          // Only messages written since this city came into view are news; the backlog that
+          // arrives on connect or after a flight is history, not a flood of toasts.
+          if (
+            !known &&
+            e.message.userId !== get().user?.id &&
+            e.message.at >= chatNewsSince
+          )
             emitFeedback({
               kind: "chat",
               title: e.message.username,
@@ -496,6 +504,7 @@ export const useStore = create<State>((set, get) => {
           disconnectedAt: connected ? null : (s.disconnectedAt ?? Date.now()),
         }));
         if (connected) {
+          chatNewsSince = serverNow() - 2000;
           socket?.send({ type: "view", city: get().city });
           void get().refresh(
             "players",
@@ -798,6 +807,7 @@ export const useStore = create<State>((set, get) => {
         socialTarget: null,
         focus: arrive ? null : "overview",
       });
+      chatNewsSince = serverNow() - 2000;
       socket?.send({ type: "view", city });
       await get().refresh("daily", "mayor", "plots", "billboards");
     },

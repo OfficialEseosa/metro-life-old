@@ -853,7 +853,8 @@ export function interactionSteering(now: number, manual: boolean): Point {
       path = [];
       lastRepath = 0;
     }
-    if (Math.hypot(point.x - p.x, point.z - p.z) < 2.1) {
+    // A wave works from across the way; hanging out and gifts walk right up.
+    if (Math.hypot(point.x - p.x, point.z - p.z) < (task.socialKind === "wave" ? 5 : 2.1)) {
       void perform(task);
       return { x: 0, z: 0 };
     }

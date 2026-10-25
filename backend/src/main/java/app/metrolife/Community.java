@@ -446,7 +446,8 @@ final class Community {
     );
     GameService.require(s.path("city").equals(t.path("city")), 409, "Meet at the same place first");
     GameService.require(
-      near(s, t, t.path("npc").asBoolean() ? 3.8 : 3.3),
+      // A wave carries across a street; hanging out and gifts need to be side by side.
+      near(s, t, kind.equals("wave") ? 8 : t.path("npc").asBoolean() ? 3.8 : 3.3),
       409,
       "Walk a little closer to " + t.path("username").asText() + " first"
     );
@@ -505,7 +506,8 @@ final class Community {
         kind.equals("gift") ? "gift" : "friendship",
         kind.equals("wave") ? "Waving" : "Chatting"
       );
-    if (t.path("npc").asBoolean()) t.put("_socialHoldUntil", g.now() + 5000);
+    // A resident who was greeted stops for a moment, so a hang out or a gift can follow.
+    if (t.path("npc").asBoolean()) t.put("_socialHoldUntil", g.now() + 9000);
     if (!kind.equals("gift")) g.firstDay.mark(s, "neighbour");
     s.put("_lastSocial", g.now());
     s.put("_socialFrom", s.path("userId").asText());
