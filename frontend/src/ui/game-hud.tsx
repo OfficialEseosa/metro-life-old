@@ -40,7 +40,7 @@ import { Avatar, ArrowUpRight, Icon, Sheet } from "./primitives";
 import { NEED_ICONS, NEED_LABELS, NEED_ORDER } from "./needs";
 import { money, useCompact, useNow } from "./helpers";
 import { serverNow } from "../server-time";
-import { CashCounter, RewardFlight, SoundButton } from "./feedback";
+import { CashCounter, FeedbackLayer, SoundButton } from "./feedback";
 import { sound } from "./sound";
 import { AudioScene } from "./audio";
 import { useGameFeedback } from "./use-game-feedback";
@@ -880,7 +880,7 @@ function HudBody() {
         <MapTools close={() => state().setSearchOpen(false)} />
       )}
       <ActivePanel />
-      <RewardFlight />
+      <FeedbackLayer />
       <StoryBeat />
     </div>
   );
