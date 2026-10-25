@@ -25,7 +25,7 @@ export function RoomLighting({ club }: { club: boolean }) {
     environmentLevel = aquarium
       ? 0.16
       : club
-        ? 0.12
+        ? 0.24
         : museum
           ? 0.65
           : theatre
@@ -103,7 +103,7 @@ export function RoomLighting({ club }: { club: boolean }) {
               : museum
                 ? "#b6bbb5"
                 : "#8a7c78",
-          aquarium ? 0.33 : club ? 0.16 : museum ? 0.72 : theatre ? 0.3 : 0.48,
+          aquarium ? 0.33 : club ? 0.32 : museum ? 0.72 : theatre ? 0.3 : 0.48,
         ]}
       />
       <directionalLight
@@ -114,7 +114,7 @@ export function RoomLighting({ club }: { club: boolean }) {
           aquarium
             ? 1.1
             : club
-              ? 0.8
+              ? 1.3
               : museum
                 ? 3.5
                 : theatre
