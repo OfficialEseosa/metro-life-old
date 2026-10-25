@@ -60,6 +60,27 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * The address answered, but not as the city: a proxy or host error page, a server crash, or a body
+ * that is not JSON. Status 0 so every caller treats it like a lost connection and tries again.
+ */
+export class UnreachableError extends ApiError {
+  httpStatus: number;
+  constructor(httpStatus: number, message: string) {
+    super(0, message);
+    this.httpStatus = httpStatus;
+  }
+}
+
+/** The server refuses with `{ error }`; framework error pages also carry `status` and `path`. */
+const refusal = (data: unknown): string | null =>
+  data !== null &&
+  typeof data === "object" &&
+  typeof (data as { error?: unknown }).error === "string" &&
+  !("status" in data)
+    ? (data as { error: string }).error
+    : null;
+
 async function req<T>(
   method: string,
   path: string,
@@ -100,15 +121,19 @@ async function req<T>(
     if (res.status === 401 && !signIn) unauthorized?.(path);
     // A body cut off by a timeout or a dropped link must never reach callers as `null`.
     if (res.ok && (data === null || typeof data !== "object"))
-      throw new ApiError(
-        0,
+      throw new UnreachableError(
+        res.status,
         "The city took too long to answer. Please try again.",
       );
     if (!res.ok) {
-      const error = new ApiError(
-        res.status,
-        data?.error ?? `Request failed (${res.status})`,
-      );
+      const reason = res.status >= 500 ? null : refusal(data);
+      const error =
+        reason === null
+          ? new UnreachableError(
+              res.status,
+              "The city is not answering right now. Please try again.",
+            )
+          : new ApiError(res.status, reason);
       if (mutation && !quietErrors.has(path) && res.status !== 401)
         emitFeedback({
           kind: "error",
