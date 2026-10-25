@@ -108,6 +108,7 @@ export type Requires = {
 };
 
 export type Action = {
+  pantry?: number;
   venueStation?: string;
   venuePose?: string;
   id: string;
@@ -241,6 +242,8 @@ export type Friendship = {
 export type FirstDayStep =
   "outside" | "job" | "shift" | "meal" | "neighbour" | "rent";
 export type Sim = {
+  /** Fresh meals bought at the market; each home cook uses one for extra hunger and fun. */
+  pantry?: number;
   /** Private relationships for this life; omitted from public player presence. */
   relationships?: Record<string, Friendship>;
   personalSchedule?: Clock;

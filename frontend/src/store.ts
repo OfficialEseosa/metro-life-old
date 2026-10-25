@@ -21,12 +21,27 @@ import type {
   Plots,
   ServerEvent,
   Sim,
+  SocialKind,
   Stats,
   Rect,
   User,
   World,
   WorldInfo,
 } from "./api/types";
+
+export type SocialMoment = {
+  seq: number;
+  text: string;
+  kind: SocialKind;
+  direction: "sent" | "received";
+  actorId: string;
+  actorName: string;
+  targetId: string;
+  targetName: string;
+  at: number;
+};
+
+let socialSequence = 0;
 
 export type Panel =
   | null
@@ -86,6 +101,11 @@ type State = {
   clock: Clock | null;
   stats: Stats | null;
   socialNotice: string;
+  socialMoment: SocialMoment | null;
+  noticeSocial: (
+    text: string,
+    moment: Omit<SocialMoment, "seq" | "text" | "at">,
+  ) => void;
   /** See SocialTarget. Updated by the walking loop a few times a second, only when it changes. */
   socialTarget: SocialTarget | null;
   setSocialTarget: (target: SocialTarget | null) => void;
@@ -469,7 +489,15 @@ export const useStore = create<State>((set, get) => {
         }
         break;
       case "socialReceived": {
-        set({ socialNotice: e.text });
+        const own = get().sim;
+        get().noticeSocial(e.text, {
+          kind: e.kind,
+          direction: "received",
+          actorId: e.fromId,
+          actorName: e.fromName,
+          targetId: own?.userId ?? "",
+          targetName: own?.username ?? "",
+        });
         emitFeedback({
           kind: "socialReceived",
           title: e.text,
@@ -592,6 +620,12 @@ export const useStore = create<State>((set, get) => {
     disconnectedAt: null,
     retryAt: null,
     socialNotice: "",
+    socialMoment: null,
+    noticeSocial: (text, moment) =>
+      set({
+        socialNotice: text,
+        socialMoment: { ...moment, seq: ++socialSequence, text, at: serverNow() },
+      }),
     socialTarget: null,
     setSocialTarget: (socialTarget) => {
       const current = get().socialTarget;
@@ -812,6 +846,7 @@ export const useStore = create<State>((set, get) => {
         players: resetPlayers(),
         chat: [],
         socialNotice: "",
+        socialMoment: null,
         socialTarget: null,
         mayor: null,
         plots: null,
@@ -854,6 +889,7 @@ export const useStore = create<State>((set, get) => {
         selectedSlot: null,
         plotSelection: null,
         panel: null,
+        socialMoment: null,
         socialTarget: null,
         focus: arrive ? null : "overview",
       });
@@ -1237,3 +1273,7 @@ export const useConnection = (): ConnectionInfo =>
       retryNow: s.retryNow,
     })),
   );
+
+/** Current nearby social recipient. */
+export const selectSocialTarget = (s: State) => s.socialTarget;
+export const useSocialTarget = () => useStore(selectSocialTarget);

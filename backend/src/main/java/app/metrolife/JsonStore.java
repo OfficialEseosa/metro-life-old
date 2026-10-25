@@ -79,7 +79,7 @@ public class JsonStore {
   void save() {
     Path tmp = path.resolveSibling(path.getFileName() + ".next");
     try {
-      Files.write(tmp, mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(data));
+      Files.write(tmp, mapper.writeValueAsBytes(data));
       try (FileChannel channel = FileChannel.open(tmp, StandardOpenOption.WRITE)) {
         channel.force(true);
       }

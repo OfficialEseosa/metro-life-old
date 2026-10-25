@@ -22,30 +22,30 @@
         {
           "id": "burger",
           "label": "Brick & Bun burger",
-          "station": "desk",
+          "station": "stall-north-0",
           "kind": "food",
           "cost": 8,
-          "pose": "Eat",
+          "pose": "Interact",
           "need": "hunger",
           "gain": 28
         },
         {
           "id": "noodles",
           "label": "Noodle Lantern bowl",
-          "station": "desk",
+          "station": "stall-north-1",
           "kind": "food",
           "cost": 10,
-          "pose": "Eat",
+          "pose": "Interact",
           "need": "hunger",
           "gain": 35
         },
         {
           "id": "gelato",
           "label": "Honeycomb gelato",
-          "station": "desk",
+          "station": "stall-north-2",
           "kind": "food",
           "cost": 5,
-          "pose": "Eat",
+          "pose": "Interact",
           "need": "hunger",
           "gain": 16
         },
@@ -68,6 +68,27 @@
           "pose": "Interact",
           "need": "fun",
           "gain": 8
+        },
+        {
+          "id": "coffee",
+          "label": "Barista coffee",
+          "station": "stall-north-3",
+          "kind": "food",
+          "cost": 4,
+          "pose": "Interact",
+          "need": "energy",
+          "gain": 14
+        },
+        {
+          "id": "groceries",
+          "label": "Buy groceries for home",
+          "station": "stall-south-1",
+          "kind": "food",
+          "cost": 9,
+          "pose": "Interact",
+          "need": "hunger",
+          "gain": 4,
+          "pantry": 3
         }
       ]
     },
@@ -182,7 +203,7 @@
           "station": "tunnel",
           "kind": "watch",
           "cost": 0,
-          "pose": "Interact",
+          "pose": "Browse",
           "need": "fun",
           "gain": 12
         },
@@ -279,7 +300,7 @@
           "station": "forest",
           "kind": "watch",
           "cost": 0,
-          "pose": "Interact",
+          "pose": "Browse",
           "need": "energy",
           "gain": 10
         },

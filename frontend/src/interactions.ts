@@ -158,14 +158,12 @@ function socialReason(p: Player | undefined) {
 function routeToStation(loc: string, last: Task) {
   const s = useStore.getState(),
     sim = s.sim,
-    p = motion.position;
+    p = motion.position,
+    phase = state().phase,
+    defer = !!(s.acting || sim?.busyUntil || phase === "starting" || phase === "performing");
   if (!sim) throw Error("Start your life first");
   if (!p) throw Error("The city is still placing you. Try again in a moment");
-  if (s.acting || sim.busyUntil)
-    throw Error("Finish your current activity first");
   if (sim.pendingBeat) throw Error("Choose your story first");
-  if (state().phase === "starting" || state().phase === "performing")
-    throw Error("Finish or cancel your current action first");
   const tasks: Task[] = [],
     base = { city: sim.city, icon: "footprints" };
   if (p.room !== last.room) {
@@ -198,10 +196,17 @@ function routeToStation(loc: string, last: Task) {
     }
   }
   tasks.push(last);
+  const queue = tasks.map((task) => ({ ...task, id: `action-${++sequence}` }));
+  if (defer) {
+    useInteractions.setState({ waiting: queue, error: "", menu: null });
+    s.openPanel(null);
+    s.selectLocation(null);
+    motion.wake();
+    return;
+  }
   clearQueuedInteractions();
   path = [];
   settleAt = 0;
-  const queue = tasks.map((task) => ({ ...task, id: `action-${++sequence}` }));
   useInteractions.setState({
     current: queue[0],
     waiting: queue.slice(1),

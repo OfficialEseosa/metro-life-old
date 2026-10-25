@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.LongSupplier;
 import org.springframework.stereotype.Service;
 
@@ -190,37 +191,50 @@ public class GameService {
 
   /** New guest lives per address within GUEST_WINDOW_MS, and across all addresses. */
   static final int GUESTS_PER_ADDRESS = 12,
+    GUESTS_PER_PEER = 60,
     GUESTS_TOTAL = 240;
   static final long GUEST_WINDOW_MS = 10 * 60000L;
   final Map<String, ArrayDeque<Long>> guestCreations = new HashMap<>();
   final ArrayDeque<Long> allGuestCreations = new ArrayDeque<>();
 
   /** Refuse a flood of new guest lives (each one is a saved user and session). */
-  void limitGuests(String address) {
+  void limitGuests(String peer, String forwarded) {
     long cutoff = now() - GUEST_WINDOW_MS;
     while (!allGuestCreations.isEmpty() && allGuestCreations.peekFirst() < cutoff) allGuestCreations.pollFirst();
     guestCreations.values().forEach(times -> {
       while (!times.isEmpty() && times.peekFirst() < cutoff) times.pollFirst();
     });
     guestCreations.values().removeIf(ArrayDeque::isEmpty);
-    ArrayDeque<Long> mine = guestCreations.computeIfAbsent(address == null ? "" : address, k -> new ArrayDeque<>());
+    String clientKey = "addr:" + (forwarded != null ? forwarded : peer == null ? "" : peer);
+    ArrayDeque<Long> mine = guestCreations.computeIfAbsent(clientKey, k -> new ArrayDeque<>());
+    ArrayDeque<Long> connectingPeer = forwarded != null && !forwarded.equals(peer)
+      ? guestCreations.computeIfAbsent("peer:" + (peer == null ? "" : peer), k -> new ArrayDeque<>())
+      : null;
     require(
-      mine.size() < GUESTS_PER_ADDRESS && allGuestCreations.size() < GUESTS_TOTAL,
+      mine.size() < GUESTS_PER_ADDRESS &&
+        (connectingPeer == null || connectingPeer.size() < GUESTS_PER_PEER) &&
+        allGuestCreations.size() < GUESTS_TOTAL,
       429,
       "Lots of new lives are starting right now. Please try again in a few minutes."
     );
-    mine.addLast(now());
-    allGuestCreations.addLast(now());
+    long at = now();
+    mine.addLast(at);
+    if (connectingPeer != null) connectingPeer.addLast(at);
+    allGuestCreations.addLast(at);
   }
 
   synchronized AuthResult guest(String token, JsonNode body) {
-    return guest(token, body, null);
+    return guest(token, body, null, null);
   }
 
   synchronized AuthResult guest(String token, JsonNode body, String address) {
+    return guest(token, body, address, null);
+  }
+
+  synchronized AuthResult guest(String token, JsonNode body, String peer, String forwarded) {
     ObjectNode old = session(token, false);
     if (old != null) return new AuthResult(token, publicUser(user(old)));
-    if (address != null) limitGuests(address);
+    limitGuests(peer, forwarded);
     String name = body.path("username").asText("").trim();
     if (name.isEmpty()) name = friendlyName();
     if (body.path("username").asText().length() > 0) name = username(name);
@@ -670,10 +684,14 @@ public class GameService {
       w = world(ses);
     decay(s, w);
     require(!transit.active(s), 409, "This departure is booked. You will arrive at the destination hub.");
-    s.remove(List.of("_pendingAction", "_pendingTravel", "workGame"));
-    s.putNull("busyUntil").putNull("busyStartedAt").putNull("busyLabel").putNull("busyKind").putNull("activitySlot");
+    stopAction(s);
     store.save();
     return simResponse(s, w);
+  }
+
+  void stopAction(ObjectNode s) {
+    s.remove(List.of("_pendingAction", "_pendingTravel", "workGame"));
+    s.putNull("busyUntil").putNull("busyStartedAt").putNull("busyLabel").putNull("busyKind").putNull("activitySlot");
   }
 
   synchronized ObjectNode movePosition(String token, JsonNode body) {
@@ -992,6 +1010,8 @@ public class GameService {
     return out;
   }
 
+  static final int PANTRY_MAX = 6;
+
   synchronized ObjectNode act(String token, JsonNode body) {
     ObjectNode session = session(token, true),
       live = sim(session),
@@ -1084,6 +1104,14 @@ public class GameService {
     ObjectNode recoveryActor = live.deepCopy();
     if (loc.equals("home")) navigation.stage(recoveryActor, loc, a, slotId);
     ObjectNode homeBonus = loc.equals("home") ? homeDesign.recoveryBonus(recoveryActor, action) : object();
+    int pantry = s.path("pantry").asInt();
+    boolean stocked = loc.equals("home") && action.equals("cook") && pantry > 0;
+    if (stocked) {
+      homeBonus.put("hunger", homeBonus.path("hunger").asDouble() + 15);
+      homeBonus.put("fun", homeBonus.path("fun").asDouble() + 5);
+      s.put("pantry", pantry - 1);
+    }
+    if (a.has("pantry")) s.put("pantry", Math.min(PANTRY_MAX, pantry + a.path("pantry").asInt()));
     ObjectNode needDeltas = object(),
       skillDeltas = object();
     for (String need : Content.NEEDS) {
@@ -1160,6 +1188,8 @@ public class GameService {
       result.put("promoted", promoted);
       result.put("text", result.path("text").asText() + " Promoted to " + promoted + "!");
     }
+    if (a.has("pantry")) result.put("text", result.path("text").asText() + " Your pantry now holds " + s.path("pantry").asInt() + " meals for home cooking.");
+    if (stocked) result.put("text", result.path("text").asText() + " Cooked with fresh groceries, " + s.path("pantry").asInt() + " left.");
     result.set("beat", s.path("pendingBeat").deepCopy());
     ObjectNode deltas = result
       .putObject("deltas")
@@ -1183,7 +1213,7 @@ public class GameService {
       .putObject("_pendingAction")
       .put("cost", a.path("cost").asDouble())
       .put("shift", a.path("requires").has("job"))
-      .put("meal", a.path("kind").asText().equals("food") && a.path("cost").asDouble() > 0);
+      .put("meal", !a.has("pantry") && a.path("kind").asText().equals("food") && a.path("cost").asDouble() > 0);
     pending.put("paidGig", CareerRhythm.gig(a));
     pending.set("activity", result.path("activity").deepCopy());
     pending.set("state", s);
@@ -1343,6 +1373,7 @@ public class GameService {
   synchronized void purge() {
     long at = now();
     int removed = 0;
+    AtomicBoolean changed = new AtomicBoolean();
     Set<String> signedIn = new HashSet<>();
     var expired = new ArrayList<String>();
     table("sessions")
@@ -1352,6 +1383,8 @@ public class GameService {
         else signedIn.add(e.getValue().path("userId").asText());
       });
     expired.forEach(table("sessions")::remove);
+    changed.set(!expired.isEmpty());
+    Set<String> removedUids = new HashSet<>();
     var users = new ArrayList<String>();
     table("users").fieldNames().forEachRemaining(users::add);
     for (String uid : users) {
@@ -1364,9 +1397,85 @@ public class GameService {
       if (!u.path("guest").asBoolean(true) || !(unused || abandoned)) continue;
       table("users").remove(uid);
       table("sims").remove(uid + ":public");
+      removedUids.add(uid);
       removed++;
     }
-    if (removed > 0 || !expired.isEmpty()) store.save();
+    changed.set(changed.get() || removed > 0);
+    if (!removedUids.isEmpty()) {
+      var staleSessions = new ArrayList<String>();
+      table("sessions").fields().forEachRemaining(e -> {
+        if (!table("users").has(e.getValue().path("userId").asText())) staleSessions.add(e.getKey());
+      });
+      staleSessions.forEach(table("sessions")::remove);
+      changed.set(changed.get() || !staleSessions.isEmpty());
+
+      for (JsonNode value : table("sims")) {
+        if (!(value instanceof ObjectNode sim)) continue;
+        for (String field : List.of("relationships", "_houseLikesGiven")) {
+          JsonNode refs = sim.path(field);
+          if (refs instanceof ObjectNode object) for (String uid : removedUids) {
+            if (object.has(uid)) {
+              object.remove(uid);
+              changed.set(true);
+            }
+          }
+        }
+      }
+      JsonNode residents = store.data.path("residents");
+      if (residents.isObject()) residents.fields().forEachRemaining(world -> {
+        JsonNode rows = world.getValue();
+        if (rows.isContainerNode()) rows.elements().forEachRemaining(row -> {
+          if (!(row instanceof ObjectNode resident)) return;
+          for (String field : List.of("relationships", "_houseLikesGiven")) {
+            JsonNode refs = resident.path(field);
+            if (refs instanceof ObjectNode object) for (String uid : removedUids) {
+              if (object.has(uid)) {
+                object.remove(uid);
+                changed.set(true);
+              }
+            }
+          }
+        });
+      });
+      JsonNode properties = store.data.path("property");
+      if (properties.isObject()) properties.fields().forEachRemaining(world -> {
+        JsonNode cities = world.getValue();
+        if (!cities.isObject()) return;
+        cities.fields().forEachRemaining(city -> {
+          removeGuestPropertyReferences(city.getValue(), removedUids, changed);
+        });
+      });
+      JsonNode worlds = store.data.path("worlds");
+      if (worlds.isObject()) worlds.fields().forEachRemaining(world -> {
+        JsonNode events = world.getValue().path("socialLife").path("events");
+        if (events.isObject()) events.fields().forEachRemaining(event -> {
+          for (String field : List.of("contributors", "claims")) {
+            JsonNode refs = event.getValue().path(field);
+            if (refs instanceof ObjectNode object) for (String uid : removedUids) {
+              if (object.has(uid)) {
+                object.remove(uid);
+                changed.set(true);
+              }
+            }
+          }
+        });
+      });
+    }
+    if (changed.get()) store.save();
+  }
+
+  void removeGuestPropertyReferences(JsonNode node, Set<String> removedUids, AtomicBoolean changed) {
+    if (node instanceof ArrayNode rows) {
+      for (int i = rows.size() - 1; i >= 0; i--) {
+        JsonNode row = rows.get(i);
+        if (removedUids.contains(row.path("userId").asText())) {
+          rows.remove(i);
+          changed.set(true);
+        } else removeGuestPropertyReferences(row, removedUids, changed);
+      }
+    } else if (node.isObject()) {
+      node.elements().forEachRemaining(child -> removeGuestPropertyReferences(child, removedUids, changed));
+    }
   }
 
   long createdAt(ObjectNode s) {
@@ -1461,8 +1570,13 @@ public class GameService {
       w = world(ses),
       from = sim(ses),
       target = community.target(w, body.path("targetId").asText());
+    String kind = body.path("kind").asText();
+    if (target != null) {
+      out.put("targetId", target.path("userId").asText());
+      out.put("targetName", target.path("username").asText());
+    }
+    out.put("kind", kind);
     if (target != null && !target.path("npc").asBoolean() && userFrames != null) {
-      String kind = body.path("kind").asText();
       ObjectNode frame = object()
         .put("type", "socialReceived")
         .put("kind", kind)

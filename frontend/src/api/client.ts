@@ -352,12 +352,28 @@ export const api = {
   players: (city?: CityId) =>
     req<{ players: Player[] }>("GET", `/api/players${q(city)}`),
   social: async (targetId: string, kind: SocialKind, amount?: number) => {
-    const r = await req<{ sim: Sim; text: string }>("POST", "/api/social", {
+    const r = await req<{
+      sim: Sim;
+      text: string;
+      targetId?: string;
+      targetName?: string;
+      kind?: SocialKind;
+    }>("POST", "/api/social", {
       targetId,
       kind,
       amount,
     });
-    const target = useStore.getState().players.find((p) => p.id === targetId);
+    const state = useStore.getState(),
+      target = state.players.find((p) => p.id === targetId),
+      actor = state.sim;
+    state.noticeSocial(r.text, {
+      kind,
+      direction: "sent",
+      actorId: actor?.userId ?? "",
+      actorName: actor?.username ?? "",
+      targetId: r.targetId ?? targetId,
+      targetName: r.targetName ?? target?.username ?? "",
+    });
     emitFeedback({
       kind: "social",
       title: r.text,

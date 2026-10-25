@@ -2,6 +2,8 @@ package app.metrolife;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletRequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.URI;
@@ -190,7 +192,26 @@ public class ApiController {
     HttpServletRequest req,
     HttpServletResponse res
   ) {
-    return signedIn(req, res, game.guest(token, body, req.getRemoteAddr()));
+    ServletRequest peerRequest = req;
+    while (peerRequest instanceof ServletRequestWrapper wrapper) {
+      ServletRequest inner = wrapper.getRequest();
+      if (inner == peerRequest) break;
+      peerRequest = inner;
+    }
+    String peer = peerRequest instanceof HttpServletRequest inner
+      ? inner.getRemoteAddr()
+      : req.getRemoteAddr();
+    String forwarded = null;
+    String header = peerRequest instanceof HttpServletRequest raw
+      ? raw.getHeader("X-Forwarded-For")
+      : req.getHeader("X-Forwarded-For");
+    if (header != null) for (String entry : header.split(",")) {
+      if (!entry.isBlank()) {
+        forwarded = entry.trim();
+        break;
+      }
+    }
+    return signedIn(req, res, game.guest(token, body, peer, forwarded));
   }
 
   @PostMapping("/life/new")

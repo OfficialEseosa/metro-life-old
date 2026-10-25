@@ -52,6 +52,7 @@ final class LandmarkLife {
             .put("venueStation", row.path("station").asText())
             .put("venuePose", row.path("pose").asText())
             .put("xp", 5);
+          if (row.has("pantry")) action.put("pantry", row.path("pantry").asInt());
           place.withArray("actions").add(action);
         }
       }

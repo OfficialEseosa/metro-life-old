@@ -641,10 +641,27 @@ export function Walking({
     if (now - lastTarget.current > 200) {
       lastTarget.current = now;
       const self = s.sim,
-        person =
+        nearest =
           self && !self.busyUntil && !self.trip
             ? nearbyPerson(self, at, s.players)
             : undefined;
+      const current = self && s.socialTarget
+          ? s.players.find((player) => player.id === s.socialTarget?.id)
+          : undefined,
+        eligible =
+          self && !self.busyUntil && !self.trip && current
+            ? nearbyPerson(self, at, [current])
+            : undefined,
+        nearestDistance = nearest?.position
+          ? Math.hypot(nearest.position.x - at.x, nearest.position.z - at.z)
+          : Infinity,
+        currentDistance = eligible?.position
+          ? Math.hypot(eligible.position.x - at.x, eligible.position.z - at.z)
+          : Infinity,
+        person =
+          eligible?.position && nearestDistance > currentDistance - 0.75
+            ? eligible
+            : nearest;
       s.setSocialTarget(
         person?.position
           ? {
