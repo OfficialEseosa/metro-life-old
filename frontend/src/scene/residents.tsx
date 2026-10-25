@@ -11,7 +11,7 @@ import {
 import { useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { useStore } from "../store";
+import { livePlayers, useStore } from "../store";
 import { lifeLabel, lifePose, lifeTopic } from "../life-actions";
 import {
   bodyCondition,
@@ -41,6 +41,21 @@ type ResidentMotion = {
   hidden: boolean;
   hip?: number;
 };
+/** Where a resident should stand, read from its live presence record (patched in place at 5 Hz). */
+function crowdTarget(p: Player, out = new THREE.Vector3()) {
+  return out.set(
+    p.activitySlot?.x ?? p.position!.x,
+    p.activitySlot && ["Sit", "Type", "Eat"].includes(p.activitySlot.pose)
+      ? Math.max(0, (p.activitySlot.y ?? 0.61) - 0.61)
+      : p.activitySlot?.pose === "Cheer"
+        ? (p.activitySlot.y ?? 0)
+        : p.position!.room?.startsWith("club:") &&
+            (p.activitySlot?.z ?? p.position!.z) < -2.3
+          ? 0.36
+          : 0,
+    p.activitySlot?.z ?? p.position!.z,
+  );
+}
 function NearResident({
   person,
   read,
@@ -115,7 +130,8 @@ export function Residents() {
     lastCamera = useRef(new THREE.Matrix4()),
     lastHeight = useRef(0),
     { scene } = useGLTF("/models/landmarks/resident-lod.glb");
-  const [nearIds, setNearIds] = useState<string[]>([]),
+  const liveRevision = useRef(-1),
+    [nearIds, setNearIds] = useState<string[]>([]),
     nearSet = useRef(new Set<string>()),
     ready = useRef(new Set<string>()),
     states = useRef(new Map<string, ResidentMotion>()),
@@ -220,19 +236,7 @@ export function Residents() {
         .slice(0, 48)
         .map((p) => ({
           id: p.id,
-          target: new THREE.Vector3(
-            p.activitySlot?.x ?? p.position!.x,
-            p.activitySlot &&
-            ["Sit", "Type", "Eat"].includes(p.activitySlot.pose)
-              ? Math.max(0, (p.activitySlot.y ?? 0.61) - 0.61)
-              : p.activitySlot?.pose === "Cheer"
-                ? (p.activitySlot.y ?? 0)
-                : p.position!.room?.startsWith("club:") &&
-                    (p.activitySlot?.z ?? p.position!.z) < -2.3
-                  ? 0.36
-                  : 0,
-            p.activitySlot?.z ?? p.position!.z,
-          ),
+          target: crowdTarget(p),
           face: p.activitySlot?.face ?? p.position!.face,
           person: p,
           look: p.npc ? residentLook(p.id, p.look) : p.look,
@@ -289,6 +293,7 @@ export function Residents() {
     invalidate();
   }, [crowd, model, invalidate]);
   const animated = crowd.some((p) => p.activity !== "idle");
+  useEffect(() => livePlayers.subscribe(invalidate), [invalidate]);
   useEffect(() => {
     if (!animated) return;
     const timer = setInterval(() => {
@@ -303,6 +308,14 @@ export function Residents() {
     if (!mesh) return;
     model.time.value = clock.elapsedTime;
     const player = motion.position ?? useStore.getState().sim?.position;
+    if (liveRevision.current !== livePlayers.revision) {
+      liveRevision.current = livePlayers.revision;
+      for (const c of crowd)
+        if (c.person.position) {
+          crowdTarget(c.person, c.target);
+          c.face = c.person.activitySlot?.face ?? c.person.position.face;
+        }
+    }
     let changed =
       dirty.current ||
       animated ||
