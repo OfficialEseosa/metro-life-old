@@ -121,6 +121,14 @@ final class Navigation {
     );
   }
 
+  /**
+   * Two people read as one body when they stand in line with the camera, which looks along z,
+   * so a spot needs more clearance in depth than sideways.
+   */
+  static boolean crowded(JsonNode at, double x, double z) {
+    return Math.hypot((at.path("x").asDouble() - x) / .85, (at.path("z").asDouble() - z) / 1.5) < 1;
+  }
+
   boolean freeSpot(ObjectNode actor, double x, double z, String room) {
     String city = actor.path("city").asText(),
       wid = actor.path("worldId").asText();
@@ -134,18 +142,17 @@ final class Navigation {
         !other.path("position").path("room").asText("").equals(room) ||
         !present(other)
       ) continue;
-      JsonNode at = effectivePosition(other);
-      if (Math.hypot(at.path("x").asDouble() - x, at.path("z").asDouble() - z) < .85) return false;
+      if (crowded(effectivePosition(other), x, z)) return false;
       JsonNode reserved = other.path("_roomSlot");
       if (
         other.path("npc").asBoolean() &&
         other.path("_phase").asText().equals("approach") &&
         reserved.isObject() &&
-        Math.hypot(reserved.path("x").asDouble() - x, reserved.path("z").asDouble() - z) < .85
+        crowded(reserved, x, z)
       ) return false;
     }
     if (!room.isEmpty()) for (JsonNode staff : layout(city, room.split(":")[0]).path("staff"))
-      if (Math.hypot(staff.path("x").asDouble() - x, staff.path("z").asDouble() - z) < .85) return false;
+      if (crowded(staff, x, z)) return false;
     return true;
   }
 
@@ -160,11 +167,15 @@ final class Navigation {
       return desired;
     }
     for (int ring = 1; ring <= (room.isEmpty() ? 3 : 6); ring++) {
-      double radius = ring * .9;
+      double radius = ring;
       int count = 8 * ring;
-      for (int i = 0; i < count; i++) {
-        double angle = (i * Math.PI * 2) / count,
-          px = x + Math.sin(angle) * radius,
+      // The camera looks along z, so someone straight in front of or behind the person already
+      // standing here reads as one body. Try the spots beside them first.
+      List<Double> angles = new ArrayList<>();
+      for (int i = 0; i < count; i++) angles.add((i * Math.PI * 2) / count);
+      angles.sort(Comparator.comparingDouble(a -> Math.abs(Math.cos(a))));
+      for (double angle : angles) {
+        double px = x + Math.sin(angle) * radius,
           pz = z + Math.cos(angle) * radius;
         if (freeSpot(actor, px, pz, room)) {
           arrivals.put(arrivalKey(actor), g.now() + 12000);
