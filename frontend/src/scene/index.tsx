@@ -39,7 +39,15 @@ import { MetropolitanFabric } from "./metropolitan-fabric";
 import { Fabric } from "./fabric";
 import { AtlantaSkyline, BlenderLandmark, KitInstances } from "./kit-models";
 import { blenderHeroes } from "./hero-ids";
-import { useNightLighting } from "../lighting";
+import {
+  useNightLighting,
+  lightUniforms,
+  timeOfDay,
+  setTimeOverride,
+} from "../lighting";
+import { SkyDome, SkyEnvironment, WorldLights, RangeFog } from "./world-lighting";
+import { useGrassMaterial } from "./ground-material";
+import { useEffectiveQuality } from "./render-quality";
 import { CameraOcclusion } from "./camera-occlusion";
 import { Pins } from "./pins";
 import { WorldActivity, PlayerMarker } from "./activity";
@@ -75,6 +83,8 @@ declare global {
       refreshShadows: () => void;
       focus: (id: string | null) => void;
       theme: (value: "day" | "night") => void;
+      time: (minutes: number | null) => void;
+      shadowMode: (mode: "follow" | "overview" | null) => void;
       metrics: () => {
         calls: number;
         triangles: number;
@@ -96,39 +106,47 @@ declare global {
 }
 const noPick = () => {};
 const worldTarget = new THREE.Vector3(0, 0, 5);
-// Own the ambient clock outside asset Suspense so loading never depends on input.
+/**
+ * Frame-loop policy: render every animation frame while a life is being played,
+ * render on demand on the title screen, and stop entirely while the tab is hidden
+ * or the player is on a trip (the ride card covers the city).
+ */
 function AmbientTicker() {
   const invalidate = useThree((s) => s.invalidate),
-    setFrameloop = useThree((s) => s.setFrameloop);
+    setFrameloop = useThree((s) => s.setFrameloop),
+    playing = useStore((s) => !!s.sim),
+    travelling = useStore((s) => !!s.sim?.trip),
+    [loading, setLoading] = useState(() => useProgress.getState().active);
+  // Progress changes while other components render inside Suspense; defer the update.
+  useEffect(
+    () =>
+      useProgress.subscribe((s) => {
+        queueMicrotask(() => setLoading(s.active));
+      }),
+    [],
+  );
   useLayoutEffect(() => {
-    const visibility = () => {
-      setFrameloop(document.hidden ? "never" : "demand");
+    const apply = () => {
+      setFrameloop(
+        document.hidden || travelling ? "never" : playing ? "always" : "demand",
+      );
       if (!document.hidden) invalidate();
     };
-    visibility();
-    document.addEventListener("visibilitychange", visibility);
-    return () => document.removeEventListener("visibilitychange", visibility);
-  }, [invalidate, setFrameloop]);
+    apply();
+    document.addEventListener("visibilitychange", apply);
+    return () => document.removeEventListener("visibilitychange", apply);
+  }, [invalidate, setFrameloop, playing, travelling]);
+  // On the title screen, keep painting while assets stream in so the city appears as it loads.
   useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | undefined;
-    const update = () => {
-      if (timer) clearInterval(timer);
-      timer = undefined;
-      if (useProgress.getState().active)
-        timer = setInterval(() => {
-          if (!document.hidden) invalidate();
-        }, 100);
-    };
-    const off = useProgress.subscribe(update);
-    update();
-    return () => {
-      off();
-      if (timer) clearInterval(timer);
-    };
-  }, [invalidate]);
+    if (playing || !loading) return;
+    const timer = setInterval(() => {
+      if (!document.hidden) invalidate();
+    }, 100);
+    return () => clearInterval(timer);
+  }, [invalidate, playing, loading]);
   return null;
 }
-function Terrain({ night }: { night: boolean }) {
+function Terrain() {
   const geometry = useMemo(() => {
     const g = new THREE.PlaneGeometry(1200, 1200, 64, 64),
       p = g.getAttribute("position");
@@ -145,94 +163,62 @@ function Terrain({ night }: { night: boolean }) {
     return g;
   }, []);
   useEffect(() => () => geometry.dispose(), [geometry]);
+  const material = useGrassMaterial();
   return (
     <mesh
       name="terrain"
       geometry={geometry}
+      material={material}
+      rotation={[-Math.PI / 2, 0, 0]}
+      receiveShadow
+      raycast={noPick}
+    />
+  );
+}
+
+function Ground() {
+  const material = useGrassMaterial();
+  return (
+    <mesh
+      name="ground"
+      material={material}
+      position={[0, -0.05, 0]}
       rotation={[-Math.PI / 2, 0, 0]}
       receiveShadow
       raycast={noPick}
     >
-      <meshStandardMaterial
-        color={night ? "#343b39" : "#8ebd75"}
-        emissive={night ? "#586c83" : "#000000"}
-        emissiveIntensity={night ? 0.24 : 0}
-        roughness={1}
-      />
+      <planeGeometry args={[2000, 2000]} />
     </mesh>
   );
 }
-
-function Sky({ night, room }: { night: boolean; room?: boolean }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        side: THREE.BackSide,
-        depthWrite: false,
-        depthTest: false,
-        uniforms: {
-          top: { value: new THREE.Color() },
-          bottom: { value: new THREE.Color() },
-          interiorVoid: { value: 0 },
-        },
-        vertexShader:
-          "varying vec3 vPosition;void main(){vPosition=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",
-        fragmentShader:
-          "uniform float interiorVoid;uniform vec3 top;uniform vec3 bottom;varying vec3 vPosition;void main(){vec3 dir=normalize(vPosition);float h=clamp(dir.y*1.7,0.,1.);vec3 col=mix(bottom,top,pow(h,.65));vec2 cell=floor(dir.xz/(abs(dir.y)+.3)*350.);float star=step(.9988,fract(sin(dot(cell,vec2(127.1,311.7)))*43758.5453))*smoothstep(.12,.3,h)*(1.-step(.08,top.r));gl_FragColor=vec4(col+star*.65*(1.-interiorVoid),1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}",
-      }),
-    [],
-  );
-  useEffect(() => {
-    material.uniforms.interiorVoid.value = room ? 1 : 0;
-    material.uniforms.top.value.set(
-      room ? (night ? "#2b2433" : "#efe3d3") : night ? "#1d274b" : "#8fc3e2",
-    );
-    material.uniforms.bottom.value.set(
-      room ? (night ? "#191520" : "#d9c6b4") : night ? "#70677e" : "#f1dfc4",
-    );
-  }, [material, night, room]);
-  useFrame(({ camera }) => {
-    ref.current?.position.copy(camera.position);
-  });
-  return (
-    <mesh
-      ref={ref}
-      renderOrder={-1000}
-      material={material}
-      raycast={noPick}
-      frustumCulled={false}
-    >
-      <sphereGeometry args={[450, 24, 16]} />
-    </mesh>
-  );
-}
-function Lake({ night, city }: { night: boolean; city: CityId }) {
-  const invalidate = useThree((s) => s.invalidate);
-  useEffect(() => {
-    if (city === "atl") return;
-    const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    const timer = setInterval(() => {
-      if (!document.hidden && !motion.matches) invalidate();
-    }, 1000 / 30);
-    return () => clearInterval(timer);
-  }, [city, invalidate]);
+const lakeDay = new THREE.Color("#6098ad"),
+  lakeNight = new THREE.Color("#1d4252");
+function Lake({ city }: { city: CityId }) {
   const mat = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        uniforms: { time: { value: 0 }, tint: { value: new THREE.Color() } },
+        uniforms: {
+          time: { value: 0 },
+          tint: { value: new THREE.Color() },
+          sky: { value: new THREE.Color() },
+          lights: lightUniforms.lights,
+        },
         vertexShader:
           "varying vec3 vPosition;void main(){vPosition=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",
         fragmentShader:
-          "uniform float time;uniform vec3 tint;varying vec3 vPosition;void main(){float wave=sin(vPosition.x*.045+vPosition.z*.025+time*.12)*.55+sin(vPosition.z*.068-time*.09)*.25+sin((vPosition.x+vPosition.z)*.019+time*.06)*.2;wave*=1.-smoothstep(.05,.35,length(fwidth(vPosition.xz))*.07);float glint=pow(max(0.,wave),4.)*.012;gl_FragColor=vec4(tint+glint+wave*.008,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}",
+          "uniform float time;uniform vec3 tint;uniform vec3 sky;uniform float lights;varying vec3 vPosition;void main(){float wave=sin(vPosition.x*.045+vPosition.z*.025+time*.12)*.55+sin(vPosition.z*.068-time*.09)*.25+sin((vPosition.x+vPosition.z)*.019+time*.06)*.2;float fine=sin(vPosition.x*.9+time*.7)*sin(vPosition.z*.7-time*.5);float aa=1.-smoothstep(.05,.35,length(fwidth(vPosition.xz))*.07);wave*=aa;vec3 view=normalize(cameraPosition-vPosition);float fres=pow(1.-max(view.y,0.),3.);vec3 col=mix(tint,sky,.25+fres*.45);float glint=pow(max(0.,wave),4.)*.03+max(0.,fine)*.025*aa;col+=glint*(1.-lights*.6)+wave*.01;gl_FragColor=vec4(col,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}",
       }),
     [],
   );
-  useEffect(() => {
-    mat.uniforms.tint.value.set(night ? "#183744" : "#6098ad");
-  }, [mat, night]);
+  useEffect(() => () => mat.dispose(), [mat]);
   useFrame(({ clock }) => {
     mat.uniforms.time.value = clock.elapsedTime;
+    (mat.uniforms.tint.value as THREE.Color).lerpColors(
+      lakeDay,
+      lakeNight,
+      timeOfDay.nightFactor,
+    );
+    (mat.uniforms.sky.value as THREE.Color).copy(timeOfDay.skyBottom);
   });
   return city === "atl" ? null : (
     <mesh
@@ -368,6 +354,7 @@ function City({
     panel = useStore((s) => s.panel),
     beat = useStore((s) => !!s.sim?.pendingBeat);
   const focus = useStore((s) => s.focus),
+    quality = useEffectiveQuality(),
     night = useNightLighting();
   const destination = useRef<{
     eye: THREE.Vector3;
@@ -664,11 +651,8 @@ function City({
   useEffect(() => {
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
-    scene.fog = room
-      ? null
-      : new THREE.Fog(night ? "#70677e" : "#f1dfc4", 500, 1100);
     invalidate();
-  }, [gl, scene, night, city, room, invalidate]);
+  }, [gl, city, room, invalidate]);
   useEffect(() => {
     const wake = () => {
       lastFrame.current = 0;
@@ -678,14 +662,6 @@ function City({
     return () => document.removeEventListener("visibilitychange", wake);
   }, [invalidate]);
   useFrame((_, dt) => {
-    const fog = scene.fog as THREE.Fog | null,
-      range = camera.position.distanceTo(
-        controls.current?.target ?? worldTarget,
-      );
-    if (fog && !room) {
-      fog.near = Math.max(500, range * 1.1);
-      fog.far = Math.max(1100, range * 2.2);
-    }
     const time = performance.now(),
       active =
         !!destination.current ||
@@ -847,6 +823,33 @@ function City({
             };
           })(),
           cameraOcclusion: scene.userData.cameraOcclusion,
+          lighting: (() => {
+            const sun = scene.getObjectByName("sun") as
+              | THREE.DirectionalLight
+              | undefined;
+            return {
+              minutes: timeOfDay.minutes,
+              elevation: timeOfDay.sunElevation,
+              azimuth: timeOfDay.sunAzimuth,
+              night: timeOfDay.nightFactor,
+              lights: timeOfDay.lights,
+              exposure: gl.toneMappingExposure,
+              shadowType: gl.shadowMap.type,
+              shadowEnabled: gl.shadowMap.enabled,
+              sun: sun
+                ? {
+                    position: sun.position.toArray(),
+                    target: sun.target.position.toArray(),
+                    intensity: sun.intensity,
+                    castShadow: sun.castShadow,
+                    extent: sun.shadow.camera.right,
+                    mapReady: !!sun.shadow.map,
+                  }
+                : null,
+              environment: !!scene.environment,
+              environmentIntensity: scene.environmentIntensity,
+            };
+          })(),
           atlantaModels: (() => {
             const models: unknown[] = [];
             scene.traverse((o) => {
@@ -971,6 +974,10 @@ function City({
       },
       focus: (id) => view(id, true),
       theme: (value) => useStore.getState().setSceneTheme(value),
+      time: (minutes) => setTimeOverride(minutes),
+      shadowMode: (mode) => {
+        scene.userData.shadowMode = mode ?? undefined;
+      },
       hidePins: setPinsHidden,
       screenPoint: (x, y, z) => {
         const v = new THREE.Vector3(x, y, z).project(camera);
@@ -1063,29 +1070,10 @@ function City({
   ]);
   return (
     <>
-      <Sky night={night} room={!!room} />
-      <hemisphereLight
-        args={[
-          night ? "#a8b9dd" : "#e0e9f2",
-          night ? "#4c566c" : "#9cacbd",
-          room ? (room.startsWith("club:") ? 0.16 : 0.45) : night ? 0.65 : 1.2,
-        ]}
-      />
-      <directionalLight
-        position={[-55, 90, 45]}
-        intensity={room ? 0 : night ? 0.9 : 2.0}
-        color={night ? "#95b3ef" : "#fff1dc"}
-        castShadow={!room}
-        shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-100}
-        shadow-camera-right={100}
-        shadow-camera-top={100}
-        shadow-camera-bottom={-100}
-        shadow-camera-near={1}
-        shadow-camera-far={230}
-        shadow-bias={-0.0003}
-        shadow-normalBias={0.12}
-      />
+      <SkyDome room={!!room} />
+      <SkyEnvironment room={!!room} />
+      <RangeFog room={!!room} controls={controls} />
+      <WorldLights room={room} controls={controls} quality={quality} />
       {room && (
         <>
           <RoomLighting club={room.startsWith("club:")} />
@@ -1097,22 +1085,8 @@ function City({
       <group name="outdoor-city" visible={!room}>
         {city === "atl" ? (
           <>
-            <mesh
-              name="ground"
-              position={[0, -0.05, 0]}
-              rotation={[-Math.PI / 2, 0, 0]}
-              receiveShadow
-              raycast={noPick}
-            >
-              <planeGeometry args={[2000, 2000]} />
-              <meshStandardMaterial
-                color={night ? "#343b39" : "#8ebd75"}
-                emissive={night ? "#586c83" : "#000000"}
-                emissiveIntensity={night ? 0.24 : 0}
-                roughness={1}
-              />
-            </mesh>
-            <Terrain night={night} />
+            <Ground />
+            <Terrain />
             <Fabric night={night} />
           </>
         ) : (
@@ -1120,7 +1094,7 @@ function City({
         )}
         <Architecture key={`architecture-${city}`} city={city} />
         <Home city={city} />
-        <Lake night={night} city={city} />
+        <Lake city={city} />
         {!pinsHidden && <Pins key={`pins-${city}`} onHover={onHover} />}
         <EventPin />
         <HelpWanted />
@@ -1253,7 +1227,7 @@ export default function CityScene() {
     <div className="city-canvas">
       <Canvas
         frameloop="demand"
-        shadows="soft"
+        shadows="percentage"
         dpr={dpr}
         camera={{ position: [95, 108, 130], fov: 40, near: 0.1, far: 2000 }}
         gl={{

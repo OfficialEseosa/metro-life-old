@@ -5,7 +5,9 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { motion } from "../walking";
 import { useStore } from "../store";
-import { useNightLighting } from "../lighting";
+import { timeOfDay, useNightLighting } from "../lighting";
+
+const warm = new THREE.Color("#fff3df");
 import { roomLayout, roomType } from "../navigation";
 
 export function RoomLighting({ club }: { club: boolean }) {
@@ -35,7 +37,8 @@ export function RoomLighting({ club }: { club: boolean }) {
                 : 0.5;
   const { gl, scene, invalidate } = useThree(),
     key = useRef<THREE.DirectionalLight>(null),
-    previous = useRef(""),
+    previous = useRef(0),
+    fill = useRef<THREE.HemisphereLight>(null),
     lastUpdate = useRef(0);
   useEffect(() => {
     const room = new RoomEnvironment(),
@@ -56,35 +59,35 @@ export function RoomLighting({ club }: { club: boolean }) {
     };
   }, [gl, scene, invalidate, environmentLevel]);
   useFrame(({ clock }) => {
+    // Re-render the room shadow when anyone in the room moves or acts; no strings per frame.
     const p = motion.position,
-      sim = useStore.getState().sim,
-      people = useStore.getState().players;
-    const signature = `${p?.x.toFixed(2)}:${p?.z.toFixed(2)}:${sim?.busyUntil}:${people
-      .filter((x) => x.position?.room === p?.room)
-      .map(
-        (x) =>
-          `${x.id}:${x.position?.x.toFixed(2)}:${x.position?.z.toFixed(2)}`,
-      )
-      .join(",")}`;
-    const animated =
-      !!sim?.busyUntil ||
-      people.some(
-        (x) =>
-          x.position?.room === p?.room && x.activity && x.activity !== "idle",
-      );
+      state = useStore.getState(),
+      sim = state.sim;
+    let hash = (p ? p.x * 13.1 + p.z * 7.7 : 0) + (sim?.busyUntil ?? 0) * 1e-9,
+      animated = !!sim?.busyUntil;
+    for (const x of state.players) {
+      if (x.position?.room !== p?.room) continue;
+      hash += (x.position?.x ?? 0) * 3.3 + (x.position?.z ?? 0) * 5.9;
+      if (x.activity && x.activity !== "idle") animated = true;
+    }
     if (
-      (signature !== previous.current || animated) &&
+      (Math.abs(hash - previous.current) > 1e-4 || animated) &&
       clock.elapsedTime - lastUpdate.current > 0.067
     ) {
       if (key.current) key.current.shadow.needsUpdate = true;
       gl.shadowMap.needsUpdate = true;
-      previous.current = signature;
+      previous.current = hash;
       lastUpdate.current = clock.elapsedTime;
+    }
+    // The fill drifts with the clock outside, so rooms visibly change through the day.
+    if (fill.current && !aquarium && !club && !museum) {
+      fill.current.color.copy(warm).lerp(timeOfDay.hemiSky, 0.3);
     }
   });
   return (
     <>
       <hemisphereLight
+        ref={fill}
         args={[
           aquarium
             ? "#7ccce5"
@@ -133,6 +136,8 @@ export function RoomLighting({ club }: { club: boolean }) {
         }
         castShadow
         shadow-mapSize={[2048, 2048]}
+        shadow-radius={2.5}
+        shadow-intensity={0.85}
         shadow-camera-left={-extent}
         shadow-camera-right={extent}
         shadow-camera-top={extent}

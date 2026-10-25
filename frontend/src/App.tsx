@@ -52,9 +52,6 @@ class CityBoundary extends Component<
 }
 export default function App() {
   const load = useStore((s) => s.load),
-    city = useStore((s) => s.city),
-    life = useStore((s) => s.sim?.userId),
-    homeCity = useStore((s) => s.sim?.city),
     travelling = useStore((s) => !!s.sim?.trip);
   useEffect(() => {
     window.dispatchEvent(new Event("metro-mounted"));
@@ -62,10 +59,19 @@ export default function App() {
   useEffect(() => {
     void load();
   }, [load]);
+  // One Canvas for the whole session: changing life, city or taking a trip never
+  // tears down the renderer. The ride card covers the hidden city while travelling.
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
-      {!travelling && (
-        <CityBoundary key={`${life ?? "preview"}:${city}:${homeCity ?? city}`}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          visibility: travelling ? "hidden" : "visible",
+        }}
+        aria-hidden={travelling}
+      >
+        <CityBoundary>
           <Suspense
             fallback={
               <div className="scene-loading" role="status">
@@ -76,7 +82,7 @@ export default function App() {
             <CityScene />
           </Suspense>
         </CityBoundary>
-      )}
+      </div>
       <Hud />
     </div>
   );

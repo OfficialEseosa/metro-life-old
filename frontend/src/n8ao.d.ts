@@ -12,6 +12,8 @@ declare module "n8ao" {
       aoRadius: number;
       distanceFalloff: number;
       intensity: number;
+      color: import("three").Color;
+      screenSpaceRadius: boolean;
       denoiseSamples: number;
       denoiseRadius: number;
       denoiseIterations: number;
