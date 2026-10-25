@@ -15,6 +15,7 @@ npx playwright test b-resume          # one journey
 
 - The API runs on `127.0.0.1:8090` with a fresh save in `e2e/output/metro-e2e.json`. If something already answers on 8090 it is reused, and journey d simulates the outage in the browser instead of stopping the server.
 - The Vite dev server runs on `127.0.0.1:5190` with `VITE_API_URL=http://127.0.0.1:8090` (reused if already running; set `E2E_EXTERNAL_FRONT=1` to never start it).
+- To run beside another copy, move both ports and the save: `E2E_API=http://127.0.0.1:8093 E2E_FRONT=http://127.0.0.1:5193/ E2E_DATA=/tmp/metro-e2e-2.json npx playwright test`. The API and Vite are started on the ports in those URLs.
 - Use the Playwright browsers already installed on the machine; the package pins `@playwright/test` to the same version.
 - Screenshots go to `e2e/output/shots` (`E2E_SHOTS` to change), the HTML report to `e2e/output/report`. Both are ignored by git.
 - `E2E_QUALITY=normal` keeps full scene quality; the default `low` makes software-rendered runs much faster.
@@ -26,4 +27,6 @@ npx playwright test b-resume          # one journey
 | b | Reload resumes the same life |
 | c | Two browsers see each other online in the same city |
 | d | Server stopped: reconnecting banner, unreachable card, recovery to the same life |
-| e, f, g | Work a shift, wave/hang out/gift both ways, fly to another city (skipped until added) |
+| e | Apply in person at Ponce Works Market, walk to the desk, work a paid shift |
+| f | Two players outside Ponce wave, hang out and gift each other; both sides record it |
+| g | Map shortcut to the airport, book a flight, ride, land in New York |

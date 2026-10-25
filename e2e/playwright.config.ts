@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { FRONT, API, ROOT } from "./support/env";
+import { FRONT, FRONT_PORT, API, ROOT } from "./support/env";
 
 // Journeys run one at a time: the software renderer used in CI-like containers is slow, and the
 // backend-down journey stops and restarts the shared API.
@@ -40,7 +40,7 @@ export default defineConfig({
   webServer: process.env.E2E_EXTERNAL_FRONT
     ? undefined
     : {
-        command: "npm run dev -- --port 5190 --host 127.0.0.1 --strictPort",
+        command: `npm run dev -- --port ${FRONT_PORT} --host 127.0.0.1 --strictPort`,
         cwd: `${ROOT}/frontend`,
         url: FRONT,
         env: { VITE_API_URL: API },

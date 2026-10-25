@@ -94,8 +94,28 @@ export async function poll<T>(fn: () => Promise<T>, ok: (v: T) => boolean, timeo
   return value;
 }
 
-/** The signed-in user as the API sees this browser (cookie or header session). */
-export async function whoAmI(page: Page) {
+type Me = { user?: { id?: string; name?: string } | null; sim?: ServerSim | null };
+export type ServerSim = {
+  userId: string;
+  username: string;
+  city: string;
+  loc: string;
+  cash: number;
+  busyUntil: number | null;
+  busyLabel: string | null;
+  position: { x: number; z: number; place: string; room: string | null } | null;
+  job: { id: string; title: string; track: string; shifts: number } | null;
+  trip: { id: string; mode: string; to: string; fare: number } | null;
+  relationships: Record<string, { value: number; lastGain: number; lastAt: number }>;
+  economy: { entries: { id: string; at: number; amount: number; reason: string }[] };
+};
+
+/** Money journal entries with this reason, oldest first. */
+export const ledger = (sim: ServerSim | null, reason: string) =>
+  sim?.economy?.entries.filter((e) => e.reason === reason) ?? [];
+
+/** GET /api/auth/me from inside the page, with the same cookie or header session the game uses. */
+async function me(page: Page): Promise<Me> {
   const { API } = await import("./env");
   return page.evaluate(async (api) => {
     const token = localStorage.getItem("metro:session");
@@ -103,10 +123,18 @@ export async function whoAmI(page: Page) {
       credentials: "include",
       headers: token ? { "X-Metro-Session": token } : {},
     });
-    const me = await res.json();
-    return { id: (me?.user?.id ?? null) as string | null, name: (me?.sim?.username ?? me?.user?.name ?? null) as string | null };
+    return res.json();
   }, API);
 }
+
+/** The signed-in user as the API sees this browser (cookie or header session). */
+export async function whoAmI(page: Page) {
+  const r = await me(page);
+  return { id: r?.user?.id ?? null, name: r?.sim?.username ?? r?.user?.name ?? null };
+}
+
+/** The player's sim as the API stores it, not as the page last rendered it. */
+export const serverSim = async (page: Page) => (await me(page))?.sim ?? null;
 
 /** Number shown in the HUD status, for example "2 online · 40 residents". */
 export async function onlineCount(page: Page) {

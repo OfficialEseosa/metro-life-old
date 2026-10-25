@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { API, OUTPUT, PORT, ROOT } from "./env";
+import { dirname, resolve } from "node:path";
+import { API, DATA, OUTPUT, PORT, ROOT } from "./env";
 
 const pidFile = resolve(OUTPUT, "backend.pid");
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -20,13 +20,13 @@ export const managed = () => existsSync(pidFile);
 /** Start the API jar from backend/target on the e2e port with its own save file. */
 export async function start(fresh = false) {
   mkdirSync(OUTPUT, { recursive: true });
-  const data = resolve(OUTPUT, "metro-e2e.json");
-  if (fresh) rmSync(data, { force: true });
+  mkdirSync(dirname(DATA), { recursive: true });
+  if (fresh) rmSync(DATA, { force: true });
   const target = resolve(ROOT, "backend", "target");
   const jar = existsSync(target) && readdirSync(target).find((f) => /^backend-.*\.jar$/.test(f));
   if (!jar) throw new Error("Build the API first: (cd backend && mvn -q package)");
   const child = spawn("java", ["-jar", resolve(target, jar)], {
-    env: { ...process.env, PORT, METRO_DATA: data },
+    env: { ...process.env, PORT, METRO_DATA: DATA },
     detached: true,
     stdio: "ignore",
   });
