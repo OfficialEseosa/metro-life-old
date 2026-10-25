@@ -137,6 +137,8 @@ export type ActorInput = {
   hungry?: boolean;
   /** Server time (ms) when the current activity started, to keep loops in step. */
   startedAt?: number;
+  /** World position of a head to glance toward. */
+  lookAt?: THREE.Vector3;
   now: number;
 };
 
@@ -532,6 +534,13 @@ export class CharacterActor {
   private blinkUntil = 0;
   private yaw = new THREE.Quaternion();
   private turnRate = 0;
+  /** World heading the feet are planted at while standing; the body lags the parent to it. */
+  private footYaw = NaN;
+  private stepUntil = 0;
+  private lookYaw = 0;
+  private lookPitch = 0;
+  private lookWeight = 0;
+  private idleSwapAt = 0;
   private overlay: THREE.Bone[] = [];
   private overlayRest: THREE.Quaternion[] = [];
   private ikTarget = new THREE.Vector3();
@@ -544,6 +553,7 @@ export class CharacterActor {
   private speeds: { walk: number; jog: number; run: number };
   private personality: {
     idle: string;
+    idles: string[];
     walk: string;
     build: number;
     hips: number;
@@ -559,6 +569,8 @@ export class CharacterActor {
     c: new THREE.Vector3(),
     q: new THREE.Quaternion(),
     q2: new THREE.Quaternion(),
+    q3: new THREE.Quaternion(),
+    q4: new THREE.Quaternion(),
     m: new THREE.Matrix4(),
   };
 
@@ -693,6 +705,11 @@ export class CharacterActor {
     const p = options.personality;
     this.personality = {
       idle: p ? (["Idle", "Idle", "IdleSubtle", "FoldArms", "Idle"][Math.floor(random() * 5)]) : "Idle",
+      idles: p
+        ? [["Idle", "IdleSubtle"], ["Idle", "IdleSubtle", "FoldArms"], ["IdleSubtle", "Idle"]][
+            Math.floor(random() * 3)
+          ]
+        : ["Idle", "IdleSubtle"],
       walk: p
         ? sex === "f"
           ? random() < 0.6
@@ -808,6 +825,8 @@ export class CharacterActor {
     this.turnRate += (turn - this.turnRate) * (1 - Math.exp(-dt * 10));
     this.yaw.copy(world);
     this.applyOutfit(this.colours(pose));
+    const forward = this.scratch.c.set(0, 0, 1).applyQuaternion(world),
+      heading = Math.atan2(forward.x, forward.z);
 
     const speed = input.speed,
       moving =
@@ -899,6 +918,8 @@ export class CharacterActor {
         .filter(([, l]) => l.weight > 0)
         .map(([n, l]) => n + ":" + l.weight.toFixed(2) + "@" + l.action.time.toFixed(2)),
     };
+    this.plantFeet(heading, pose === "Idle" && !moving && this.mode === "move", dt);
+    this.lookToward(input.lookAt, pose, moving, dt);
     this.anchorHip(pose, input, dt);
     this.updateProps(pose);
     this.blink(lying);
@@ -909,14 +930,19 @@ export class CharacterActor {
       p = this.personality,
       targets: Record<string, number> = {};
     if (!moving) {
+      // Idle variety: every so often settle into another of this person's idles.
+      if (this.time >= this.idleSwapAt) {
+        this.idleSwapAt = this.time + 9 + this.random() * 10;
+        const pool = p.idles.filter((name) => name !== p.idle && this.clip(name));
+        if (pool.length) p.idle = pool[Math.floor(this.random() * pool.length)];
+      }
       targets[p.idle] = 1;
-      // Turning on the spot: a few small steps instead of a frozen spin.
-      const step = THREE.MathUtils.clamp((this.turnRate - 1.2) / 3, 0, 0.7);
-      if (step > 0) {
-        targets[p.idle] = 1 - step;
-        targets[p.walk] = step;
+      // Turning on the spot: one short step while the planted feet catch up with the body.
+      if (this.time < this.stepUntil) {
+        targets[p.idle] = 0.45;
+        targets[p.walk] = 0.55;
         const layer = this.layer(p.walk);
-        if (layer) layer.action.timeScale = 0.75;
+        if (layer) layer.action.timeScale = 1;
       }
       this.setTargets(targets);
       return;
@@ -1003,8 +1029,13 @@ export class CharacterActor {
         this.bend("Neck", Math.sin(t * 0.8) * 0.08, Math.sin(t * 0.5) * 0.1);
         break;
       default:
-        if (pose === "Idle")
-          this.bend("Neck", Math.sin(t * 0.55) * 0.025, Math.sin(t * 0.3) * 0.035);
+        if (pose === "Idle") {
+          // A slow weight shift from foot to foot, the head staying level.
+          const shift = Math.sin(t * 0.42 + this.personality.phase) * 0.6 + Math.sin(t * 0.17) * 0.4;
+          this.bend("Abdomen", 0, shift * 0.035);
+          this.bend("Chest", 0, shift * 0.02);
+          this.bend("Neck", Math.sin(t * 0.55) * 0.025, Math.sin(t * 0.3) * 0.035 - shift * 0.04);
+        }
     }
     void input;
   }
@@ -1248,6 +1279,75 @@ export class CharacterActor {
     for (const mesh of this.casters) mesh.castShadow = on;
     for (const object of Object.values(this.props))
       if (object instanceof THREE.Mesh) object.castShadow = on;
+  }
+
+  /**
+   * Turns a bone about the character's own up (yaw) and side (pitch, positive looks down) axes,
+   * independent of how the rig orients its bones.
+   */
+  private turnBone(name: string, yaw: number, pitch: number) {
+    const bone = this.bones.get(name);
+    if (!bone?.parent || (!yaw && !pitch)) return;
+    const parent = bone.parent.getWorldQuaternion(this.scratch.q3),
+      body = this.root.getWorldQuaternion(this.scratch.q4),
+      axis = this.scratch.b;
+    const delta = this.scratch.q2.setFromAxisAngle(axis.set(0, 1, 0).applyQuaternion(body), yaw);
+    delta.multiply(this.scratch.q.setFromAxisAngle(axis.set(1, 0, 0).applyQuaternion(body), pitch));
+    // local' = parent^-1 * delta * parent * local
+    delta.premultiply(this.scratch.q.copy(parent).invert()).multiply(parent);
+    bone.quaternion.premultiply(delta);
+  }
+
+  /**
+   * Standing still, the feet stay where they are while the parent turns: the body lags behind,
+   * the upper body twists toward the new heading, and one short step catches the feet up.
+   */
+  private plantFeet(heading: number, standing: boolean, dt: number) {
+    if (!standing || Number.isNaN(this.footYaw)) this.footYaw = heading;
+    let lag = Math.atan2(Math.sin(this.footYaw - heading), Math.cos(this.footYaw - heading));
+    // A big turn steps at once; a small leftover settles once the parent has stopped turning.
+    if (
+      this.time >= this.stepUntil &&
+      (Math.abs(lag) > 0.55 || (Math.abs(lag) > 0.3 && this.turnRate < 0.2))
+    )
+      this.stepUntil = this.time + 0.45;
+    if (this.time < this.stepUntil) {
+      lag *= Math.exp(-dt * 9);
+      this.footYaw = heading + lag;
+    }
+    this.anchor.rotation.y = lag;
+    if (lag) {
+      this.turnBone("Abdomen", -lag * 0.2, 0);
+      this.turnBone("Chest", -lag * 0.25, 0);
+      this.turnBone("Neck", -lag * 0.3, 0);
+    }
+  }
+
+  /** Eases the head toward a nearby person, within what a neck can comfortably turn. */
+  private lookToward(at: THREE.Vector3 | undefined, pose: CharacterPose, moving: boolean, dt: number) {
+    const free = !LYING.has(pose) && (moving || pose === "Idle" || pose === "Talk" || pose === "Wave" || pose === "Listen" || SEATED_POSES.has(pose));
+    let yaw = 0,
+      pitch = 0,
+      want = 0;
+    if (at && free) {
+      const local = this.root.worldToLocal(this.scratch.a.copy(at)),
+        eye = this.headTop(this.scratch.b).y - 0.17;
+      yaw = Math.atan2(local.x, local.z);
+      pitch = -Math.atan2(local.y - eye, Math.hypot(local.x, local.z));
+      if (Math.abs(yaw) < 1.6) want = 1;
+      yaw = THREE.MathUtils.clamp(yaw, -1.05, 1.05);
+      pitch = THREE.MathUtils.clamp(pitch, -0.35, 0.45);
+    }
+    const ease = 1 - Math.exp(-dt * 4);
+    this.lookWeight += (want - this.lookWeight) * ease;
+    if (want) {
+      this.lookYaw += (yaw - this.lookYaw) * ease;
+      this.lookPitch += (pitch - this.lookPitch) * ease;
+    }
+    const w = this.lookWeight * (moving ? 0.6 : 1);
+    if (w < 0.01) return;
+    this.turnBone("Neck", this.lookYaw * w * 0.45, this.lookPitch * w * 0.4);
+    this.turnBone("Head", this.lookYaw * w * 0.45, this.lookPitch * w * 0.6);
   }
 
   /** Top of the head in the actor's own frame (for markers and labels). */

@@ -202,6 +202,43 @@ function proceduralPieces(style: string) {
 
 const cache = new Map<string, THREE.BufferGeometry | null>();
 /**
+ * Breaks the smooth shell of a hairstyle into soft clumps, more at the hem than the crown, so
+ * the outline reads as hair instead of a helmet. Vertices move along the ray from the head
+ * centre, which keeps seams shared by split vertices closed.
+ */
+function clumpHair(g: THREE.BufferGeometry) {
+  g.computeBoundingBox();
+  const box = g.boundingBox!,
+    size = box.getSize(new THREE.Vector3()),
+    centre = box.getCenter(new THREE.Vector3()),
+    scale = Math.max(size.x, size.y, size.z),
+    position = g.attributes.position as THREE.BufferAttribute,
+    v = new THREE.Vector3(),
+    ray = new THREE.Vector3();
+  centre.y -= size.y * 0.15;
+  for (let i = 0; i < position.count; i++) {
+    v.fromBufferAttribute(position, i);
+    ray.subVectors(v, centre);
+    const length = ray.length();
+    if (length < 1e-6) continue;
+    ray.divideScalar(length);
+    const x = (v.x - centre.x) / scale,
+      y = (v.y - centre.y) / scale,
+      z = (v.z - centre.z) / scale,
+      angle = Math.atan2(x, z),
+      clumps =
+        Math.sin(angle * 9 + y * 6) * 0.6 +
+        Math.sin(angle * 17 - y * 11 + z * 5) * 0.4,
+      hem = THREE.MathUtils.smoothstep(-y, -0.15, 0.35);
+    v.addScaledVector(ray, clumps * scale * (0.006 + 0.012 * hem));
+    position.setXYZ(i, v.x, v.y, v.z);
+  }
+  position.needsUpdate = true;
+  g.computeBoundingBox();
+  g.computeBoundingSphere();
+}
+
+/**
  * Hair for one style on one head, in rest-world space, skinned to Head.
  * `donors` must contain every donor that `hairDonors(style)` lists.
  */
@@ -251,6 +288,7 @@ export function hairGeometry(
   if (pieces.length) {
     result = pieces.length === 1 ? pieces[0] : mergeGeometries(pieces, false);
     if (pieces.length > 1) pieces.forEach((p) => p.dispose());
+    if (result) clumpHair(result);
     if (result && base && SCULPTED[style]) weldNormals(result);
   }
   cache.set(key, result);

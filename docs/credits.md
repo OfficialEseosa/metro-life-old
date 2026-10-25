@@ -126,7 +126,6 @@ Fonts/code are separate from the 3D art: Geist and Bricolage Grotesque retain th
 | `landmarks/paintedLadies.glb` | Metro Life — authored in this repository | CC0 1.0 |
 | `landmarks/piedmont.glb` | Metro Life — authored in this repository | CC0 1.0 |
 | `landmarks/ponce.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/resident-lod.glb` | Metro Life — authored in this repository | CC0 1.0 |
 | `landmarks/salesforce.glb` | Metro Life — authored in this repository | CC0 1.0 |
 | `landmarks/sfCityHall.glb` | Metro Life — authored in this repository | CC0 1.0 |
 | `world/car/delivery.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |

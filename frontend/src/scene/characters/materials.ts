@@ -15,14 +15,64 @@ export function setCharacterRim(night: boolean) {
   characterRim.colour.value.set(night ? "#a9c4ff" : "#fff1dc");
 }
 
-function withRim(material: THREE.MeshPhysicalMaterial, key: string) {
+/**
+ * Surface detail in metres of rest pose, so it sticks to the body while it animates. `vRest` is
+ * the bind-pose position scaled by the mesh's world scale.
+ */
+const surface = {
+  skin: `float sssEdge=pow(1.-clamp(dot(normal,normalize(vViewPosition)),0.,1.),2.);
+reflectedLight.indirectDiffuse+=reflectedLight.indirectDiffuse*vec3(.16,-.01,-.05);
+reflectedLight.directDiffuse+=reflectedLight.directDiffuse*vec3(.22,.02,-.06)*sssEdge;`,
+  cloth: `vec3 weaveAt=vRest*240.;
+float weave=sin(weaveAt.x+weaveAt.z)*sin(weaveAt.y*1.1)*.5+sin((weaveAt.x-weaveAt.z)*.7+weaveAt.y*.4)*.25;
+float drape=sin(vRest.y*38.+sin(vRest.x*21.)*1.6)*.5+sin(vRest.x*27.+vRest.z*31.)*.3;
+characterBump(normal,weave*.0016+drape*.004,clamp(1.-length(fwidth(weaveAt))*.35,0.,1.));
+roughnessFactor=clamp(roughnessFactor+drape*.07-weave*.04,.45,1.);
+diffuseColor.rgb*=.97+drape*.035;`,
+  hair: `vec3 strandAt=vRest*vec3(520.,60.,520.);
+float strand=sin(strandAt.x+sin(strandAt.y)*1.8)*.5+sin(strandAt.z*1.3+strandAt.y*.7)*.5;
+characterBump(normal,strand*.0012,clamp(1.-length(fwidth(strandAt))*.3,0.,1.));
+float underside=smoothstep(-.7,.35,inverseTransformDirection(normal,viewMatrix).y);
+diffuseColor.rgb*=(.84+strand*.1)*mix(.68,1.,underside);
+roughnessFactor=clamp(roughnessFactor+strand*.12,.3,.9);`,
+};
+
+const bump = `uniform float rimStrength;
+uniform vec3 rimColour;
+varying vec3 vRest;
+void characterBump(inout vec3 n,float h,float strength){
+  vec3 dpx=dFdx(-vViewPosition),dpy=dFdy(-vViewPosition);
+  vec3 r1=cross(dpy,n),r2=cross(n,dpx);
+  float det=dot(dpx,r1);
+  vec3 grad=sign(det)*(dFdx(h)*r1+dFdy(h)*r2);
+  n=normalize(mix(n,normalize(abs(det)*n-grad),strength));
+}`;
+
+function withRim(
+  material: THREE.MeshPhysicalMaterial,
+  key: string,
+  kind: keyof typeof surface,
+) {
   material.onBeforeCompile = (shader) => {
     shader.uniforms.rimStrength = characterRim.strength;
     shader.uniforms.rimColour = characterRim.colour;
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying vec3 vRest;")
+      .replace(
+        "#include <begin_vertex>",
+        "#include <begin_vertex>\nvRest=position*length(modelMatrix[0].xyz);",
+      );
+    const detail = surface[kind];
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
-        "#include <common>\nuniform float rimStrength;\nuniform vec3 rimColour;",
+        "#include <common>\n" + (kind === "skin" ? bump.split("void")[0] : bump),
+      )
+      .replace(
+        kind === "skin" ? "#include <lights_fragment_end>" : "#include <normal_fragment_maps>",
+        (kind === "skin" ? "#include <lights_fragment_end>" : "#include <normal_fragment_maps>") +
+          "\n" +
+          detail,
       )
       .replace(
         "#include <dithering_fragment>",
@@ -34,7 +84,7 @@ function withRim(material: THREE.MeshPhysicalMaterial, key: string) {
 }
 
 const skins = new Map<string, THREE.MeshPhysicalMaterial>();
-/** Skin: soft warm sheen stands in for subsurface scattering. */
+/** Skin: a warm sheen plus light that reddens as it falls off stand in for subsurface scattering. */
 export function skinMaterial(hex: string) {
   let m = skins.get(hex);
   if (!m) {
@@ -49,7 +99,8 @@ export function skinMaterial(hex: string) {
         sheenRoughness: 0.6,
         sheenColor: new THREE.Color("#ff8f73"),
       }),
-      "metro-character-skin",
+      "metro-character-skin-v3",
+      "skin",
     );
     skins.set(hex, m);
   }
@@ -57,7 +108,7 @@ export function skinMaterial(hex: string) {
 }
 
 let cloth: THREE.MeshPhysicalMaterial | undefined;
-/** Cloth: matte with a glancing fabric sheen. */
+/** Cloth: matte with a glancing fabric sheen, a fine weave and broad rumples in normal and roughness. */
 export function clothMaterial() {
   cloth ??= withRim(
     new THREE.MeshPhysicalMaterial({
@@ -70,13 +121,14 @@ export function clothMaterial() {
       sheenRoughness: 0.5,
       sheenColor: new THREE.Color(0.35, 0.35, 0.35),
     }),
-    "metro-character-cloth",
+    "metro-character-cloth-v3",
+    "cloth",
   );
   return cloth;
 }
 
 const hairs = new Map<string, THREE.MeshPhysicalMaterial>();
-/** Hair: the broad soft highlight of a stylised helmet of hair. */
+/** Hair: a soft sheen broken into strands, darker underneath. */
 export function hairMaterial(hex: string) {
   let m = hairs.get(hex);
   if (!m) {
@@ -91,7 +143,8 @@ export function hairMaterial(hex: string) {
         sheenRoughness: 0.35,
         sheenColor: colour.clone().lerp(new THREE.Color("#ffffff"), 0.4),
       }),
-      "metro-character-hair",
+      "metro-character-hair-v3",
+      "hair",
     );
     hairs.set(hex, m);
   }

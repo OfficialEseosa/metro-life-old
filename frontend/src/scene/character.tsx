@@ -36,6 +36,7 @@ export function RiggedCharacter({
   readCondition,
   readSpeed,
   readDistance,
+  readLookAt,
   readStartedAt,
   selected,
   options,
@@ -46,6 +47,8 @@ export function RiggedCharacter({
   readCondition?: () => BodyCondition;
   readSpeed?: () => number;
   readDistance?: () => number;
+  /** World position of a head to look toward, if anyone is close. */
+  readLookAt?: () => THREE.Vector3 | undefined;
   readStartedAt?: () => number | undefined;
   /** Show the player's own marker. Detected automatically under "controlled-player". */
   selected?: boolean;
@@ -121,6 +124,7 @@ export function RiggedCharacter({
       tired: condition?.tired,
       hungry: condition?.hungry,
       startedAt: readStartedAt?.(),
+      lookAt: readLookAt?.(),
       now: serverNow(),
     });
     actor.root.userData.clip = pose;

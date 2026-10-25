@@ -8,9 +8,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { livePlayers, useStore } from "../store";
 import { lifeLabel, lifePose, lifeTopic } from "../life-actions";
 import {
@@ -45,11 +45,62 @@ type ResidentMotion = {
   pose: CharacterPose;
   hidden: boolean;
   hip?: number;
+  /** Head of the nearest person this resident turns to look at, when `looking`. */
+  look: THREE.Vector3;
+  looking: boolean;
 };
+/** How close another person must be, in metres, before a resident turns their head to them. */
+const LOOK_WITHIN = 4.5;
+/**
+ * The far-crowd figure, built in metres with feet at the origin and the face toward +Z. Every part
+ * is rounded with enough segments that the head stays a head at mid distance, and carries a part
+ * index (skin, hair, top, bottom, shoe, eye) and an arm flag the crowd shader poses by.
+ */
+function crowdFigure() {
+  const parts: THREE.BufferGeometry[] = [];
+  const add = (
+    g: THREE.BufferGeometry,
+    part: number,
+    limb: number,
+    at: [number, number, number],
+    scale: [number, number, number] = [1, 1, 1],
+    tilt = 0,
+  ) => {
+    g.scale(...scale);
+    if (tilt) g.rotateZ(tilt);
+    g.translate(...at);
+    const n = g.attributes.position.count;
+    // Part and arm flag share one attribute (part + 8 for arms) to stay within 16 attributes.
+    g.setAttribute(
+      "crowdPart",
+      new THREE.Float32BufferAttribute(new Float32Array(n).fill(part + limb * 8), 1),
+    );
+    g.deleteAttribute("uv");
+    parts.push(g);
+  };
+  add(new THREE.SphereGeometry(0.112, 12, 8), 0, 0, [0, 1.62, 0.005], [0.94, 1.1, 1]);
+  const hair = new THREE.SphereGeometry(0.122, 12, 4, 0, Math.PI * 2, 0, Math.PI * 0.56);
+  hair.rotateX(-0.42);
+  add(hair, 1, 0, [0, 1.64, -0.012], [0.96, 1.08, 1.04]);
+  add(new THREE.CylinderGeometry(0.046, 0.052, 0.12, 8, 1, true), 0, 0, [0, 1.48, 0]);
+  add(new THREE.CapsuleGeometry(0.145, 0.26, 2, 8), 2, 0, [0, 1.21, 0], [1, 1, 0.68]);
+  add(new THREE.CapsuleGeometry(0.135, 0.06, 1, 8), 3, 0, [0, 0.96, 0], [1, 1, 0.72]);
+  for (const side of [-1, 1]) {
+    add(new THREE.CapsuleGeometry(0.064, 0.74, 1, 6), 3, 0, [side * 0.082, 0.5, 0]);
+    add(new THREE.SphereGeometry(1, 6, 3), 4, 0, [side * 0.085, 0.045, 0.035], [0.058, 0.048, 0.11]);
+    add(new THREE.CapsuleGeometry(0.047, 0.44, 1, 5), 2, 1, [side * 0.205, 1.17, 0], [1, 1, 1], side * 0.09);
+    add(new THREE.SphereGeometry(0.045, 5, 3), 0, 1, [side * 0.232, 0.88, 0.01], [1, 1.25, 1]);
+    add(new THREE.SphereGeometry(0.014, 4, 2), 5, 0, [side * 0.04, 1.625, 0.104]);
+  }
+  const geometry = mergeGeometries(parts)!;
+  for (const g of parts) g.dispose();
+  return geometry;
+}
+
 /** Rigged residents at once (the rest are impostors), and the hysteresis band in metres. */
 const MAX_RIGGED = 12,
-  PROMOTE_WITHIN = 22,
-  DEMOTE_BEYOND = 30,
+  PROMOTE_WITHIN = 26,
+  DEMOTE_BEYOND = 34,
   MIN_DWELL = 2;
 const SEATED_SLOTS = new Set(["Sit", "Type", "Eat", "Sleep", "Lie"]);
 
@@ -133,6 +184,10 @@ function NearResident({
         readHipHeight={() => read()?.hip}
         readSpeed={() => read()?.speed ?? 0}
         readDistance={() => read()?.distance ?? 0}
+        readLookAt={() => {
+          const state = read();
+          return state?.looking ? state.look : undefined;
+        }}
         readCondition={() => condition}
         options={options}
         readStartedAt={() =>
@@ -160,8 +215,7 @@ export function Residents() {
     dirty = useRef(true),
     promotedAt = useRef(new Map<string, number>()),
     lastCamera = useRef(new THREE.Matrix4()),
-    lastHeight = useRef(0),
-    { scene } = useGLTF("/models/landmarks/resident-lod.glb");
+    lastHeight = useRef(0);
   const liveRevision = useRef(-1),
     [nearIds, setNearIds] = useState<string[]>([]),
     nearSet = useRef(new Set<string>()),
@@ -169,20 +223,7 @@ export function Residents() {
     states = useRef(new Map<string, ResidentMotion>()),
     lodAt = useRef(0);
   const model = useMemo(() => {
-    let mesh: THREE.Mesh | undefined;
-    scene.traverse((o) => {
-      if (o instanceof THREE.Mesh) mesh = o;
-    });
-    if (!mesh) throw Error("Resident model has no mesh");
-    scene.updateMatrixWorld(true);
-    const geometry = mesh.geometry.clone();
-    geometry.applyMatrix4(mesh.matrixWorld);
-    geometry.computeBoundingBox();
-    const box = geometry.boundingBox!,
-      size = box.getSize(new THREE.Vector3()),
-      center = box.getCenter(new THREE.Vector3());
-    geometry.translate(-center.x, -box.min.y, -center.z);
-    geometry.scale(1.78 / size.y, 1.78 / size.y, 1.78 / size.y);
+    const geometry = crowdFigure();
     const conditions = new THREE.InstancedBufferAttribute(
         new Float32Array(48),
         1,
@@ -204,41 +245,48 @@ export function Residents() {
     geometry.setAttribute("crowdNear", near);
     const time = { value: 0 },
       material = new THREE.MeshStandardMaterial({
-        vertexColors: true,
         roughness: 0.85,
       });
     material.onBeforeCompile = (shader) => {
       shader.uniforms.crowdTime = time;
       shader.vertexShader =
-        "uniform float crowdTime;attribute float crowdPose;attribute float crowdCondition;attribute float crowdPhase;attribute vec3 shirtColor;attribute vec3 skinColor;attribute vec3 hairColor;attribute vec3 bottomColor;attribute float crowdNear;\n" +
+        "uniform float crowdTime;attribute float crowdPose;attribute float crowdCondition;attribute float crowdPhase;attribute vec3 shirtColor;attribute vec3 skinColor;attribute vec3 hairColor;attribute vec3 bottomColor;attribute float crowdNear;attribute float crowdPart;varying vec3 vCrowd;\n" +
         shader.vertexShader;
       shader.vertexShader = shader.vertexShader.replace(
         "#include <color_vertex>",
-        "#include <color_vertex>\nif(position.y>.85&&position.y<1.4)vColor.rgb=shirtColor;if(position.y>1.4)vColor.rgb=skinColor;if(position.y>1.69)vColor.rgb=hairColor;if(position.y>.15&&position.y<.85)vColor.rgb=bottomColor;",
+        "#include <color_vertex>\nfloat part=mod(crowdPart,8.);vCrowd=part<.5?skinColor:part<1.5?hairColor:part<2.5?shirtColor:part<3.5?bottomColor:part<4.5?bottomColor*.45+.05:vec3(.06,.04,.04);",
       );
       shader.vertexShader = shader.vertexShader.replace(
         "#include <begin_vertex>",
         `#include <begin_vertex>
+ bool arm=crowdPart>7.5;
  float phase=crowdTime*(crowdPose==2.?10.:7.)+crowdPhase;
- if(crowdPose==1.||crowdPose==2.){if(position.y<1.)transformed.z+=sin(phase+step(0.,position.x)*3.14159)*(crowdPose==2.?.43:.24)*(1.-position.y);if(abs(position.x)>.32&&position.y>1.0&&position.y<1.8)transformed.z+=sin(phase+step(0.,position.x)*3.14159)*.13;transformed.y+=sin(phase*2.)*(crowdPose==2.?.07:.025);if(crowdPose==2.)transformed.z+=max(0.,position.y-1.)*.18;}
+ if(crowdPose==1.||crowdPose==2.){if(position.y<1.)transformed.z+=sin(phase+step(0.,position.x)*3.14159)*(crowdPose==2.?.43:.24)*(1.-position.y);if(arm)transformed.z+=sin(phase+step(0.,position.x)*3.14159)*.13;transformed.y+=sin(phase*2.)*(crowdPose==2.?.07:.025);if(crowdPose==2.)transformed.z+=max(0.,position.y-1.)*.18;}
  if(crowdPose==3.||crowdPose==4.||crowdPose==7.){if(position.y<1.){transformed.z+=.42*(1.-position.y);transformed.y*=.58;}else transformed.y-=.42;}
- if(crowdPose==4.&&abs(position.x)>.32&&position.y>1.0&&position.y<1.8){transformed.z-=.28;transformed.y+=sin(phase)*.04;}
- if(crowdPose==5.){transformed.y+=sin(phase)*.07;if(abs(position.x)>.32&&position.y>1.0&&position.y<1.8){transformed.y+=.18+sin(phase)*.15;transformed.x+=sign(position.x)*.15;}}
- if(crowdPose==6.&&abs(position.x)>.32&&position.y>1.0&&position.y<1.8){transformed.y+=.55+sin(phase)*.1;transformed.x+=sign(position.x)*.16;}
- if(crowdPose==7.&&abs(position.x)>.32&&position.y>1.0&&position.y<1.8){transformed.y+=.2+sin(phase)*.12;transformed.z+=.15;}
+ if(crowdPose==4.&&arm){transformed.z-=.28;transformed.y+=sin(phase)*.04;}
+ if(crowdPose==5.){transformed.y+=sin(phase)*.07;if(arm){transformed.y+=.18+sin(phase)*.15;transformed.x+=sign(position.x)*.15;}}
+ if(crowdPose==6.&&arm){transformed.y+=.55+sin(phase)*.1;transformed.x+=sign(position.x)*.16;}
+ if(crowdPose==7.&&arm){transformed.y+=.2+sin(phase)*.12;transformed.z+=.15;}
  if(crowdPose==8.){float sy=transformed.y;transformed.y=.35+transformed.z*.55;transformed.z=(sy-.85)*.9;}
- if(crowdPose==9.&&position.x<-.3&&position.y>1.){transformed.y+=.55;transformed.x-=.13+sin(phase)*.12;transformed.z+=cos(phase)*.1;}
- if(crowdPose==10.&&abs(position.x)>.3&&position.y>1.&&position.y<1.8){transformed.z+=.28;transformed.y+=sin(phase+position.x*3.)*.1;}
- if(crowdPose==11.&&abs(position.x)>.3&&position.y>1.&&position.y<1.8){transformed.y+=.5;transformed.x+=sign(position.x)*sin(phase)*.14;}
- if(crowdPose==12.&&abs(position.x)>.3&&position.y>1.&&position.y<1.8){transformed.z+=.3;transformed.y+=sin(phase+position.x*3.)*.08;}
+ if(crowdPose==9.&&arm&&position.x<0.){transformed.y+=.55;transformed.x-=.13+sin(phase)*.12;transformed.z+=cos(phase)*.1;}
+ if(crowdPose==10.&&arm){transformed.z+=.28;transformed.y+=sin(phase+position.x*3.)*.1;}
+ if(crowdPose==11.&&arm){transformed.y+=.5;transformed.x+=sign(position.x)*sin(phase)*.14;}
+ if(crowdPose==12.&&arm){transformed.z+=.3;transformed.y+=sin(phase+position.x*3.)*.08;}
  if(mod(crowdCondition,2.)>.5&&crowdPose!=8.){transformed.z+=max(0.,position.y-.8)*.22;transformed.y-=max(0.,position.y-1.)*.08;}
- if(crowdCondition>=2.&&position.x<-.3&&position.y>1.&&position.y<1.8&&crowdPose<3.){transformed.x+=.2;transformed.z+=.3;}
+ if(crowdCondition>=2.&&arm&&position.x<0.&&crowdPose<3.){transformed.x+=.2;transformed.z+=.3;}
  transformed*=1.-step(.5,crowdNear);
  `,
       );
+      // Colours ride a varying rather than vertex colours: software WebGL allows only 16 attributes.
+      shader.fragmentShader =
+        "varying vec3 vCrowd;\n" +
+        shader.fragmentShader.replace(
+          "#include <color_fragment>",
+          "#include <color_fragment>\ndiffuseColor.rgb*=vCrowd;",
+        );
     };
     material.userData.crowdTime = time;
-    material.customProgramCacheKey = () => "metro-crowd-life-v3";
+    material.customProgramCacheKey = () => "metro-crowd-life-v6";
     return {
       geometry,
       material,
@@ -252,7 +300,7 @@ export function Residents() {
       near,
       time,
     };
-  }, [scene]);
+  }, []);
   const crowd = useMemo(
     () =>
       players
@@ -420,6 +468,8 @@ export function Residents() {
           distance,
           pose: "Idle",
           hidden: clip,
+          look: new THREE.Vector3(),
+          looking: false,
         };
         states.current.set(person.id, state);
       }
@@ -449,7 +499,7 @@ export function Residents() {
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
-    // Rigged actors near the player, with hysteresis: promote inside 22 m, keep until 30 m,
+    // Rigged actors near the player, with hysteresis: promote inside 26 m, keep until 34 m,
     // and hold each promotion for a couple of seconds so nobody pops in and out.
     if (clock.elapsedTime - lodAt.current > 0.5 || dirty.current) {
       lodAt.current = clock.elapsedTime;
@@ -475,6 +525,28 @@ export function Residents() {
           candidates.push({ id: p.id, distance: state.distance });
       }
       candidates.sort((a, b) => a.distance - b.distance);
+      // Rigged residents glance at the nearest person in front of them: the player or a neighbour.
+      for (const id of nearSet.current) {
+        const state = states.current.get(id);
+        if (!state) continue;
+        let best = LOOK_WITHIN * LOOK_WITHIN;
+        state.looking = false;
+        const consider = (x: number, y: number, z: number) => {
+          const dx = x - state.position.x,
+            dz = z - state.position.z,
+            d = dx * dx + dz * dz;
+          if (d < 0.09 || d >= best) return;
+          if (dx * Math.sin(state.yaw) + dz * Math.cos(state.yaw) < -0.3 * Math.sqrt(d)) return;
+          best = d;
+          state.looking = true;
+          state.look.set(x, y + 1.55, z);
+        };
+        if (player) consider(player.x, state.position.y, player.z);
+        for (const other of nearSet.current) {
+          const o = other === id ? undefined : states.current.get(other);
+          if (o && !o.hidden) consider(o.position.x, o.position.y, o.position.z);
+        }
+      }
       const selected = keep.slice(0, cap);
       for (const c of candidates) {
         if (selected.length >= cap) break;
