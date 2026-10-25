@@ -4,12 +4,16 @@ import type { ThreeEvent } from "@react-three/fiber";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useStore } from "../store";
+import { timeOfDay } from "../lighting";
 import type { CityId, PlotAd } from "../api/types";
 import { plotRectangle } from "../plot-selection";
 import { KitInstances } from "./kit-models";
 import { Builder } from "./geometry";
 
-const scratch = new THREE.Object3D();
+const scratch = new THREE.Object3D(),
+  dayPaper = new THREE.Color("#ffffff"),
+  nightPoster = new THREE.Color("#91a6be"),
+  nightField = new THREE.Color("#7187a5");
 import { WorldText } from "./world-text";
 import { fictionalText } from "../content-names";
 import { apiFetch, apiUrl } from "../api/base";
@@ -53,7 +57,6 @@ function BookingPosters({
   height,
   cols,
   rows,
-  night,
 }: {
   ads: PlotAd[];
   texture: THREE.Texture;
@@ -61,7 +64,6 @@ function BookingPosters({
   height: number;
   cols: number;
   rows: number;
-  night: boolean;
 }) {
   const mesh = useRef<THREE.InstancedMesh>(null),
     dirty = useRef(true),
@@ -86,7 +88,6 @@ function BookingPosters({
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       side: THREE.DoubleSide,
-      color: night ? "#91a6be" : "#ffffff",
     });
     material.onBeforeCompile = (shader) => {
       shader.vertexShader = "attribute vec4 plotUv;\n" + shader.vertexShader;
@@ -97,7 +98,11 @@ function BookingPosters({
     };
     material.customProgramCacheKey = () => "metro-plot-posters";
     return { geometry, material };
-  }, [ads, texture, cols, rows, night]);
+  }, [ads, texture, cols, rows]);
+  // Unlit posters dim smoothly with the clock instead of switching at dusk.
+  useFrame(() => {
+    resources.material.color.lerpColors(dayPaper, nightPoster, timeOfDay.nightFactor);
+  });
   useEffect(() => {
     dirty.current = true;
     invalidate();
@@ -156,7 +161,7 @@ function BookingPosters({
     />
   ) : null;
 }
-function PlotField({ city, night }: { city: CityId; night: boolean }) {
+function PlotField({ city }: { city: CityId }) {
   const plots = useStore((s) => s.plots),
     world = useStore((s) => s.world),
     selection = useStore((s) => s.plotSelection),
@@ -166,7 +171,11 @@ function PlotField({ city, night }: { city: CityId; night: boolean }) {
     cfg = world?.cities.find((c) => c.id === city)?.plots,
     down = useRef<[number, number]>([0, 0]),
     drag = useRef<[number, number] | null>(null),
-    dragged = useRef(false);
+    dragged = useRef(false),
+    fieldMaterial = useRef<THREE.MeshBasicMaterial>(null);
+  useFrame(() => {
+    fieldMaterial.current?.color.lerpColors(dayPaper, nightField, timeOfDay.nightFactor);
+  });
   const texture = useMemo(() => new THREE.Texture(), []);
   useLayoutEffect(() => {
     const abort = new AbortController(),
@@ -231,7 +240,6 @@ function PlotField({ city, night }: { city: CityId; night: boolean }) {
         height={height}
         cols={cfg.cols}
         rows={cfg.rows}
-        night={night}
       />
       <KitInstances
         url="/models/kaykit/bench.gltf"
@@ -347,11 +355,7 @@ function PlotField({ city, night }: { city: CityId; night: boolean }) {
         }}
       >
         <planeGeometry args={[width, height]} />
-        <meshBasicMaterial
-          map={texture}
-          color={night ? "#7187a5" : "#ffffff"}
-          toneMapped={false}
-        />
+        <meshBasicMaterial ref={fieldMaterial} map={texture} toneMapped={false} />
       </mesh>
       {selection &&
         !plots?.ads.some(
@@ -419,7 +423,7 @@ function AdImage({ url }: { url: string }) {
     </mesh>
   );
 }
-function Boards({ city }: { city: CityId; night: boolean }) {
+function Boards({ city }: { city: CityId }) {
   const world = useStore((s) => s.world),
     boards = useStore((s) => s.billboards),
     selected = useStore((s) => s.selectedSlot),
@@ -502,15 +506,15 @@ function Boards({ city }: { city: CityId; night: boolean }) {
     </group>
   );
 }
-export function EconomyScene({ night }: { night: boolean }) {
+export function EconomyScene() {
   const city = useStore((s) => s.city),
     worldId = useStore((s) => s.worldInfo?.id);
   return (
     <group key={`${city}:${worldId ?? "public"}`}>
       <Suspense fallback={null}>
-        <PlotField city={city} night={night} />
+        <PlotField city={city} />
       </Suspense>
-      <Boards city={city} night={night} />
+      <Boards city={city} />
     </group>
   );
 }

@@ -40,7 +40,6 @@ import { Fabric } from "./fabric";
 import { AtlantaSkyline, BlenderLandmark, KitInstances } from "./kit-models";
 import { blenderHeroes } from "./hero-ids";
 import {
-  useNightLighting,
   lightUniforms,
   timeOfDay,
   setTimeOverride,
@@ -354,8 +353,7 @@ function City({
     panel = useStore((s) => s.panel),
     beat = useStore((s) => !!s.sim?.pendingBeat);
   const focus = useStore((s) => s.focus),
-    quality = useEffectiveQuality(),
-    night = useNightLighting();
+    quality = useEffectiveQuality();
   const destination = useRef<{
     eye: THREE.Vector3;
     target: THREE.Vector3;
@@ -1167,8 +1165,8 @@ function City({
         <StorefrontSigns />
         <Streets city={city} />
         <Walkways city={city} />
-        <Traffic city={city} night={night} />
-        <EconomyScene night={night} />
+        <Traffic city={city} />
+        <EconomyScene />
       </group>
       <Celebration />
       <BuyPreview />

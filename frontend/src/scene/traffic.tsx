@@ -1,23 +1,23 @@
 /* oxlint-disable react/immutability -- Vehicle transforms belong to the Three instance batch. */
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { timeOfDay } from "../lighting";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import type { CityId } from "../api/types";
 import { streets } from "../street-network";
 
-export function Traffic({ city, night }: { city: CityId; night: boolean }) {
+export function Traffic({ city }: { city: CityId }) {
   return (
     <Suspense fallback={null}>
-      <StreetCars key={city} city={city} night={night} />
+      <StreetCars key={city} city={city} />
     </Suspense>
   );
 }
-function StreetCars({ city, night }: { city: CityId; night: boolean }) {
+function StreetCars({ city }: { city: CityId }) {
   const graph = streets[city],
     { scene } = useGLTF("/models/vehicles/sedan.glb"),
-    { invalidate } = useThree(),
     meshes = useRef<(THREE.InstancedMesh | null)[]>([]),
     dummy = useMemo(() => new THREE.Object3D(), []);
   const batches = useMemo(() => {
@@ -70,12 +70,6 @@ function StreetCars({ city, night }: { city: CityId; night: boolean }) {
       return { from, to, previous: -1, t: i / 11, yaw: 0, turn: i };
     });
   }, [graph]);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (!document.hidden) invalidate();
-    }, 1000 / 30);
-    return () => clearInterval(timer);
-  }, [invalidate]);
   useEffect(
     () => () =>
       batches.forEach((b) => {
@@ -85,12 +79,11 @@ function StreetCars({ city, night }: { city: CityId; night: boolean }) {
     [batches],
   );
   useEffect(() => {
-    for (const batch of batches) {
-      batch.material.emissive.set(night ? "#152126" : "#000000");
-      batch.material.emissiveIntensity = night ? 0.18 : 0;
-    }
-  }, [batches, night]);
+    for (const batch of batches) batch.material.emissive.set("#152126");
+  }, [batches]);
   useFrame((_, dt) => {
+    const glow = 0.18 * timeOfDay.nightFactor;
+    for (const batch of batches) batch.material.emissiveIntensity = glow;
     for (let i = 0; i < cars.length; i++) {
       const car = cars[i];
       let a = graph.nodes[car.from],
