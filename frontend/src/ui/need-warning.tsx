@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { X } from "@phosphor-icons/react";
 import { useStore } from "../store";
-import { Icon, NEED_ICONS, NEED_LABELS } from "./primitives";
+import { Icon } from "./primitives";
+import { NEED_ICONS, NEED_LABELS } from "./needs";
 import { sound } from "./sound";
 
 /** A critical need, five seconds after it drops below 15. Dismissable; never stacks over other news. */
@@ -44,10 +45,7 @@ export function NeedWarning() {
     return null;
   const home = critical === "energy" || critical === "social";
   return (
-    <div
-      className={`hud-toast need-warning ${critical}`}
-      role="status"
-    >
+    <div className={`hud-toast need-warning ${critical}`} role="status">
       <span className={`semantic-tile ${critical}`}>
         <Icon name={NEED_ICONS[critical] ?? "warning"} />
       </span>

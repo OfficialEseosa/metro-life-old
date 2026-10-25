@@ -13,6 +13,7 @@ import { HudNotice, ToastPortal } from "./notices";
 import { sound, setPartyAudio } from "./sound";
 import { venueName } from "../content-names";
 import { emitFeedback } from "../feedback";
+import { useSocialUi } from "./social-ui";
 import "./social-life.css";
 
 export type CityEvent = {
@@ -45,10 +46,6 @@ export type SocialLifeState = {
   inviteCode: string;
   clock?: Clock;
 };
-/** Which social overlays are open; shared by the tools in the action stack and the overlays. */
-export const useSocialUi = create<{ wheel: boolean; friends: boolean }>(
-  () => ({ wheel: false, friends: false }),
-);
 export const useSocialLife = create<SocialLifeState>(() => ({
   event: null,
   openHouses: [],

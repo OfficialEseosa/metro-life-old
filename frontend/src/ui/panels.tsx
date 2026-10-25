@@ -24,10 +24,8 @@ import {
   SectionTitle,
   Check,
   ChevronRight,
-  NEED_ICONS,
-  NEED_LABELS,
-  titleCase,
 } from "./primitives";
+import { NEED_ICONS, NEED_LABELS, titleCase } from "./needs";
 import { money, useTask, useNow } from "./helpers";
 import {
   actionReason,
@@ -407,7 +405,10 @@ export function LocationPanel() {
                       <span className="effect-line">
                         {Object.entries(a.needs)
                           .filter(([, v]) => v > 0)
-                          .map(([k, v]) => `${NEED_LABELS[k] ?? titleCase(k)} +${v}`)
+                          .map(
+                            ([k, v]) =>
+                              `${NEED_LABELS[k] ?? titleCase(k)} +${v}`,
+                          )
                           .join(" · ") ||
                           Object.keys(a.skills)
                             .map((k) => `${titleCase(k)} XP`)

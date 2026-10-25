@@ -2,7 +2,8 @@ import "./hud.css";
 import "./panels.css";
 import { ConnectionGate, ReconnectBanner } from "./connection-gate";
 import { VenueMomentBridge } from "./venue-moments";
-import { SocialLifeHud, SocialTools, useSocialUi } from "./social-life";
+import { SocialLifeHud, SocialTools } from "./social-life";
+import { useSocialUi } from "./social-ui";
 import { MoneyLedger } from "./money-ledger";
 import { PurchaseConfirmation } from "./purchase-confirmation";
 import { BuyMode, BuyModeButton } from "./buy-mode";
@@ -35,15 +36,8 @@ import {
   SimPanel,
   StoryPanel,
 } from "./panels";
-import {
-  Avatar,
-  ArrowUpRight,
-  Icon,
-  NEED_ICONS,
-  NEED_LABELS,
-  NEED_ORDER,
-  Sheet,
-} from "./primitives";
+import { Avatar, ArrowUpRight, Icon, Sheet } from "./primitives";
+import { NEED_ICONS, NEED_LABELS, NEED_ORDER } from "./needs";
 import { money, useCompact, useNow } from "./helpers";
 import { serverNow } from "../server-time";
 import { CashCounter, RewardFlight, SoundButton } from "./feedback";
@@ -496,8 +490,6 @@ function ActionStack() {
     </div>
   );
 }
-
-
 
 const PANEL_TITLES: Record<string, string> = {
   city: "Your city",
