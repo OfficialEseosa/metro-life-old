@@ -155,17 +155,22 @@ function proceduralPieces(style: string) {
   };
   if (style === "afro") {
     cap(0.152, 0.142, 0.124);
-    // A cloud of overlapping puffs reads as volume rather than one smooth ball.
-    for (let ring = 0; ring < 4; ring++) {
-      const count = 7 + ring * 2;
+    // Puffs on a rounded shell above and behind the face; the face stays clear.
+    const cy = 0.215,
+      cz = -0.035;
+    for (let ring = 0; ring < 6; ring++) {
+      const polar = (ring / 5) * 1.9,
+        count = Math.max(1, Math.round(Math.sin(polar) * 14));
       for (let i = 0; i < count; i++) {
-        const a = (i / count) * Math.PI * 2 + ring * 0.4,
-          r = 0.16 - ring * 0.032,
-          y = 0.16 + ring * 0.045;
-        ball(Math.cos(a) * r, y, Math.sin(a) * r * 0.9 - 0.02, 0.07, 0.068, 0.065);
+        const az = (i / count) * Math.PI * 2 + ring * 0.35,
+          x = Math.sin(polar) * Math.cos(az) * 0.165,
+          y = cy + Math.cos(polar) * 0.13,
+          z = cz + Math.sin(polar) * Math.sin(az) * 0.15;
+        // Skip anything that would hang in front of the eyes or cheeks.
+        if (z > 0.03 && y < 0.25) continue;
+        ball(x, y, z, 0.062, 0.06, 0.058);
       }
     }
-    ball(0, 0.31, -0.02, 0.09, 0.06, 0.085);
   }
   if (style === "curly") {
     cap(0.148, 0.138, 0.12);

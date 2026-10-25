@@ -1210,6 +1210,13 @@ export class CharacterActor {
     if (hips) hips.scale.set(p.hips, 1, p.hips);
   }
 
+  /** Eyes open and no blink due for a while (for still pictures). */
+  openEyes() {
+    this.nextBlink = this.time + 10;
+    this.blinkUntil = 0;
+    if (this.face) (this.face.material.userData.blink as { value: number }).value = 0;
+  }
+
   /** Top of the head in the actor's own frame (for markers and labels). */
   headTop(out: THREE.Vector3) {
     const head = this.bones.get("Head");

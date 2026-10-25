@@ -146,6 +146,7 @@ class CharacterStudio {
     const actor = new CharacterActor(look, { faceSize: 512 });
     // Settle into a relaxed idle before the picture.
     for (let i = 0; i < 6; i++) actor.update(0.1, { pose: "Idle", speed: 0, now: Date.now() });
+    actor.openEyes();
     this.place(actor);
     const size = 192;
     renderer.setPixelRatio(1);
@@ -154,8 +155,8 @@ class CharacterStudio {
     const head = actor.headTop(new THREE.Vector3());
     this.camera.fov = 22;
     this.camera.aspect = 1;
-    this.camera.position.set(0.18, head.y - 0.14, 1.55);
-    this.camera.lookAt(0, head.y - 0.24, 0);
+    this.camera.position.set(0.2, head.y - 0.18, 1.85);
+    this.camera.lookAt(0, head.y - 0.27, 0);
     this.camera.updateProjectionMatrix();
     renderer.render(this.scene, this.camera);
     const url = renderer.domElement.toDataURL("image/png");
