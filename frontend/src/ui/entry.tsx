@@ -4,7 +4,7 @@ import { api } from "../api/client";
 import type { FirstDayStep } from "../api/types";
 import { useStore } from "../store";
 import { CharacterCreator, PersonalitySummary } from "./character-creator";
-import { ReasonButton, ErrorMessage, Icon } from "./primitives";
+import { ReasonButton, ErrorMessage, Icon, titleCase } from "./primitives";
 import { money, useTask } from "./helpers";
 import "./entry.css";
 import { AudioSettings } from "./audio";
@@ -46,7 +46,7 @@ export function Intro() {
     {
       title: "Your street is waiting",
       text: "Step outside. Look for a Help wanted sign. There are neighbours to meet and a first day to make your own.",
-      icon: "users",
+      icon: "footprints",
     },
   ];
   const c = cards[card];
@@ -58,12 +58,19 @@ export function Intro() {
         aria-modal="true"
         aria-label="Your arrival"
       >
-        <span className="semantic-tile">
+        <span className="semantic-tile travel">
           <Icon name={c.icon} />
         </span>
-        <span className="eyebrow">YOUR ARRIVAL · {card + 1} / 4</span>
+        <span className="eyebrow">
+          Your arrival · {card + 1} of {cards.length}
+        </span>
         <h1>{c.title}</h1>
         <p>{c.text}</p>
+        <div className="intro-dots" aria-hidden="true">
+          {cards.map((_, i) => (
+            <span key={i} aria-current={i === card ? "step" : undefined} />
+          ))}
+        </div>
         <ErrorMessage text={error} />
         <ReasonButton
           className="primary full"
@@ -80,7 +87,7 @@ export function Intro() {
           }}
         >
           {card < 3 ? "Next" : "Turn the key"}
-          <Icon name="arrow-up-right" />
+          <Icon name={card < 3 ? "arrow-right" : "key-round"} />
         </ReasonButton>
       </section>
     </div>
@@ -121,45 +128,59 @@ const GOALS: { id: FirstDayStep; label: string; hint: string; icon: string }[] =
     {
       id: "rent",
       label: "Pay your first rent",
-      hint: "Return home. Pay $35 from Your life.",
+      hint: "Return home and pay it from Your life, or it is taken at midnight.",
       icon: "house",
     },
   ];
-export function FirstDayGoals({ compact = false }: { compact?: boolean }) {
-  const sim = useStore((s) => s.sim);
-  if (!sim?.firstDay) return null;
-  if (sim.firstDay.complete)
-    return compact && sim.home.kind === "studio" ? (
+/** Compact first-day cue for the HUD. Re-renders only when a step changes. */
+function FirstDayCue() {
+  const steps = useStore((s) => {
+    const f = s.sim?.firstDay;
+    if (!f) return "";
+    if (f.complete) return s.sim!.home.kind === "studio" ? "next" : "";
+    return GOALS.map((g) => (f[g.id] ? "1" : "0")).join("");
+  });
+  if (!steps) return null;
+  if (steps === "next")
+    return (
       <button
         className="first-day-cue plate"
         onClick={() => state().openPanel("homes")}
       >
-        <span className="semantic-tile">
+        <span className="semantic-tile rest">
           <Icon name="house" />
         </span>
         <span>
-          <small>YOUR NEXT CHAPTER</small>
+          <small>Next chapter</small>
           <strong>Save for a better home</strong>
         </span>
       </button>
-    ) : null;
-  const done = GOALS.filter((g) => sim.firstDay![g.id]).length,
-    next = GOALS.find((g) => !sim.firstDay![g.id])!;
-  if (compact)
-    return (
-      <button
-        className="first-day-cue plate"
-        onClick={() => state().openPanel("sim")}
-      >
-        <span className="semantic-tile">
-          <Icon name={next.icon} />
-        </span>
-        <span>
-          <small>YOUR FIRST DAY · {done} / 6</small>
-          <strong>{next.label}</strong>
-        </span>
-      </button>
     );
+  const done = [...steps].filter((c) => c === "1").length,
+    next = GOALS[steps.indexOf("0")] ?? GOALS[GOALS.length - 1];
+  return (
+    <button
+      className="first-day-cue plate"
+      aria-label={`First day, ${done} of ${GOALS.length} done. Next: ${next.label}`}
+      onClick={() => state().openPanel("sim")}
+    >
+      <span className="semantic-tile work">
+        <Icon name={next.icon} />
+      </span>
+      <span>
+        <small>
+          First day {done}/{GOALS.length}
+        </small>
+        <strong>{next.label}</strong>
+      </span>
+    </button>
+  );
+}
+export function FirstDayGoals({ compact = false }: { compact?: boolean }) {
+  const sim = useStore((s) => (compact ? null : s.sim));
+  if (compact) return <FirstDayCue />;
+  if (!sim?.firstDay || sim.firstDay.complete) return null;
+  const next = GOALS.find((g) => !sim.firstDay![g.id])!;
   return (
     <section className="first-day-goals">
       <h3>Your first day</h3>
@@ -179,7 +200,7 @@ export function FirstDayGoals({ compact = false }: { compact?: boolean }) {
             <strong>{g.label}</strong>
             <small>
               {g.id === "rent"
-                ? `Return home. Pay ${money(sim.home.rent)} from Your life.`
+                ? `Pay ${money(sim.home.rent)} at home from Your life, or it is taken at midnight.`
                 : g.hint}
             </small>
           </span>
@@ -262,9 +283,9 @@ export function Settings() {
             onClick={() => state().setWallMode(mode)}
           >
             {mode === "up"
-              ? "Walls Up"
+              ? "Walls up"
               : mode === "down"
-                ? "Walls Down"
+                ? "Walls down"
                 : "Cutaway"}
           </button>
         ))}
@@ -305,7 +326,7 @@ export function Settings() {
                 })
               }
             >
-              {style}
+              {titleCase(style)}
               <small>
                 {owned
                   ? "Owned"
@@ -373,10 +394,10 @@ export function FirstDayClosing() {
         aria-modal="true"
         aria-label="Your first day is complete"
       >
-        <span className="semantic-tile">
+        <span className="semantic-tile money">
           <Icon name="sun" />
         </span>
-        <span className="eyebrow">A LIFE TAKING SHAPE</span>
+        <span className="eyebrow">A life taking shape</span>
         <h1>
           Your first day in {city.id === "bay" ? "the " + city.name : city.name}
           .
@@ -402,7 +423,7 @@ export function FirstDayClosing() {
           }
         >
           See what comes next
-          <Icon name="arrow-up-right" />
+          <Icon name="arrow-right" />
         </ReasonButton>
       </section>
     </div>

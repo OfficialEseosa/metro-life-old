@@ -6,6 +6,16 @@ import { useStore } from "../store";
 import { CharacterPreview } from "./character-preview";
 import { StartCity } from "./start-city";
 import { ErrorMessage, Icon, ReasonButton } from "./primitives";
+import {
+  BOTTOMS,
+  HAIR_COLOURS,
+  PASTELS,
+  SHOES,
+  SKIN_TONES,
+  TOPS,
+  colourName,
+  pick,
+} from "./looks";
 import { useTask } from "./helpers";
 import "./character-creator.css";
 
@@ -14,29 +24,18 @@ type CreatorLook = Look & {
   face: string;
   outfits: Record<"everyday" | "work" | "sleep", Outfit>;
 };
-const SKINS = [
-  "#f2d3b5",
-  "#e4b48e",
-  "#d49a72",
-  "#b47752",
-  "#996340",
-  "#7d4d34",
-  "#603c2d",
-  "#402a23",
-];
-const HAIR = ["#211f23", "#493326", "#8c623c", "#cfac65", "#a64f35", "#bcb6ad"];
-const COLOURS = [
-  "#326957",
-  "#bc6b45",
-  "#4d6587",
-  "#976b8c",
-  "#d4b162",
-  "#785443",
-  "#e8dcc8",
-  "#313c4b",
-];
-const pick = <T,>(values: T[]) =>
-  values[Math.floor(Math.random() * values.length)];
+type Occasion = "everyday" | "work" | "sleep";
+const OCCASIONS: Record<Occasion, string> = {
+  everyday: "Everyday",
+  work: "Work",
+  sleep: "Sleep",
+};
+const CUTS: Record<string, string> = {
+  casual: "Casual",
+  street: "Street",
+  work: "Work",
+  smart: "Smart",
+};
 function startingLook(look: Look): CreatorLook {
   const saved = look as Partial<CreatorLook>,
     outfit = {
@@ -52,19 +51,20 @@ function startingLook(look: Look): CreatorLook {
       everyday: saved.outfits?.everyday ?? outfit,
       work: saved.outfits?.work ?? {
         ...outfit,
-        top: "#e8dcc8",
-        bottom: "#313c4b",
+        top: "#f4efe6",
+        bottom: "#2f3e57",
         style: "work",
       },
       sleep: saved.outfits?.sleep ?? {
         ...outfit,
-        top: "#976b8c",
-        bottom: "#4d6587",
+        top: "#c9d8ef",
+        bottom: "#8c9aa8",
         style: "casual",
       },
     },
   };
 }
+/** Colour swatches with names, a check on the chosen one and 44px targets. */
 function Swatches({
   label,
   values,
@@ -72,29 +72,77 @@ function Swatches({
   change,
 }: {
   label: string;
-  values: string[];
+  values: readonly string[];
   value: string;
   change: (value: string) => void;
 }) {
+  const chosen = values.find((v) => v.toLowerCase() === value.toLowerCase());
   return (
-    <fieldset>
-      <legend>{label}</legend>
+    <fieldset className="creator-field">
+      <legend>
+        {label}
+        <span>{chosen ? colourName(chosen, "") : "Custom"}</span>
+      </legend>
       <div className="creator-swatches">
-        {values.map((colour, i) => (
+        {values.map((colour, i) => {
+          const pressed = colour.toLowerCase() === value.toLowerCase();
+          return (
+            <button
+              key={colour}
+              type="button"
+              style={{ background: colour }}
+              aria-label={`${label}: ${colourName(colour, String(i + 1))}`}
+              title={colourName(colour, "")}
+              aria-pressed={pressed}
+              onClick={() => change(colour)}
+            >
+              {pressed && <Icon name="check" size={18} />}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+function Choices<T extends string>({
+  label,
+  options,
+  value,
+  change,
+  grid = false,
+}: {
+  label: string;
+  options: readonly (readonly [T, string])[];
+  value: string;
+  change: (value: T) => void;
+  grid?: boolean;
+}) {
+  return (
+    <fieldset className="creator-field">
+      <legend>{label}</legend>
+      <div className={grid ? "creator-choice-grid" : "creator-options"}>
+        {options.map(([id, text]) => (
           <button
-            key={colour}
             type="button"
-            style={{ background: colour }}
-            aria-label={`${label} ${i + 1}`}
-            aria-pressed={colour === value}
-            onClick={() => change(colour)}
-          />
+            key={id}
+            aria-pressed={value === id}
+            onClick={() => change(id)}
+          >
+            {text}
+          </button>
         ))}
       </div>
     </fieldset>
   );
 }
 
+const PAGES = [
+  ["identity", "You"],
+  ["appearance", "Look"],
+  ["outfits", "Clothes"],
+  ["traits", "Personality"],
+  ["dream", "Dream"],
+] as const;
 export function CharacterCreator() {
   const world = useStore((s) => s.world)!,
     user = useStore((s) => s.user)!,
@@ -107,10 +155,8 @@ export function CharacterCreator() {
     [aspiration, setAspiration] = useState(
       world.aspirations[0]?.id ?? "founder",
     ),
-    [page, setPage] = useState("identity"),
-    [occasion, setOccasion] = useState<"everyday" | "work" | "sleep">(
-      "everyday",
-    ),
+    [page, setPage] = useState<(typeof PAGES)[number][0]>("identity"),
+    [occasion, setOccasion] = useState<Occasion>("everyday"),
     { working, error, run, clearError } = useTask();
   const valid =
     /^\p{L}[\p{L} '-]*\p{L}$/u.test(name.trim()) && name.trim().length <= 20;
@@ -134,7 +180,7 @@ export function CharacterCreator() {
         ? current.filter((t) => t !== id)
         : current.length < 3
           ? [...current, id]
-          : current,
+          : [...current.slice(1), id],
     );
   }
   function randomise() {
@@ -149,18 +195,18 @@ export function CharacterCreator() {
     if (page === "appearance") {
       setLook((current) => ({
         ...current,
-        skin: pick(SKINS),
+        skin: pick(SKIN_TONES),
         hair: pick(personality.hair).id,
-        hairColor: pick(HAIR),
+        hairColor: pick(HAIR_COLOURS),
         face: pick(personality.faces).id,
       }));
       return;
     }
     if (page === "outfits") {
       updateOutfit({
-        top: pick(COLOURS),
-        bottom: pick(COLOURS),
-        shoeColor: pick(COLOURS),
+        top: pick(occasion === "sleep" ? PASTELS : TOPS),
+        bottom: pick(BOTTOMS),
+        shoeColor: pick(SHOES),
         style:
           occasion === "work"
             ? pick(["work", "smart"])
@@ -215,19 +261,23 @@ export function CharacterCreator() {
         error={error}
       />
     );
+  const pageIndex = PAGES.findIndex(([id]) => id === page),
+    nextPage = PAGES[pageIndex + 1];
   return (
     <div className="life-start">
       <section
-        className="creator-card deep-creator"
+        className="creator-card deep-creator plate"
         role="dialog"
         aria-modal="true"
         aria-label="Create your character"
       >
         <aside>
           <CharacterPreview look={preview} />
-          <span className="preview-outfit-label">
-            {occasion} outfit · turning preview
-          </span>
+          {page === "outfits" && (
+            <span className="preview-outfit-label">
+              {OCCASIONS[occasion]} outfit
+            </span>
+          )}
           <button
             className="secondary randomise"
             type="button"
@@ -238,12 +288,12 @@ export function CharacterCreator() {
             {page === "identity"
               ? "Suggest a name"
               : page === "appearance"
-                ? "Randomise look"
+                ? "Surprise me"
                 : page === "outfits"
-                  ? `Randomise ${occasion} outfit`
+                  ? "New colours"
                   : page === "traits"
-                    ? "Randomise traits"
-                    : "Surprise me with a dream"}
+                    ? "Pick for me"
+                    : "Surprise me"}
           </button>
         </aside>
         <form
@@ -256,13 +306,7 @@ export function CharacterCreator() {
             className="creator-tabs"
             aria-label="Character creation sections"
           >
-            {[
-              ["identity", "You"],
-              ["appearance", "Look"],
-              ["outfits", "Clothes"],
-              ["traits", "Personality"],
-              ["dream", "Dream"],
-            ].map(([id, label]) => (
+            {PAGES.map(([id, label]) => (
               <button
                 key={id}
                 type="button"
@@ -274,7 +318,6 @@ export function CharacterCreator() {
             ))}
           </nav>
           <div className="creator-fields">
-            <span className="eyebrow">A NEW CHAPTER</span>
             <h1>
               {page === "identity"
                 ? "Who will you be?"
@@ -288,7 +331,9 @@ export function CharacterCreator() {
             </h1>
             {page === "identity" && (
               <>
-                <label htmlFor="life-name">Your name</label>
+                <label className="field" htmlFor="life-name">
+                  Your name
+                </label>
                 <input
                   id="life-name"
                   value={name}
@@ -306,158 +351,122 @@ export function CharacterCreator() {
                 <small>
                   2–20 letters. Spaces, hyphens and apostrophes are welcome.
                 </small>
-                <fieldset>
-                  <legend>Pronouns</legend>
-                  <div className="creator-options">
-                    {(["she", "he", "they"] as const).map((p) => (
-                      <button
-                        type="button"
-                        key={p}
-                        aria-pressed={pronouns === p}
-                        onClick={() => setPronouns(p)}
-                      >
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-                <fieldset>
-                  <legend>Body</legend>
-                  <div className="creator-options">
-                    {(["f", "m"] as const).map((body, i) => (
-                      <button
-                        type="button"
-                        key={body}
-                        aria-pressed={look.body === body}
-                        onClick={() => setLook({ ...look, body })}
-                      >
-                        Body {i + 1}
-                      </button>
-                    ))}
-                  </div>
-                  <small>
-                    Body, pronouns and all appearance choices are independent.
-                  </small>
-                </fieldset>
-                <p>
-                  One small studio and a city to discover. Choose your look,
-                  three traits and a dream, then choose your home city.
-                </p>
+                <Choices
+                  label="Pronouns"
+                  options={[
+                    ["she", "She"],
+                    ["he", "He"],
+                    ["they", "They"],
+                  ]}
+                  value={pronouns}
+                  change={setPronouns}
+                />
+                <Choices
+                  label="Body"
+                  options={[
+                    ["f", "Body 1"],
+                    ["m", "Body 2"],
+                  ]}
+                  value={look.body}
+                  change={(body) => setLook({ ...look, body })}
+                />
+                <small>
+                  Body, pronouns and every appearance choice are independent.
+                </small>
               </>
             )}
             {page === "appearance" && (
               <>
-                <Swatches
-                  label="Skin tone"
-                  values={SKINS}
-                  value={look.skin}
-                  change={(skin) => setLook({ ...look, skin })}
+                <Choices
+                  label="Hair style"
+                  grid
+                  options={personality.hair.map(
+                    (hair) => [hair.id, hair.label] as const,
+                  )}
+                  value={look.hair}
+                  change={(hair) => setLook({ ...look, hair })}
                 />
-                <fieldset>
-                  <legend>Hair style</legend>
-                  <div className="creator-choice-grid">
-                    {personality.hair.map((hair) => (
-                      <button
-                        type="button"
-                        key={hair.id}
-                        aria-pressed={look.hair === hair.id}
-                        onClick={() => setLook({ ...look, hair: hair.id })}
-                      >
-                        {hair.label}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
                 <Swatches
                   label="Hair colour"
-                  values={HAIR}
+                  values={HAIR_COLOURS}
                   value={look.hairColor}
                   change={(hairColor) => setLook({ ...look, hairColor })}
                 />
-                <fieldset>
-                  <legend>Face</legend>
-                  <div className="creator-choice-grid">
-                    {personality.faces.map((face) => (
-                      <button
-                        type="button"
-                        key={face.id}
-                        aria-pressed={look.face === face.id}
-                        onClick={() => setLook({ ...look, face: face.id })}
-                      >
-                        {face.label}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
+                <Swatches
+                  label="Skin tone"
+                  values={SKIN_TONES}
+                  value={look.skin}
+                  change={(skin) => setLook({ ...look, skin })}
+                />
+                <Choices
+                  label="Face"
+                  grid
+                  options={personality.faces.map(
+                    (face) => [face.id, face.label] as const,
+                  )}
+                  value={look.face}
+                  change={(face) => setLook({ ...look, face })}
+                />
               </>
             )}
             {page === "outfits" && (
               <>
-                <fieldset>
-                  <legend>Wardrobe</legend>
-                  <div className="creator-options">
-                    {(["everyday", "work", "sleep"] as const).map((key) => (
-                      <button
-                        type="button"
-                        key={key}
-                        aria-pressed={occasion === key}
-                        onClick={() => setOccasion(key)}
-                      >
-                        {key}
-                      </button>
-                    ))}
-                  </div>
-                  <small>
-                    Your saved work and sleep colours appear during those
-                    activities.
-                  </small>
-                </fieldset>
-                <fieldset>
-                  <legend>Cut</legend>
-                  <div className="creator-options">
-                    {(occasion === "work"
-                      ? ["work", "smart"]
-                      : ["casual", "street"]
-                    ).map((style) => (
-                      <button
-                        type="button"
-                        key={style}
-                        aria-pressed={currentOutfit.style === style}
-                        onClick={() => updateOutfit({ style })}
-                      >
-                        {style}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
+                <Choices
+                  label="Outfit for"
+                  options={(Object.keys(OCCASIONS) as Occasion[]).map(
+                    (key) => [key, OCCASIONS[key]] as const,
+                  )}
+                  value={occasion}
+                  change={setOccasion}
+                />
+                <Choices
+                  label="Cut"
+                  options={(occasion === "work"
+                    ? ["work", "smart"]
+                    : ["casual", "street"]
+                  ).map((style) => [style, CUTS[style]] as const)}
+                  value={currentOutfit.style}
+                  change={(style) => updateOutfit({ style })}
+                />
                 <Swatches
-                  label="Top colour"
-                  values={COLOURS}
+                  label="Top"
+                  values={occasion === "sleep" ? [...PASTELS, ...TOPS] : TOPS}
                   value={currentOutfit.top}
                   change={(top) => updateOutfit({ top })}
                 />
                 <Swatches
-                  label="Bottom colour"
-                  values={COLOURS}
+                  label="Bottoms"
+                  values={BOTTOMS}
                   value={currentOutfit.bottom}
                   change={(bottom) => updateOutfit({ bottom })}
                 />
                 <Swatches
                   label="Shoes"
-                  values={COLOURS}
+                  values={SHOES}
                   value={currentOutfit.shoeColor}
                   change={(shoeColor) => updateOutfit({ shoeColor })}
                 />
+                <small>
+                  Your work and sleep outfits appear during those activities.
+                </small>
               </>
             )}
             {page === "traits" && (
               <>
-                <p>
-                  Pick three. These change skill gains, need drain and what
-                  makes an activity feel good.
+                <p className="trait-help">
+                  Pick three. They change skill gains, need drain and what
+                  makes an activity feel good. Picking a fourth swaps out your
+                  earliest choice.
                 </p>
-                <strong className="trait-count">
-                  {traits.length} / 3 selected
+                <strong className="trait-count" aria-live="polite">
+                  {traits.length} of 3 chosen:{" "}
+                  {traits
+                    .map(
+                      (id) =>
+                        personality.traits.find((t) => t.id === id)?.label ??
+                        id,
+                    )
+                    .join(", ")}
                 </strong>
                 <div className="creator-traits">
                   {personality.traits.map((trait) => (
@@ -465,9 +474,6 @@ export function CharacterCreator() {
                       type="button"
                       key={trait.id}
                       aria-pressed={traits.includes(trait.id)}
-                      disabled={
-                        traits.length === 3 && !traits.includes(trait.id)
-                      }
                       onClick={() => toggleTrait(trait.id)}
                     >
                       <Icon name={trait.icon} />
@@ -479,14 +485,13 @@ export function CharacterCreator() {
                     </button>
                   ))}
                 </div>
-                <small>Remove a selected trait to choose another.</small>
               </>
             )}
             {page === "dream" && (
               <>
-                <p>
-                  Your aspiration sets a long journey and gives you three small
-                  daily wants. You can change your dream later.
+                <p className="trait-help">
+                  Your dream sets a long journey and three small daily wants.
+                  You can change it later.
                 </p>
                 <div className="creator-dreams">
                   {world.aspirations.map((dream) => (
@@ -501,6 +506,7 @@ export function CharacterCreator() {
                         <strong>{dream.label}</strong>
                         <small>{dream.blurb}</small>
                       </span>
+                      {aspiration === dream.id && <Icon name="check" />}
                     </button>
                   ))}
                 </div>
@@ -509,21 +515,33 @@ export function CharacterCreator() {
           </div>
           <footer>
             <ErrorMessage text={error} />
-            <ReasonButton
-              className="primary full"
-              reason={
-                working
-                  ? "Packing your suitcase…"
-                  : !valid
-                    ? "Enter a name of 2–20 letters in You."
-                    : traits.length !== 3
-                      ? "Choose exactly three personality traits."
-                      : ""
-              }
-            >
-              {working ? "Packing your suitcase…" : "Choose my city"}
-              <Icon name="arrow-up-right" />
-            </ReasonButton>
+            <div className="creator-footer-row">
+              {nextPage && (
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => setPage(nextPage[0])}
+                >
+                  {nextPage[1]}
+                  <Icon name="arrow-right" />
+                </button>
+              )}
+              <ReasonButton
+                className="primary"
+                reason={
+                  working
+                    ? "Packing your suitcase…"
+                    : !valid
+                      ? "Add a name in You"
+                      : traits.length !== 3
+                        ? "Choose three traits"
+                        : ""
+                }
+              >
+                {working ? "Packing your suitcase…" : "Choose my city"}
+                <Icon name="arrow-right" />
+              </ReasonButton>
+            </div>
           </footer>
         </form>
       </section>

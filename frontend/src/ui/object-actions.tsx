@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import {
   useInteractions,
   chooseObjectAction,
@@ -55,15 +55,19 @@ export function ObjectActions() {
   const menu = useInteractions((s) => s.menu),
     current = useInteractions((s) => s.current),
     waiting = useInteractions((s) => s.waiting),
-    phase = useInteractions((s) => s.phase),
-    error = useInteractions((s) => s.error);
-  const sim = useStore((s) => s.sim),
-    panel = useStore((s) => s.panel),
+    phase = useInteractions((s) => s.phase);
+  const playing = useStore(
+      (s) =>
+        !!s.sim &&
+        s.sim.introDone !== false &&
+        !s.sim.pendingBeat &&
+        !s.panel,
+    ),
+    busyUntil = useStore((s) => s.sim?.busyUntil),
+    busyLabel = useStore((s) => s.sim?.busyLabel),
     viewport = useViewport(),
     menuRef = useRef<HTMLElement>(null);
-  const playing =
-      !!sim && sim.introDone !== false && !sim.pendingBeat && !panel,
-    showMenu = playing && !!menu;
+  const showMenu = playing && !!menu;
   useEffect(() => {
     if (!showMenu) return;
     const previous =
@@ -89,13 +93,13 @@ export function ObjectActions() {
       if (previous?.isConnected) previous.focus({ preventScroll: true });
     };
   }, [showMenu, menu]);
-  if (!playing || !sim) return null;
+  if (!playing) return null;
   const active =
       current ??
-      (sim.busyUntil
+      (busyUntil
         ? {
             id: "external",
-            label: sim.busyLabel || "Current activity",
+            label: busyLabel || "Current activity",
             icon: "footprints",
           }
         : null),
@@ -130,7 +134,7 @@ export function ObjectActions() {
   } as CSSProperties;
   return (
     <>
-      {(items.length > 0 || !!error) && (
+      {items.length > 0 && (
         <section
           className="object-action-queue"
           aria-label="Action queue"
@@ -172,11 +176,6 @@ export function ObjectActions() {
                 </li>
               ))}
             </ol>
-          )}
-          {error && (
-            <p className="object-queue-error" role="alert">
-              {error}
-            </p>
           )}
         </section>
       )}

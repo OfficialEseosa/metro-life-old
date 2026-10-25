@@ -1,18 +1,35 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, FormEvent } from "react";
+import type { CSSProperties, FormEvent, ReactNode } from "react";
 import {
-  ArrowRight,
-  BusFront,
-  Check,
-  Clock3,
-  MapPin,
-  MessageCircle,
-  Moon,
-  Plane,
-  Send,
-  Ticket,
-  Users,
-} from "lucide-react";
+  ArrowRight as PhArrowRight,
+  Bus,
+  Check as PhCheck,
+  Clock,
+  MapPin as PhMapPin,
+  ChatCircleDots,
+  Moon as PhMoon,
+  Airplane,
+  PaperPlaneRight,
+  Ticket as PhTicket,
+  Users as PhUsers,
+} from "@phosphor-icons/react";
+import type { IconProps } from "@phosphor-icons/react";
+
+const duo = (Component: (p: IconProps) => ReactNode) =>
+  function Duotone(props: IconProps) {
+    return <Component weight="duotone" aria-hidden="true" {...props} />;
+  };
+const ArrowRight = duo(PhArrowRight),
+  BusFront = duo(Bus),
+  Check = duo(PhCheck),
+  Clock3 = duo(Clock),
+  MapPin = duo(PhMapPin),
+  MessageCircle = duo(ChatCircleDots),
+  Moon = duo(PhMoon),
+  Plane = duo(Airplane),
+  Send = duo(PaperPlaneRight),
+  Ticket = duo(PhTicket),
+  Users = duo(PhUsers);
 import type { TransitTrip } from "../api/types";
 import { serverNow } from "../server-time";
 import { useStore } from "../store";
@@ -349,7 +366,7 @@ export function TravelRide({ trip, onNap, onSendChat }: Props) {
             </div>
             <div className="ride-cabin">
               <div className="ride-cabin-top">
-                <span>YOUR WINDOW SEAT</span>
+                <span>Your window seat</span>
                 <i />
                 <i />
                 <i />

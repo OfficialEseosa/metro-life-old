@@ -1,86 +1,113 @@
+/* Home city picker: three cities with rent against pay. */
 .start-city-card {
   width: min(1040px, calc(100vw - 32px));
   max-height: calc(100dvh - 32px);
   overflow: auto;
-  padding: 28px;
-  color: #244a3d;
+  padding: var(--s-6) var(--s-6) 0;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-float);
+  pointer-events: auto;
 }
 .start-city-heading {
   display: flex;
-  gap: 24px;
   align-items: center;
+  gap: var(--s-6);
+}
+.start-city-heading .eyebrow {
+  color: var(--c-primary-text);
 }
 .start-city-heading h1 {
-  font-size: clamp(27px, 4vw, 42px);
-  margin: 8px 0;
+  margin: var(--s-1) 0 var(--s-2);
+  font-size: clamp(26px, 4vw, 40px);
 }
 .start-city-heading p {
   max-width: 54ch;
+  color: var(--c-ink-soft);
 }
 .start-city-person {
-  height: 140px;
-  width: 120px;
   flex: none;
+  width: 120px;
+  height: 140px;
   overflow: hidden;
-  border-radius: 24px;
-  background: #dae4cd;
+  border-radius: var(--r-lg);
+  background: #ecd2af;
 }
 .start-city-person > div {
-  height: 100% !important;
+  height: 100%;
 }
 .start-city-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin: 20px 0;
+  gap: var(--s-4);
+  margin: var(--s-5) 0 var(--s-3);
 }
-.start-city-card .start-city-option {
+.start-city-option {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: #fff9ee;
-  border: 2px solid #c7c5a9;
-  border-radius: 22px;
-  padding: 18px;
-  text-align: left;
-  color: #244a3d;
+  gap: var(--s-2);
   min-width: 0;
+  padding: var(--s-4);
+  border-radius: var(--r-xl);
+  border: 2px solid var(--c-line);
+  background: var(--c-raised);
+  color: var(--c-ink);
+  text-align: left;
+  box-shadow: 0 3px 0 var(--c-line);
 }
-.start-city-card .start-city-option[aria-pressed="true"] {
-  border-color: #24684a;
-  box-shadow: 0 0 0 3px #24684a22;
-  background: #ecf3e4;
+.start-city-option[aria-pressed="true"] {
+  border-color: var(--c-primary);
+  background: var(--c-primary-soft);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--c-primary) 25%, transparent),
+    0 3px 0 var(--c-primary-line);
 }
 .start-city-title {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
   align-items: center;
+  gap: var(--s-2);
   width: 100%;
 }
 .start-city-title strong {
-  font-size: 22px;
+  font-family: var(--font-display);
+  font-size: var(--t-h2);
+  font-weight: 600;
 }
-.start-city-card dl {
+.start-city-title svg {
+  color: var(--c-primary-text);
+}
+.start-city-option dl {
   width: 100%;
   margin: 0;
 }
-.start-city-card dl > div {
+.start-city-option dl > div {
   display: flex;
-  gap: 10px;
   justify-content: space-between;
-  margin: 6px 0;
-  font-size: 13px;
+  gap: var(--s-2);
+  margin: var(--s-1) 0;
 }
-.start-city-card dd {
+.start-city-option dt {
+  color: var(--c-ink-soft);
+  font-weight: 700;
+}
+.start-city-option dd {
   margin: 0;
-  font-weight: 750;
+  font-weight: 800;
+}
+.start-city-option small {
+  color: var(--c-ink-soft);
+  font-weight: 700;
 }
 .start-city-card footer {
+  position: sticky;
+  bottom: 0;
   display: flex;
   justify-content: space-between;
-  gap: 14px;
-  margin-top: 18px;
+  gap: var(--s-3);
+  margin: var(--s-3) calc(var(--s-6) * -1) 0;
+  padding: var(--s-3) var(--s-6) var(--s-4);
+  border-top: 2px solid var(--c-line);
+  background: var(--c-surface);
 }
 .start-city-silhouette {
   display: flex;
@@ -88,18 +115,18 @@
   justify-content: center;
   gap: 7px;
   width: 100%;
-  height: 85px;
-  background: #b8d5d2;
-  border-radius: 14px;
+  height: 84px;
+  padding: var(--s-2) var(--s-3) 0;
   overflow: hidden;
-  padding: 8px 12px 0;
+  border-radius: var(--r-md);
+  background: #b8d5d2;
 }
 .start-city-silhouette i {
   display: block;
   width: 27px;
   height: 42px;
-  background: #42766e;
   border-radius: 2px 2px 0 0;
+  background: #42766e;
 }
 .start-city-silhouette i:nth-child(2) {
   height: 61px;
@@ -108,15 +135,7 @@
 .start-city-silhouette i:nth-child(3) {
   height: 77px;
   background: #b69050;
-  clip-path: polygon(
-    0 22%,
-    40% 22%,
-    50% 0,
-    60% 22%,
-    100% 22%,
-    100% 100%,
-    0 100%
-  );
+  clip-path: polygon(0 22%, 40% 22%, 50% 0, 60% 22%, 100% 22%, 100% 100%, 0 100%);
 }
 .start-city-silhouette.nyc i {
   width: 33px;
@@ -130,65 +149,72 @@
   background: #c7d9df;
 }
 .start-city-silhouette.bay i {
-  background: #bd7056;
   height: 37px;
+  background: #bd7056;
 }
 .start-city-silhouette.bay i:nth-child(2),
 .start-city-silhouette.bay i:nth-child(4) {
-  height: 65px;
   width: 14px;
+  height: 65px;
 }
 .start-city-silhouette.bay i:nth-child(3) {
   width: 80px;
   height: 10px;
-  clip-path: none;
   align-self: center;
-  background: #bd7056;
+  clip-path: none;
 }
-@media (max-width: 700px) {
+:root[data-time="night"] .start-city-silhouette {
+  filter: brightness(0.75);
+}
+
+@media (max-width: 760px), (max-height: 520px) {
   .start-city-card {
-    padding: 18px;
-    max-height: calc(100dvh - 20px);
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+    padding: var(--s-3) var(--s-3) 0;
+    border-radius: var(--r-lg);
   }
   .start-city-heading {
-    gap: 12px;
+    gap: var(--s-3);
   }
   .start-city-person {
-    height: 100px;
-    width: 78px;
+    width: 64px;
+    height: 76px;
+    border-radius: var(--r-md);
   }
   .start-city-heading h1 {
-    font-size: 25px;
+    font-size: var(--t-h2);
   }
-  .start-city-heading p {
-    font-size: 13px;
+  .start-city-heading p,
+  .start-city-silhouette,
+  .start-city-option small {
+    display: none;
   }
   .start-city-options {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    gap: var(--s-2);
+    margin: var(--s-3) 0 var(--s-2);
   }
-  .start-city-card .start-city-option {
-    padding: 14px;
-    gap: 6px;
+  .start-city-option {
+    gap: var(--s-1);
+    padding: var(--s-3);
+    border-radius: var(--r-lg);
   }
-  .start-city-silhouette {
-    height: 55px;
+  .start-city-title strong {
+    font-size: var(--t-title);
   }
-  .start-city-silhouette i:nth-child(3) {
-    height: 51px;
-  }
-  .start-city-silhouette i:nth-child(2) {
-    height: 43px;
+  .start-city-card > .small-copy {
+    display: none;
   }
   .start-city-card footer {
-    position: sticky;
-    bottom: -18px;
-    background: #fff7ea;
-    padding: 12px 0;
-    flex-wrap: wrap;
+    margin: var(--s-2) calc(var(--s-3) * -1) 0;
+    padding: var(--s-2) var(--s-3);
   }
   .start-city-card footer > button {
     flex: 1;
-    min-width: 140px;
+  }
+}
+@media (max-width: 520px) {
+  .start-city-options {
+    grid-template-columns: 1fr;
   }
 }

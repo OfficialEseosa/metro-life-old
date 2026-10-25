@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Search, X } from "lucide-react";
+import { MagnifyingGlass as Search, X } from "@phosphor-icons/react";
 import { useStore } from "../store";
 import { Icon } from "./primitives";
 import { matchesLens } from "./action-rules";

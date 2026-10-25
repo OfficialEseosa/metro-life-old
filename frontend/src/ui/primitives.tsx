@@ -61,6 +61,33 @@ import {
   Confetti,
   DiceFive,
   X,
+  Gear,
+  Door,
+  Warning,
+  HandWaving,
+  Gift,
+  SmileyMeh,
+  SmileySad,
+  PaintBrushHousehold,
+  DotsThreeOutline,
+  ChatCircleDots,
+  ArrowClockwise,
+  WifiSlash,
+  MagnifyingGlass,
+  Storefront,
+  Coins,
+  Leaf,
+  SunHorizon,
+  Lightbulb,
+  Ticket,
+  Bus,
+  Clock,
+  PaperPlaneRight,
+  Shower,
+  Television,
+  Coffee,
+  Microphone,
+  Laptop,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon, IconProps } from "@phosphor-icons/react";
 import { CharacterPortrait } from "./character-preview";
@@ -83,6 +110,34 @@ const icons: Record<string, PhosphorIcon> = {
   footprints: Footprints,
   "graduation-cap": GraduationCap,
   "hand-coins": HandCoins,
+  gear: Gear,
+  door: Door,
+  warning: Warning,
+  "hand-waving": HandWaving,
+  gift: Gift,
+  "smiley-meh": SmileyMeh,
+  "smiley-sad": SmileySad,
+  decorate: PaintBrushHousehold,
+  more: DotsThreeOutline,
+  chat: ChatCircleDots,
+  retry: ArrowClockwise,
+  offline: WifiSlash,
+  search: MagnifyingGlass,
+  store: Storefront,
+  "arrow-right": ArrowRight,
+  x: X,
+  leaf: Leaf,
+  sunrise: SunHorizon,
+  idea: Lightbulb,
+  ticket: Ticket,
+  bus: Bus,
+  clock: Clock,
+  send: PaperPlaneRight,
+  shower: Shower,
+  tv: Television,
+  coffee: Coffee,
+  mic: Microphone,
+  laptop: Laptop,
   "key-round": Key,
   lamp: Lamp,
   "monitor-play": MonitorPlay,
@@ -99,7 +154,7 @@ const icons: Record<string, PhosphorIcon> = {
   home: PhHouse,
   droplets: Drop,
   wallet: PhWallet,
-  coins: HandCoins,
+  coins: Coins,
   sparkles: Sparkle,
   "book-open": PhBookOpen,
   house: PhHouse,
@@ -112,8 +167,8 @@ const icons: Record<string, PhosphorIcon> = {
   utensils: ForkKnife,
   dumbbell: Barbell,
   music: MusicNotes,
-  "mic-vocal": MusicNotes,
-  cpu: MonitorPlay,
+  "mic-vocal": Microphone,
+  cpu: Laptop,
   "messages-square": ChatsCircle,
   palette: Palette,
   landmark: Bank,
@@ -133,7 +188,34 @@ const icons: Record<string, PhosphorIcon> = {
   smiley: Smiley,
   confetti: Confetti,
   dice: DiceFive,
+  compass: Compass,
+  buildings: Buildings,
 };
+/** One icon per need, used by every need display. */
+export const NEED_ICONS: Record<string, string> = {
+  energy: "zap",
+  hunger: "utensils",
+  fun: "sparkles",
+  social: "users",
+  hygiene: "droplets",
+};
+export const NEED_ORDER = [
+  "energy",
+  "hunger",
+  "fun",
+  "social",
+  "hygiene",
+] as const;
+export const NEED_LABELS: Record<string, string> = {
+  energy: "Energy",
+  hunger: "Hunger",
+  fun: "Fun",
+  social: "Social",
+  hygiene: "Hygiene",
+};
+/** "tech" -> "Tech", "music-lover" -> "Music lover". */
+export const titleCase = (text: string) =>
+  text ? text[0].toUpperCase() + text.slice(1).replace(/-/g, " ") : text;
 export function Icon({ name, size = 22 }: { name?: string; size?: number }) {
   const Component = icons[name ?? ""] ?? Compass;
   return <Component size={size} weight="duotone" aria-hidden="true" />;
@@ -224,6 +306,7 @@ export function Sheet({
   primary,
   icon = "map-pin",
   color,
+  tone,
   peek = false,
   notice,
   dismissible = true,
@@ -236,6 +319,7 @@ export function Sheet({
   primary?: ReactNode;
   icon?: string;
   color?: string;
+  tone?: string;
   peek?: boolean;
   notice?: ReactNode;
   dismissible?: boolean;
@@ -356,8 +440,8 @@ export function Sheet({
         )}
         <div className="sheet-heading">
           <span
-            className="semantic-tile"
-            style={color ? { background: color } : undefined}
+            className={`semantic-tile ${tone ?? ""}`}
+            style={color ? { background: color, color: "#fff" } : undefined}
           >
             <Icon name={icon} />
           </span>

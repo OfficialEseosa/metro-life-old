@@ -1,11 +1,11 @@
-import { ReasonButton } from "./primitives";
+import { Icon, ReasonButton } from "./primitives";
 import {
   enterBuilding,
   stationAction,
   nearbyPerson,
   meet,
 } from "./walking-actions";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { api } from "../api/client";
 import {
@@ -18,66 +18,209 @@ import { nearbyBench, nearbyDoor, interiorType, roomType } from "../navigation";
 import { clearQueuedInteractions, useInteractions } from "../interactions";
 import { policyHours, actionReason, workCareNote } from "./action-rules";
 import { serverNow } from "../server-time";
-import "./walking.css";
 
-export function WalkingControls() {
-  const sim = useStore((s) => s.sim),
-    city = useStore((s) => s.city),
-    panel = useStore((s) => s.panel),
-    world = useStore((s) => s.world),
-    acting = useStore((s) => s.acting),
-    position = useWalking((s) => s.position),
-    error = useWalking((s) => s.error),
-    transition = useWalking((s) => s.transition),
-    result = useStore((s) => s.lastResult),
-    players = useStore((s) => s.players),
-    clock = useStore((s) => s.clock),
-    policy = useStore((s) => s.mayor?.mayor?.policy);
+/** The person the action button talks to. The store may provide a server-checked target. */
+type SocialTarget = { id: string; name: string; npc?: boolean } | null;
+const readSocialTarget = (s: object): SocialTarget | undefined =>
+  (s as { socialTarget?: SocialTarget }).socialTarget;
+
+/** "Your home" reads as "your home" in the middle of a sentence. */
+const placeName = (name: string) => name.replace(/^Your /, "your ");
+
+function useHelpSeen() {
   const [help, setHelp] = useState(() => {
-      try {
-        return !localStorage.getItem("metro-walk-help");
-      } catch {
-        return true;
-      }
-    }),
-    [stick, setStick] = useState<{
-      x: number;
-      y: number;
-      dx: number;
-      dy: number;
-    } | null>(null),
-    origin = useRef({ x: 0, y: 0 });
+    try {
+      return !localStorage.getItem("metro-walk-help");
+    } catch {
+      return true;
+    }
+  });
+  const dismiss = useCallback(() => {
+    setHelp(false);
+    try {
+      localStorage.setItem("metro-walk-help", "1");
+    } catch {
+      /* Storage may be blocked. */
+    }
+  }, []);
+  return [help, dismiss] as const;
+}
+
+/** One-time hint: how to walk and interact, worded for the device in hand. */
+export function WalkHelp() {
+  const [help, dismiss] = useHelpSeen(),
+    blocked = useStore((s) => !!s.panel || !!s.sim?.pendingBeat),
+    touch =
+      typeof matchMedia === "function" &&
+      matchMedia("(pointer: coarse)").matches;
   useEffect(() => {
     if (!help) return;
-    const dismiss = () => {
-        setHelp(false);
-        try {
-          localStorage.setItem("metro-walk-help", "1");
-        } catch {
-          /* Storage is optional. */
-        }
-      },
-      timer = setTimeout(dismiss, 10000);
+    const timer = setTimeout(dismiss, 12000);
     let start: { x: number; z: number } | null = null;
     const off = useWalking.subscribe((s) => {
       if (!s.position) return;
       if (!start) start = { ...s.position };
-      if (Math.hypot(s.position.x - start.x, s.position.z - start.z) > 2)
+      if (Math.hypot(s.position.x - start.x, s.position.z - start.z) > 3)
         dismiss();
     });
     return () => {
       clearTimeout(timer);
       off();
     };
-  }, [help]);
+  }, [help, dismiss]);
+  if (!help || blocked) return null;
+  return (
+    <div className="walk-help plate" role="note">
+      <span className="semantic-tile travel" aria-hidden="true">
+        <Icon name="footprints" />
+      </span>
+      <p>
+        {touch
+          ? "Drag the left side to walk. Tap the green button to act."
+          : "Walk with WASD or the arrow keys, Shift to run. Press E or Enter to use the green button."}
+      </p>
+      <button className="secondary" onClick={dismiss}>
+        Got it
+      </button>
+    </div>
+  );
+}
+
+/** Touch joystick. Mounted once for the whole session; hidden while a panel is open. */
+export function Joystick() {
+  const [stick, setStick] = useState<{
+      x: number;
+      y: number;
+      dx: number;
+      dy: number;
+    } | null>(null),
+    origin = useRef({ x: 0, y: 0 });
+  const clear = () => {
+    motion.x = motion.z = 0;
+    setStick(null);
+    motion.wake();
+  };
+  useEffect(
+    () =>
+      useStore.subscribe((s, previous) => {
+        if ((s.panel && !previous.panel) || (s.searchOpen && !previous.searchOpen)) {
+          motion.x = motion.z = 0;
+          setStick(null);
+        }
+      }),
+    [],
+  );
+  return (
+    <div
+      className={`walk-joystick hide-with-panel ${stick ? "active" : ""}`}
+      aria-label="Walking joystick"
+      role="region"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        window.getSelection()?.removeAllRanges();
+        e.currentTarget.setPointerCapture(e.pointerId);
+        origin.current = { x: e.clientX, y: e.clientY };
+        setStick({ x: e.clientX, y: e.clientY, dx: 0, dy: 0 });
+        motion.wake();
+      }}
+      onPointerMove={(e) => {
+        e.preventDefault();
+        if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+        const dx = e.clientX - origin.current.x,
+          dy = e.clientY - origin.current.y,
+          length = Math.max(36, Math.hypot(dx, dy));
+        motion.x = dx / length;
+        motion.z = dy / length;
+        setStick({
+          x: origin.current.x,
+          y: origin.current.y,
+          dx: (dx / length) * 32,
+          dy: (dy / length) * 32,
+        });
+        motion.wake();
+      }}
+      onPointerUp={clear}
+      onPointerCancel={clear}
+      onLostPointerCapture={clear}
+    >
+      <span
+        className="stick-base"
+        style={
+          stick
+            ? {
+                position: "fixed",
+                left: stick.x - 54,
+                top: stick.y - 54,
+                bottom: "auto",
+              }
+            : undefined
+        }
+      >
+        <span
+          style={{
+            transform: `translate(${stick?.dx ?? 0}px,${stick?.dy ?? 0}px)`,
+          }}
+        />
+      </span>
+    </div>
+  );
+}
+
+/** Thin progress bar inside the action button while an activity runs. */
+function BusyFill() {
+  const until = useStore((s) => s.sim?.busyUntil),
+    started = useStore((s) => s.sim?.busyStartedAt),
+    [now, setNow] = useState(serverNow);
+  useEffect(() => {
+    if (!until) return;
+    const timer = setInterval(() => setNow(serverNow()), 250);
+    return () => clearInterval(timer);
+  }, [until]);
+  if (!until) return null;
+  const start = started ?? until - 3000,
+    share = Math.max(0, Math.min(1, (now - start) / Math.max(1, until - start)));
+  return (
+    <span
+      className="busy-fill"
+      style={{ width: `${share * 100}%` }}
+      aria-hidden="true"
+    />
+  );
+}
+
+/**
+ * The contextual action button plus the social row and payoff anchor.
+ * Mounted once; the HUD hides it with CSS while a panel or story is open.
+ */
+export function ActionButton() {
+  const sim = useStore((s) => s.sim),
+    city = useStore((s) => s.city),
+    world = useStore((s) => s.world),
+    acting = useStore((s) => s.acting),
+    position = useWalking((s) => s.position),
+    transition = useWalking((s) => s.transition),
+    result = useStore((s) => s.lastResult),
+    players = useStore((s) => s.players),
+    target = useStore(readSocialTarget),
+    clock = useStore((s) => s.clock),
+    policy = useStore((s) => s.mayor?.mayor?.policy),
+    panel = useStore((s) => s.panel);
   const room = position?.room,
     context = sim && position ? stationAction(sim, world, position) : undefined,
     station = context?.station,
     door = sim && position && !room ? nearbyDoor(sim, position) : undefined;
   const bench = position ? nearbyBench(city, position) : undefined,
     seated = sim?.activitySlot?.bench;
-  const person =
-      sim && position ? nearbyPerson(sim, position, players) : undefined,
+  const fallback =
+      target === undefined && sim && position
+        ? nearbyPerson(sim, position, players)
+        : undefined,
+    person: { id: string; name: string } | undefined = target
+      ? { id: target.id, name: target.name }
+      : fallback
+        ? { id: fallback.id, name: fallback.username }
+        : undefined,
+    firstName = person?.name.split(" ")[0] ?? "",
     place = world?.cities
       .find((c) => c.id === city)
       ?.landmarks.find((l) => l.id === position?.place),
@@ -107,13 +250,13 @@ export function WalkingControls() {
   const label = seated
     ? "Stand up"
     : bench
-      ? "Sit on bench"
+      ? "Sit on the bench"
       : canTalk
-        ? `Wave to ${person.username}`
+        ? `Wave to ${firstName}`
         : room
           ? context?.label || "Walk to the furniture"
           : door
-            ? `${interiorType(world, city, door[0]) ? "Enter" : "Explore"} ${door[1].name}`
+            ? `${interiorType(world, city, door[0]) ? "Enter" : "Explore"} ${placeName(door[1].name)}`
             : "Walk to a door";
   const intent: InteractionIntent | null =
     sim && position
@@ -315,146 +458,57 @@ export function WalkingControls() {
     motion.follow = !panel;
     if (!panel) motion.wake();
   }, [panel]);
-  if (!sim || city !== sim.city || panel || sim.pendingBeat) return null;
-  const clear = () => {
-    motion.x = motion.z = 0;
-    setStick(null);
-    motion.wake();
-  };
+  if (!sim) return null;
+  if (city !== sim.city)
+    return (
+      <button
+        className="walk-interact primary"
+        onClick={() => {
+          void useStore
+            .getState()
+            .setCity(sim.city)
+            .then(() => useStore.getState().setFocus("home"));
+        }}
+      >
+        <span className="walk-target">Back to your city</span>
+      </button>
+    );
+  const busy = !!sim.busyUntil,
+    giftReason =
+      (clock?.msPerMinute ?? 1000) >= 1000 &&
+      serverNow() - sim.createdAt < 1440000
+        ? "Live here for one game day before gifting"
+        : sim.cash < 25
+          ? "Save $25 for a gift"
+          : "";
   return (
     <>
-      <div className="walk-status" role="status">
-        {(error || !help || room) && (
-          <span className="walk-caption">
-            {error ||
-              (room
-                ? `${roomType(room) === "home" ? "Home" : roomType(room) === "cafe" ? "Cafe" : roomType(room) === "club" ? "Music venue" : (world?.cities.find((c) => c.id === city)?.landmarks.find((l) => l.id === position?.place)?.name ?? "Workplace")}`
-                : (door?.[1].name ?? "City streets"))}
-          </span>
-        )}
-        {help && !room && (
-          <div className="walk-help">
-            WASD or arrows to walk · Shift to run
-            <br />E or Enter to interact · Escape to go back
-            <button
-              onClick={() => {
-                setHelp(false);
-                try {
-                  localStorage.setItem("metro-walk-help", "1");
-                } catch {
-                  /* Storage may be blocked. */
-                }
-              }}
-            >
-              Got it
-            </button>
-          </div>
-        )}
-      </div>
-      <div
-        className={`walk-joystick ${stick ? "active" : ""}`}
-        aria-label="Walking joystick"
-        role="region"
-        onPointerDown={(e) => {
-          e.preventDefault();
-          window.getSelection()?.removeAllRanges();
-          e.currentTarget.setPointerCapture(e.pointerId);
-          origin.current = { x: e.clientX, y: e.clientY };
-          setStick({ x: e.clientX, y: e.clientY, dx: 0, dy: 0 });
-          motion.wake();
-        }}
-        onPointerMove={(e) => {
-          e.preventDefault();
-          if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
-          const dx = e.clientX - origin.current.x,
-            dy = e.clientY - origin.current.y,
-            length = Math.max(36, Math.hypot(dx, dy));
-          motion.x = dx / length;
-          motion.z = dy / length;
-          setStick({
-            x: origin.current.x,
-            y: origin.current.y,
-            dx: (dx / length) * 32,
-            dy: (dy / length) * 32,
-          });
-          motion.wake();
-        }}
-        onPointerUp={clear}
-        onPointerCancel={clear}
-        onLostPointerCapture={clear}
-      >
-        <span
-          className="stick-base"
-          style={
-            stick
-              ? { position: "fixed", left: stick.x - 44, top: stick.y - 44 }
-              : undefined
-          }
+      {person && canTalk && !busy && (
+        <div
+          className="walk-social"
+          role="group"
+          aria-label={`Say hello to ${person.name}`}
         >
-          <span
-            style={{
-              transform: `translate(${stick?.dx ?? 0}px,${stick?.dy ?? 0}px)`,
-            }}
-          />
-        </span>
-      </div>
-      <ReasonButton
-        className="walk-interact primary"
-        reason={
-          sim.busyUntil
-            ? "Stay here until your activity finishes"
-            : acting
-              ? "Sending…"
-              : reason && !canTalk
-                ? reason
-                : !door && !station && !person && !bench && !seated
-                  ? room
-                    ? "Walk to furniture or the front door"
-                    : "Walk closer to a door, bench or neighbour"
-                  : ""
-        }
-        onClick={interact}
-      >
-        {sim.busyUntil ? "Stay here until it finishes" : label}
-        <small>
-          {context?.action?.requires?.job
-            ? workCareNote(sim) ||
-              `${sim.shiftSchedule?.shiftSeconds ?? 25}s shift · E / Enter`
-            : "E / Enter"}
-        </small>
-      </ReasonButton>
-      {person && station?.id !== "exit" && !sim.busyUntil && (
-        <div className="walk-social">
+          <span aria-hidden="true">With {firstName}</span>
           <ReasonButton
             onClick={() => meet("wave", person.id)}
             reason={acting ? "Sending…" : ""}
+            aria-label={`Wave to ${person.name}`}
           >
             Wave
           </ReasonButton>
           <ReasonButton
             onClick={() => meet("hangout", person.id)}
             reason={acting ? "Sending…" : ""}
+            aria-label={`Hang out with ${person.name}`}
           >
             Hang out
           </ReasonButton>
           <ReasonButton
             onClick={() => meet("gift", person.id)}
-            reason={
-              acting
-                ? "Sending your gift…"
-                : (clock?.msPerMinute ?? 1000) >= 1000 &&
-                    serverNow() - sim.createdAt < 1440000
-                  ? "Live here for one game day before gifting"
-                  : sim.cash < 25
-                    ? "Save $25 for a gift"
-                    : ""
-            }
-            title={
-              (clock?.msPerMinute ?? 1000) >= 1000 &&
-              serverNow() - sim.createdAt < 1440000
-                ? "Live here for one game day before gifting"
-                : undefined
-            }
+            reason={acting ? "Sending your gift…" : giftReason}
+            aria-label={`Give ${person.name} a $25 gift`}
+            title={giftReason || undefined}
           >
             Gift $25
           </ReasonButton>
@@ -463,14 +517,53 @@ export function WalkingControls() {
       {station &&
         station.id !== "exit" &&
         roomType(room) !== "home" &&
-        !sim.busyUntil && (
+        !busy &&
+        !canTalk && (
           <button
-            className="walk-more"
+            className="secondary walk-more"
             onClick={() => useStore.getState().selectLocation(position!.place)}
           >
-            More activities
+            More activities here
           </button>
         )}
+      {!busy &&
+      !acting &&
+      !door &&
+      !station &&
+      !person &&
+      !bench &&
+      !seated ? (
+        <button className="walk-interact primary is-idle" disabled>
+          <span className="walk-target">
+            {room
+              ? "Walk to furniture or the door"
+              : "Walk up to a door or a neighbour"}
+          </span>
+        </button>
+      ) : busy ? (
+        <button
+          className="walk-interact primary is-busy"
+          disabled
+          aria-label={`${sim.busyLabel ?? "Your activity"} in progress`}
+        >
+          <span className="walk-target">{sim.busyLabel ?? "Busy"}</span>
+          <BusyFill />
+        </button>
+      ) : (
+        <ReasonButton
+          className="walk-interact primary"
+          reason={acting ? "Sending…" : reason && !canTalk ? reason : ""}
+          onClick={interact}
+        >
+          <span className="walk-target">{label}</span>
+          <kbd className="key-hint">
+            {context?.action?.requires?.job
+              ? workCareNote(sim) ||
+                `${sim.shiftSchedule?.shiftSeconds ?? 25}s shift · E`
+              : "E"}
+          </kbd>
+        </ReasonButton>
+      )}
       <div className="walking-anchor" aria-live="polite">
         {result && (
           <span

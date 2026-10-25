@@ -65,7 +65,7 @@ export function PurchaseConfirmation() {
             </p>
           )}
         <div className="purchase-buttons">
-          <button autoFocus onClick={() => answer(false)}>
+          <button className="secondary" autoFocus onClick={() => answer(false)}>
             Keep my money
           </button>
           <button className="primary" onClick={() => answer(true)}>

@@ -2,43 +2,12 @@ import { useState } from "react";
 import { useStore } from "../store";
 import { api } from "../api/client";
 import type { CityId, Look, Sim, User, Clock } from "../api/types";
+import { readyLook } from "./looks";
 import { CharacterPreview } from "./character-preview";
 import { ErrorMessage, Icon, ReasonButton } from "./primitives";
 import { socialRequest } from "./social-life";
 import { sound, unlockAudio } from "./sound";
 import "./social-life.css";
-const pick = <T,>(values: T[]) =>
-  values[Math.floor(Math.random() * values.length)];
-function readyLook(): Look {
-  const top = pick(["#2d8a67", "#d78855", "#6e8ca8", "#b1789a"]),
-    bottom = pick(["#323d50", "#695641", "#6a6d70"]);
-  return {
-    body: pick(["f", "m"]),
-    skin: pick(["#f2d3b5", "#d49a72", "#996340", "#603c2d"]),
-    hair: pick(["curly", "bob", "short", "bun", "afro", "braids"]),
-    hairColor: pick(["#211f23", "#493326", "#8c623c", "#cfac65"]),
-    face: pick(["soft", "bright", "angular", "freckled"]),
-    top,
-    bottom,
-    style: "casual",
-    shoeColor: "#f0e7d4",
-    outfits: {
-      everyday: { top, bottom, style: "casual", shoeColor: "#f0e7d4" },
-      work: {
-        top: "#e8dcc8",
-        bottom: "#313c4b",
-        style: "work",
-        shoeColor: "#332b29",
-      },
-      sleep: {
-        top: "#a5b7ad",
-        bottom: "#7b90a7",
-        style: "casual",
-        shoeColor: "#e8dcc8",
-      },
-    },
-  };
-}
 export function inviteFromText(text: string) {
   const value = text.trim();
   try {
@@ -116,17 +85,20 @@ export function QuickStart({ onCustomize }: { onCustomize?: () => void }) {
         </button>
       </div>
       <div className="quick-start-story">
-        <span className="eyebrow">A LITTLE LIFE. A BIG CITY.</span>
+        <span className="eyebrow">A little life. A big city.</span>
         <h1>
-          Your story starts
-          <br />
+          Your story starts <br />
           with a hello.
         </h1>
         <p>
           A good-looking you, a busy city corner, and neighbours with room for
           one more. Make yourself at home.
         </p>
-        <div className="quick-city-options" aria-label="Your starting city">
+        <div
+          className="quick-city-options"
+          role="group"
+          aria-label="Your starting city"
+        >
           {(
             world?.cities ?? [
               { id: "atl", name: "Atlanta" },
@@ -158,10 +130,10 @@ export function QuickStart({ onCustomize }: { onCustomize?: () => void }) {
         )}
         <ErrorMessage text={error} />
         <ReasonButton
-          className="primary full"
+          className="primary full quick-start-play"
           reason={
             working
-              ? "Opening the city..."
+              ? "Opening the city…"
               : joining && !invite.trim()
                 ? "Paste your friend’s invitation"
                 : ""
@@ -170,26 +142,29 @@ export function QuickStart({ onCustomize }: { onCustomize?: () => void }) {
         >
           <Icon name={joining ? "users" : "sparkles"} />
           {joining ? "Join your friend" : "Play"}
-          <Icon name="arrow-up-right" />
+          <Icon name="arrow-right" />
         </ReasonButton>
-        <button
-          className="secondary full"
-          disabled={working}
-          onClick={() => setJoining(!joining)}
-        >
-          <Icon name={joining ? "house" : "users"} />
-          {joining ? "Make a new beginning" : "Join a friend"}
-        </button>
-        <button
-          className="text-button"
-          disabled={working}
-          onClick={() => {
-            if (onCustomize) onCustomize();
-            else useStore.getState().openPanel("creator");
-          }}
-        >
-          Or make every detail your own
-        </button>
+        <div className="quick-start-more">
+          <button
+            className="text-button"
+            disabled={working}
+            onClick={() => setJoining(!joining)}
+          >
+            <Icon name={joining ? "house" : "users"} />
+            {joining ? "Start on my own" : "Join a friend"}
+          </button>
+          <button
+            className="text-button"
+            disabled={working}
+            onClick={() => {
+              if (onCustomize) onCustomize();
+              else useStore.getState().openPanel("creator");
+            }}
+          >
+            <Icon name="palette" />
+            Make every detail my own
+          </button>
+        </div>
         <small>No account needed. This browser remembers your life.</small>
       </div>
     </section>

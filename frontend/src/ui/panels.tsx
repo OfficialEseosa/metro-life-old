@@ -24,6 +24,9 @@ import {
   SectionTitle,
   Check,
   ChevronRight,
+  NEED_ICONS,
+  NEED_LABELS,
+  titleCase,
 } from "./primitives";
 import { money, useTask, useNow } from "./helpers";
 import {
@@ -404,10 +407,10 @@ export function LocationPanel() {
                       <span className="effect-line">
                         {Object.entries(a.needs)
                           .filter(([, v]) => v > 0)
-                          .map(([k, v]) => `${k} +${v}`)
+                          .map(([k, v]) => `${NEED_LABELS[k] ?? titleCase(k)} +${v}`)
                           .join(" · ") ||
                           Object.keys(a.skills)
-                            .map((k) => `${k} XP`)
+                            .map((k) => `${titleCase(k)} XP`)
                             .join(" · ")}
                       </span>
                     </span>
@@ -569,7 +572,7 @@ export function JobsPanel() {
             return (
               <div key={job.id} className="job-card">
                 <div>
-                  <span className="eyebrow">{job.track}</span>
+                  <span className="eyebrow">{titleCase(job.track)}</span>
                   <h3>{job.title}</h3>
                   <p>
                     {
@@ -648,19 +651,9 @@ export function SimPanel() {
           <div key={id} className={`need ${id} ${n < 25 ? "need-low" : ""}`}>
             <div>
               <span className={`semantic-tile ${id}`}>
-                <Icon
-                  name={
-                    id === "energy"
-                      ? "zap"
-                      : id === "hunger"
-                        ? "utensils"
-                        : id === "fun"
-                          ? "sparkles"
-                          : "users"
-                  }
-                />
+                <Icon name={NEED_ICONS[id] ?? "heart"} />
               </span>
-              <span>{id}</span>
+              <span>{NEED_LABELS[id] ?? titleCase(id)}</span>
               <strong>
                 {Math.round(n)}
                 <small> / 100</small>

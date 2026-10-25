@@ -13,15 +13,18 @@ import { confirmPurchase } from "./purchase-confirmation";
 import { sound } from "./sound";
 import "./buy-mode.css";
 export function BuyModeButton() {
-  const sim = useStore((s) => s.sim),
+  const atHome = useStore(
+      (s) => !!s.sim && s.sim.position?.room === `home:${s.sim.userId}`,
+    ),
     open = useHomeDesign((s) => s.open);
-  return sim && sim.position?.room === `home:${sim.userId}` && !open ? (
+  return atHome && !open ? (
     <button
-      className="buy-mode-trigger"
+      className="hud-tool buy-mode-trigger"
+      aria-label="Decorate your home"
       onClick={() => useHomeDesign.getState().setOpen(true)}
     >
-      <Icon name="house" size={17} />
-      Buy mode
+      <Icon name="decorate" />
+      <span>Decorate</span>
     </button>
   ) : null;
 }
@@ -208,7 +211,7 @@ export function BuyMode() {
     >
       <header>
         <div>
-          <span className="eyebrow">YOUR ROOM, YOUR WAY</span>
+          <span className="eyebrow">Your room, your way</span>
           <b>Make yourself at home</b>
           <small>
             {design
@@ -217,9 +220,10 @@ export function BuyMode() {
           </small>
         </div>
         <button
+          className="secondary"
           disabled={busy}
           onClick={() => useHomeDesign.getState().setOpen(false)}
-          aria-label="Close Buy mode"
+          aria-label="Close decorating"
         >
           Done
         </button>

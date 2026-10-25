@@ -7,7 +7,7 @@ import {
   UserSwitch,
   WifiSlash,
 } from "@phosphor-icons/react";
-import { useStore } from "../store";
+import { useConnection, useStore } from "../store";
 import "./connection.css";
 
 /** Seconds the first load may take before the page offers a way out. */
@@ -196,20 +196,19 @@ export function ConnectionGate() {
 
 /** Non-blocking banner while the live connection is down during play. */
 export function ReconnectBanner() {
-  const connection = useStore((s) => s.connection),
-    since = useStore((s) => s.disconnectedAt);
+  const { connection, disconnectedAt: since, retryNow } = useConnection();
   const now = useTick(connection === "reconnecting");
   if (connection !== "reconnecting" || !since || now - since < 5000)
     return null;
   return (
-    <div className="reconnect-banner plate" role="status" aria-live="polite">
+    <div className="hud-toast reconnect-banner" role="status" aria-live="polite">
       <WifiSlash size={22} weight="bold" aria-hidden="true" />
       <span>
         <strong>Connection lost.</strong> Reconnecting… Your life is saved.
       </span>
       <button
         className="secondary"
-        onClick={() => useStore.getState().retryNow()}
+        onClick={retryNow}
       >
         <ArrowClockwise size={18} weight="bold" aria-hidden="true" />
         Retry now

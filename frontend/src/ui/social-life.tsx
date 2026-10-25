@@ -8,6 +8,7 @@ import { useStore } from "../store";
 import { motion } from "../walking";
 import { serverNow, syncServerTime } from "../server-time";
 import { Icon, ErrorMessage, ReasonButton } from "./primitives";
+import { HudNotice, ToastPortal } from "./notices";
 import { sound, setPartyAudio } from "./sound";
 import { venueName } from "../content-names";
 import "./social-life.css";
@@ -42,6 +43,10 @@ export type SocialLifeState = {
   inviteCode: string;
   clock?: Clock;
 };
+/** Which social overlays are open; shared by the tools in the action stack and the overlays. */
+export const useSocialUi = create<{ wheel: boolean; friends: boolean }>(
+  () => ({ wheel: false, friends: false }),
+);
 export const useSocialLife = create<SocialLifeState>(() => ({
   event: null,
   openHouses: [],
@@ -269,13 +274,58 @@ function WorkTiming({
     </section>
   );
 }
+/** Express yourself and Friends & homes, shown in the HUD action stack. */
+export function SocialTools({ onOpen }: { onOpen?: () => void }) {
+  const wheel = useSocialUi((s) => s.wheel),
+    friends = useSocialUi((s) => s.friends),
+    ready = useStore(
+      (s) => !!s.sim && !s.sim.trip && s.sim.introDone !== false,
+    );
+  if (!ready) return null;
+  return (
+    <>
+      <button
+        className="hud-tool"
+        aria-label="Express yourself: dance, wave, cheer"
+        aria-expanded={wheel}
+        onClick={() => {
+          useSocialUi.setState({ wheel: !wheel, friends: false });
+          onOpen?.();
+          sound("open");
+        }}
+      >
+        <Icon name="smiley" />
+        <span>Express</span>
+        <kbd>G</kbd>
+      </button>
+      <button
+        className="hud-tool"
+        aria-label="Friends and open houses"
+        aria-expanded={friends}
+        onClick={() => {
+          useSocialUi.setState({ friends: !friends, wheel: false });
+          onOpen?.();
+        }}
+      >
+        <Icon name="users" />
+        <span>Friends</span>
+      </button>
+    </>
+  );
+}
 export function SocialLifeHud() {
   const sim = useStore((s) => s.sim),
     panel = useStore((s) => s.panel),
     event = useSocialLife((s) => s.event),
     houses = useSocialLife((s) => s.openHouses),
-    [wheel, setWheel] = useState(false),
-    [friends, setFriends] = useState(false),
+    wheel = useSocialUi((s) => s.wheel),
+    friends = useSocialUi((s) => s.friends),
+    setWheel = (next: boolean | ((v: boolean) => boolean)) =>
+      useSocialUi.setState((s) => ({
+        wheel: typeof next === "function" ? next(s.wheel) : next,
+      })),
+    setFriends = (next: boolean) => useSocialUi.setState({ friends: next }),
+    [dismissedEvent, setDismissedEvent] = useState(""),
     [working, setWorking] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -389,40 +439,14 @@ export function SocialLifeHud() {
           ),
         )
       : 0,
-    hidden = !!panel || !!sim.pendingBeat;
+    hidden = !!panel || !!sim.pendingBeat,
+    showEvent =
+      !!event &&
+      event.id !== dismissedEvent &&
+      (!event.finished || event.joined);
   return (
     <>
       <CelebrationToast />
-      <div
-        className={`social-life-tools ${hidden ? "social-life-tools--quiet" : ""}`}
-      >
-        <button
-          className="social-tool plate"
-          aria-label="Open emote wheel"
-          aria-expanded={wheel}
-          onClick={() => {
-            setWheel((v) => !v);
-            setFriends(false);
-            sound("open");
-          }}
-        >
-          <Icon name="smiley" size={26} />
-          <span>Express yourself</span>
-          <kbd>G</kbd>
-        </button>
-        <button
-          className="social-tool plate"
-          aria-label="Friends and open houses"
-          aria-expanded={friends}
-          onClick={() => {
-            setFriends((v) => !v);
-            setWheel(false);
-          }}
-        >
-          <Icon name="users" />
-          <span>Friends & homes</span>
-        </button>
-      </div>
       {wheel && (
         <div className="emote-scrim" onPointerDown={() => setWheel(false)}>
           <section
@@ -467,59 +491,55 @@ export function SocialLifeHud() {
           </section>
         </div>
       )}
-      {!hidden && event && (
+      {!hidden && showEvent && event && (
         <section
-          className={`world-event-banner plate ${event.active ? "live" : ""}`}
+          className={`world-event-banner plate ${event.active ? "live" : ""} ${event.finished ? "finished" : ""}`}
           aria-label="City event"
         >
-          <span className="semantic-tile fun">
+          <span className="semantic-tile fun" aria-hidden="true">
             <Icon name="confetti" />
           </span>
-          <div>
-            <small>
-              {event.finished
-                ? "A MOMENT WE MADE"
-                : event.active
-                  ? "HAPPENING TOGETHER"
-                  : "COMING UP IN YOUR CITY"}
-            </small>
+          <div className="event-copy">
             <strong>{event.name}</strong>
             <span>
-              {venueName(event.loc, event.loc)} ·{" "}
               {event.finished
-                ? (event.result ?? "Thanks for joining!")
-                : `${Math.floor(eventTime / 60)}:${String(eventTime % 60).padStart(2, "0")}`}
+                ? event.success || event.progress >= event.target
+                  ? "You helped make it happen"
+                  : "Thanks for joining in"
+                : `${event.active ? "Now" : "Starts in"} ${Math.floor(eventTime / 60)}:${String(eventTime % 60).padStart(2, "0")} · ${venueName(event.loc, event.loc)}`}
             </span>
             {event.active && (
               <progress
-                aria-label="Shared event goal"
+                aria-label={`Shared moments ${event.progress} of ${event.target}`}
                 max={event.target}
                 value={event.progress}
               />
             )}
             <small>
               {event.finished
-                ? "Everyone who joined receives a reward and party outfit."
+                ? (event.result ?? "Your reward and party outfit are yours.")
                 : event.active
-                  ? `${event.progress} / ${event.target} shared moments · dance, wave or cheer`
+                  ? `${event.progress} / ${event.target} shared moments · dance, wave or cheer there`
                   : "A little party, a few neighbours, a free outfit."}
             </small>
           </div>
-          <button
-            className="secondary"
-            onClick={() => {
-              useStore.getState().selectLocation(event.loc);
-              useStore.getState().setFocus(event.loc);
-            }}
-          >
-            Find it
-          </button>
+          {!event.finished && (
+            <button
+              className="secondary event-find"
+              onClick={() => {
+                useStore.getState().selectLocation(event.loc);
+                useStore.getState().setFocus(event.loc);
+              }}
+            >
+              Find it
+            </button>
+          )}
           {event.active && (
             <ReasonButton
-              className="primary"
+              className="primary event-join"
               reason={
                 working
-                  ? "Joining..."
+                  ? "Joining…"
                   : event.rewardClaimed
                     ? "Reward collected"
                     : event.joined && event.progress < event.target
@@ -541,6 +561,13 @@ export function SocialLifeHud() {
                   : "Join in"}
             </ReasonButton>
           )}
+          <button
+            className="icon-button event-dismiss"
+            aria-label="Hide this event"
+            onClick={() => setDismissedEvent(event.id)}
+          >
+            <Icon name="x" size={18} />
+          </button>
         </section>
       )}
       {friends && (
@@ -551,7 +578,7 @@ export function SocialLifeHud() {
         >
           <header>
             <span>
-              <small>BETTER TOGETHER</small>
+              <small>Better together</small>
               <h2>Make a little room.</h2>
             </span>
             <button
@@ -559,7 +586,7 @@ export function SocialLifeHud() {
               aria-label="Close friends panel"
               onClick={() => setFriends(false)}
             >
-              ×
+              <Icon name="x" size={20} />
             </button>
           </header>
           <p>
@@ -660,11 +687,10 @@ export function SocialLifeHud() {
       {game && (
         <WorkTiming key={game.id} game={game} send={send} working={working} />
       )}
-      {error && !friends && (
-        <p className="social-life-notice error-message" role="alert">
-          {error}
-          <button onClick={() => setError("")}>Close</button>
-        </p>
+      {!friends && (
+        <ToastPortal>
+          <HudNotice text={error} onDismiss={() => setError("")} />
+        </ToastPortal>
       )}
     </>
   );

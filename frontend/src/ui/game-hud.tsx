@@ -1,17 +1,21 @@
+import "./hud.css";
+import "./panels.css";
 import { ConnectionGate, ReconnectBanner } from "./connection-gate";
 import { VenueMomentBridge } from "./venue-moments";
-import { SocialLifeHud } from "./social-life";
+import { SocialLifeHud, SocialTools, useSocialUi } from "./social-life";
 import { MoneyLedger } from "./money-ledger";
 import { PurchaseConfirmation } from "./purchase-confirmation";
 import { BuyMode, BuyModeButton } from "./buy-mode";
-import { WalkingControls } from "./walking-controls";
+import { ActionButton, Joystick, WalkHelp } from "./walking-controls";
 import { TravelPanel, TravelRideGate } from "./travel-panel";
 import { ObjectActions } from "./object-actions";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { Compass, Moon, Sun, X, Scan } from "@phosphor-icons/react";
 import canonical from "../shared-data/world.json";
 import { api } from "../api/client";
-import { useStore } from "../store";
+import { useSimIdentity, useSimVitals, useStore } from "../store";
 import { useNightLighting } from "../lighting";
 import {
   Creator,
@@ -31,7 +35,15 @@ import {
   SimPanel,
   StoryPanel,
 } from "./panels";
-import { Avatar, ArrowUpRight, Icon, Sheet } from "./primitives";
+import {
+  Avatar,
+  ArrowUpRight,
+  Icon,
+  NEED_ICONS,
+  NEED_LABELS,
+  NEED_ORDER,
+  Sheet,
+} from "./primitives";
 import { money, useNow } from "./helpers";
 import { serverNow } from "../server-time";
 import { CashCounter, RewardFlight, SoundButton } from "./feedback";
@@ -41,6 +53,7 @@ import { useGameFeedback } from "./use-game-feedback";
 import { NeedWarning } from "./need-warning";
 import { MapTools } from "./map-tools";
 import { policyHours } from "./action-rules";
+import { ErrorNotices, TOAST_REGION_ID } from "./notices";
 import {
   CityServices,
   MayorPanel,
@@ -57,14 +70,14 @@ import {
   ChatPanel,
   ChatPrimary,
 } from "./community-panels";
-import "./hud.css";
-import "./sunday-morning.css";
-import "./hud-layout.css";
+import type { CityId } from "../api/types";
+
 const state = () => useStore.getState();
+
 function Time() {
   const clock = useStore((s) => s.clock),
     now = useNow();
-  if (!clock) return <span>Welcome home</span>;
+  if (!clock) return <time>Welcome home</time>;
   const elapsed = Math.max(0, now - clock.at) / clock.msPerMinute,
     total = clock.hour * 60 + clock.minute + Math.floor(elapsed),
     minutes = total % 1440;
@@ -76,192 +89,230 @@ function Time() {
     </time>
   );
 }
-function TopBar() {
+
+function ConnectionStatus() {
   const online = useStore(
       (s) => s.players.filter((p) => p.online && !p.npc).length,
     ),
     residents = useStore((s) => s.players.filter((p) => p.npc).length),
-    connected = useStore((s) => s.connected),
-    night = useNightLighting(),
-    city = useStore((s) => s.city),
-    world = useStore((s) => s.world),
-    sim = useStore((s) => s.sim),
-    theme = useStore((s) => s.sceneTheme),
-    [cashOpen, setCashOpen] = useState(false);
+    connected = useStore((s) => s.connected);
   return (
-    <>
-      <header className="player-cluster">
-        {sim ? (
-          <>
-            <button
-              className={`avatar-button mood-${sim.mood}`}
-              aria-label="Open your needs and skills"
-              onClick={() => state().openPanel("sim")}
-            >
-              <Avatar look={sim.look} size={54} />
-              <span aria-label={`Feeling ${sim.mood}`} />
-            </button>
-            <div className="balance-clock">
-              <button
-                className="cash-button"
-                data-cash
-                aria-label={`Cash ${money(sim.cash)}. Today's income and spending`}
-                aria-expanded={cashOpen}
-                onPointerEnter={(e) => {
-                  if (e.pointerType === "mouse") setCashOpen(true);
-                }}
-                onClick={() => setCashOpen(!cashOpen)}
-              >
-                <span className="coin-token">
-                  <Icon name="wallet" size={18} />
-                </span>
-                <CashCounter cash={sim.cash} />
-              </button>
-              <Time />
-              <span className="connection-status" role="status">
-                {connected
-                  ? online || residents
-                    ? `${online} online · ${residents} residents`
-                    : "Finding neighbours…"
-                  : "Reconnecting…"}
-              </span>
-            </div>
-            {cashOpen && (
-              <div className="cash-detail plate">
-                <MoneyLedger />
-                <strong>Today</strong>
-                <span>
-                  Income <b>{money(sim.moneyToday?.income ?? 0)}</b>
-                </span>
-                <span>
-                  Spent <b>{money(sim.moneyToday?.spent ?? 0)}</b>
-                </span>
-                <button
-                  className="text-button"
-                  onClick={() => setCashOpen(false)}
-                >
-                  Close
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <button
-            className="wordmark"
-            onClick={() => state().setFocus("overview")}
-            aria-label="Metro Life home"
-          >
-            <span className="semantic-tile">
-              <Compass size={24} weight="duotone" />
-            </span>
-            metro<span>life</span>
-          </button>
-        )}
-      </header>
-      <div className="city-controls secondary-hud">
-        <select
-          aria-label="View a city map. This does not move your character."
-          title="View a city map; use Travel to visit"
-          value={city}
-          onChange={(e) => {
-            const next = e.target.value as "atl" | "nyc" | "bay";
-            void state()
-              .setCity(next)
-              .then(() => state().setFocus("overview"));
-          }}
-        >
-          {(world?.cities ?? canonical.cities).map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.short}
-              {sim ? (c.id !== sim.city ? " · map" : " · here") : ""}
-            </option>
-          ))}
-        </select>
-        <button
-          className="icon-button plate-button"
-          onClick={() =>
-            state().setSceneTheme(
-              theme === "auto" ? (night ? "day" : "night") : "auto",
-            )
-          }
-          aria-label={
-            theme === "auto"
-              ? night
-                ? "Preview daytime lighting"
-                : "Preview nighttime lighting"
-              : "Follow game clock"
-          }
-          aria-pressed={theme !== "auto"}
-          title={theme === "auto" ? "Preview lighting" : "Follow game clock"}
-        >
-          {night ? (
-            <Sun size={20} weight="duotone" />
-          ) : (
-            <Moon size={20} weight="duotone" />
-          )}
-        </button>
-        <SoundButton />
-      </div>
-    </>
+    <span className="connection-status" role="status">
+      {connected
+        ? online || residents
+          ? `${online} online · ${residents} residents`
+          : "Finding neighbours…"
+        : "Reconnecting…"}
+    </span>
   );
 }
-function NeedsRibbon() {
-  const sim = useStore((s) => s.sim);
-  if (!sim) return null;
-  const rows = [
-    ["energy", "zap"],
-    ["hunger", "utensils"],
-    ["fun", "sparkles"],
-    ["social", "users"],
-    ["hygiene", "droplets"],
-  ] as const;
+
+function CashDetail({ close }: { close: () => void }) {
+  const today = useStore(useShallow((s) => s.sim?.moneyToday ?? null));
   return (
-    <button
-      className="needs-ribbon secondary-hud"
-      aria-label="Your needs. Open your life"
-      onClick={() => state().openPanel("sim")}
-    >
-      <Avatar look={sim.look} size={62} />
-      <span className="needs-ribbon-bars">
-        <small>
-          {sim.mood} · {sim.username.split(" ")[0]}
-        </small>
-        {rows.map(([need, icon]) => {
-          const value = sim.needs[need] ?? 85;
+    <div className="cash-detail plate" role="dialog" aria-label="Your money">
+      <MoneyLedger />
+      <strong>Today</strong>
+      <span>
+        Income <b>{money(today?.income ?? 0)}</b>
+      </span>
+      <span>
+        Spent <b>{money(today?.spent ?? 0)}</b>
+      </span>
+      <button className="text-button" onClick={close}>
+        Close
+      </button>
+    </div>
+  );
+}
+
+const needLevel = (value: number) =>
+  value < 25 ? "low" : value < 50 ? "mid" : "good";
+
+/** Top-left: portrait with mood, cash and clock, and the five needs. */
+function Vitals() {
+  const vitals = useSimVitals(),
+    identity = useSimIdentity(),
+    [cashOpen, setCashOpen] = useState(false),
+    lowCount = useRef(0);
+  const low = vitals
+    ? NEED_ORDER.filter((n) => (vitals.needs[n] ?? 100) < 25).length
+    : 0;
+  useEffect(() => {
+    if (low > lowCount.current) sound("low");
+    lowCount.current = low;
+  }, [low]);
+  if (!vitals || !identity)
+    return (
+      <header className="vitals plate">
+        <button
+          className="wordmark"
+          onClick={() => state().setFocus("overview")}
+          aria-label="Metro Life: see the whole city"
+        >
+          <span className="semantic-tile">
+            <Compass size={24} weight="duotone" />
+          </span>
+          Metro Life
+        </button>
+      </header>
+    );
+  const mood = vitals.mood;
+  return (
+    <header className="vitals plate">
+      <button
+        className="vitals-avatar"
+        data-mood={mood}
+        aria-label={`${identity.name}, feeling ${mood}. Open your life`}
+        onClick={() => state().openPanel("sim")}
+      >
+        <Avatar look={identity.look} size={56} />
+        <span className="vitals-mood" aria-hidden="true">
+          <Icon
+            name={
+              mood === "low" || mood === "rough"
+                ? "smiley-sad"
+                : mood === "okay"
+                  ? "smiley-meh"
+                  : "smiley"
+            }
+            size={16}
+          />
+        </span>
+      </button>
+      <div className="vitals-money">
+        <button
+          className="cash-button"
+          data-cash
+          aria-label={`Cash ${money(vitals.cash)}. Today's income and spending`}
+          aria-expanded={cashOpen}
+          onClick={() => setCashOpen(!cashOpen)}
+        >
+          <span className="coin-token" aria-hidden="true">
+            <Icon name="coins" size={16} />
+          </span>
+          <CashCounter cash={vitals.cash} />
+        </button>
+        <Time />
+        <ConnectionStatus />
+      </div>
+      <button
+        className="vitals-needs"
+        aria-label={`Your needs: ${NEED_ORDER.map((n) => `${NEED_LABELS[n]} ${Math.round(vitals.needs[n] ?? 100)}`).join(", ")}. Open your life`}
+        onClick={() => state().openPanel("sim")}
+      >
+        {NEED_ORDER.map((need) => {
+          const value = Math.round(vitals.needs[need] ?? 100);
           return (
             <span
-              className="needs-ribbon-row"
               key={need}
-              title={`${need}: ${Math.round(value)} of 100`}
-              style={
-                {
-                  "--need-color":
-                    value < 25 ? "#EE6A5B" : value < 50 ? "#F2C14E" : "#56C271",
-                } as import("react").CSSProperties
-              }
+              className={`need-ring ${need}`}
+              data-level={needLevel(value)}
+              style={{ "--v": value } as CSSProperties}
+              title={`${NEED_LABELS[need]} ${value} / 100`}
             >
-              <Icon name={icon} size={17} />
-              <progress aria-label={need} max={100} value={value} />
+              <Icon name={NEED_ICONS[need]} size={20} />
             </span>
           );
         })}
-      </span>
-    </button>
+      </button>
+      {cashOpen && <CashDetail close={() => setCashOpen(false)} />}
+    </header>
   );
 }
+
+/** Top-right: city map, overview, light preview and sound. Also drives the HUD theme. */
+function TopControls() {
+  const night = useNightLighting(),
+    city = useStore((s) => s.city),
+    world = useStore((s) => s.world),
+    home = useStore((s) => s.sim?.city),
+    theme = useStore((s) => s.sceneTheme);
+  useEffect(() => {
+    document.documentElement.dataset.time = night ? "night" : "day";
+  }, [night]);
+  return (
+    <div className="hud-controls">
+      <select
+        className="city-select hide-with-panel"
+        aria-label="View a city map. This does not move your character."
+        title="View a city map; use Travel to visit"
+        value={city}
+        onChange={(e) => {
+          const next = e.target.value as CityId;
+          void state()
+            .setCity(next)
+            .then(() => state().setFocus("overview"));
+        }}
+      >
+        {(world?.cities ?? canonical.cities).map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.short}
+            {home ? (c.id !== home ? " · map" : " · home") : ""}
+          </option>
+        ))}
+      </select>
+      <button
+        className="plate-button overview-button"
+        aria-label="See the whole city"
+        title="See the whole city"
+        onClick={() => {
+          state().setFocus("overview");
+          state().openPanel(null);
+          state().setSearchOpen(false);
+        }}
+      >
+        <Scan size={22} weight="duotone" />
+      </button>
+      <button
+        className="plate-button"
+        onClick={() =>
+          state().setSceneTheme(
+            theme === "auto" ? (night ? "day" : "night") : "auto",
+          )
+        }
+        aria-label={
+          theme === "auto"
+            ? night
+              ? "Preview daytime lighting"
+              : "Preview night lighting"
+            : "Follow the game clock again"
+        }
+        aria-pressed={theme !== "auto"}
+        title={theme === "auto" ? "Preview lighting" : "Follow game clock"}
+      >
+        {night ? (
+          <Sun size={22} weight="duotone" />
+        ) : (
+          <Moon size={22} weight="duotone" />
+        )}
+      </button>
+      <SoundButton />
+    </div>
+  );
+}
+
+const DOCK = [
+  ["Home", "house", "rest"],
+  ["Career", "briefcase", "work"],
+  ["City", "buildings", "social"],
+  ["Search", "search", "fun"],
+] as const;
 function Dock({ search }: { search: () => void }) {
   return (
-    <nav className="bottom-dock secondary-hud" aria-label="Your life">
-      {(
-        [
-          ["Home", "house"],
-          ["Career", "briefcase"],
-          ["City", "users"],
-          ["Search", "map-pin"],
-        ] as const
-      ).map(([label, icon]) => (
+    <nav className="bottom-dock plate hide-with-panel" aria-label="Your life">
+      {DOCK.map(([label, icon, tone]) => (
         <button
           key={label}
+          aria-label={
+            label === "Home"
+              ? "Home: go to your home"
+              : label === "Career"
+                ? "Career: jobs and your next shift"
+                : label === "City"
+                  ? "City: neighbours, chat and services"
+                  : "Search places"
+          }
           onClick={() => {
             if (label === "Home") {
               state().selectLocation("home");
@@ -270,162 +321,146 @@ function Dock({ search }: { search: () => void }) {
             else state().openPanel(label === "Career" ? "jobs" : "city");
           }}
         >
-          <span
-            className={`semantic-tile ${label === "Career" ? "work" : label === "City" ? "social" : label === "Search" ? "fun" : "rest"}`}
-          >
+          <span className={`semantic-tile ${tone}`}>
             <Icon name={icon} />
           </span>
-          <span>{label}</span>
+          <span aria-hidden="true">{label}</span>
         </button>
       ))}
     </nav>
   );
 }
-function Moodlets({ search }: { search: () => void }) {
-  const needs = useStore((s) => s.sim?.needs),
-    previous = useRef(0);
-  const low = Object.entries(needs ?? {})
-    .filter(([, n]) => n < 35)
-    .slice(0, 3);
-  useEffect(() => {
-    if (low.length > previous.current) sound("low");
-    previous.current = low.length;
-  }, [low.length]);
+
+/** First-day progress, or the first-job nudge, and the activity in progress. */
+function LeftColumn() {
+  const busy = useStore((s) => !!s.sim?.busyUntil),
+    job = useStore((s) => !!s.sim?.job),
+    firstDay = useStore((s) => !!s.sim?.firstDay);
   return (
-    <div className="moodlets secondary-hud">
-      {low.map(([id, n]) => (
-        <button
-          key={id}
-          className={`moodlet ${id} ${n < 15 ? "critical" : ""}`}
-          title={`${id} ${Math.round(n)} of 100. Find a place to recharge.`}
-          onClick={() => {
-            if (id === "energy" || id === "social") {
-              state().selectLocation("home");
-              state().setFocus("home");
-            } else {
-              state().setMapLens(id === "hunger" ? "eat" : "fun");
-              search();
-            }
-          }}
-        >
-          <span className={`semantic-tile ${id}`}>
-            <Icon
-              name={
-                id === "energy"
-                  ? "zap"
-                  : id === "hunger"
-                    ? "utensils"
-                    : id === "fun"
-                      ? "sparkles"
-                      : "users"
-              }
-            />
-            <svg className="timer-arc" viewBox="0 0 40 40">
-              <circle
-                cx="20"
-                cy="20"
-                r="18"
-                pathLength="100"
-                strokeDasharray={`${n} 100`}
-              />
-            </svg>
-          </span>
-          <span>
-            {id}
-            <b>{Math.round(n)}</b>
-          </span>
-        </button>
-      ))}
+    <div className="hud-left hide-with-panel">
+      <ObjectActions />
+      {firstDay ? (
+        <FirstDayGoals compact />
+      ) : (
+        !job && (
+          <button
+            className="first-job-cue plate"
+            onClick={() => state().openPanel("jobs")}
+          >
+            <span className="semantic-tile work">
+              <Icon name="briefcase" />
+            </span>
+            <span>Find your first job</span>
+            <ArrowUpRight size={20} />
+          </button>
+        )
+      )}
+      {busy && (
+        <div className="idle-progress">
+          <Busy />
+        </div>
+      )}
     </div>
   );
 }
-function ActionStack() {
-  const panel = useStore((s) => s.panel),
-    search = useStore((s) => s.searchOpen),
-    sim = useStore((s) => s.sim),
+
+function ChatTool({ onOpen }: { onOpen: () => void }) {
+  const userId = useStore((s) => s.sim?.userId),
+    city = useStore((s) => s.sim?.city),
+    panel = useStore((s) => s.panel),
     messages = useStore((s) => s.chat),
-    [expanded, setExpanded] = useState(false),
     [seen, setSeen] = useState(serverNow);
   useEffect(() => {
-    setExpanded(false);
     setSeen(serverNow());
-  }, [sim?.city]);
+  }, [city]);
   useEffect(() => {
     if (panel === "chat") setSeen(serverNow());
   }, [panel, messages.length]);
   const unread = messages.filter(
-      (m) => !m.npc && m.userId !== sim?.userId && m.at > seen,
-    ).length,
-    quiet = !!panel || search || !!sim?.pendingBeat;
+    (m) => !m.npc && m.userId !== userId && m.at > seen,
+  ).length;
+  return (
+    <button
+      className="hud-tool"
+      aria-label={`Open city chat${unread ? `, ${unread} unread messages` : ""}`}
+      onClick={() => {
+        setSeen(serverNow());
+        onOpen();
+        state().openPanel("chat");
+      }}
+    >
+      <Icon name="chat" />
+      <span>City chat</span>
+      {unread > 0 && (
+        <b className="chat-unread" aria-hidden="true">
+          {Math.min(unread, 99)}
+        </b>
+      )}
+    </button>
+  );
+}
+
+/** Bottom-right: tools, social buttons and the contextual action. Always mounted. */
+function ActionStack() {
+  const [expanded, setExpanded] = useState(false),
+    city = useStore((s) => s.sim?.city),
+    panel = useStore((s) => s.panel);
+  useEffect(() => {
+    setExpanded(false);
+  }, [city, panel]);
   return (
     <div
-      className={`hud-action-stack ${expanded ? "is-open" : ""} ${quiet ? "hud-action-stack--quiet" : ""}`}
+      className={`hud-action-stack hide-with-panel ${expanded ? "is-open" : ""}`}
       role="group"
       aria-label="Your actions"
     >
-      <WalkingControls />
-      <SocialLifeHud />
+      <div className="hud-tools" id="hud-tools">
+        <SocialTools onOpen={() => setExpanded(false)} />
+        <ChatTool onOpen={() => setExpanded(false)} />
+        <BuyModeButton />
+      </div>
       <button
-        className="hud-chat-shortcut social-tool plate"
-        aria-label={`Open city chat${unread ? `, ${unread} unread messages` : ""}`}
+        className="hud-tool hud-more-toggle"
+        aria-expanded={expanded}
+        aria-controls="hud-tools"
         onClick={() => {
-          setSeen(serverNow());
-          setExpanded(false);
-          state().openPanel("chat");
+          setExpanded((v) => !v);
+          useSocialUi.setState({ wheel: false, friends: false });
+          sound(expanded ? "close" : "open");
         }}
       >
-        <Icon name="messages-square" />
-        <span>City chat</span>
-        {unread > 0 && (
-          <b className="chat-unread" aria-hidden="true">
-            {Math.min(unread, 99)}
-          </b>
-        )}
+        <Icon name={expanded ? "x" : "more"} />
+        <span>{expanded ? "Close" : "More"}</span>
       </button>
-      <BuyModeButton />
-      <button
-        className="hud-stack-toggle plate"
-        aria-expanded={expanded}
-        aria-label={
-          expanded ? "Close extra actions" : "Open social and home actions"
-        }
-        onClick={() => setExpanded((v) => !v)}
-      >
-        <Icon name={expanded ? "x" : "smiley"} />
-        {expanded ? "Close" : "More"}
-      </button>
+      <ActionButton />
     </div>
   );
 }
-function ResultToast({ inline = false }: { inline?: boolean }) {
-  const story = useStore((s) => !!s.sim?.pendingBeat);
-  const social = useStore((s) => !!s.socialNotice),
-    result = useStore((s) => s.lastResult),
-    panel = useStore((s) => s.panel),
-    insets = useStore((s) => s.hudInsets),
+
+function ResultToast() {
+  const result = useStore((s) => s.lastResult),
+    social = useStore((s) => !!s.socialNotice),
+    modal = useStore(
+      (s) =>
+        !!s.sim?.pendingBeat ||
+        ["creator", "settings", "city"].includes(s.panel ?? ""),
+    ),
     [paused, setPaused] = useState(false),
     start = useRef(0),
-    modal = story || ["creator", "settings", "city"].includes(panel ?? ""),
-    full = innerWidth <= 700 && insets.bottom > innerHeight * 0.65,
-    show = !!result && !social && !modal && (inline ? full : !full);
+    show = !!result && !social && !modal;
   useEffect(() => {
     if (!show || paused) return;
-    const timer = setTimeout(() => state().setLastResult(null), 9000);
+    const timer = setTimeout(() => state().setLastResult(null), 8000);
     return () => clearTimeout(timer);
   }, [result, paused, show]);
   if (!result || !show) return null;
-  const phone = innerWidth <= 700;
+  const gain = result.deltas.cash ?? 0;
   return (
     <div
-      className={`result-toast plate ${inline ? "inline-result" : ""} ${phone && insets.bottom > innerHeight * 0.65 ? "toast-compact" : ""}`}
-      style={phone && !inline ? { bottom: insets.bottom + 12 } : undefined}
+      className="hud-toast result-toast"
       role="status"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) setPaused(false);
-      }}
       onPointerDown={(e) => {
         start.current = e.clientX;
       }}
@@ -434,8 +469,12 @@ function ResultToast({ inline = false }: { inline?: boolean }) {
           state().setLastResult(null);
       }}
     >
-      <span className="semantic-tile work">
-        <Icon name={result.leveledUp ? "trophy" : "wallet"} />
+      <span
+        className={`semantic-tile ${result.leveledUp ? "fun" : gain > 0 ? "money" : "travel"}`}
+      >
+        <Icon
+          name={result.leveledUp ? "trophy" : gain > 0 ? "coins" : "sparkles"}
+        />
       </span>
       <div>
         <strong>
@@ -446,24 +485,24 @@ function ResultToast({ inline = false }: { inline?: boolean }) {
                 ? "Level up!"
                 : (result.activity?.pay ?? 0) > 0
                   ? "Shift finished"
-                  : (result.deltas.cash ?? 0) > 0
-                    ? `${money(result.deltas.cash ?? 0)} earned`
+                  : gain > 0
+                    ? `${money(gain)} earned`
                     : "A little better already")}
         </strong>
         <p>{result.text}</p>
         {result.activity && (
           <div className="payoff-breakdown">
             {result.activity.cost > 0 && (
-              <small>Spent {money(result.activity.cost)}</small>
+              <span>Spent {money(result.activity.cost)}</span>
             )}
             {result.activity.pay > 0 && (
-              <small>Shift pay +{money(result.activity.pay)}</small>
+              <span>Shift pay +{money(result.activity.pay)}</span>
             )}
             {result.activity.dailyCash > 0 && (
-              <small>Daily goal +{money(result.activity.dailyCash)}</small>
+              <span>Daily goal +{money(result.activity.dailyCash)}</span>
             )}
             {result.activity.bonusCash > 0 && (
-              <small>Milestone +{money(result.activity.bonusCash)}</small>
+              <span>Milestone +{money(result.activity.bonusCash)}</span>
             )}
           </div>
         )}
@@ -478,41 +517,28 @@ function ResultToast({ inline = false }: { inline?: boolean }) {
     </div>
   );
 }
-function SocialNotice({ inline = false }: { inline?: boolean }) {
-  const story = useStore((s) => !!s.sim?.pendingBeat);
+
+function SocialNotice() {
   const text = useStore((s) => s.socialNotice),
-    insets = useStore((s) => s.hudInsets),
-    panel = useStore((s) => s.panel),
-    full = innerWidth <= 700 && insets.bottom > innerHeight * 0.65,
-    show =
-      !!text &&
-      !story &&
-      !["city", "creator", "creator", "settings", "settings"].includes(
-        panel ?? "",
-      ) &&
-      (inline ? full : !full);
+    modal = useStore(
+      (s) =>
+        !!s.sim?.pendingBeat ||
+        ["creator", "settings", "city"].includes(s.panel ?? ""),
+    ),
+    show = !!text && !modal;
   useEffect(() => {
     if (!show) return;
     const timer = setTimeout(
       () => useStore.setState({ socialNotice: "" }),
       8000,
     );
-    sound("tap");
     return () => clearTimeout(timer);
   }, [text, show]);
   if (!show) return null;
   return (
-    <div
-      role="status"
-      className={`result-toast social-notice plate ${inline ? "inline-result toast-compact" : ""}`}
-      style={
-        innerWidth <= 700 && !inline
-          ? { bottom: insets.bottom + 12 }
-          : undefined
-      }
-    >
+    <div role="status" className="hud-toast social-notice">
       <span className="semantic-tile social">
-        <Icon name="users" />
+        <Icon name="hand-waving" />
       </span>
       <div>
         <strong>
@@ -534,12 +560,95 @@ function SocialNotice({ inline = false }: { inline?: boolean }) {
     </div>
   );
 }
+
+const PANEL_TITLES: Record<string, string> = {
+  city: "Your city",
+  settings: "Settings and wardrobe",
+  sim: "Your life",
+  mayor: "Your city election",
+  plots: "A place for your idea",
+  billboard: "Make it seen",
+  homes: "Find your home",
+  travel: "Visit another city",
+  people: "Your neighbours",
+  chat: "Around the city",
+};
+const PANEL_KICKERS: Record<string, string> = {
+  jobs: "Practice today. Grow tomorrow.",
+  sim: "Needs, skills and dreams",
+  mayor: "Your voice in the city",
+  plots: "A space in the community market",
+  billboard: "Share something with your neighbours",
+  homes: "Make yourself at home",
+  people: "Good company, close by",
+  chat: "Say hello to the neighbourhood",
+  settings: "Sound, image, wardrobe and your life",
+  travel: "Buses and planes between cities",
+};
+const PANEL_ICONS: Record<string, string> = {
+  sim: "heart-pulse",
+  jobs: "briefcase",
+  mayor: "landmark",
+  plots: "map-pin",
+  billboard: "monitor-play",
+  homes: "house",
+  settings: "gear",
+  travel: "plane",
+  city: "buildings",
+  people: "users",
+  chat: "chat",
+};
+const PANEL_TONES: Record<string, string> = {
+  jobs: "work",
+  plots: "work",
+  billboard: "work",
+  sim: "social",
+  homes: "rest",
+  travel: "travel",
+  settings: "travel",
+  city: "travel",
+  people: "social",
+  chat: "social",
+  mayor: "learn",
+};
+
+/** View another city's map from the City panel on phones, where the top select is hidden. */
+function CityMapPicker() {
+  const city = useStore((s) => s.city),
+    world = useStore((s) => s.world),
+    home = useStore((s) => s.sim?.city);
+  return (
+    <label className="field city-map-picker">
+      View a city map
+      <select
+        value={city}
+        onChange={(e) => {
+          const next = e.target.value as CityId;
+          state().openPanel(null);
+          void state()
+            .setCity(next)
+            .then(() => state().setFocus("overview"));
+        }}
+      >
+        {(world?.cities ?? canonical.cities).map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+            {home && c.id === home ? " (home)" : ""}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function ActivePanel() {
   const panel = useStore((s) => s.panel),
     selected = useStore((s) => s.selectedLoc),
     world = useStore((s) => s.world),
     city = useStore((s) => s.city),
-    sim = useStore((s) => s.sim),
+    hasSim = useStore((s) => !!s.sim),
+    hasJob = useStore((s) => !!s.sim?.job),
+    rentDue = useStore((s) => !!s.sim?.firstDay && !s.sim.firstDay.rent),
     now = useNow(),
     clock = useStore((s) => s.clock),
     policy = useStore((s) => s.mayor?.mayor?.policy);
@@ -549,25 +658,8 @@ function ActivePanel() {
   }, []);
   if (!panel) return null;
   const place = world?.cities
-      .find((c) => c.id === city)
-      ?.landmarks.find((l) => l.id === selected),
-    titles: Record<string, string> = {
-      city: "Your city",
-      settings: "Settings and wardrobe",
-      sim: "Your life",
-      jobs: sim?.job ? "Your next shift" : "Find your first job",
-      mayor: "Your city election",
-      plots: "A place for your idea",
-      billboard: "Make it seen",
-      homes: "Find your home",
-      travel: "Visit another city",
-      people: "Your neighbours",
-      chat: "Around the city",
-      location:
-        selected === "home"
-          ? "Home, sweet home"
-          : (place?.name ?? "Explore the city"),
-    };
+    .find((c) => c.id === city)
+    ?.landmarks.find((l) => l.id === selected);
   const open = policyHours(
       place?.open ?? [0, 24],
       place?.category ?? "",
@@ -588,47 +680,35 @@ function ActivePanel() {
       open[0] === 0 && open[1] === 24
         ? "Open all day"
         : `${closed ? "Closed" : "Open"} · ${open[0]}:00–${open[1]}:00`;
+  const title =
+    panel === "location"
+      ? selected === "home"
+        ? "Home, sweet home"
+        : (place?.name ?? "Explore the city")
+      : panel === "jobs"
+        ? hasJob
+          ? "Your next shift"
+          : "Find your first job"
+        : (PANEL_TITLES[panel] ?? "The city");
   return (
     <Sheet
       key={`${panel}:${selected}`}
-      title={titles[panel] ?? "The city"}
+      title={title}
       kicker={
         panel === "location"
           ? hours
-          : panel === "jobs"
-            ? "Practice today. Grow tomorrow."
-            : panel === "sim"
-              ? "Needs, skills and dreams"
-              : panel === "mayor"
-                ? "Your voice in the city"
-                : panel === "plots"
-                  ? "A space in the community market"
-                  : panel === "billboard"
-                    ? "Share something with your neighbours"
-                    : panel === "homes"
-                      ? "Make yourself at home"
-                      : panel === "people"
-                        ? "Good company, close by"
-                        : panel === "chat"
-                          ? "Say hello to the neighbourhood"
-                          : (world?.cities.find((c) => c.id === city)?.name ??
-                            "METRO LIFE")
+          : (PANEL_KICKERS[panel] ??
+            world?.cities.find((c) => c.id === city)?.name ??
+            "Metro Life")
       }
       close={close}
-      modal={["creator", "settings", "city"].includes(panel)}
-      notice={
-        <>
-          <ResultToast inline />
-          <SocialNotice inline />
-          <NeedWarning inline />
-        </>
-      }
+      modal={["creator", "settings"].includes(panel)}
       primary={
-        panel === "sim" && sim?.firstDay && !sim.firstDay.rent ? (
+        panel === "sim" && rentDue ? (
           <FirstRentPrimary />
         ) : panel === "location" ? (
           <LocationPrimary />
-        ) : panel === "jobs" && sim?.job ? (
+        ) : panel === "jobs" && hasJob ? (
           <JobPrimary />
         ) : panel === "mayor" ? (
           <MayorPrimary />
@@ -646,30 +726,13 @@ function ActivePanel() {
           ? selected === "home"
             ? "house"
             : place?.icon
-          : panel === "sim"
-            ? "heart-pulse"
-            : panel === "jobs"
-              ? "briefcase"
-              : panel === "mayor"
-                ? "landmark"
-                : panel === "plots"
-                  ? "map-pin"
-                  : panel === "billboard"
-                    ? "monitor-play"
-                    : panel === "homes"
-                      ? "house"
-                      : "users"
+          : (PANEL_ICONS[panel] ?? "compass")
       }
+      tone={panel === "location" ? undefined : PANEL_TONES[panel]}
       color={
         panel === "location"
           ? world?.categories[place?.category ?? ""]?.color
-          : panel === "jobs" || panel === "plots" || panel === "billboard"
-            ? "#a36d1d"
-            : panel === "mayor"
-              ? "#526da5"
-              : panel === "homes"
-                ? "#28775d"
-                : undefined
+          : undefined
       }
     >
       {panel === "city" ? (
@@ -679,10 +742,12 @@ function ActivePanel() {
           </p>
           <CommunityLinks />
           <CityServices />
+          <CityMapPicker />
           <button
             className="secondary full"
             onClick={() => state().openPanel("settings")}
           >
+            <Icon name="gear" />
             Settings and wardrobe
           </button>
           <p className="small-copy">
@@ -702,7 +767,7 @@ function ActivePanel() {
         <LocationPanel />
       ) : panel === "jobs" ? (
         <JobsPanel />
-      ) : panel === "sim" && sim ? (
+      ) : panel === "sim" && hasSim ? (
         <SimPanel />
       ) : panel === "mayor" ? (
         <MayorPanel />
@@ -722,100 +787,79 @@ function ActivePanel() {
     </Sheet>
   );
 }
-function useHudLayout(panel: unknown, search: boolean, playing: boolean) {
+
+/**
+ * Tell the camera how much of the screen the HUD covers, so the player stays
+ * centred in the open part of the scene (left of a side sheet, between the
+ * top strip and the dock).
+ */
+function useHudLayout(panel: unknown, search: boolean) {
   useEffect(() => {
-    const elements = Array.from(
-      document.querySelectorAll(
-        ".player-cluster,.city-controls,.overview-button,[data-game-sheet],.bottom-dock,.map-tools,.landing-card",
-      ),
-    );
     const measure = () => {
-      const phone = innerWidth <= 700,
-        sheet = document
-          .querySelector("[data-game-sheet],.map-tools")
-          ?.getBoundingClientRect(),
-        top = phone
-          ? Math.max(
-              ...elements
-                .filter((e) =>
-                  e.matches(".player-cluster,.city-controls,.overview-button"),
-                )
-                .map((e) => e.getBoundingClientRect().bottom),
-              0,
-            ) + 8
-          : 90;
-      const landing = document
-        .querySelector(".landing-card")
-        ?.getBoundingClientRect();
+      const rect = (selector: string) =>
+          document.querySelector(selector)?.getBoundingClientRect(),
+        vitals = rect(".vitals"),
+        controls = rect(".hud-controls"),
+        dock = rect(".bottom-dock"),
+        sheet = rect("[data-game-sheet],.map-tools"),
+        side = !!sheet && sheet.left > innerWidth * 0.3 && sheet.top < 80,
+        bottomSheet = !!sheet && !side;
       const next = {
-          top,
-          right: !phone && sheet ? innerWidth - sheet.left + 12 : 0,
-          left: !phone && landing ? landing.right + 16 : 0,
-          bottom: phone
-            ? sheet
+          top: Math.max(vitals?.bottom ?? 0, controls?.bottom ?? 0) + 8,
+          right: side && sheet ? innerWidth - sheet.left + 12 : 0,
+          left: 0,
+          bottom:
+            bottomSheet && sheet
               ? innerHeight - sheet.top
-              : playing
-                ? 100
-                : landing
-                  ? innerHeight - landing.top
-                  : 0
-            : 0,
+              : dock && dock.height
+                ? innerHeight - dock.top + 8
+                : 0,
         },
         old = state().hudInsets;
       if (
-        Object.keys(next).some(
-          (k) =>
-            Math.abs(
-              next[k as keyof typeof next] - old[k as keyof typeof old],
-            ) > 1,
+        (Object.keys(next) as (keyof typeof next)[]).some(
+          (k) => Math.abs(next[k] - old[k]) > 1,
         )
       )
         state().setHudInsets(next);
     };
     const observer = new ResizeObserver(measure);
-    elements.forEach((e) => observer.observe(e));
+    document
+      .querySelectorAll(
+        ".vitals,.hud-controls,.bottom-dock,[data-game-sheet],.map-tools",
+      )
+      .forEach((e) => observer.observe(e));
     window.addEventListener("resize", measure);
-    measure();
+    const frame = requestAnimationFrame(measure);
     return () => {
+      cancelAnimationFrame(frame);
       observer.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [panel, search, playing]);
+  }, [panel, search]);
 }
-function HudBody() {
-  const connection = useStore((s) => s.connection),
-    ready = useStore((s) => s.ready),
-    world = useStore((s) => s.world),
-    user = useStore((s) => s.user),
-    sim = useStore((s) => s.sim),
-    panel = useStore((s) => s.panel),
-    moving = useStore((s) => s.cameraMoving),
-    search = useStore((s) => s.searchOpen),
-    setSearch = state().setSearchOpen,
-    beat = sim?.pendingBeat;
-  const closeBeat = useCallback(() => {}, []),
-    simId = sim?.userId,
-    worldId = sim?.worldId;
-  useGameFeedback();
-  useHudLayout(
-    panel,
-    search && !panel,
-    !!(
-      ready &&
-      world &&
-      user &&
-      sim &&
-      sim.introDone !== false &&
-      (!sim.firstDay?.complete || sim.firstDay.closingSeen) &&
-      !sim.trip
-    ),
-  );
-  const openSearch = () => {
-    state().openPanel(null);
-    setSearch(true);
-    sound("open");
-  };
 
+function StoryBeat() {
+  const beat = useStore((s) => s.sim?.pendingBeat);
+  const closeBeat = useCallback(() => {}, []);
+  if (!beat) return null;
+  return (
+    <Sheet
+      modal
+      dismissible={false}
+      icon={beat.icon}
+      tone="fun"
+      title={beat.title}
+      kicker={`A moment that matters${beat.chapter ? ` · ${beat.chapter} / ${beat.total}` : ""}`}
+      close={closeBeat}
+    >
+      <StoryPanel beat={beat} />
+    </Sheet>
+  );
+}
+
+/** Keep the sim fresh while playing, in case a socket frame was missed. */
+function useSimRefresh(simId?: string, worldId?: string) {
   useEffect(() => {
     if (!simId) return;
     let active = true,
@@ -843,92 +887,81 @@ function HudBody() {
       document.removeEventListener("visibilitychange", update);
     };
   }, [simId, worldId]);
+}
+
+function HudBody() {
+  const connection = useStore((s) => s.connection),
+    ready = useStore((s) => s.ready),
+    hasWorld = useStore((s) => !!s.world),
+    hasUser = useStore((s) => !!s.user),
+    panel = useStore((s) => s.panel),
+    search = useStore((s) => s.searchOpen),
+    view = useStore(
+      useShallow((s) => ({
+        hasSim: !!s.sim,
+        simId: s.sim?.userId,
+        worldId: s.sim?.worldId,
+        introDone: s.sim?.introDone !== false,
+        closing: !!s.sim?.firstDay?.complete && !s.sim.firstDay.closingSeen,
+        trip: !!s.sim?.trip,
+        beat: !!s.sim?.pendingBeat,
+        inside: !!s.sim?.position?.room,
+      })),
+    );
+  useGameFeedback();
+  useHudLayout(panel, search && !panel);
+  useSimRefresh(view.simId, view.worldId);
+  const openSearch = () => {
+    state().openPanel(null);
+    state().setSearchOpen(true);
+    sound("open");
+  };
   if (
     connection === "ended" ||
     connection === "blocked" ||
     !ready ||
-    !world ||
-    !user
+    !hasWorld ||
+    !hasUser
   )
     return <ConnectionGate />;
-  if (!sim) return <Creator />;
-  if (sim.introDone === false) return <Intro />;
-  if (sim.firstDay?.complete && !sim.firstDay.closingSeen)
-    return <FirstDayClosing />;
-  if (sim.trip) return <TravelRideGate />;
+  if (!view.hasSim) return <Creator />;
+  if (!view.introDone) return <Intro />;
+  if (view.closing) return <FirstDayClosing />;
+  if (view.trip) return <TravelRideGate />;
+  const covered = !!panel || search;
   return (
     <div
-      className={`metro-hud ${sim ? "is-playing" : ""} ${sim?.position?.room ? "is-inside" : ""} ${moving || sim?.busyUntil ? "hud-quiet" : ""}`}
+      className={`metro-hud is-playing ${view.inside ? "is-inside" : ""} ${covered ? "is-panel-open" : ""} ${view.beat ? "is-story" : ""}`}
     >
       <PortraitStudio />
-      <TopBar />
-      <NeedsRibbon />
+      <Vitals />
+      <TopControls />
+      <LeftColumn />
+      <SocialLifeHud />
+      <div
+        id={TOAST_REGION_ID}
+        className="hud-toasts"
+        aria-live="polite"
+        aria-label="Messages"
+      >
+        <ReconnectBanner />
+        <ErrorNotices />
+        <ResultToast />
+        <SocialNotice />
+        <NeedWarning />
+      </div>
+      <Joystick />
+      <Dock search={openSearch} />
       <ActionStack />
-      <ObjectActions />
+      <WalkHelp />
       <BuyMode />
       <PurchaseConfirmation />
-      {sim && (
-        <>
-          <Moodlets search={openSearch} />
-          {!panel && !search && (
-            <>
-              <Dock search={openSearch} />
-              <FirstDayGoals compact />
-              {sim.busyUntil ? (
-                <div className="idle-progress">
-                  <Busy />
-                </div>
-              ) : (
-                !sim.job && (
-                  <button
-                    className="first-job-cue plate secondary-hud"
-                    onClick={() => state().openPanel("jobs")}
-                  >
-                    <span className="semantic-tile work">
-                      <Icon name="briefcase" />
-                    </span>
-                    Find your first job
-                    <ArrowUpRight size={20} />
-                  </button>
-                )
-              )}
-            </>
-          )}
-        </>
+      {search && !panel && (
+        <MapTools close={() => state().setSearchOpen(false)} />
       )}
-      {search && !panel && <MapTools close={() => setSearch(false)} />}
       <ActivePanel />
-      <ResultToast />
-      <SocialNotice />
-      <ReconnectBanner />
-      <NeedWarning />
       <RewardFlight />
-      {beat && (
-        <Sheet
-          modal
-          dismissible={false}
-          icon={beat.icon}
-          title={beat.title}
-          kicker={`A MOMENT THAT MATTERS${beat.chapter ? ` · ${beat.chapter} / ${beat.total}` : ""}`}
-          close={closeBeat}
-        >
-          <StoryPanel beat={beat} />
-        </Sheet>
-      )}
-      {!sim && !panel && (
-        <p className="map-credit">Map data (c) OpenStreetMap contributors</p>
-      )}
-      <button
-        className="overview-button icon-button plate-button secondary-hud"
-        aria-label="See the whole city"
-        onClick={() => {
-          state().setFocus("overview");
-          state().openPanel(null);
-          setSearch(false);
-        }}
-      >
-        <Scan size={20} weight="duotone" />
-      </button>
+      <StoryBeat />
     </div>
   );
 }

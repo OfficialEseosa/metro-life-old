@@ -10,6 +10,7 @@ import { serverNow } from "../server-time";
 import { Icon, ReasonButton } from "./primitives";
 import { sound } from "./sound";
 import { confirmPurchase } from "./purchase-confirmation";
+import "./venue-moments.css";
 export type VenueAction = {
   id: string;
   label: string;
@@ -139,7 +140,6 @@ const palette = [
   "#ede0c7",
   "#64537f",
 ];
-const style = `.venue-moments{margin:20px 0;padding:16px;border:2px solid var(--c-line);border-radius:22px;background:var(--c-sunken);color:var(--c-ink)}.venue-moments h3{font:600 23px/1.2 var(--font-display);margin:0 0 8px}.venue-event{border:1px solid var(--c-line);padding:12px;border-radius:16px;background:var(--c-surface);margin:12px 0}.venue-event>strong,.venue-event>small{display:block}.venue-event>small{font-size:14px;color:var(--c-ink-soft);margin-top:5px}.venue-actions{display:grid;gap:10px}.venue-action{border-bottom:1px solid var(--c-line);padding:10px 0}.venue-action>div{display:flex;gap:8px;align-items:center}.venue-action strong{font-size:16px;flex:1}.venue-action>small{display:block;font-size:14px;margin:6px 0;color:var(--c-ink-soft)}.venue-actions button{font-size:14px;min-height:44px;border-radius:999px}.venue-walk{margin-top:7px;width:100%}.venue-turn{border:2px solid var(--c-primary);border-radius:18px;padding:14px;margin:14px 0;background:var(--c-surface)}.venue-turn p{font-size:14px;line-height:1.5;margin:6px 0 12px}.venue-power{position:relative;height:26px;background:var(--c-sunken);border:2px solid var(--c-line);border-radius:16px;margin:15px 0;overflow:hidden}.venue-power>span{position:absolute;left:40%;width:20%;height:100%;background:#56C27188}.venue-power>i{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:9px;background:var(--c-ink);transform:translateX(-50%)}.venue-scoreboard{list-style:none;padding:0;margin:10px 0}.venue-scoreboard li{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:7px 0;border-bottom:1px solid var(--c-line)}.venue-scoreboard small{font-size:12px;display:block;color:var(--c-ink-soft)}.venue-paint{display:grid;gap:9px}.venue-palette{display:flex;gap:7px;flex-wrap:wrap}.venue-palette button{width:32px;height:32px;min-height:32px;border:2px solid var(--c-line);border-radius:50%;padding:0}.venue-palette button[aria-pressed=true]{outline:3px solid var(--c-primary);outline-offset:2px}.venue-canvas{display:grid;grid-template-columns:repeat(4,1fr);width:180px;height:180px;border:6px solid #a98760;border-radius:5px;overflow:hidden}.venue-canvas button{padding:0!important;border:0!important;border-radius:0!important;min-height:0!important;box-shadow:none!important}.venue-art{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.venue-art figure{margin:0}.venue-art-grid{display:grid;grid-template-columns:repeat(4,1fr);width:70px;height:70px;border:4px solid #a98760}.venue-art figcaption{font-size:12px;color:var(--c-ink-soft);max-width:70px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.venue-notice{font-size:14px;background:var(--c-primary-soft);padding:10px;border-radius:12px;color:var(--c-primary-text)}.venue-error{color:var(--c-danger);font-size:14px;margin:10px 0}.venue-moments .gate-reason{font-size:14px}.venue-state{font-size:14px;color:var(--c-ink-soft);margin:10px 0}`;
 function PowerBar({
   attempt,
 }: {
@@ -265,7 +265,6 @@ export function VenueMoments({ loc: requested }: { loc?: string }) {
         : null;
   return (
     <section className="venue-moments">
-      <style>{style}</style>
       <h3>Something to be part of</h3>
       <div className="venue-event">
         <strong>{m.title}</strong>

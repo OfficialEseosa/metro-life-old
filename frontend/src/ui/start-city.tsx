@@ -38,7 +38,7 @@ export function StartCity({
             <CharacterPreview look={look} />
           </div>
           <div>
-            <span className="eyebrow">A PLACE TO BEGIN</span>
+            <span className="eyebrow">A place to begin</span>
             <h1>Where will {name} call home?</h1>
             <p>
               One studio and a new neighbourhood. Rent and wages change with the
@@ -116,7 +116,7 @@ export function StartCity({
             onClick={begin}
           >
             Begin in {cities.find((c) => c.id === selected)?.short}
-            <Icon name="arrow-up-right" />
+            <Icon name="arrow-right" />
           </ReasonButton>
         </footer>
       </section>
