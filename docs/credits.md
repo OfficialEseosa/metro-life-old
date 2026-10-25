@@ -194,6 +194,17 @@ Earlier `chars/activities-f.json` and `chars/activities-m.json` (removed, replac
 The `.runtime/` copies of the mesh2motion libraries used by the baker are not shipped. Quaternius Universal Base Characters (itch.io, CC0, checked 2026-10-25) was evaluated and not used: its free edition has only the nude superhero bodies.
 `chars/activities-f.json` and `chars/activities-m.json`: retargeted/derived from Quaternius Universal Animation Libraries 1 and 2, CC0 1.0. Original author pages: [Library 1](https://quaternius.com/packs/universalanimationlibrary.html), [Library 2](https://quaternius.com/packs/universalanimationlibrary2.html). Source archives were downloaded from the Quaternius-authored OpenGameArt entries; original licences ship as `chars/UAL1-LICENSE.txt` and `chars/UAL2-LICENSE.txt`. Type, Eat, Lie, Sleep and Cheer combine or adapt these clips; no Mixamo data. Original shipped character GLBs remain unchanged.
 
+## World
+
+Append-only section for world, lighting and room dressing assets.
+
+| File | Source | Licence |
+|---|---|---|
+| `kaykit-furniture/furniture.glb` | [KayKit Furniture Bits 1.0](https://github.com/KayKit-Game-Assets/KayKit-Furniture-Bits-1.0) by Kay Lousberg ([kaylousberg.com](https://www.kaylousberg.com)). 33 of the pack's glTF models (sofas, armchair, beds, tables, chairs, lamps, rugs, cabinets, shelves, frames, pillows, cacti) packed into one GLB with the shared 1024 atlas; geometry unchanged, meshopt compressed. Licence text: `kaykit-furniture/LICENSE.txt` | CC0 1.0 |
+| `kaykit-restaurant/restaurant.glb` | [KayKit Restaurant Bits 1.0](https://github.com/KayKit-Game-Assets/KayKit-Restaurant-Bits-1.0) by Kay Lousberg. 33 models (fridge, stoves, oven, counters, sink, hood, pots, pans, plates, food, kitchen and round tables, chairs, crates, jars, menu) packed the same way. Licence text: `kaykit-restaurant/LICENSE.txt` | CC0 1.0 |
+
+Trees, grass, asphalt and paving shading, the sky, the sky-matched environment light, room surroundings, airport terminals and the desk screen glow are generated in code; no further external art.
+
 ## Audio
 
 Short event sounds in `frontend/public/audio/` come from three Kenney packs, all CC0 1.0. They were trimmed to mono (jingles stay stereo), peak-normalised to -1 dB and re-encoded as MP3 so every browser can decode them. The licence text of each pack ships next to the files. The music score, ambience and footsteps remain procedural (WebAudio) and are original to Metro Life; when a sample cannot load, a procedural tone plays instead.
