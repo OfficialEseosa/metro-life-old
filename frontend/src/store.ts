@@ -58,13 +58,7 @@ export type Connection =
   | "ended";
 
 export type CityData =
-  | "daily"
-  | "mayor"
-  | "plots"
-  | "billboards"
-  | "homes"
-  | "players"
-  | "chat";
+  "daily" | "mayor" | "plots" | "billboards" | "homes" | "players" | "chat";
 
 type State = {
   sceneFailed: boolean;
@@ -174,7 +168,10 @@ function announceResult(result: ActResult) {
     detail: result.activity ? result.text : undefined,
     amount: result.deltas.cash,
     anchor,
-    data: { actionId: result.activity?.id ?? null, leveledUp: result.leveledUp },
+    data: {
+      actionId: result.activity?.id ?? null,
+      leveledUp: result.leveledUp,
+    },
   });
   for (const goal of result.goalsCompleted)
     emitFeedback({ kind: "goal", title: goal, anchor });
@@ -237,7 +234,8 @@ function notifyLive() {
 const low = (value: number | undefined) => (value ?? 100) < 20;
 /** Fields whose change is worth a React update; position and raw needs are excluded on purpose. */
 function visibleKey(p: Player) {
-  const action = p.lifeAction as { label?: string; pose?: string } | null | undefined;
+  const action = p.lifeAction as
+    { label?: string; pose?: string } | null | undefined;
   return [
     p.loc,
     p.position?.room ?? "",
@@ -257,7 +255,16 @@ const identityKeys = new WeakMap<Player, string>();
 function identityKey(p: Player) {
   let key = identityKeys.get(p);
   if (key === undefined) {
-    key = [p.id, p.username, p.city, p.online ? 1 : 0, p.npc ? 1 : 0, p.job ?? "", p.level, JSON.stringify(p.look)].join("|");
+    key = [
+      p.id,
+      p.username,
+      p.city,
+      p.online ? 1 : 0,
+      p.npc ? 1 : 0,
+      p.job ?? "",
+      p.level,
+      JSON.stringify(p.look),
+    ].join("|");
     identityKeys.set(p, key);
   }
   return key;
@@ -285,12 +292,18 @@ function applyPresence(list: Player[], current: Player[]): Player[] | null {
   livePlayers.byId = next;
   notifyLive();
   const key = computeRosterKey(roster);
-  const same = key === rosterKey && roster.length === current.length && roster.every((p, i) => p === current[i]);
+  const same =
+    key === rosterKey &&
+    roster.length === current.length &&
+    roster.every((p, i) => p === current[i]);
   rosterKey = key;
   return same ? null : roster;
 }
 /** Patch live fields in place; returns a new roster array only when visible state changed. */
-function applyPositions(patches: PlayerPatch[], current: Player[]): Player[] | null {
+function applyPositions(
+  patches: PlayerPatch[],
+  current: Player[],
+): Player[] | null {
   for (const patch of patches) {
     const existing = livePlayers.byId.get(patch.id);
     if (existing) Object.assign(existing, patch);
@@ -991,10 +1004,16 @@ useStore.subscribe((state, previous) => {
   if (next.job && (!before.job || next.job.id !== before.job.id))
     emitFeedback({
       kind: "promotion",
-      title: before.job && before.job.track === next.job.track ? `Promoted to ${next.job.title}` : `Hired as ${next.job.title}`,
+      title:
+        before.job && before.job.track === next.job.track
+          ? `Promoted to ${next.job.title}`
+          : `Hired as ${next.job.title}`,
       detail: `$${next.job.payPerHour} an hour`,
       anchor,
-      data: { hired: !before.job || before.job.track !== next.job.track, jobId: next.job.id },
+      data: {
+        hired: !before.job || before.job.track !== next.job.track,
+        jobId: next.job.id,
+      },
     });
   if (
     next.aspiration &&
@@ -1020,7 +1039,11 @@ useStore.subscribe((state, previous) => {
 
 // ---- narrow selectors ---------------------------------------------------------
 
-export type SimVitals = { needs: Sim["needs"]; cash: number; mood: Sim["mood"] };
+export type SimVitals = {
+  needs: Sim["needs"];
+  cash: number;
+  mood: Sim["mood"];
+};
 /** Needs, cash and mood of the player's sim; re-renders only when one of them changes. */
 export const useSimVitals = (): SimVitals | null =>
   useStore(

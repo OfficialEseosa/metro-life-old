@@ -20,10 +20,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 @Configuration
 @EnableWebSocket
 @EnableScheduling
-public class LiveWire
-  extends TextWebSocketHandler
-  implements WebSocketConfigurer
-{
+public class LiveWire extends TextWebSocketHandler implements WebSocketConfigurer {
 
   /** Same allow-list as the HTTP API (metro.origins / METRO_ORIGINS). */
   @org.springframework.beans.factory.annotation.Value("${metro.ws.origins}")
@@ -73,9 +70,7 @@ public class LiveWire
 
   /** Deliver a frame to every open socket of one user (called under the simulation monitor; never writes inline). */
   void sendToUser(String wid, String uid, String frame) {
-    for (Client c : clients.values()) if (
-      c.wid.equals(wid) && c.uid.equals(uid) && c.ws.isOpen()
-    ) send(c, frame);
+    for (Client c : clients.values()) if (c.wid.equals(wid) && c.uid.equals(uid) && c.ws.isOpen()) send(c, frame);
   }
 
   /** Cookie-less fallback: the page passes its session as ?session= when the browser blocks the API cookie. */
@@ -85,10 +80,7 @@ public class LiveWire
     for (String pair : query.split("&")) {
       int eq = pair.indexOf('=');
       if (eq > 0 && pair.substring(0, eq).equals("session")) {
-        String value = java.net.URLDecoder.decode(
-          pair.substring(eq + 1),
-          java.nio.charset.StandardCharsets.UTF_8
-        );
+        String value = java.net.URLDecoder.decode(pair.substring(eq + 1), java.nio.charset.StandardCharsets.UTF_8);
         return SessionHeaderFilter.validToken(value) ? value : "";
       }
     }
@@ -97,46 +89,39 @@ public class LiveWire
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    registry
-      .addHandler(this, "/ws")
-      .setAllowedOriginPatterns(WebConfig.split(origins))
-      .addInterceptors(
-        new HandshakeInterceptor() {
-          public boolean beforeHandshake(
-            ServerHttpRequest request,
-            ServerHttpResponse response,
-            WebSocketHandler handler,
-            Map<String, Object> attributes
-          ) {
-            String token = "";
-            for (String cookie : request.getHeaders().getOrEmpty("Cookie"))
-              for (String part : cookie.split(";"))
-                if (part.trim().startsWith("ml_session=")) token = part
-                  .trim()
-                  .substring(11);
-            if (token.isEmpty()) token = querySession(request);
-            synchronized (g) {
-              ObjectNode session = g.session(token, false);
-              if (session == null) {
-                response.setStatusCode(
-                  org.springframework.http.HttpStatus.UNAUTHORIZED
-                );
-                return false;
-              }
-              attributes.put("token", token);
-              attributes.put("wid", g.world(session).path("id").asText());
-              return true;
+    registry.addHandler(this, "/ws").setAllowedOriginPatterns(WebConfig.split(origins)).addInterceptors(
+      new HandshakeInterceptor() {
+        public boolean beforeHandshake(
+          ServerHttpRequest request,
+          ServerHttpResponse response,
+          WebSocketHandler handler,
+          Map<String, Object> attributes
+        ) {
+          String token = "";
+          for (String cookie : request.getHeaders().getOrEmpty("Cookie"))
+            for (String part : cookie.split(";"))
+              if (part.trim().startsWith("ml_session=")) token = part.trim().substring(11);
+          if (token.isEmpty()) token = querySession(request);
+          synchronized (g) {
+            ObjectNode session = g.session(token, false);
+            if (session == null) {
+              response.setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);
+              return false;
             }
+            attributes.put("token", token);
+            attributes.put("wid", g.world(session).path("id").asText());
+            return true;
           }
-
-          public void afterHandshake(
-            ServerHttpRequest request,
-            ServerHttpResponse response,
-            WebSocketHandler handler,
-            Exception exception
-          ) {}
         }
-      );
+
+        public void afterHandshake(
+          ServerHttpRequest request,
+          ServerHttpResponse response,
+          WebSocketHandler handler,
+          Exception exception
+        ) {}
+      }
+    );
   }
 
   @Override
@@ -159,23 +144,12 @@ public class LiveWire
         c.city = sim.path("city").asText();
       }
       g.community.online.put(c.wid + ":" + uid, g.now());
-      send(
-        c,
-        g
-          .object()
-          .put("type", "hello")
-          .put("worldId", c.wid)
-          .set("clock", g.clock(w))
-          .toString()
-      );
+      send(c, g.object().put("type", "hello").put("worldId", c.wid).set("clock", g.clock(w)).toString());
     }
   }
 
   @Override
-  protected void handleTextMessage(
-    WebSocketSession session,
-    TextMessage message
-  ) throws Exception {
+  protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
     Client c = clients.get(session.getId());
     if (c == null) return;
     if (message.getPayloadLength() > 1024) {
@@ -194,9 +168,7 @@ public class LiveWire
           c.resources.clear();
           c.chatSeen.clear();
         }
-      } else if (!frame.path("type").asText().equals("ping")) session.close(
-        CloseStatus.BAD_DATA
-      );
+      } else if (!frame.path("type").asText().equals("ping")) session.close(CloseStatus.BAD_DATA);
     } catch (Exception e) {
       session.close(CloseStatus.BAD_DATA);
     }
@@ -209,21 +181,13 @@ public class LiveWire
         clients
           .values()
           .stream()
-          .noneMatch(
-            other ->
-              other.wid.equals(c.wid) &&
-              other.uid.equals(c.uid) &&
-              other.ws.isOpen()
-          )
+          .noneMatch(other -> other.wid.equals(c.wid) && other.uid.equals(c.uid) && other.ws.isOpen())
       ) g.community.online.remove(c.wid + ":" + c.uid);
     }
   }
 
   @Override
-  public void afterConnectionClosed(
-    WebSocketSession session,
-    CloseStatus status
-  ) {
+  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
     Client c = clients.get(session.getId());
     if (c != null) drop(c);
   }
@@ -258,8 +222,7 @@ public class LiveWire
     sends.submit(() -> {
       try {
         String text;
-        while ((text = nextFrame(c)) != null)
-          if (c.ws.isOpen()) c.ws.sendMessage(new TextMessage(text));
+        while ((text = nextFrame(c)) != null) if (c.ws.isOpen()) c.ws.sendMessage(new TextMessage(text));
       } catch (Exception e) {
         drop(c);
         try {
@@ -267,10 +230,7 @@ public class LiveWire
         } catch (Exception ignored) {}
       } finally {
         c.draining.set(false);
-        if (
-          (!c.outgoing.isEmpty() || c.latestPositions.get() != null) &&
-          c.ws.isOpen()
-        ) drain(c);
+        if ((!c.outgoing.isEmpty() || c.latestPositions.get() != null) && c.ws.isOpen()) drain(c);
       }
     });
   }
@@ -289,21 +249,15 @@ public class LiveWire
         g.community.preparePresence(wid);
       for (Client c : clients.values()) {
         ObjectNode ses = g.session(c.token, false);
-        if (
-          ses == null || !g.world(ses).path("id").asText().equals(c.wid)
-        ) continue;
+        if (ses == null || !g.world(ses).path("id").asText().equals(c.wid)) continue;
         var points = g.mapper.createArrayNode();
-        for (JsonNode table : List.of(
-          g.table("sims"),
-          g.community.residents().path(c.wid)
-        ))
+        for (JsonNode table : List.of(g.table("sims"), g.community.residents().path(c.wid)))
           for (JsonNode row : table)
             if (
               row.path("worldId").asText().equals(c.wid) &&
               row.path("city").asText().equals(c.city) &&
               row.has("position") &&
-              (row.path("npc").asBoolean() ||
-                g.community.isOnline(c.wid, row.path("userId").asText()))
+              (row.path("npc").asBoolean() || g.community.isOnline(c.wid, row.path("userId").asText()))
             ) {
               ObjectNode p = points
                 .addObject()
@@ -318,27 +272,18 @@ public class LiveWire
                 );
               g.community.visibleLife(p, row);
               p.put("travelStatus", g.transit.status(row));
-              if (g.transit.active(row)) p.put(
-                "tripId",
-                row.path("trip").path("id").asText()
-              );
+              if (g.transit.active(row)) p.put("tripId", row.path("trip").path("id").asText());
               else p.putNull("tripId");
               p.set("position", row.path("position").deepCopy());
               p.set(
                 "activitySlot",
-                row.path("activitySlot").isMissingNode()
-                  ? g.mapper.nullNode()
-                  : row.path("activitySlot").deepCopy()
+                row.path("activitySlot").isMissingNode() ? g.mapper.nullNode() : row.path("activitySlot").deepCopy()
               );
             }
         String text = points.toString();
         if (!text.equals(c.positions)) {
           c.positions = text;
-          ObjectNode f = g
-            .object()
-            .put("type", "positions")
-            .put("city", c.city)
-            .put("at", g.now());
+          ObjectNode f = g.object().put("type", "positions").put("city", c.city).put("at", g.now());
           f.set("players", points);
           frames.add(Map.entry(c, f.toString()));
         }
@@ -354,22 +299,14 @@ public class LiveWire
     synchronized (g) {
       for (Client c : clients.values()) {
         ObjectNode session = g.session(c.token, false);
-        if (
-          !c.ws.isOpen() ||
-          session == null ||
-          !g.world(session).path("id").asText().equals(c.wid)
-        ) {
+        if (!c.ws.isOpen() || session == null || !g.world(session).path("id").asText().equals(c.wid)) {
           invalid.add(c);
           continue;
         }
-        g.community.online.put(
-          c.wid + ":" + session.path("userId").asText(),
-          g.now()
-        );
+        g.community.online.put(c.wid + ":" + session.path("userId").asText(), g.now());
         g.community.activeWorlds.put(c.wid, g.now());
       }
-      for (JsonNode world : g.table("worlds"))
-        g.transit.tick((ObjectNode) world);
+      for (JsonNode world : g.table("worlds")) g.transit.tick((ObjectNode) world);
       g.community.tick();
       for (Client c : clients.values()) {
         if (invalid.contains(c)) continue;
@@ -394,11 +331,8 @@ public class LiveWire
           frames.add(Map.entry(c, f.toString()));
         }
         JsonNode time = g.clock(w);
-        String clock =
-          time.path("day").asText() + ":" + time.path("hour").asText();
-        if (
-          !clock.equals(c.clock) || g.now() - c.clockSentAt >= CLOCK_HEARTBEAT_MS
-        ) {
+        String clock = time.path("day").asText() + ":" + time.path("hour").asText();
+        if (!clock.equals(c.clock) || g.now() - c.clockSentAt >= CLOCK_HEARTBEAT_MS) {
           c.clock = clock;
           c.clockSentAt = g.now();
           ObjectNode f = g.object().put("type", "clock");
@@ -428,11 +362,7 @@ public class LiveWire
             c.sim = key;
             // "sim": your own sim changed, re-read /api/sim. Received social moments arrive as
             // their own "socialReceived" frame (see GameService.social).
-            ObjectNode f = g
-              .object()
-              .put("type", "event")
-              .put("kind", "sim")
-              .put("city", sim.path("city").asText());
+            ObjectNode f = g.object().put("type", "event").put("kind", "sim").put("city", sim.path("city").asText());
             frames.add(Map.entry(c, f.toString()));
           }
         }
@@ -441,25 +371,14 @@ public class LiveWire
             ? g.civic.state(w, c.city)
             : kind.equals("homes")
               ? g.property.homes(c.token, c.city)
-              : g.property
-                  .state(w, c.city)
-                  .path(kind.equals("plots") ? "plots" : "billboards");
+              : g.property.state(w, c.city).path(kind.equals("plots") ? "plots" : "billboards");
           int hash = resource.hashCode();
           Integer old = c.resources.put(kind, hash);
           if (old == null || old != hash) frames.add(
-            Map.entry(
-              c,
-              g
-                .object()
-                .put("type", "event")
-                .put("kind", kind)
-                .put("city", c.city)
-                .toString()
-            )
+            Map.entry(c, g.object().put("type", "event").put("kind", kind).put("city", c.city).toString())
           );
         }
-        for (JsonNode m : s instanceof ObjectNode actor &&
-        g.transit.active(actor)
+        for (JsonNode m : s instanceof ObjectNode actor && g.transit.active(actor)
           ? g.transit.history(actor)
           : g.community.history(w, c.city)) {
           if (c.chatSeen.add(m.path("id").asText())) {
@@ -468,13 +387,9 @@ public class LiveWire
             frames.add(Map.entry(c, f.toString()));
           }
         }
-        while (c.chatSeen.size() > 100)
-          c.chatSeen.remove(c.chatSeen.iterator().next());
+        while (c.chatSeen.size() > 100) c.chatSeen.remove(c.chatSeen.iterator().next());
       }
-      if (
-        g.now() - lastCheckpoint >= 5000 &&
-        (!clients.isEmpty() || !g.community.activeWorlds.isEmpty())
-      ) {
+      if (g.now() - lastCheckpoint >= 5000 && (!clients.isEmpty() || !g.community.activeWorlds.isEmpty())) {
         g.checkpoint();
         lastCheckpoint = g.now();
       }

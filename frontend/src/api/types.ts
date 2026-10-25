@@ -13,14 +13,7 @@ export type SkillId =
 export type NeedId = "energy" | "hunger" | "fun" | "social" | "hygiene";
 export type Mood = "great" | "good" | "okay" | "low" | "rough";
 export type ActionKind =
-  | "work"
-  | "fun"
-  | "food"
-  | "learn"
-  | "social"
-  | "civic"
-  | "travel"
-  | "rest";
+  "work" | "fun" | "food" | "learn" | "social" | "civic" | "travel" | "rest";
 export type CareerTrack =
   | "tech"
   | "music"
@@ -246,12 +239,7 @@ export type Friendship = {
   lastGain?: number;
 };
 export type FirstDayStep =
-  | "outside"
-  | "job"
-  | "shift"
-  | "meal"
-  | "neighbour"
-  | "rent";
+  "outside" | "job" | "shift" | "meal" | "neighbour" | "rent";
 export type Sim = {
   /** Private relationships for this life; omitted from public player presence. */
   relationships?: Record<string, Friendship>;
@@ -647,12 +635,7 @@ export type SocialReceived = {
  * `story` is the old name of `sim`, still accepted by the client for one release.
  */
 export type ServerEventKind =
-  | "mayor"
-  | "plots"
-  | "billboards"
-  | "homes"
-  | "sim"
-  | "story";
+  "mayor" | "plots" | "billboards" | "homes" | "sim" | "story";
 
 export type ServerEvent =
   | { type: "hello"; worldId: string; clock: Clock }
