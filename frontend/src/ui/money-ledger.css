@@ -1,1 +1,107 @@
-.money-ledger{max-width:440px;font-size:12px}.money-ledger h3{font-size:14px;margin:12px 0 8px}.money-ledger dl{display:block;margin:0}.money-ledger dl div{display:flex;justify-content:space-between;padding:4px 0}.money-ledger dd{margin:0;font-weight:700}.money-ledger ol{list-style:none;max-height:260px;overflow:auto;padding:0;margin:0}.money-ledger li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #30433820}.money-ledger li b{display:block;font-size:12px}.money-ledger small{display:block;opacity:.72;font-size:10px;line-height:1.5}.money-ledger .earned{color:#287a58}.money-ledger .spent{color:#a1553b}.rent-warning{color:#944b2f;background:#e7c88845;border-radius:9px;padding:9px;font-size:12px;line-height:1.45}.purchase-confirmation{position:fixed;inset:0;z-index:1000;background:#17354880;display:grid;place-items:center;padding:20px;pointer-events:auto}.purchase-confirmation>div{width:min(430px,100%);padding:24px;border-radius:20px;background:#f8efdf;color:#293b34;box-shadow:0 10px 60px #132b4e70}.purchase-confirmation h2{font-size:23px;margin:0 0 12px}.purchase-confirmation p{line-height:1.5}.purchase-buttons{display:flex;gap:10px;margin-top:20px}.purchase-buttons button{border:1px solid #b8b39b;border-radius:10px;padding:10px 13px;background:#fff9ed;cursor:pointer}.purchase-buttons button.primary{background:#346f55;color:#fff6e5;border-color:#346f55}
+/* Money journal, rent warning and the purchase confirmation dialog. */
+.money-ledger {
+  max-width: none;
+}
+.money-ledger h3 {
+  margin: var(--s-4) 0 var(--s-2);
+  font-size: var(--t-title);
+}
+.money-ledger dl {
+  margin: 0;
+}
+.money-ledger dl div {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--s-1) 0;
+}
+.money-ledger dd {
+  margin: 0;
+  font-weight: 800;
+}
+.money-ledger ol {
+  max-height: 260px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+.money-ledger li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
+  border-bottom: 2px solid var(--c-line);
+}
+.money-ledger li b {
+  display: block;
+  white-space: nowrap;
+}
+.money-ledger small {
+  display: block;
+  color: var(--c-ink-soft);
+  font-weight: 700;
+}
+.money-ledger .earned {
+  color: var(--c-primary-text);
+}
+.money-ledger .spent {
+  color: var(--c-danger-text);
+}
+.rent-warning {
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-sm);
+  border: 2px solid color-mix(in srgb, var(--c-money) 45%, var(--c-line));
+  background: var(--c-money-soft);
+  color: var(--c-money-text);
+  font-weight: 700;
+  line-height: 1.45;
+}
+.purchase-confirmation {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--s-5);
+  background: var(--c-scrim);
+  pointer-events: auto;
+}
+.purchase-confirmation > div {
+  width: min(440px, 100%);
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  padding: var(--s-6);
+  border-radius: var(--r-xl);
+  border: 2px solid var(--c-line);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  box-shadow: var(--shadow-float);
+  animation: modal-in var(--dur-2) var(--ease-out) both;
+}
+.purchase-confirmation h2 {
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-h2);
+}
+.purchase-confirmation p {
+  margin: var(--s-2) 0;
+  line-height: 1.5;
+}
+.purchase-buttons {
+  display: flex;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+}
+.purchase-buttons button {
+  flex: 1;
+}
+@media (max-width: 760px), (max-height: 520px) {
+  .purchase-confirmation {
+    padding: var(--s-2);
+  }
+  .purchase-confirmation > div {
+    padding: var(--s-4);
+  }
+  .purchase-buttons {
+    margin-top: var(--s-3);
+  }
+}

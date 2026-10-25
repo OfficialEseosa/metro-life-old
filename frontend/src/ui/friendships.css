@@ -1,1 +1,41 @@
-.friendship-meter{max-width:260px;margin:8px 0;color:#36594c}.friendship-meter>div{display:flex;justify-content:space-between;gap:12px;font-size:11px}.friendship-meter progress{display:block;width:100%;height:7px;border:none;border-radius:7px;overflow:hidden;accent-color:#659875;background:#d9ddd2}.friendship-meter progress::-webkit-progress-bar{background:#d9ddd2;border-radius:7px}.friendship-meter progress::-webkit-progress-value{background:#659875;border-radius:7px}.friendship-meter small{display:block;font-size:10px;line-height:1.5;margin-top:3px}.friendship-meter.compact{width:100%;margin:6px 0 0}.friendship-meter.compact>div{font-size:10px}.object-pie-center .friendship-meter{max-width:100px;margin:4px auto}.object-pie-center .friendship-meter>div{font-size:9px;gap:2px}.friendship-result{font-size:12px;color:#326d50}
+/* Friendship meter: neighbour rows, the pie menu centre and results. */
+.friendship-meter {
+  max-width: 280px;
+  margin: var(--s-2) 0;
+  color: var(--c-ink);
+}
+.friendship-meter > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  font-weight: 800;
+}
+.friendship-meter progress {
+  --bar: var(--need-social);
+  height: 8px;
+  margin-top: 2px;
+}
+.friendship-meter small {
+  display: block;
+  margin-top: 2px;
+  color: var(--c-ink-soft);
+  font-weight: 700;
+}
+.friendship-meter.compact {
+  width: 100%;
+  margin: var(--s-1) 0 0;
+}
+.object-pie-center .friendship-meter {
+  max-width: 96px;
+  margin: 2px auto;
+}
+.object-pie-center .friendship-meter > div {
+  justify-content: center;
+}
+.object-pie-center .friendship-meter > div > :not(:first-child) {
+  display: none;
+}
+.friendship-result {
+  color: var(--c-primary-text);
+  font-weight: 700;
+}
