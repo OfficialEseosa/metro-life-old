@@ -18,10 +18,13 @@ import {
   crowdPose,
   movingPose,
   residentLook,
+  residentOptions,
   velocityFacing,
+  type BodyCondition,
 } from "./character-life";
+import type { ActorOptions } from "./characters/actor";
 import { RiggedCharacter, type CharacterPose } from "./character";
-import type { Player } from "../api/types";
+import type { Look, Player } from "../api/types";
 import { motion } from "../walking";
 import { roomLayout, roomType } from "../navigation";
 import {
@@ -41,6 +44,29 @@ type ResidentMotion = {
   hidden: boolean;
   hip?: number;
 };
+/** Rigged residents at once (the rest are impostors), and the hysteresis band in metres. */
+const MAX_RIGGED = 12,
+  PROMOTE_WITHIN = 22,
+  DEMOTE_BEYOND = 30,
+  MIN_DWELL = 2;
+const SEATED_SLOTS = new Set(["Sit", "Type", "Eat", "Sleep", "Lie"]);
+
+/** NPC looks are pure functions of the id; cache them so roster changes never rebuild actors. */
+const npcLooks = new Map<string, Look>();
+const npcOptions = new Map<string, ActorOptions>();
+function lookOf(p: Player): Look {
+  if (!p.npc) return p.look;
+  let look = npcLooks.get(p.id);
+  if (!look) npcLooks.set(p.id, (look = residentLook(p.id, p.look)));
+  return look;
+}
+function optionsOf(p: Player): ActorOptions | undefined {
+  if (!p.npc) return undefined;
+  let options = npcOptions.get(p.id);
+  if (!options) npcOptions.set(p.id, (options = residentOptions(p.id)));
+  return options;
+}
+
 /** Where a resident should stand, read from its live presence record (patched in place at 5 Hz). */
 function crowdTarget(p: Player, out = new THREE.Vector3()) {
   return out.set(
@@ -58,18 +84,20 @@ function crowdTarget(p: Player, out = new THREE.Vector3()) {
 }
 function NearResident({
   person,
+  look,
+  options,
+  condition,
   read,
   ready,
 }: {
   person: Player;
+  look: Look;
+  options?: ActorOptions;
+  condition: BodyCondition;
   read: () => ResidentMotion | undefined;
   ready: Set<string>;
 }) {
-  const ref = useRef<THREE.Group>(null),
-    look = useMemo(
-      () => (person.npc ? residentLook(person.id, person.look) : person.look),
-      [person.id, person.npc, person.look],
-    );
+  const ref = useRef<THREE.Group>(null);
   useEffect(() => {
     ready.add(person.id);
     return () => {
@@ -103,7 +131,8 @@ function NearResident({
         readHipHeight={() => read()?.hip}
         readSpeed={() => read()?.speed ?? 0}
         readDistance={() => read()?.distance ?? 0}
-        readCondition={() => bodyCondition(person)}
+        readCondition={() => condition}
+        options={options}
         readStartedAt={() =>
           (person.lifeAction as { startedAt?: number } | null | undefined)
             ?.startedAt
@@ -127,6 +156,7 @@ export function Residents() {
     rendered = useRef(new Map<string, THREE.Vector3>()),
     hidden = useRef(new Set<string>()),
     dirty = useRef(true),
+    promotedAt = useRef(new Map<string, number>()),
     lastCamera = useRef(new THREE.Matrix4()),
     lastHeight = useRef(0),
     { scene } = useGLTF("/models/landmarks/resident-lod.glb");
@@ -239,20 +269,22 @@ export function Residents() {
           target: crowdTarget(p),
           face: p.activitySlot?.face ?? p.position!.face,
           person: p,
-          look: p.npc ? residentLook(p.id, p.look) : p.look,
+          look: lookOf(p),
+          options: optionsOf(p),
           activity: lifePose(p).toLowerCase(),
+          crowdPose: crowdPose(lifePose(p)),
+          seatedSlot: !!p.activitySlot && SEATED_SLOTS.has(p.activitySlot.pose),
           label: lifeLabel(p),
           topic: lifeTopic(p),
           condition: bodyCondition(p),
-          color: new THREE.Color(
-            (p.npc ? residentLook(p.id, p.look) : p.look).top,
-          ),
+          color: new THREE.Color(lookOf(p).top),
         })),
     [players, city, self, room],
   );
   useLayoutEffect(() => {
     dirty.current = true;
     if (ref.current) ref.current.userData.ids = crowd.map((p) => p.id);
+    if (ref.current) ref.current.count = crowd.length;
     for (let i = 0; i < crowd.length; i++) {
       const p = crowd[i];
       if (!positions.current.has(p.id))
@@ -360,9 +392,7 @@ export function Residents() {
         room &&
         settled &&
         person.person.activitySlot?.y !== undefined &&
-        !["Sit", "Type", "Eat", "Sleep", "Lie"].includes(
-          person.person.activitySlot.pose,
-        )
+        !person.seatedSlot
       )
         dummy.position.y = person.person.activitySlot.y;
       point.copy(dummy.position);
@@ -375,32 +405,35 @@ export function Residents() {
         point.z < -1;
       if (clip) hidden.current.add(person.id);
       else hidden.current.delete(person.id);
-      const state: ResidentMotion = {
-        position: dummy.position.clone(),
-        speed,
-        yaw,
-        distance,
-        pose: movingPose(person.person, speed),
-        hidden: clip,
-        hip:
-          settled &&
-          person.person.activitySlot &&
-          ["Sit", "Type", "Eat", "Sleep", "Lie"].includes(
-            person.person.activitySlot.pose,
-          ) &&
-          person.person.activitySlot.y !== undefined
-            ? person.person.activitySlot.y - dummy.position.y
-            : undefined,
-      };
-      states.current.set(person.id, state);
+      // One state object per person, updated in place every frame.
+      let state = previous;
+      if (!state) {
+        state = {
+          position: new THREE.Vector3(),
+          speed: 0,
+          yaw,
+          distance,
+          pose: "Idle",
+          hidden: clip,
+        };
+        states.current.set(person.id, state);
+      }
+      state.position.copy(dummy.position);
+      state.speed = speed;
+      state.yaw = yaw;
+      state.distance = distance;
+      state.pose = movingPose(person.person, speed);
+      state.hidden = clip;
+      state.hip =
+        settled &&
+        person.seatedSlot &&
+        person.person.activitySlot?.y !== undefined
+          ? person.person.activitySlot.y - dummy.position.y
+          : undefined;
       rendered.current.set(person.id, state.position);
       model.poses.setX(
         i,
-        speed > 0.08
-          ? state.pose === "Run"
-            ? 2
-            : 1
-          : crowdPose(lifePose(person.person)),
+        speed > 0.08 ? (state.pose === "Run" ? 2 : 1) : person.crowdPose,
       );
       model.near.setX(
         i,
@@ -411,31 +444,45 @@ export function Residents() {
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
-    if (clock.elapsedTime - lodAt.current > 0.25 || dirty.current) {
+    // Rigged actors near the player, with hysteresis: promote inside 22 m, keep until 30 m,
+    // and hold each promotion for a couple of seconds so nobody pops in and out.
+    if (clock.elapsedTime - lodAt.current > 0.5 || dirty.current) {
       lodAt.current = clock.elapsedTime;
-      const selected = crowd
-        .filter((p) => {
-          const state = states.current.get(p.id);
-          return state && !state.hidden && state.distance <= 30;
-        })
-        .sort(
-          (a, b) =>
-            states.current.get(a.id)!.distance -
-            states.current.get(b.id)!.distance,
+      const now = clock.elapsedTime,
+        cap = Math.max(
+          4,
+          MAX_RIGGED -
+            (room ? (roomLayout(city, roomType(room)!).staff?.length ?? 0) : 0),
+        ),
+        keep: string[] = [],
+        candidates: { id: string; distance: number }[] = [];
+      for (const p of crowd) {
+        const state = states.current.get(p.id);
+        if (!state) continue;
+        const near = nearSet.current.has(p.id),
+          dwell = now - (promotedAt.current.get(p.id) ?? -Infinity);
+        if (
+          near &&
+          ((!state.hidden && state.distance <= DEMOTE_BEYOND) || dwell < MIN_DWELL)
         )
-        .slice(
-          0,
-          Math.max(
-            0,
-            20 -
-              (room
-                ? (roomLayout(city, roomType(room)!).staff?.length ?? 0)
-                : 0),
-          ),
-        )
-        .map((p) => p.id);
-      if (selected.join("|") !== [...nearSet.current].join("|")) {
+          keep.push(p.id);
+        else if (!near && !state.hidden && state.distance <= PROMOTE_WITHIN)
+          candidates.push({ id: p.id, distance: state.distance });
+      }
+      candidates.sort((a, b) => a.distance - b.distance);
+      const selected = keep.slice(0, cap);
+      for (const c of candidates) {
+        if (selected.length >= cap) break;
+        selected.push(c.id);
+        promotedAt.current.set(c.id, now);
+      }
+      if (
+        selected.length !== nearSet.current.size ||
+        selected.some((id) => !nearSet.current.has(id))
+      ) {
         nearSet.current = new Set(selected);
+        for (const id of [...promotedAt.current.keys()])
+          if (!nearSet.current.has(id)) promotedAt.current.delete(id);
         setNearIds(selected);
       }
     }
@@ -463,7 +510,8 @@ export function Residents() {
       <instancedMesh
         name="residents"
         ref={ref}
-        args={[model.geometry, model.material, crowd.length]}
+        args={[model.geometry, model.material, 48]}
+        count={crowd.length}
         raycast={() => {}}
       />
       {crowd
@@ -472,6 +520,9 @@ export function Residents() {
           <Suspense key={p.id} fallback={null}>
             <NearResident
               person={p.person}
+              look={p.look}
+              options={p.options}
+              condition={p.condition}
               read={() => states.current.get(p.id)}
               ready={ready.current}
             />

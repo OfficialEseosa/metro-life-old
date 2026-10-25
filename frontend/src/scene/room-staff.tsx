@@ -22,7 +22,8 @@ function staffWork(name: string): {
     return { pose: "Browse", label: "Showing the collection", topic: "chat" };
   if (/nurse|doctor|health/i.test(name))
     return { pose: "Interact", label: "Getting care ready", topic: "work" };
-  return { pose: "Type", label: "Helping the next visitor", topic: "work" };
+  // Standing behind a counter, so a talking idle rather than the seated typing pose.
+  return { pose: "Talk", label: "Helping the next visitor", topic: "work" };
 }
 
 /** Named staff use the same skinned body and purposeful activity loops as every resident. */
@@ -74,6 +75,7 @@ export function RoomStaff({
             ],
           work: staffWork(person.id + " " + person.name),
           phase: seed % 12,
+          options: { seed, personality: true },
         };
       }),
     [room, staff],
@@ -106,6 +108,7 @@ export function RoomStaff({
           <Suspense fallback={null}>
             <RiggedCharacter
               look={person.look}
+              options={person.options}
               readPose={() =>
                 Math.floor(serverNow() / 1000 + person.phase) % 14 < 11
                   ? person.work.pose
