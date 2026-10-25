@@ -606,7 +606,7 @@ export function JobsPanel() {
                     title={closed ? "Workplace closed" : undefined}
                     onClick={() => run(() => apply(job))}
                   >
-                    Walk to desk and apply
+                    Apply in person
                     <ChevronRight size={16} />
                   </ReasonButton>
                 </div>
