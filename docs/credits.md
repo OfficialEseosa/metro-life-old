@@ -1,12 +1,12 @@
 # Asset credits
 
-Every shipped model/texture is inventoried below, including retained assets not currently rendered. Existing kit files came with the owner-supplied repository; source-pack and CC0 declarations were checked against the authors’ official pages on 2026-10-12. File hashes and measured model bounds are in `shared/model-metrics.json` (measurements cover the actively surveyed packs). No Mixamo assets are used. No reference advertisements, dialogue, images or names are game content.
+Every shipped model/texture is inventoried below, including retained assets not currently rendered. Existing kit files came with the original repository; source-pack and CC0 declarations were checked against the authors’ official pages on 2026-10-12. File hashes and measured model bounds are in `shared/model-metrics.json` (measurements cover the actively surveyed packs). No Mixamo assets are used. No reference advertisements, dialogue, images or names are game content.
 
 CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/. KayKit’s original licence remains beside the models; Quaternius and Kenney source notices are now retained too. Runtime recolours, uniform scaling, baked crowds and authoring transformations do not change the upstream licence.
 
-Metro Life’s newly authored models/geometry, model textures and procedural effects are dedicated to CC0 by this project. Scripts remain repository code. Landmarks were built from geometric forms using photographic references as information; the reference images themselves are not shipped as game assets. Source/evidence and recognition limits are in `landmarks.md`.
+Metro Life’s newly authored models/geometry, model textures and procedural effects are dedicated to CC0 by this project. Scripts remain repository code. Landmarks were built from geometric forms using photographic references as information; the reference images themselves are not shipped as game assets. Recognition limits are in `landmarks.md`.
 
-Fonts/code are separate from the 3D art: Geist and Bricolage Grotesque retain their installed OFL notices; Three.js, React, libraries and Game Studio reference skills retain their own permissive software licences. Map data (c) OpenStreetMap contributors, ODbL, https://www.openstreetmap.org/copyright. These are not CC0 model packs.
+Fonts/code are separate from the 3D art: Geist and Bricolage Grotesque retain their installed OFL notices; Three.js, React and the other libraries retain their own permissive software licences. Map data (c) OpenStreetMap contributors, ODbL, https://www.openstreetmap.org/copyright. These are not CC0 model packs.
 
 | Local file (under frontend/public/models) | Author / source | Licence |
 |---|---|---|
@@ -18,7 +18,6 @@ Fonts/code are separate from the 3D art: Geist and Bricolage Grotesque retain th
 | `chars/f_street.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularwomen.html) | CC0 1.0 |
 | `chars/f_work.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularwomen.html) | CC0 1.0 |
 | `chars/m_casual.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
-| `chars/m_casual2.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
 | `chars/m_party.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
 | `chars/m_smart.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
 | `chars/m_street.glb` | [Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html) | CC0 1.0 |
