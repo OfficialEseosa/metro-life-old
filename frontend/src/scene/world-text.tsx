@@ -9,6 +9,22 @@ import { fictionalText } from "../content-names";
 
 const characters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&'-.,!$:/+() ";
+/**
+ * Shared base materials. With an outline, troika exposes two materials per text, so depth
+ * settings have to come from the base they derive from rather than from `material-*` props,
+ * which would otherwise never reach them and leave overlay lettering depth-tested against
+ * the walls behind it.
+ */
+const textMaterial = (depthTest: boolean) =>
+  new THREE.MeshBasicMaterial({
+    side: THREE.DoubleSide,
+    transparent: true,
+    toneMapped: false,
+    depthTest,
+    depthWrite: false,
+  });
+const inWorldMaterial = textMaterial(true),
+  overlayMaterial = textMaterial(false);
 export function WorldTextPreload() {
   const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
@@ -72,9 +88,7 @@ export function WorldText({
       characters={characters}
       renderOrder={renderOrder}
       raycast={() => {}}
-      material-toneMapped={false}
-      material-depthTest={depthTest}
-      material-depthWrite={false}
+      material={depthTest ? inWorldMaterial : overlayMaterial}
     >
       {text}
     </Text>
