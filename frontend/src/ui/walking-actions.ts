@@ -134,17 +134,21 @@ export async function meet(
     });
     return "busy";
   }
-  const person = targetId
-    ? s.players.find(
-        (n) =>
-          n.id === targetId &&
-          n.city === s.sim!.city &&
-          (n.position?.room ?? null) === (p.room ?? null) &&
-          n.position &&
-          Math.hypot(n.position.x - p.x, n.position.z - p.z) <
-            SOCIAL_REACH + 0.4,
-      )
-    : nearbyPerson(s.sim, p, s.players);
+  // The person named on the button, even if they took a step since; a wave carries further than
+  // a hang out or a gift (the server allows 8 m for a wave).
+  const wanted = targetId ?? s.socialTarget?.id,
+    reach = kind === "wave" ? 7 : SOCIAL_REACH + 0.4;
+  const person =
+    (wanted
+      ? s.players.find(
+          (n) =>
+            n.id === wanted &&
+            n.city === s.sim!.city &&
+            (n.position?.room ?? null) === (p.room ?? null) &&
+            n.position &&
+            Math.hypot(n.position.x - p.x, n.position.z - p.z) < reach,
+        )
+      : undefined) ?? nearbyPerson(s.sim, p, s.players);
   if (!person) {
     useWalking.setState({
       error: "Walk up to someone first. Their name shows on the button.",
