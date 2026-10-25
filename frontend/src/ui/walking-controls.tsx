@@ -486,7 +486,7 @@ export function ActionButton() {
           : "";
   return (
     <>
-      {person && canTalk && !busy && (
+      {person && station?.id !== "exit" && !busy && (
         <div
           className="walk-social"
           role="group"

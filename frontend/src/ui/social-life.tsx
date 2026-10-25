@@ -523,7 +523,7 @@ export function SocialLifeHud() {
                   ? "You helped make it happen"
                   : "Thanks for joining in"
                 : event.active
-                  ? `${event.progress}/${event.target} moments · ends in ${Math.floor(eventTime / 60)}:${String(eventTime % 60).padStart(2, "0")} · ${venueName(event.loc, event.loc)}`
+                  ? `${Math.floor(eventTime / 60)}:${String(eventTime % 60).padStart(2, "0")} left · ${event.progress}/${event.target} moments · ${venueName(event.loc, event.loc)}`
                   : `Starts in ${Math.floor(eventTime / 60)}:${String(eventTime % 60).padStart(2, "0")} · ${venueName(event.loc, event.loc)}`}
             </span>
             {event.active && (
