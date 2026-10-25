@@ -127,20 +127,21 @@ painters.push(
     }),
   (c) =>
     icon(c, () => {
-      c.moveTo(30, 30);
-      c.lineTo(84, 30);
-      c.quadraticCurveTo(104, 30, 104, 50);
-      c.moveTo(84, 30);
-      c.arc(84, 48, 18, Math.PI, 0);
-      for (const [x, y] of [
-        [70, 80],
-        [84, 92],
-        [98, 80],
-        [77, 106],
-        [92, 108],
-      ]) {
-        c.moveTo(x, y);
-        c.lineTo(x - 2, y + 6);
+      // Shower: pipe, a round head and three falling drops.
+      c.moveTo(30, 112);
+      c.lineTo(30, 30);
+      c.quadraticCurveTo(30, 18, 44, 18);
+      c.lineTo(72, 18);
+      c.quadraticCurveTo(84, 18, 84, 32);
+      c.moveTo(60, 50);
+      c.lineTo(108, 50);
+      c.moveTo(60, 50);
+      c.arc(84, 50, 24, Math.PI, 0);
+      for (const x of [68, 84, 100]) {
+        c.moveTo(x, 70);
+        c.lineTo(x - 3, 82);
+        c.moveTo(x - 6, 94);
+        c.lineTo(x - 9, 106);
       }
     }),
   (c) =>
@@ -409,7 +410,7 @@ function emit(
           px + drift,
           a.y + COOK_POT.y + 0.08 + f * 0.95,
           pz + Math.cos(a.seed + i * 2.3 + f * 2) * 0.08,
-          0.16 + f * 0.36,
+          0.24 + f * 0.46,
           0,
           WHITE,
           Math.sin(f * Math.PI) * 0.62,
@@ -428,7 +429,7 @@ function emit(
           a.x + Math.cos(ang) * r,
           a.y + 2.3 - f * 2.05,
           a.z + Math.sin(ang) * r,
-          0.11,
+          0.15,
           1,
           WATER,
           0.85 * (1 - f ** 4),
@@ -440,7 +441,7 @@ function emit(
           a.x + Math.sin(a.seed + i * 2) * 0.35,
           a.y + 1.0 + f * 1.4,
           a.z + Math.cos(a.seed + i * 2) * 0.35,
-          0.4 + f * 0.4,
+          0.5 + f * 0.45,
           0,
           WHITE,
           Math.sin(f * Math.PI) * 0.32,
@@ -455,7 +456,7 @@ function emit(
           a.x + 0.15 + f * 0.35 + Math.sin(f * 6 + i) * 0.05,
           a.y + 1.05 + f * 0.95,
           a.z,
-          0.16 + f * 0.2,
+          0.26 + f * 0.24,
           4,
           SLEEP,
           Math.sin(f * Math.PI) * 0.95,
@@ -467,7 +468,7 @@ function emit(
         const px = localX((i - 1) * 0.11, 0.42),
           pz = localZ((i - 1) * 0.11, 0.42),
           bob = reduced ? 0 : Math.max(0, Math.sin(t * 7 - i * 0.9)) * 0.05;
-        batch.push(px, a.y + 1.42 + bob, pz, 0.085, 5, CREAM, 0.95);
+        batch.push(px, a.y + 1.42 + bob, pz, 0.12, 5, CREAM, 0.95);
       }
       break;
     }
@@ -480,7 +481,7 @@ function emit(
           a.x + Math.cos(ang) * radius,
           a.y + 1.2 + f * 1.25,
           a.z + Math.sin(ang) * radius,
-          0.2,
+          0.28,
           i % 2 ? 3 : 2,
           MUSIC[i % 4],
           Math.sin(f * Math.PI) * 0.95,
@@ -497,7 +498,7 @@ function emit(
           px,
           a.y + 1.55 + f * 0.6,
           pz,
-          0.14,
+          0.2,
           7,
           MUSIC[2],
           Math.sin(f * Math.PI) * 0.9,
@@ -512,7 +513,7 @@ function emit(
           a.x + Math.cos(ang) * 0.5,
           a.y + 0.9 + f * 1.2,
           a.z + Math.sin(ang) * 0.5,
-          0.13 * Math.sin(f * Math.PI) + 0.04,
+          0.18 * Math.sin(f * Math.PI) + 0.06,
           6,
           GOLD,
           Math.sin(f * Math.PI),
@@ -612,7 +613,7 @@ export function WorldActivity() {
     };
   }, [batch, badge, invalidate]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const store = useStore.getState(),
       sim = store.sim,
       now = serverNow(),
@@ -692,7 +693,9 @@ export function WorldActivity() {
     const count = batch.end();
     if (sprites.current) sprites.current.visible = count > 0;
     // Fade the badge in and out instead of popping.
-    shown.current += ((busyBadge ? 1 : 0) - shown.current) * 0.2;
+    // Time-based so the fade takes ~0.25 s at any frame rate.
+    shown.current +=
+      ((busyBadge ? 1 : 0) - shown.current) * Math.min(1, delta * 9);
     if (shown.current < 0.01) shown.current = 0;
     badge.uniforms.uOpacity.value = shown.current;
     if (badgeMesh.current) badgeMesh.current.visible = shown.current > 0;
