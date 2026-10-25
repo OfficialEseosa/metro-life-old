@@ -1288,7 +1288,11 @@ export default function CityScene() {
     y: number;
   } | null>(null);
   return (
-    <div className="city-canvas">
+    <div
+      className="city-canvas"
+      // Layout lives here so the scene never depends on HUD stylesheets.
+      style={{ position: "absolute", inset: 0, background: "#d9dfc6" }}
+    >
       <Canvas
         frameloop="demand"
         shadows="percentage"
