@@ -44,7 +44,7 @@ import {
   NEED_ORDER,
   Sheet,
 } from "./primitives";
-import { money, useNow } from "./helpers";
+import { money, useCompact, useNow } from "./helpers";
 import { serverNow } from "../server-time";
 import { CashCounter, RewardFlight, SoundButton } from "./feedback";
 import { sound } from "./sound";
@@ -134,6 +134,7 @@ function Vitals() {
   const vitals = useSimVitals(),
     identity = useSimIdentity(),
     [cashOpen, setCashOpen] = useState(false),
+    compact = useCompact(),
     lowCount = useRef(0);
   const low = vitals
     ? NEED_ORDER.filter((n) => (vitals.needs[n] ?? 100) < 25).length
@@ -166,7 +167,7 @@ function Vitals() {
         aria-label={`${identity.name}, feeling ${mood}. Open your life`}
         onClick={() => state().openPanel("sim")}
       >
-        <Avatar look={identity.look} size={56} />
+        <Avatar look={identity.look} size={compact ? 48 : 60} />
         <span className="vitals-mood" aria-hidden="true">
           <Icon
             name={
@@ -188,12 +189,14 @@ function Vitals() {
           aria-expanded={cashOpen}
           onClick={() => setCashOpen(!cashOpen)}
         >
-          <span className="coin-token" aria-hidden="true">
-            <Icon name="coins" size={16} />
+          <span className="cash-line">
+            <span className="coin-token" aria-hidden="true">
+              <Icon name="coins" size={16} />
+            </span>
+            <CashCounter cash={vitals.cash} />
           </span>
-          <CashCounter cash={vitals.cash} />
+          <Time />
         </button>
-        <Time />
         <ConnectionStatus />
       </div>
       <button

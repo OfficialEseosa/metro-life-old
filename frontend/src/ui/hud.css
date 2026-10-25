@@ -102,11 +102,14 @@
 }
 .cash-button {
   display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  min-height: 36px;
-  padding: 0 var(--s-1);
-  margin-left: calc(var(--s-1) * -1);
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  min-height: var(--touch);
+  padding: 2px var(--s-2);
+  margin-left: calc(var(--s-2) * -1);
+  text-align: left;
   border: 0;
   border-radius: var(--r-sm);
   background: none;
@@ -114,6 +117,11 @@
 }
 .cash-button:hover {
   background: var(--c-sunken);
+}
+.cash-line {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
 }
 .cash-value {
   font-family: var(--font-display);
@@ -132,7 +140,7 @@
   color: var(--c-money);
   border: 2px solid color-mix(in srgb, var(--c-money) 40%, transparent);
 }
-.vitals-money time {
+.cash-button time {
   font-weight: 800;
   color: var(--c-ink);
   white-space: nowrap;
@@ -204,6 +212,9 @@
     opacity: 1;
     scale: 1.08;
   }
+}
+.vitals:has(.cash-detail) {
+  z-index: var(--z-popover);
 }
 .cash-detail {
   position: absolute;
@@ -577,6 +588,9 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--s-2);
 }
+.hud-tools > :last-child:nth-child(odd) {
+  grid-column: span 2;
+}
 .hud-tool {
   display: flex;
   align-items: center;
@@ -810,7 +824,7 @@
 .map-tools {
   position: absolute;
   z-index: var(--z-sheet);
-  top: var(--s-4);
+  top: 76px;
   right: var(--s-4);
   bottom: var(--s-4);
   width: 392px;
@@ -1021,7 +1035,12 @@
     width: 14px;
     height: 14px;
   }
-  .cash-value {
+  .cash-line {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.cash-value {
     font-size: 24px;
   }
   .coin-token,
@@ -1157,8 +1176,11 @@
     right: 0;
     bottom: calc(100% + var(--s-2));
     display: grid;
-    grid-template-columns: 1fr;
-    width: 188px;
+    grid-template-columns: 1fr 1fr;
+    width: min(320px, calc(100vw - 24px));
+  }
+  .metro-hud:has(.hud-action-stack.is-open) .world-event-banner {
+    visibility: hidden;
   }
   .hud-more-toggle {
     display: inline-flex;

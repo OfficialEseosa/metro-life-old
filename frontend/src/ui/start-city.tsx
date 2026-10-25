@@ -87,7 +87,7 @@ export function StartCity({
                     <dd>{money(pay)}</dd>
                   </div>
                   <div>
-                    <dt>After rent, per shift</dt>
+                    <dt>Left after rent</dt>
                     <dd>{money(pay - rent)}</dd>
                   </div>
                 </dl>

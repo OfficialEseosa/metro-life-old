@@ -22,7 +22,7 @@ export function PromotionProgress({ sim }: { sim: Sim }) {
   );
   return (
     <div className="dream-card promotion-progress">
-      <span className="eyebrow">CAREER LEVEL {job.level} OF 5</span>
+      <span className="eyebrow">Career level {job.level} of 5</span>
       {next ? (
         <>
           <h3>Next: {next.title}</h3>
@@ -88,8 +88,8 @@ export function AspirationProgress({ sim }: { sim: Sim }) {
       <div className="dream-card">
         <span className="eyebrow">
           {a.step === a.total
-            ? "DREAM COMPLETE"
-            : `STEP ${a.step + 1} OF ${a.total}`}
+            ? "Dream complete"
+            : `Step ${a.step + 1} of ${a.total}`}
         </span>
         <p>{a.current?.text ?? "You made your dream happen."}</p>
         {a.current && (
@@ -193,8 +193,8 @@ export function StoryJournal({ sim }: { sim: Sim }) {
             <h3>{story.title}</h3>
             <span className="eyebrow">
               {story.status === "complete"
-                ? "COMPLETE"
-                : `${story.completedBeats} OF ${story.total} CHAPTERS COMPLETE`}
+                ? "Complete"
+                : `${story.completedBeats} of ${story.total} chapters complete`}
             </span>
             <progress
               aria-label={`${story.title} progress`}

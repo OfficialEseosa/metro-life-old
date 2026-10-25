@@ -89,7 +89,10 @@ export function MapTools({ close }: { close: () => void }) {
           >
             <span
               className="semantic-tile"
-              style={{ background: world?.categories[place.category]?.color }}
+              style={{
+                background: world?.categories[place.category]?.color,
+                color: "#fff",
+              }}
             >
               <Icon name={place.icon} />
             </span>

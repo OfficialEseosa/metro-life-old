@@ -5,7 +5,7 @@ import type { CityId, Look } from "../api/types";
 import { useStore } from "../store";
 import { CharacterPreview } from "./character-preview";
 import { StartCity } from "./start-city";
-import { ErrorMessage, Icon, ReasonButton } from "./primitives";
+import { ErrorMessage, Icon } from "./primitives";
 import {
   BOTTOMS,
   HAIR_COLOURS,
@@ -81,7 +81,7 @@ function Swatches({
     <fieldset className="creator-field">
       <legend>
         {label}
-        <span>{chosen ? colourName(chosen, "") : "Custom"}</span>
+        <span>{chosen ? colourName(chosen, "") : ""}</span>
       </legend>
       <div className="creator-swatches">
         {values.map((colour, i) => {
@@ -454,9 +454,8 @@ export function CharacterCreator() {
             {page === "traits" && (
               <>
                 <p className="trait-help">
-                  Pick three. They change skill gains, need drain and what
-                  makes an activity feel good. Picking a fourth swaps out your
-                  earliest choice.
+                  Pick three. They shape skill gains and what feels good. A
+                  fourth pick swaps out your earliest one.
                 </p>
                 <strong className="trait-count" aria-live="polite">
                   {traits.length} of 3 chosen:{" "}
@@ -526,21 +525,23 @@ export function CharacterCreator() {
                   <Icon name="arrow-right" />
                 </button>
               )}
-              <ReasonButton
+              <button
+                type="submit"
                 className="primary"
-                reason={
-                  working
-                    ? "Packing your suitcase…"
-                    : !valid
-                      ? "Add a name in You"
-                      : traits.length !== 3
-                        ? "Choose three traits"
-                        : ""
-                }
+                disabled={working || !valid || traits.length !== 3}
+                aria-busy={working || undefined}
               >
-                {working ? "Packing your suitcase…" : "Choose my city"}
-                <Icon name="arrow-right" />
-              </ReasonButton>
+                {working
+                  ? "Packing your suitcase…"
+                  : !valid
+                    ? "Add your name first"
+                    : traits.length !== 3
+                      ? "Pick three traits"
+                      : "Choose my city"}
+                {!working && valid && traits.length === 3 && (
+                  <Icon name="arrow-right" />
+                )}
+              </button>
             </div>
           </footer>
         </form>

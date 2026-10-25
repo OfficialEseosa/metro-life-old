@@ -3,6 +3,7 @@ import { apiRequest } from "../api/client";
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 import type { CityId, Clock, Sim, User } from "../api/types";
 import { useStore } from "../store";
 import { motion } from "../walking";
@@ -299,7 +300,29 @@ export function SocialTools({ onOpen }: { onOpen?: () => void }) {
   );
 }
 export function SocialLifeHud() {
-  const sim = useStore((s) => s.sim),
+  const sim = useStore(
+      useShallow((s) => {
+        const game = s.sim
+          ? (s.sim as Sim & { workGame?: WorkGame | null }).workGame
+          : null;
+        return s.sim
+          ? {
+              userId: s.sim.userId,
+              city: s.sim.city,
+              loc: s.sim.loc,
+              trip: !!s.sim.trip,
+              introDone: s.sim.introDone,
+              pendingBeat: !!s.sim.pendingBeat,
+              busyUntil: s.sim.busyUntil,
+              gameId: game?.id ?? "",
+              gameStart: game?.startsAt ?? 0,
+              gameEnd: game?.endsAt ?? 0,
+              gameTaps: game?.taps ?? 0,
+              gameBest: game?.best ?? 0,
+            }
+          : null;
+      }),
+    ),
     panel = useStore((s) => s.panel),
     event = useSocialLife((s) => s.event),
     houses = useSocialLife((s) => s.openHouses),
@@ -416,7 +439,15 @@ export function SocialLifeHud() {
   };
   if (!sim || sim.trip || sim.introDone === false) return null;
   const own = houses.find((h) => h.ownerId === sim.userId),
-    game = (sim as Sim & { workGame?: WorkGame | null }).workGame,
+    game: WorkGame | null = sim.gameId
+      ? {
+          id: sim.gameId,
+          startsAt: sim.gameStart,
+          endsAt: sim.gameEnd,
+          taps: sim.gameTaps,
+          best: sim.gameBest,
+        }
+      : null,
     eventTime = event
       ? Math.max(
           0,
@@ -491,7 +522,9 @@ export function SocialLifeHud() {
                 ? event.success || event.progress >= event.target
                   ? "You helped make it happen"
                   : "Thanks for joining in"
-                : `${event.active ? "Now" : "Starts in"} ${Math.floor(eventTime / 60)}:${String(eventTime % 60).padStart(2, "0")} · ${venueName(event.loc, event.loc)}`}
+                : event.active
+                  ? `${event.progress}/${event.target} moments · ends in ${Math.floor(eventTime / 60)}:${String(eventTime % 60).padStart(2, "0")} · ${venueName(event.loc, event.loc)}`
+                  : `Starts in ${Math.floor(eventTime / 60)}:${String(eventTime % 60).padStart(2, "0")} · ${venueName(event.loc, event.loc)}`}
             </span>
             {event.active && (
               <progress

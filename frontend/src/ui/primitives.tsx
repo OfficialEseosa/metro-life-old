@@ -216,9 +216,17 @@ export const NEED_LABELS: Record<string, string> = {
 /** "tech" -> "Tech", "music-lover" -> "Music lover". */
 export const titleCase = (text: string) =>
   text ? text[0].toUpperCase() + text.slice(1).replace(/-/g, " ") : text;
+/** Glyphs that read better solid than duotone (the duotone X looks like a checkbox). */
+const BOLD = new Set(["x", "check", "arrow-right", "arrow-up-right"]);
 export function Icon({ name, size = 22 }: { name?: string; size?: number }) {
   const Component = icons[name ?? ""] ?? Compass;
-  return <Component size={size} weight="duotone" aria-hidden="true" />;
+  return (
+    <Component
+      size={size}
+      weight={BOLD.has(name ?? "") ? "bold" : "duotone"}
+      aria-hidden="true"
+    />
+  );
 }
 export const ArrowUpRight = (props: IconProps) => (
   <PhArrowUpRight {...props} weight="duotone" />

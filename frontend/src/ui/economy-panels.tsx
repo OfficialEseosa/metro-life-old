@@ -204,7 +204,7 @@ export function MayorPanel() {
     <>
       <div className="civic-hero">
         <span className="eyebrow">
-          TERM {m.term.id} · CLOSES DAY {m.term.endsDay}
+          Term {m.term.id} · closes day {m.term.endsDay}
         </span>
         <h3>
           {m.mayor ? `${m.mayor.username}, Mayor` : "Your city. Your voice."}

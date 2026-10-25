@@ -6,10 +6,8 @@
   position: absolute;
   z-index: var(--z-banner);
   top: max(var(--hud-gap, 16px), env(safe-area-inset-top));
-  left: 50%;
-  translate: -50% 0;
-  width: min(520px, calc(100vw - 2 * 470px));
-  min-width: 380px;
+  left: 540px; /* right of the vitals plate */
+  width: min(460px, calc(100vw - 540px - 340px));
   display: flex;
   align-items: center;
   gap: var(--s-3);
@@ -23,11 +21,11 @@
 @keyframes event-in {
   from {
     opacity: 0;
-    translate: -50% -8px;
+    translate: 0 -8px;
   }
   to {
     opacity: 1;
-    translate: -50% 0;
+    translate: 0 0;
   }
 }
 .event-copy {
@@ -42,11 +40,21 @@
   font-weight: 600;
   line-height: 1.15;
 }
-.event-copy span,
-.event-copy small {
+.event-copy span {
   color: var(--c-ink-soft);
   font-weight: 700;
   font-size: var(--t-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.event-copy strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.event-copy small {
+  display: none;
 }
 .event-copy progress {
   --bar: var(--need-fun);
@@ -64,6 +72,15 @@
 }
 .world-event-banner .event-dismiss {
   align-self: center;
+}
+/* Medium widths: the banner sits under the top-right controls. */
+@media (max-width: 1260px) and (min-width: 761px) and (min-height: 521px) {
+  .world-event-banner {
+    top: 76px;
+    left: auto;
+    right: var(--s-4);
+    width: min(420px, calc(100vw - 380px));
+  }
 }
 /* The feedback toast stack flows under the banner on wide screens. */
 .metro-hud:has(.world-event-banner) {
@@ -150,10 +167,10 @@
 .social-life-panel {
   position: absolute;
   z-index: var(--z-popover);
-  top: max(var(--s-4), env(safe-area-inset-top));
+  top: 76px;
   right: max(var(--s-4), env(safe-area-inset-right));
   width: min(392px, calc(100vw - 32px));
-  max-height: calc(100dvh - 32px);
+  max-height: calc(100dvh - 92px);
   overflow: auto;
   overscroll-behavior: contain;
   padding: var(--s-5);

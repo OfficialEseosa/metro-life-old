@@ -72,3 +72,18 @@ export function friendlyError(text: string) {
     return "Something got in the way. Try that again in a moment.";
   return text;
 }
+
+/** True while the compact (phone landscape or narrow) HUD layout applies. */
+export function useCompact() {
+  const query = "(max-width: 760px), (max-height: 520px)";
+  const [compact, setCompact] = useState(
+    () => typeof matchMedia === "function" && matchMedia(query).matches,
+  );
+  useEffect(() => {
+    const list = matchMedia(query),
+      change = () => setCompact(list.matches);
+    list.addEventListener("change", change);
+    return () => list.removeEventListener("change", change);
+  }, []);
+  return compact;
+}
