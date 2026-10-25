@@ -334,6 +334,39 @@ function Dock({ search }: { search: () => void }) {
   );
 }
 
+type StoryLead = { title: string; loc: string; name: string; hint?: string };
+/** "A story is waiting at <place>" once the first day is done (gameplay sends `sim.storyLead`). */
+function StoryLeadCue() {
+  const lead = useStore(
+      useShallow((s) => {
+        const l = (s.sim as { storyLead?: StoryLead | null } | null)?.storyLead;
+        return l ? { title: l.title, loc: l.loc, name: l.name } : null;
+      }),
+    ),
+    firstDayOpen = useStore(
+      (s) => !!s.sim?.firstDay && !s.sim.firstDay.complete,
+    );
+  if (!lead || firstDayOpen) return null;
+  return (
+    <button
+      className="first-day-cue plate story-lead"
+      aria-label={`A story is waiting at ${lead.name}: ${lead.title}. Show it on the map`}
+      onClick={() => {
+        state().selectLocation(lead.loc);
+        state().setFocus(lead.loc);
+      }}
+    >
+      <span className="semantic-tile fun">
+        <Icon name="book-open" />
+      </span>
+      <span>
+        <small>A story is waiting</small>
+        <strong>{lead.name}</strong>
+      </span>
+    </button>
+  );
+}
+
 /**
  * Left column: action queue, first-day progress (or the first-job nudge), the
  * activity in progress, then the HUD's own notices (reconnect, errors, needs).
@@ -363,6 +396,7 @@ function LeftColumn() {
             </button>
           )
         )}
+        <StoryLeadCue />
         {busy && (
           <div className="idle-progress">
             <Busy />
@@ -762,7 +796,7 @@ function StoryBeat() {
   );
 }
 
-/** Keep the sim fresh while playing, in case a socket frame was missed. */
+/** One fresh read when the tab becomes visible again; the socket keeps it current otherwise. */
 function useSimRefresh(simId?: string, worldId?: string) {
   useEffect(() => {
     if (!simId) return;
@@ -783,11 +817,9 @@ function useSimRefresh(simId?: string, worldId?: string) {
         inFlight = false;
       }
     };
-    const timer = setInterval(() => void update(), 5000);
     document.addEventListener("visibilitychange", update);
     return () => {
       active = false;
-      clearInterval(timer);
       document.removeEventListener("visibilitychange", update);
     };
   }, [simId, worldId]);

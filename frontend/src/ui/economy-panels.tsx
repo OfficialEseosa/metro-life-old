@@ -15,6 +15,10 @@ import {
 import { money, useNow, useTask } from "./helpers";
 import { sound } from "./sound";
 import { plotRectangle } from "../plot-selection";
+/** The server's own list of what is left on the first day, when it sends one. */
+const firstDayLeft = (sim: { firstDay?: object | null }, fallback: string) =>
+  (sim.firstDay as { remaining?: string } | null | undefined)?.remaining ||
+  fallback;
 
 const state = () => useStore.getState();
 function useCivicBlock() {
@@ -407,7 +411,7 @@ export function PlotPrimary() {
           : !sim
             ? "Start your life first"
             : sim.firstDay && !sim.firstDay.complete
-              ? "Finish your first-day goals before booking a plot"
+              ? firstDayLeft(sim, "Finish your first-day goals before booking a plot")
               : sim.city !== city
                 ? "Travel here before booking"
                 : sim.busyUntil
@@ -684,7 +688,7 @@ function useBillboardBlock() {
   return (
     idle ||
     (sim?.firstDay && !sim.firstDay.complete
-      ? "Finish your first-day goals"
+      ? firstDayLeft(sim, "Finish your first-day goals")
       : !boards
         ? "Loading billboards…"
         : selected?.bookedByMe
@@ -839,7 +843,7 @@ export function HomesPanel() {
         : !sim
           ? "Start your life first"
           : sim.firstDay && !sim.firstDay.complete
-            ? "Finish your first-day goals before moving"
+            ? firstDayLeft(sim, "Finish your first-day goals before moving")
             : blocked ||
               ((sim.rentDebt ?? 0) > 0
                 ? "Clear your rent balance before moving"

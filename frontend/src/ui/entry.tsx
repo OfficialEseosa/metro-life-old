@@ -128,7 +128,7 @@ const GOALS: { id: FirstDayStep; label: string; hint: string; icon: string }[] =
     {
       id: "rent",
       label: "Pay your first rent",
-      hint: "Return home and pay it from Your life, or it is taken at midnight.",
+      hint: "Rent is taken at midnight. You can also pay ahead from Your life.",
       icon: "house",
     },
   ];
@@ -200,7 +200,7 @@ export function FirstDayGoals({ compact = false }: { compact?: boolean }) {
             <strong>{g.label}</strong>
             <small>
               {g.id === "rent"
-                ? `Pay ${money(sim.home.rent)} at home from Your life, or it is taken at midnight.`
+                ? `${money(sim.home.rent)} a day, taken at midnight. You can also pay ahead from Your life.`
                 : g.hint}
             </small>
           </span>

@@ -232,10 +232,12 @@ export function ActionButton() {
           1440) /
         60
       : 12,
+    inside = !!position?.room?.endsWith(`:${position?.place}`),
     closed =
-      open[0] < open[1]
+      !inside &&
+      (open[0] < open[1]
         ? hour < open[0] || hour >= open[1]
-        : hour < open[0] && hour >= open[1];
+        : hour < open[0] && hour >= open[1]);
   const reason =
     context?.reason ||
     (sim && context?.action
@@ -400,9 +402,10 @@ export function ActionButton() {
                   60
                 : 12,
               closed =
-                hours[0] < hours[1]
+                !p.room?.endsWith(`:${p.place}`) &&
+                (hours[0] < hours[1]
                   ? hour < hours[0] || hour >= hours[1]
-                  : hour < hours[0] && hour >= hours[1],
+                  : hour < hours[0] && hour >= hours[1]),
               blocked = actionReason(
                 context.action,
                 s.sim,
