@@ -8,7 +8,7 @@ import { useStore } from "../store";
 import { Builder } from "./geometry";
 import { RoomWalls, WallMounted } from "./room-walls";
 import { roomPalette, roomTexture } from "./room-surfaces";
-import { PropBatch } from "./kaykit-props";
+import { PropBatch, type Prop } from "./kaykit-props";
 import { furnitureProps, MODELLED_KINDS } from "./furniture-models";
 import { timeOfDay } from "../lighting";
 
@@ -99,6 +99,10 @@ export function FurnishedHome() {
     [textures],
   );
   const furniture = layout.furniture as Piece[];
+  if (import.meta.env.DEV)
+    (window as unknown as { __metroHome?: unknown }).__metroHome = furniture.map(
+      (f) => ({ id: f.id, kind: f.kind, x: f.x, z: f.z, w: f.w, d: f.d, angle: f.angle }),
+    );
   const cooking = useCooking();
   const modelled = useMemo(
     () =>
@@ -111,6 +115,17 @@ export function FurnishedHome() {
           ),
         })),
     [furniture, cooking],
+  );
+  // Wall art and a sill plant: decoration that never takes floor space from Buy mode.
+  const decor = useMemo<Prop[]>(
+    () => [
+      { pack: "furniture", name: "pictureframe_large_B", x: 1.45, y: 1.75, z: -hd + 0.1, s: 0.62 },
+      { pack: "furniture", name: "pictureframe_small_A", x: hw - 0.1, y: 1.6, z: 0.2, ry: -Math.PI / 2, s: 0.8 },
+      { pack: "furniture", name: "pictureframe_medium", x: hw - 0.1, y: 1.75, z: -0.55, ry: -Math.PI / 2, s: 0.7 },
+      { pack: "furniture", name: "cactus_small_A", x: -1.15, y: 1.17, z: -hd + 0.2, s: 0.55 },
+      { pack: "furniture", name: "cactus_small_B", x: -0.25, y: 1.17, z: -hd + 0.2, s: 0.5 },
+    ],
+    [hw, hd],
   );
   const pieces = useMemo(
     () =>
@@ -130,6 +145,14 @@ export function FurnishedHome() {
       <RoomWalls hw={hw} hd={hd} palette={palette} paper={textures.paper} />
       <WallMounted side="back">
         <RoomWindow hd={hd} />
+        <Suspense fallback={null}>
+          <PropBatch props={decor.slice(0, 1).concat(decor.slice(3))} name="home-wall-decor" />
+        </Suspense>
+      </WallMounted>
+      <WallMounted side="right">
+        <Suspense fallback={null}>
+          <PropBatch props={decor.slice(1, 3)} name="home-wall-art" castShadow={false} />
+        </Suspense>
       </WallMounted>
       <Suspense fallback={null}>
         {modelled.map(({ f, props }) => (

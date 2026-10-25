@@ -89,7 +89,7 @@ function treeMaterial() {
         "#include <color_fragment>",
         `#include <color_fragment>
         vec3 treeTint=diffuseColor.rgb;
-        vec3 leaf=mix(treeTint*vec3(.52,.62,.55),treeTint*1.08,smoothstep(0.,1.,vTreeShade));
+        vec3 leaf=mix(treeTint*vec3(.4,.5,.46),treeTint*1.05,smoothstep(0.,1.,vTreeShade));
         diffuseColor.rgb=mix(leaf,vec3(.42,.29,.18),vTreeTrunk);`,
       );
   };
@@ -98,7 +98,7 @@ function treeMaterial() {
 }
 
 // Species tints (the crown top colour): fresh green, olive, deep green and a blossom accent.
-const tints = ["#9cc96b", "#86b35a", "#7fa65a", "#a9cf72", "#e39aa8"].map(
+const tints = ["#86b85e", "#6fa250", "#8ea85a", "#5f9a58", "#e2a2b0"].map(
   (c) => new THREE.Color(c),
 );
 const hash = (x: number, z: number) => {

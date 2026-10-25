@@ -5,6 +5,7 @@ import { lightUniforms } from "../lighting";
 export function skylineWindows(
   geometry: THREE.BufferGeometry,
   material: THREE.MeshStandardMaterial,
+  { cell = [3.4, 3.6], minY = 12 }: { cell?: [number, number]; minY?: number } = {},
 ) {
   const position = geometry.getAttribute("position"),
     normal = geometry.getAttribute("normal"),
@@ -22,7 +23,7 @@ export function skylineWindows(
     mask[i] =
       glass &&
       Math.abs(normal.getY(i)) < 0.35 &&
-      position.getY(i) > 12 &&
+      position.getY(i) > minY &&
       position.getY(i) < top * 0.94
         ? 1
         : 0;
@@ -45,7 +46,7 @@ export function skylineWindows(
       "#include <emissivemap_fragment>",
       `#include <emissivemap_fragment>
    float along=abs(skylineNormal.x)>abs(skylineNormal.z)?skylinePosition.z:skylinePosition.x;
-   vec2 cell=vec2(along/3.4,skylinePosition.y/3.6);
+   vec2 cell=vec2(along/${cell[0].toFixed(2)},skylinePosition.y/${cell[1].toFixed(2)});
    vec2 pane=fract(cell);
    float occupied=step(.30,fract(sin(dot(floor(cell),vec2(12.9898,78.233)))*43758.5453));
    float windowFace=skylineWindow*step(.16,pane.x)*step(pane.x,.82)*step(.18,pane.y)*step(pane.y,.78)*occupied;
@@ -53,5 +54,6 @@ export function skylineWindows(
   `,
     );
   };
-  material.customProgramCacheKey = () => "metro-skyline-warm-office-windows-v1";
+  material.customProgramCacheKey = () =>
+    `metro-skyline-warm-office-windows-v2-${cell[0]}-${cell[1]}`;
 }

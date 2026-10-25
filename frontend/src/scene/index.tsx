@@ -86,6 +86,7 @@ declare global {
       time: (minutes: number | null) => void;
       shadowMode: (mode: "follow" | "overview" | null) => void;
       sunShadow: (on: boolean) => void;
+      dump: (name: string) => unknown;
       metrics: () => {
         calls: number;
         triangles: number;
@@ -1020,6 +1021,22 @@ function City({
       focus: (id) => view(id, true),
       theme: (value) => useStore.getState().setSceneTheme(value),
       time: (minutes) => setTimeOverride(minutes),
+      dump: (name) => {
+        // Children of a named object with their world bounds, for layout checks.
+        const root = scene.getObjectByName(name);
+        if (!root) return null;
+        const box = new THREE.Box3();
+        return root.children.map((child) => {
+          box.setFromObject(child);
+          return {
+            name: child.name,
+            type: child.type,
+            meshes: child.children.length,
+            min: box.min.toArray().map((v) => +v.toFixed(2)),
+            max: box.max.toArray().map((v) => +v.toFixed(2)),
+          };
+        });
+      },
       sunShadow: (on: boolean) => {
         scene.userData.noSunShadow = !on;
         gl.shadowMap.needsUpdate = true;

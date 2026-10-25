@@ -198,6 +198,11 @@ const center = new THREE.Vector3(),
   worldUp = new THREE.Vector3(0, 1, 0),
   shadowDirection = new THREE.Vector3(),
   quantised = { elevation: -1, azimuth: -1 };
+/**
+ * Where the near shadow box is. Instanced scenery reads this to draw only nearby
+ * instances into the shadow map; `version` bumps when the focus moves a few metres.
+ */
+export const shadowFocus = { x: 0, z: 0, radius: 40, follow: false, version: 0 };
 const FOLLOW_EXTENT = 26,
   OVERVIEW_EXTENT = 112,
   FOLLOW_DISTANCE = 70;
@@ -339,11 +344,26 @@ export function WorldLights({
         .addScaledVector(shadowDirection, w);
       s.target.position.copy(center);
       s.position.copy(center).addScaledVector(shadowDirection, FOLLOW_DISTANCE);
+      if (
+        !shadowFocus.follow ||
+        Math.hypot(center.x - shadowFocus.x, center.z - shadowFocus.z) > 6
+      ) {
+        shadowFocus.x = center.x;
+        shadowFocus.z = center.z;
+        shadowFocus.follow = true;
+        // Box half-diagonal plus room for tall casters whose shadows reach in.
+        shadowFocus.radius = FOLLOW_EXTENT * 1.45 + 12;
+        shadowFocus.version++;
+      }
       // Live shadows for people, cars and trees at half the frame rate (a quarter on Low).
       frame.current++;
       if (frame.current % (quality === "normal" ? 2 : 4) === 0 || moved)
         gl.shadowMap.needsUpdate = true;
     } else if (moved) {
+      if (shadowFocus.follow) {
+        shadowFocus.follow = false;
+        shadowFocus.version++;
+      }
       s.target.position.set(8, 0, 6);
       s.position.copy(s.target.position).addScaledVector(shadowDirection, 200);
       gl.shadowMap.needsUpdate = true;

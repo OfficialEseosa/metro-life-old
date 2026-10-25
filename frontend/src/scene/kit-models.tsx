@@ -13,6 +13,7 @@ import type { Placement } from "./fabric";
 import { ATLANTA_BLENDER_LANDMARKS, ATLANTA_TOWERS } from "./atlanta-models";
 import { atlSites } from "./cities/atl";
 import { lightUniforms } from "../lighting";
+import { shadowFocus } from "./world-lighting";
 
 export type DriveRoute = {
   x: number;
@@ -23,6 +24,8 @@ export type DriveRoute = {
   ey: number;
 };
 const noPick = () => {};
+const scratchObject = new THREE.Object3D(),
+  scratchColour = new THREE.Color();
 /** Bake the glTF hierarchy once, keeping its atlas and normals, then instance each material batch. */
 export function KitInstances({
   url,
@@ -208,23 +211,67 @@ function KitBatch({
     ref.current.computeBoundingSphere();
   });
 
-  useLayoutEffect(() => {
+  // Instances are written nearest-first around the shadow focus, so the near
+  // shadow pass can draw just the first `near` of them (see onBeforeShadow).
+  const order = useRef({ version: -1, near: placements.length });
+  const write = (focus: { x: number; z: number; radius: number } | null) => {
     const m = ref.current!,
-      d = new THREE.Object3D();
-    placements.forEach((p, i) => {
+      d = scratchObject,
+      colour = scratchColour,
+      list = focus
+        ? [...placements].sort(
+            (a, b) =>
+              Math.hypot(a.x - focus.x, a.z - focus.z) -
+              Math.hypot(b.x - focus.x, b.z - focus.z),
+          )
+        : placements;
+    let near = 0;
+    list.forEach((p, i) => {
       d.position.set(p.x, p.y, p.z);
       d.rotation.set(p.pitch ?? 0, p.angle, 0);
       d.scale.setScalar(p.scale ?? 1);
       d.updateMatrix();
       m.setMatrixAt(i, d.matrix);
-      m.setColorAt(i, new THREE.Color(p.color));
+      m.setColorAt(i, colour.set(p.color));
+      if (
+        focus &&
+        Math.hypot(p.x - focus.x, p.z - focus.z) <
+          focus.radius + Math.hypot(p.sx, p.sz) / 2
+      )
+        near = i + 1;
     });
+    order.current.near = focus ? near : list.length;
     m.instanceMatrix.needsUpdate = true;
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
+  };
+  useLayoutEffect(() => {
+    const m = ref.current!;
+    order.current.version = -1;
+    write(null);
     m.computeBoundingSphere();
     m.updateMatrix();
     m.matrixAutoUpdate = false;
-  }, [placements]);
+    if (!shadow || drive) return;
+    const full = placements.length;
+    m.onBeforeShadow = () => {
+      if (shadowFocus.follow) m.count = order.current.near;
+    };
+    m.onAfterShadow = () => {
+      m.count = full;
+    };
+    return () => {
+      m.onBeforeShadow = () => {};
+      m.onAfterShadow = () => {};
+      m.count = full;
+    };
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- write only reads refs and placements.
+  }, [placements, shadow, drive]);
+  useFrame(() => {
+    if (!shadow || drive || !ref.current) return;
+    if (order.current.version === shadowFocus.version) return;
+    order.current.version = shadowFocus.version;
+    write(shadowFocus.follow ? shadowFocus : null);
+  });
   return (
     <>
       {drive && <CarLights source={ref} count={placements.length} />}
@@ -517,6 +564,17 @@ function LegacyBlenderLandmark({
           o.material = material;
         }
         if (id === "high") panelWhiteFacade(o);
+        // Glass faces of authored buildings light up after dark, like the kit windows.
+        if (
+          !water &&
+          !["centennial", "piedmont", "brooklynBridge", "goldenGate", "liberty", "alcatraz"].includes(id) &&
+          o.geometry.getAttribute("color")
+        ) {
+          const material = (o.material as THREE.MeshStandardMaterial).clone();
+          skylineWindows(o.geometry, material, { cell: [1.8, 2.4], minY: 0.9 });
+          o.material = material;
+          o.userData.ownsMaterial = true;
+        }
         o.castShadow = !water;
         o.receiveShadow = !water;
         o.raycast = noPick;
@@ -537,6 +595,10 @@ function LegacyBlenderLandmark({
           if (o instanceof THREE.Mesh && /jets/.test(o.name))
             (o.material as THREE.Material).dispose();
         });
+      model.traverse((o) => {
+        if (o instanceof THREE.Mesh && o.userData.ownsMaterial)
+          (o.material as THREE.Material).dispose();
+      });
       // The museum's recoloured geometry is a private copy.
       if (id === "high")
         model.traverse((o) => {

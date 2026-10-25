@@ -32,6 +32,14 @@ const matrix = new THREE.Matrix4(),
   scale = new THREE.Vector3(),
   white = new THREE.Color("#ffffff");
 
+function toFloat(attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute) {
+  const size = attribute.itemSize,
+    values = new Float32Array(attribute.count * size);
+  for (let i = 0; i < attribute.count; i++)
+    for (let k = 0; k < size; k++) values[i * size + k] = attribute.getComponent(i, k);
+  return new THREE.BufferAttribute(values, size);
+}
+
 /** Bake the named pack nodes into one geometry per material, so a whole room of props is one or two draws. */
 function bake(
   roots: Record<PackId, THREE.Object3D | undefined>,
@@ -59,6 +67,9 @@ function bake(
       const g = o.geometry.clone();
       for (const name of Object.keys(g.attributes))
         if (!["position", "normal", "uv"].includes(name)) g.deleteAttribute(name);
+        // Packed models store quantised, normalised integers; transforming those in
+        // place would clamp every vertex back into the unit box. Work in floats.
+        else g.setAttribute(name, toFloat(g.getAttribute(name)));
       // Pack nodes sit under the pack root; take the node's transform relative to that root.
       g.applyMatrix4(o.matrixWorld);
       g.applyMatrix4(new THREE.Matrix4().copy(root!.matrixWorld).invert());

@@ -9,7 +9,8 @@ import { timeOfDay } from "../lighting";
 import { Trees, type TreeSpot } from "./trees";
 
 const noPick = () => {};
-const paving = new THREE.Color("#cfc6b4"),
+const lawnShade = new THREE.Color("#6f8f5e"),
+  paving = new THREE.Color("#cfc6b4"),
   pavingNight = new THREE.Color("#7b7a8c");
 
 /**
@@ -89,7 +90,8 @@ export function RoomPlinth({ room }: { room: string }) {
   }, [home, radius]);
   useEffect(() => () => ground.dispose(), [ground]);
   useFrame(() => {
-    if (home) ground.color.copy(timeOfDay.ground);
+    // The room key light is strong; keep the lawn calmer than the street grass.
+    if (home) ground.color.copy(timeOfDay.ground).lerp(lawnShade, 0.35).multiplyScalar(0.78);
     else ground.color.lerpColors(paving, pavingNight, dark ? 1 : timeOfDay.nightFactor * 0.7);
   });
   const trees = useMemo<TreeSpot[]>(() => {
