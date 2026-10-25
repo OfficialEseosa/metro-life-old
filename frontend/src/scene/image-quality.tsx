@@ -9,7 +9,6 @@ import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { GentleBloom } from "./gentle-bloom";
 import { N8AOPass } from "n8ao";
 import { useStore } from "../store";
-import { motion } from "../walking";
 import { useEffectiveQuality, useRenderQuality } from "./render-quality";
 
 class BeautyPass extends Pass {
@@ -39,6 +38,10 @@ const lockedQuality =
   import.meta.env.DEV &&
   new URLSearchParams(location.search).has("lock-quality");
 const aoColour = new THREE.Color("#2b2340");
+/** Two frames further apart than this belong to separate runs of on-demand rendering. */
+const CONTINUOUS = 3;
+/** Lowest dynamic resolution, as a device pixel ratio. */
+const MIN_DPR = 0.5;
 /** Phones and small screens compute ambient occlusion at half resolution. */
 const smallScreen = (width: number) =>
   width < 900 || matchMedia("(pointer: coarse)").matches;
@@ -58,7 +61,14 @@ export function ImageQuality({
     pipeline = useRef<EffectComposer | null>(null),
     occlusion = useRef<N8AOPass | null>(null),
     aoState = useRef({ radius: 0, room: false }),
-    adaptive = useRef({ seconds: 0, frames: 0, slowWindows: 0, recovery: 0 }),
+    adaptive = useRef({
+      last: 0,
+      seconds: 0,
+      frames: 0,
+      slowWindows: 0,
+      direWindows: 0,
+      recovery: 0,
+    }),
     dpr = viewport.dpr;
   useEffect(() => {
     gl.toneMapping = THREE.NeutralToneMapping;
@@ -164,20 +174,27 @@ export function ImageQuality({
       ao.configuration.intensity = room ? 1.6 : 1.3;
     }
   }, -80);
-  useFrame((_, dt) => {
+  useFrame(() => {
     if (lockedQuality) return;
+    // Frames are rendered on demand, so only the interval between two frames of one continuous
+    // run says anything about speed; a frame after an idle gap starts a new run. Measured from
+    // wall-clock stamps: a machine that needs a second per frame must still be sampled.
     const sample = adaptive.current,
-      active = motion.moving || useStore.getState().cameraMoving;
-    if (document.hidden || !active || dt > 1) {
+      now = performance.now(),
+      gap = sample.last ? (now - sample.last) / 1000 : 0;
+    sample.last = now;
+    if (document.hidden || !gap || gap >= CONTINUOUS) {
       sample.seconds = sample.frames = 0;
       return;
     }
-    sample.seconds += dt;
+    sample.seconds += gap;
     sample.frames++;
     if (sample.seconds < 4) return;
     const fps = sample.frames / sample.seconds,
-      auto = useRenderQuality.getState();
+      auto = useRenderQuality.getState(),
+      ceiling = Math.max(1, Math.min(window.devicePixelRatio, 2));
     sample.slowWindows = fps < 45 ? sample.slowWindows + 1 : 0;
+    sample.direWindows = fps < 20 ? sample.direWindows + 1 : 0;
     sample.recovery = fps > 57 ? sample.recovery + 1 : 0;
     sample.seconds = sample.frames = 0;
     if (sample.slowWindows >= 2) {
@@ -185,16 +202,16 @@ export function ImageQuality({
       if (quality === "normal") useRenderQuality.setState({ autoLow: true });
       else if (dpr > 1)
         onDprChange?.(Math.max(1, Math.round((dpr - 0.25) * 100) / 100));
+      // Dynamic resolution for machines that cannot hold 20 fps even at low quality: the HUD is
+      // DOM and stays sharp, while the world renders at down to half resolution.
+      else if (sample.direWindows >= 2 && dpr > MIN_DPR) {
+        sample.direWindows = 0;
+        onDprChange?.(Math.max(MIN_DPR, Math.round((dpr - 0.25) * 100) / 100));
+      }
     } else if (sample.recovery >= 6) {
       sample.recovery = 0;
-      if (dpr < Math.min(window.devicePixelRatio, 2))
-        onDprChange?.(
-          Math.min(
-            window.devicePixelRatio,
-            2,
-            Math.round((dpr + 0.25) * 100) / 100,
-          ),
-        );
+      if (dpr < ceiling)
+        onDprChange?.(Math.min(ceiling, Math.round((dpr + 0.25) * 100) / 100));
       else if (auto.autoLow) useRenderQuality.setState({ autoLow: false });
     }
   }, -90);
