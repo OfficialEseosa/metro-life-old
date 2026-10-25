@@ -120,9 +120,20 @@ export async function meet(
   kind: "wave" | "hangout" | "gift" = "wave",
   targetId?: string,
 ) {
+  // Another request (a step being confirmed, a door) may still be finishing: wait briefly for it.
+  for (let i = 0; i < 20 && useStore.getState().acting; i++)
+    await new Promise((resolve) => setTimeout(resolve, 150));
   const s = useStore.getState(),
     p = motion.position;
-  if (!s.sim || !p || s.acting || s.sim.busyUntil || s.sim.pendingBeat) return;
+  if (!s.sim || !p) return "not ready";
+  if (s.acting || s.sim.busyUntil || s.sim.pendingBeat) {
+    useWalking.setState({
+      error: s.sim.pendingBeat
+        ? "Make your story choice first."
+        : "Finish what you are doing first.",
+    });
+    return "busy";
+  }
   const person = targetId
     ? s.players.find(
         (n) =>
@@ -138,7 +149,7 @@ export async function meet(
     useWalking.setState({
       error: "Walk up to someone first. Their name shows on the button.",
     });
-    return;
+    return "nobody";
   }
   useStore.setState({ acting: true });
   try {
@@ -157,10 +168,11 @@ export async function meet(
     useStore.getState().setSim(r.sim);
     useStore.setState({ socialNotice: r.text });
     useWalking.setState({ error: "" });
+    return "sent";
   } catch (e) {
-    useWalking.setState({
-      error: friendlyMessage(e, `Could not reach ${person.username}. Try again.`),
-    });
+    const message = friendlyMessage(e, `Could not reach ${person.username}. Try again.`);
+    useWalking.setState({ error: message });
+    return message;
   } finally {
     useStore.setState({ acting: false });
   }

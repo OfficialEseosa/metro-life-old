@@ -285,7 +285,7 @@ Newly started browser lives opt their shared world into a seven-minute day (`Clo
   Plane fares are $120 (Atlanta and New York), $160 (Atlanta and Bay Area) and $170 (New York and Bay Area);
   a bus costs a quarter. Starting cash covers a first flight, and about two entry shifts ($70 each in Atlanta)
   pay for the next one.
-- **Opening hours.** Food venues open 06:00 to 02:00, music and nightlife 12:00 to 05:00, workplaces and
+- **Opening hours.** Food venues never close, music and nightlife 12:00 to 05:00, workplaces and
   transport all day, and other places at least 07:00 to 23:00. Someone already inside when a place closes may
   still finish activities there (`Civic.openFor`). A closed place answers "<Name> is closed right now. It opens
   at HH:00."

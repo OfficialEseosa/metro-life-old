@@ -55,8 +55,10 @@ export type RoomLayout = {
 };
 export function roomLayout(city: CityId, type: keyof typeof rooms): RoomLayout {
   if (type === "home" && activeHome) return activeHome;
-  const base = rooms[type];
-  return (city === "atl" ? base : base.variants[city]) as RoomLayout;
+  const base = rooms[type] ?? rooms.work;
+  // A city without its own variant (or an unknown room) falls back to the Atlanta layout rather
+  // than handing callers `undefined`.
+  return ((city === "atl" ? base : base.variants?.[city]) ?? base) as RoomLayout;
 }
 /** Every landmark assignment is authored in the same file the server loads. */
 export function interiorType(_world: World | null, city: CityId, loc: string) {

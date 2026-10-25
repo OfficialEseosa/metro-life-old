@@ -28,14 +28,14 @@ import { LifeBubble, StinkCloud } from "./speech-bubbles";
 import { roomFloorHeight } from "./venue-zones";
 
 /** Fit the room stage, including its height, rather than following feet into a wall. */
-function roomView(layout: RoomLayout, aspect: number) {
-  const bounds = layout.bounds ?? { w: 12, d: 10 },
-    height = layout.height ?? 3.6,
+function roomView(layout: RoomLayout | undefined, aspect: number) {
+  const bounds = layout?.bounds ?? { w: 12, d: 10 },
+    height = layout?.height ?? 3.6,
     focus = (
-      layout as RoomLayout & {
-        cameraFocus?: { x: number; y: number; z: number };
-      }
-    ).cameraFocus,
+      layout as
+        (RoomLayout & { cameraFocus?: { x: number; y: number; z: number } })
+        | undefined
+    )?.cameraFocus,
     yaw = 0.45,
     pitch = (50 * Math.PI) / 180,
     target = new THREE.Vector3(
