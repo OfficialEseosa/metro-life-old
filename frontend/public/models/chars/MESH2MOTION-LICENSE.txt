@@ -1,0 +1,11 @@
+mesh2motion human base and addon animation libraries
+Source: https://github.com/scottpetrovic/mesh2motion-app (static/animations/human-base-animations.glb, human-addon-animations.glb)
+Licence text from https://raw.githubusercontent.com/scottpetrovic/mesh2motion-app/main/LICENSE-CC0.MD :
+
+All 3d models, blend files, rigs, animations
+
+CC0 1.0 Universal
+By marking the work with a CC0 public domain dedication, the creator is giving up their copyright and allowing reusers to distribute, remix, adapt, and build upon the material in any medium or format, even for commercial purposes.
+
+https://creativecommons.org/publicdomain/zero/1.0/
+Used for activities-f.bin and activities-m.bin, retargeted offline by scripts/retarget-activities.mjs.
