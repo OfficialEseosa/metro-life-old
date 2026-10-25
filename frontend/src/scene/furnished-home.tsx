@@ -123,7 +123,7 @@ export function FurnishedHome() {
       </mesh>
       <RoomWalls hw={hw} hd={hd} palette={palette} paper={textures.paper} />
       <WallMounted side="back">
-        <HomeWindow hd={hd} />
+        <RoomWindow hd={hd} />
       </WallMounted>
       <Suspense fallback={null}>
         {modelled.map(({ f, props }) => (
@@ -168,7 +168,7 @@ export function FurnishedHome() {
 
 const warmNight = new THREE.Color("#ffcf8a");
 /** Glass in the back-wall opening: the sky by day, a warm reflection after dark. */
-function HomeWindow({ hd }: { hd: number }) {
+export function RoomWindow({ hd }: { hd: number }) {
   const material = useRef<THREE.MeshStandardMaterial>(null);
   useFrame(() => {
     const m = material.current;

@@ -11,7 +11,7 @@ import { useNightLighting } from "../lighting";
 import { roomPalette, roomTexture } from "./room-surfaces";
 import { RoomWalls, WallMounted } from "./room-walls";
 import { RoomStaff } from "./room-staff";
-import { FurnishedHome } from "./furnished-home";
+import { FurnishedHome, RoomWindow } from "./furnished-home";
 import { PropBatch } from "./kaykit-props";
 import { venueDecor } from "./venue-decor";
 import { Suspense } from "react";
@@ -459,16 +459,7 @@ function PublicInterior({ room }: { room: string }) {
             <meshStandardMaterial vertexColors roughness={0.85} />
           </mesh>
         )}
-        {windowed && (
-          <mesh name="room-window" position={[-0.7, 1.85, -hd + 0.08]}>
-            <planeGeometry args={[1.7, 1.3]} />
-            <meshStandardMaterial
-              color={night ? "#203e58" : "#cde1db"}
-              emissive={night ? "#28455f" : "#c8d9db"}
-              emissiveIntensity={night ? 0.25 : 0.55}
-            />
-          </mesh>
-        )}
+        {windowed && <RoomWindow hd={hd - 0.06} />}
         <WorldText
           position={[0, Math.min(height - 0.6, 8.5), -hd + 0.5]}
           fontSize={Math.max(0.6, Math.min(1.2, hw * 0.065))}

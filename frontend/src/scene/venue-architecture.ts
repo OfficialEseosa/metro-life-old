@@ -538,6 +538,32 @@ export function buildVenueArchitecture(
         ["#c09e68", "#7eb2a4", "#ad7a91"][i % 3],
         8,
       );
+    // Bottles stand on a lit back-bar shelf.
+    b.box(-9.9, 1.64, 3, 5.4, 0.08, 0.42, "#4a3b4c");
+    glow.box(-9.9, 1.6, 3.22, 5.4, 0.03, 0.02, "#f0b77a");
+    // LED strips along both side walls and a mirror ball over the floor.
+    for (const x of [-w / 2 + 0.12, w / 2 - 0.12])
+      for (const [y, colour] of [
+        [3.1, "#e48fc4"],
+        [0.35, "#8fa8ec"],
+      ] as const)
+        glow.box(x, y, 0, 0.04, 0.06, d - 2, colour);
+    b.cylinder(0, 5.9, 0, 0.015, 1.2, "#8d8796", 4);
+    b.sphere(0, 5.2, 0, 0.48, "#d9dde8");
+    for (let i = 0; i < 10; i++) {
+      const a = i * 2.4,
+        y = 5.2 + Math.sin(i * 1.3) * 0.32;
+      glow.sphere(
+        Math.cos(a) * 0.38,
+        y,
+        Math.sin(a) * 0.38,
+        0.07,
+        i % 2 ? "#ffffff" : "#e9d7ff",
+        1,
+        1,
+        0.4,
+      );
+    }
   } else if (type === "hospital") {
     b.box(6, 1.5, -7, 11, 3, 0.12, "#bfd0c7");
     for (let i = 0; i < 5; i++) {

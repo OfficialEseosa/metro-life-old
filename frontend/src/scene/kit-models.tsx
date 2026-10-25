@@ -86,6 +86,29 @@ export function KitInstances({
         material.polygonOffsetFactor = -1;
         material.polygonOffsetUnits = -2;
       }
+      if (url.includes("streetlight")) {
+        // The underside of the lamp head glows after dark.
+        geometry.computeBoundingBox();
+        const top = geometry.boundingBox!.max.y,
+          lamps = lightUniforms.lights;
+        material.onBeforeCompile = (shader) => {
+          shader.uniforms.lampLights = lamps;
+          shader.uniforms.lampTop = { value: top };
+          shader.vertexShader =
+            "uniform float lampTop;varying float vLampHead;\n" +
+            shader.vertexShader.replace(
+              "#include <begin_vertex>",
+              "#include <begin_vertex>\nvLampHead=smoothstep(lampTop*.82,lampTop*.9,position.y)*step(normal.y,-.4);",
+            );
+          shader.fragmentShader =
+            "uniform float lampLights;varying float vLampHead;\n" +
+            shader.fragmentShader.replace(
+              "#include <emissivemap_fragment>",
+              "#include <emissivemap_fragment>\ntotalEmissiveRadiance+=lampLights*vLampHead*vec3(2.6,1.9,1.1);",
+            );
+        };
+        material.customProgramCacheKey = () => "metro-lamp-head-v1";
+      }
       if (/building|painted-row/.test(url)) {
         windowMask(
           geometry,
@@ -513,6 +536,11 @@ function LegacyBlenderLandmark({
         model.traverse((o) => {
           if (o instanceof THREE.Mesh && /jets/.test(o.name))
             (o.material as THREE.Material).dispose();
+        });
+      // The museum's recoloured geometry is a private copy.
+      if (id === "high")
+        model.traverse((o) => {
+          if (o instanceof THREE.Mesh) o.geometry.dispose();
         });
     },
     [id, model],

@@ -309,7 +309,7 @@ export function updateTimeOfDay() {
     Math.abs(top.r - p.skyTop.r) +
       Math.abs(top.g - p.skyTop.g) +
       Math.abs(top.b - p.skyTop.b) >
-      0.025 ||
+      0.05 ||
     Math.abs(m - lastRefresh.minutes) > 120
   ) {
     top.copy(p.skyTop);

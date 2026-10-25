@@ -124,6 +124,7 @@ export function SkyEnvironment({ room }: { room: boolean }) {
       ground: THREE.MeshBasicMaterial;
       texture: THREE.Texture | null;
       revision: number;
+      builtAt: number;
     } | null>(null);
   useEffect(() => {
     const envScene = new THREE.Scene(),
@@ -141,6 +142,7 @@ export function SkyEnvironment({ room }: { room: boolean }) {
       ground,
       texture: null,
       revision: -1,
+      builtAt: 0,
     };
     return () => {
       const s = state.current;
@@ -162,7 +164,10 @@ export function SkyEnvironment({ room }: { room: boolean }) {
       p = timeOfDay;
     // RoomLighting owns scene.environment indoors and restores ours on exit.
     if (!s || room) return;
-    if (s.revision !== p.revision || !s.texture) {
+    // A game day lasts minutes, so cap rebuilds at one every 1.5 s.
+    const now = performance.now();
+    if (!s.texture || (s.revision !== p.revision && now - s.builtAt > 1500)) {
+      s.builtAt = now;
       const u = s.sky.uniforms;
       (u.top.value as THREE.Color).copy(p.skyTop);
       (u.bottom.value as THREE.Color).copy(p.skyBottom);
@@ -170,7 +175,9 @@ export function SkyEnvironment({ room }: { room: boolean }) {
       u.sunDisc.value = p.sunDisc * 0.6;
       u.stars.value = 0;
       s.ground.color.copy(p.hemiGround).lerp(p.ground, 0.5);
-      const next = s.generator.fromScene(s.envScene, 0.02).texture,
+      // A smooth sky gradient needs little resolution; 64 px keeps rebuilds cheap.
+      const next = s.generator.fromScene(s.envScene, 0.02, 0.1, 100, { size: 64 })
+          .texture,
         previous = s.texture;
       s.texture = next;
       s.revision = p.revision;
@@ -332,9 +339,9 @@ export function WorldLights({
         .addScaledVector(shadowDirection, w);
       s.target.position.copy(center);
       s.position.copy(center).addScaledVector(shadowDirection, FOLLOW_DISTANCE);
-      // Live shadows for people and cars; Low quality refreshes at a third of the rate.
+      // Live shadows for people, cars and trees at half the frame rate (a quarter on Low).
       frame.current++;
-      if (quality === "normal" || frame.current % 3 === 0 || moved)
+      if (frame.current % (quality === "normal" ? 2 : 4) === 0 || moved)
         gl.shadowMap.needsUpdate = true;
     } else if (moved) {
       s.target.position.set(8, 0, 6);

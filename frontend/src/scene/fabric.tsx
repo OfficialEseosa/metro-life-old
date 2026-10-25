@@ -1,5 +1,5 @@
 /* oxlint-disable react/only-export-components -- Layout exports feed the shared navigation generator. */
-import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
+import { Suspense, useLayoutEffect, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { outsideHomes } from "./cities";
@@ -13,7 +13,6 @@ import { outsideAtlantaTowers } from "./atlanta-models";
 import { Trees } from "./trees";
 import { useEffectiveQuality } from "./render-quality";
 
-const noPick = () => {};
 export type Placement = {
   x: number;
   y: number;
@@ -26,53 +25,6 @@ export type Placement = {
   pitch?: number;
   scale?: number;
 };
-
-export function Instances({
-  geometry,
-  placements,
-  emissive = false,
-  night,
-}: {
-  geometry: THREE.BufferGeometry;
-  placements: Placement[];
-  emissive?: boolean;
-  night: boolean;
-}) {
-  const ref = useRef<THREE.InstancedMesh>(null);
-  useLayoutEffect(() => {
-    const mesh = ref.current!,
-      dummy = new THREE.Object3D();
-    placements.forEach((p, i) => {
-      dummy.position.set(p.x, p.y, p.z);
-      dummy.scale.set(p.sx, p.sy, p.sz);
-      dummy.rotation.set(0, p.angle, 0);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
-      mesh.setColorAt(i, new THREE.Color(p.color));
-    });
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    mesh.computeBoundingSphere();
-    mesh.updateMatrix();
-    mesh.matrixAutoUpdate = false;
-  }, [placements]);
-  return (
-    <instancedMesh
-      ref={ref}
-      args={[geometry, undefined, placements.length]}
-      castShadow={!emissive}
-      receiveShadow={!emissive}
-      raycast={noPick}
-    >
-      <meshStandardMaterial
-        vertexColors
-        roughness={0.85}
-        emissive={emissive ? "#ffe0a0" : "#000000"}
-        emissiveIntensity={night && emissive ? 1.4 : 0}
-      />
-    </instancedMesh>
-  );
-}
 
 function fabricData() {
   let seed = 421;
