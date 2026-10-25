@@ -37,7 +37,10 @@ test("d. backend stopped shows the reconnect screens and recovers", async ({ bro
 
   await down();
   try {
-    await expect(page.getByText(/Reconnecting|Connection lost/i).first()).toBeVisible({ timeout: 180_000 });
+    // Phones hide the HUD status text and show only the banner, so take whichever match is visible.
+    await expect(page.getByText(/Reconnecting|Connection lost/i).filter({ visible: true }).first()).toBeVisible({
+      timeout: 180_000,
+    });
     await shot(page, testInfo, "d-reconnecting");
 
     await page.reload({ waitUntil: "domcontentloaded" });
