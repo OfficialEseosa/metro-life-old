@@ -159,7 +159,8 @@ function routeToStation(loc: string, last: Task) {
   const s = useStore.getState(),
     sim = s.sim,
     p = motion.position;
-  if (!sim || !p) throw Error("Start your life first");
+  if (!sim) throw Error("Start your life first");
+  if (!p) throw Error("The city is still placing you. Try again in a moment");
   if (s.acting || sim.busyUntil)
     throw Error("Finish your current activity first");
   if (sim.pendingBeat) throw Error("Choose your story first");

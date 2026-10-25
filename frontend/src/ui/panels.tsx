@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { api } from "../api/client";
 import type { Action, Job, Sim, StoryBeat } from "../api/types";
 import { useStore } from "../store";
+import { useWalking } from "../walking";
 import {
   ReasonButton,
   Avatar,
@@ -478,6 +479,8 @@ export function JobsPanel() {
     city = useStore((s) => s.city),
     sim = useStore((s) => s.sim),
     world = useStore((s) => s.world),
+    // Applying means walking to the hiring desk, which needs the player standing in the city.
+    placed = useWalking((s) => !!s.position),
     [listing, setListing] = useState<{
       city: string;
       jobs: Job[];
@@ -595,13 +598,15 @@ export function JobsPanel() {
                         ? "Finding your workplace…"
                         : sim.city !== job.city
                           ? "Fly to this city first"
-                          : sim.busyUntil
-                            ? "Finish your activity first"
-                            : sim.pendingBeat
-                              ? "Choose your story first"
-                              : closed
-                                ? `Workplace closed · Opens at ${open[0]}:00`
-                                : ""
+                          : !placed
+                            ? "Finding your place in the city…"
+                            : sim.busyUntil
+                              ? "Finish your activity first"
+                              : sim.pendingBeat
+                                ? "Choose your story first"
+                                : closed
+                                  ? `Workplace closed · Opens at ${open[0]}:00`
+                                  : ""
                     }
                     title={closed ? "Workplace closed" : undefined}
                     onClick={() => run(() => apply(job))}
