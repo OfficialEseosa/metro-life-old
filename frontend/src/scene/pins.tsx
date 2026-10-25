@@ -184,17 +184,32 @@ export function Pins({
     },
     [data],
   );
-  const version = useRef("");
+  const inputsRef = useRef<unknown[]>([]);
   useFrame(() => {
     data.material.uniforms.size.value = 36 * gl.getPixelRatio();
-    const key = `${selected}:${size.width}:${size.height}:${lens}:${sim?.cash}:${sim?.job?.track}:${!!world}:${insets.top}:${insets.right}:${insets.bottom}:${insets.left}`;
-    if (
-      lastCamera.current.equals(camera.matrixWorld) &&
-      version.current === key
-    )
-      return;
+    // Compare inputs field by field; no strings are built per frame.
+    const inputs = inputsRef.current,
+      next = [
+        selected,
+        size.width,
+        size.height,
+        lens,
+        sim?.cash,
+        sim?.job?.track,
+        !!world,
+        insets.top,
+        insets.right,
+        insets.bottom,
+        insets.left,
+      ] as const;
+    let same = lastCamera.current.equals(camera.matrixWorld);
+    for (let i = 0; i < next.length; i++)
+      if (inputs[i] !== next[i]) {
+        same = false;
+        inputs[i] = next[i];
+      }
+    if (same) return;
     lastCamera.current.copy(camera.matrixWorld);
-    version.current = key;
     const accepted: { x: number; y: number; i: number; count: number }[] = [],
       visible = data.geometry.getAttribute("pinVisible"),
       icons = data.geometry.getAttribute("iconIndex"),

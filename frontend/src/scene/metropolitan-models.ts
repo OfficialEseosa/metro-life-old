@@ -87,44 +87,76 @@ function park(b: Builder, w = 20, d = 15) {
       );
   return b;
 }
+/** A parked airliner: white fuselage, swept wings and a coloured tail. */
+function plane(b: Builder, x: number, z: number, ry: number, tail: string) {
+  const p = new Builder();
+  p.add(new THREE.CylinderGeometry(0.42, 0.42, 6.4, 10), "#f4f2ec", 0, 0.95, 0, Math.PI / 2);
+  p.add(new THREE.SphereGeometry(0.42, 10, 6), "#f4f2ec", 0, 0.95, 3.2, 0, 0, 0);
+  p.add(new THREE.ConeGeometry(0.42, 1.2, 10), "#f4f2ec", 0, 0.95, -3.8, -Math.PI / 2);
+  p.box(0, 0.85, 0.3, 6.6, 0.1, 1.3, "#e6e3da");
+  p.box(0, 1.0, -3.6, 2.6, 0.08, 0.8, "#e6e3da");
+  p.box(0, 1.75, -3.7, 0.1, 1.5, 1.0, tail);
+  p.box(0, 1.03, 2.1, 0.86, 0.12, 0.5, "#3c5664");
+  for (const ex of [-1.8, 1.8]) p.add(new THREE.CylinderGeometry(0.22, 0.22, 0.8, 8), "#c9ccc8", ex, 0.6, 0.6, Math.PI / 2);
+  for (const [gx, gz] of [[0, 2.4], [-1, 0], [1, 0]]) p.cylinder(gx, 0.25, gz, 0.07, 0.5, "#55606a", 6);
+  const g = p.build();
+  g.rotateY(ry);
+  return b.add(g, "#ffffff", x, 0, z) && restoreColours(b, g);
+}
+/** Builder.add paints a flat colour; keep the per-part colours of a sub-build. */
+function restoreColours(b: Builder, g: THREE.BufferGeometry) {
+  const added = b.parts.at(-1)!;
+  added.setAttribute("color", g.getAttribute("color").clone());
+  return b;
+}
 function airport(b: Builder, curved = false) {
-  b.box(0, 1.1, 0, 14, 2.2, 6, white).box(0, 1.4, 3.05, 13, 1, 0.1, glass);
+  const hall = "#ebe7dc",
+    trim = "#d5cbb5",
+    pane = "#6a9bb0";
+  b.box(0, 0.06, -4, 37, 0.12, 31, "#a7aea9");
+  // Terminal hall with a glass curtain wall facing the city.
+  b.box(0, 1.6, 1, 17, 3.2, 7, hall).box(0, 1.55, 4.53, 16.4, 2.5, 0.08, pane);
+  for (let x = -7.8; x <= 7.8; x += 1.3) b.box(x, 1.55, 4.6, 0.09, 2.5, 0.08, trim);
+  b.box(0, 3.25, 4.6, 17.4, 0.18, 0.4, trim);
   if (curved) {
-    b.sphere(-4, 2.9, 0, 1, white, 6, 0.4, 4).sphere(
-      4,
-      2.9,
-      0,
-      1,
-      white,
-      6,
-      0.4,
-      4,
-    );
+    // Two vaulted shells, the classic winged terminal roof.
+    for (const x of [-4.2, 4.2]) {
+      const vault = new THREE.CylinderGeometry(3.4, 3.4, 7.6, 18, 1, true, -Math.PI / 2, Math.PI);
+      vault.scale(1, 0.42, 1);
+      b.add(vault, "#f6f2e8", x, 3.2, 1, Math.PI / 2, 0, Math.PI / 2);
+    }
+    b.box(0, 3.3, 1, 0.5, 0.4, 7.2, trim);
+  } else {
+    b.box(0, 3.5, 1, 18.4, 0.35, 8.4, "#f2eee4");
+    for (let x = -8; x <= 8; x += 4) b.box(x, 3.75, 1, 2.2, 0.25, 6, "#cfd9d6");
   }
-  for (const x of [-10, -3, 4, 11]) b.box(x, 0.75, -7, 2, 1.5, 13, white);
-  for (const z of [-17, 14]) {
-    b.box(0, 0.08, z, 35, 0.15, 2.5, "#5b6670");
-    for (let x = -16; x < 17; x += 3) b.box(x, 0.18, z, 1, 0.04, 0.12, white);
+  // Landside canopy over the drop-off kerb.
+  b.box(0, 2.6, 6.6, 15, 0.16, 2.6, "#d9e3e1");
+  for (const x of [-6.5, -2, 2, 6.5]) b.cylinder(x, 1.3, 7.6, 0.08, 2.6, "#9aa7a6", 8);
+  b.box(0, 0.08, 7.4, 17, 0.06, 3, "#7d8784");
+  // Piers with glazed sides and jet bridges.
+  for (const x of [-10, 0, 10]) {
+    b.box(x, 0.9, -8, 2.6, 1.8, 11, hall);
+    for (const side of [-1, 1]) b.box(x + side * 1.31, 1.05, -8, 0.06, 0.8, 10.4, pane);
+    b.box(x, 1.9, -8, 2.9, 0.16, 11.3, trim);
+    for (const z of [-6, -11]) {
+      for (const side of [-1, 1]) {
+        b.box(x + side * 2.4, 1.15, z, 2.2, 0.6, 0.6, "#c9cec9");
+        b.cylinder(x + side * 3.4, 0.55, z, 0.08, 1.1, "#7b8585", 6);
+      }
+    }
   }
-  b.cylinder(-14, 4, 2, 0.45, 8, stone, 8).cylinder(
-    -14,
-    8.2,
-    2,
-    1.4,
-    1.1,
-    glass,
-    8,
-  );
-  for (const x of [-7, 7])
-    b.box(x, 0.45, -12, 0.5, 0.5, 4, white).box(
-      x,
-      0.45,
-      -12,
-      3.8,
-      0.15,
-      0.6,
-      white,
-    );
+  plane(b, -5, -6.3, Math.PI / 2, "#3f7fb3");
+  plane(b, 5, -11.2, -Math.PI / 2, "#d4774f");
+  plane(b, 15, -6.3, -Math.PI / 2, "#5aa587");
+  plane(b, -15, -11.2, Math.PI / 2, "#c95f6f");
+  for (const z of [-19, 15]) {
+    b.box(0, 0.08, z, 37, 0.15, 2.6, "#5b6670");
+    for (let x = -16; x < 17; x += 3) b.box(x, 0.18, z, 1, 0.04, 0.12, "#f4f2ea");
+  }
+  b.cylinder(-15, 4, 3, 0.5, 8, "#d8d3c4", 10)
+    .cylinder(-15, 8.3, 3, 1.4, 1.1, "#4f7b8f", 10, 1.6)
+    .cylinder(-15, 8.95, 3, 1.75, 0.2, "#f0ece2", 10);
   return b;
 }
 function ballpark(b: Builder, w = 20) {

@@ -265,7 +265,7 @@ export function WorldLights({
     if (fog) fog.color.copy(p.fog);
     if (!s) return;
     s.visible = !room;
-    s.castShadow = !room;
+    s.castShadow = !room && !scene.userData.noSunShadow;
     if (room) return;
     s.color.copy(p.sun);
     s.intensity = p.sunIntensity;
@@ -303,9 +303,13 @@ export function WorldLights({
       shadowCamera.near = 1;
       shadowCamera.far = follow ? FOLLOW_DISTANCE * 2 + 40 : 420;
       shadowCamera.updateProjectionMatrix();
-      s.shadow.bias = follow ? -0.0002 : -0.0003;
-      s.shadow.normalBias = follow ? 0.025 : 0.12;
-      s.shadow.radius = follow ? 3 : 2;
+      // PCF taps sit `radius` texels away at the receiver's own depth, so the normal
+      // offset must cover texel x radius or lit surfaces self-shadow into a grey wash.
+      const texel = (extent * 2) / s.shadow.mapSize.x,
+        radius = follow ? 2 : 1.5;
+      s.shadow.radius = radius;
+      s.shadow.normalBias = texel * (radius + 0.6);
+      s.shadow.bias = -0.0004;
       moved = true;
     }
     if (follow) {

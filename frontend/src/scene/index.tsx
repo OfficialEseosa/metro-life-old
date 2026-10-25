@@ -85,6 +85,7 @@ declare global {
       theme: (value: "day" | "night") => void;
       time: (minutes: number | null) => void;
       shadowMode: (mode: "follow" | "overview" | null) => void;
+      sunShadow: (on: boolean) => void;
       metrics: () => {
         calls: number;
         triangles: number;
@@ -294,7 +295,6 @@ function Architecture({ city }: { city: CityId }) {
 }
 function Home({ city }: { city: CityId }) {
   const home = useStore((s) => s.sim?.home),
-    night = useNightLighting(),
     site = homeSite(city, home),
     x = site?.x,
     z = site?.z,
@@ -322,7 +322,6 @@ function Home({ city }: { city: CityId }) {
         <KitInstances
           url="/models/kaykit/building_B_withoutBase.gltf"
           placements={placements}
-          night={night}
         />
       </group>
     </Suspense>
@@ -630,16 +629,38 @@ function City({
   }, [city, invalidate]);
   useEffect(() => {
     if (focus) {
-      if (!room) {
+      const sim = useStore.getState().sim;
+      // Arriving somewhere (map shortcut, flight, search travel) focuses the place the
+      // player now stands at: follow the player instead of flying to the landmark.
+      const arrived =
+        !!sim && sim.city === city && !sim.trip && sim.loc === focus;
+      if (!room && !arrived) {
         motion.follow = false;
         view(focus);
       } else {
         destination.current = null;
         motion.follow = true;
+        useStore.getState().setCameraMoving(false);
+        invalidate();
       }
       useStore.getState().setFocus(null);
     }
-  }, [focus, view, room]);
+  }, [focus, view, room, city, invalidate]);
+  // A teleport (shortcut, respawn, arrival) cancels any flight so the follow camera reframes.
+  useEffect(
+    () =>
+      useStore.subscribe((s, previous) => {
+        const a = s.sim?.position,
+          b = previous.sim?.position;
+        if (!a || !b || s.sim?.city !== city) return;
+        if (a.room !== b.room || Math.hypot(a.x - b.x, a.z - b.z) > 6) {
+          destination.current = null;
+          motion.follow = true;
+          invalidate();
+        }
+      }),
+    [city, invalidate],
+  );
   // Entering a room ends any outdoor intro/map flight before the walking camera takes over.
   useEffect(() => {
     if (!room) return;
@@ -844,6 +865,30 @@ function City({
                     castShadow: sun.castShadow,
                     extent: sun.shadow.camera.right,
                     mapReady: !!sun.shadow.map,
+                    radius: sun.shadow.radius,
+                    bias: sun.shadow.bias,
+                    normalBias: sun.shadow.normalBias,
+                    near: sun.shadow.camera.near,
+                    far: sun.shadow.camera.far,
+                    camPos: sun.shadow.camera.position.toArray(),
+                    playerNdc: (() => {
+                      const player = scene.getObjectByName("controlled-player");
+                      if (!player) return null;
+                      sun.shadow.camera.updateMatrixWorld();
+                      return player
+                        .getWorldPosition(new THREE.Vector3())
+                        .project(sun.shadow.camera)
+                        .toArray();
+                    })(),
+                    playerCasts: (() => {
+                      let casts = 0;
+                      scene
+                        .getObjectByName("controlled-player")
+                        ?.traverse((o) => {
+                          if ((o as THREE.Mesh).isMesh && o.castShadow) casts++;
+                        });
+                      return casts;
+                    })(),
                   }
                 : null,
               environment: !!scene.environment,
@@ -975,6 +1020,10 @@ function City({
       focus: (id) => view(id, true),
       theme: (value) => useStore.getState().setSceneTheme(value),
       time: (minutes) => setTimeOverride(minutes),
+      sunShadow: (on: boolean) => {
+        scene.userData.noSunShadow = !on;
+        gl.shadowMap.needsUpdate = true;
+      },
       shadowMode: (mode) => {
         scene.userData.shadowMode = mode ?? undefined;
       },
@@ -1087,10 +1136,10 @@ function City({
           <>
             <Ground />
             <Terrain />
-            <Fabric night={night} />
+            <Fabric />
           </>
         ) : (
-          <MetropolitanFabric key={city} city={city} night={night} />
+          <MetropolitanFabric key={city} city={city} />
         )}
         <Architecture key={`architecture-${city}`} city={city} />
         <Home city={city} />

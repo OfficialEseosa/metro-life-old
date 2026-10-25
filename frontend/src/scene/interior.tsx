@@ -12,6 +12,9 @@ import { roomPalette, roomTexture } from "./room-surfaces";
 import { RoomWalls, WallMounted } from "./room-walls";
 import { RoomStaff } from "./room-staff";
 import { FurnishedHome } from "./furnished-home";
+import { PropBatch } from "./kaykit-props";
+import { venueDecor } from "./venue-decor";
+import { Suspense } from "react";
 
 /** Room-specific furniture, collisions and use points come from one authored layout. */
 export function Interior({ room }: { room: string }) {
@@ -405,6 +408,7 @@ function PublicInterior({ room }: { room: string }) {
       }),
     [built],
   );
+  const decor = useMemo(() => venueDecor(type, layout), [type, layout]);
   const stove = layout.furniture.find((f) => f.kind === "stove"),
     desk = layout.furniture.find((f) => f.kind === "desk");
   return (
@@ -589,6 +593,9 @@ function PublicInterior({ room }: { room: string }) {
           />
         </>
       )}
+      <Suspense fallback={null}>
+        <PropBatch props={decor} name={`${type}-decor`} />
+      </Suspense>
       <VenueLiveProps
         type={type}
         loc={loc}

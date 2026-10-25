@@ -4,6 +4,7 @@ import routes from "../shared-data/resident-routes.json";
 import { navigation } from "../navigation";
 import type { CityId } from "../api/types";
 import { Builder } from "./geometry";
+import { paveify } from "./ground-material";
 
 /** Small paved lots and surveyed collision-free approaches anchor the close walking view. */
 export function Walkways({ city }: { city: CityId }) {
@@ -70,6 +71,15 @@ export function Walkways({ city }: { city: CityId }) {
     return b.build();
   }, [city]);
   useEffect(() => () => geometry.dispose(), [geometry]);
+  const material = useMemo(
+    () =>
+      paveify(
+        new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }),
+        "walkways",
+      ),
+    [],
+  );
+  useEffect(() => () => material.dispose(), [material]);
   return (
     <mesh
       name="walking-paths"
@@ -77,7 +87,7 @@ export function Walkways({ city }: { city: CityId }) {
       receiveShadow
       raycast={() => {}}
     >
-      <meshStandardMaterial vertexColors roughness={0.95} />
+      <primitive object={material} attach="material" />
     </mesh>
   );
 }

@@ -1,7 +1,7 @@
 import type { CityId } from "../api/types";
 import type { Placement } from "./fabric";
 import nav from "../shared-data/navigation.json";
-import { metricPlacement, METRES } from "./world-scale";
+import { metricPlacement, METRES, KAYKIT_SCALE } from "./world-scale";
 import { outsidePlots, outsideBoards } from "./economy-sites";
 import { homeSitesFor } from "./cities";
 
@@ -142,5 +142,46 @@ export function fitMetricGroups(
         pitch: 0,
       }),
     );
+  // Street dressing between the lamps: a bench, a planter or bush and a hydrant
+  // per stretch of sidewalk, on the kerb side so the walking lane stays clear.
+  const dressing: [string, number, number, number][] = [
+    // url, metric factor, road tile index modulo 5, lateral offset
+    ["kaykit/bench.gltf", KAYKIT_SCALE, 2, 4.6],
+    ["world/suburban/planter.glb", 4.2, 3, -4.6],
+    ["kaykit/firehydrant.gltf", KAYKIT_SCALE * 0.8, 4, 4.3],
+    ["kaykit/bush.gltf", KAYKIT_SCALE * 1.5, 1, -4.7],
+  ];
+  roads.forEach((p, i) => {
+    for (const [url, factor, slot, lateral] of dressing) {
+      if (i % 5 !== slot) continue;
+      const x = p.x + Math.cos(p.angle) * lateral,
+        z = p.z - Math.sin(p.angle) * lateral;
+      if (
+        reserved(x, z, 1.2) ||
+        !land(x, z) ||
+        taken.some(
+          (q) =>
+            Math.abs(q.x - x) < q.sx / 2 + 0.8 &&
+            Math.abs(q.z - z) < q.sz / 2 + 0.8,
+        )
+      )
+        continue;
+      (result[url] ??= []).push(
+        metricPlacement(
+          url,
+          {
+            ...p,
+            x,
+            z,
+            y: height(x, z),
+            // Benches face the street.
+            angle: p.angle + (lateral > 0 ? -Math.PI / 2 : Math.PI / 2),
+            pitch: 0,
+          },
+          factor,
+        ),
+      );
+    }
+  });
   return result;
 }

@@ -4,6 +4,7 @@ import type { RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Builder } from "./geometry";
+import { lightUniforms } from "../lighting";
 export function CarLights({
   source,
   count,
@@ -42,7 +43,14 @@ export function CarLights({
     [geometry, beam],
   );
   useFrame(() => {
-    if (!source.current) return;
+    const lights = lightUniforms.lights.value,
+      on = lights > 0.01;
+    if (bulbs.current) bulbs.current.visible = on;
+    if (pools.current) {
+      pools.current.visible = on;
+      (pools.current.material as THREE.MeshBasicMaterial).opacity = 0.055 * lights;
+    }
+    if (!source.current || !on) return;
     for (let i = 0; i < count; i++) {
       source.current.getMatrixAt(i, matrix);
       bulbs.current!.setMatrixAt(i, matrix);

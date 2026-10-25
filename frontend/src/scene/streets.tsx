@@ -2,6 +2,8 @@ import { useEffect, useMemo } from "react";
 import type { CityId } from "../api/types";
 import { streets } from "../street-network";
 import { Builder } from "./geometry";
+import * as THREE from "three";
+import { paveify } from "./ground-material";
 
 export function Streets({ city }: { city: CityId }) {
   const geometry = useMemo(() => {
@@ -72,6 +74,19 @@ export function Streets({ city }: { city: CityId }) {
     return b.build();
   }, [city]);
   useEffect(() => () => geometry.dispose(), [geometry]);
+  const material = useMemo(
+    () =>
+      paveify(
+        new THREE.MeshStandardMaterial({
+          vertexColors: true,
+          roughness: 0.94,
+          side: THREE.DoubleSide,
+        }),
+        "streets",
+      ),
+    [],
+  );
+  useEffect(() => () => material.dispose(), [material]);
   return (
     <mesh
       name="connected-street-network"
@@ -79,7 +94,7 @@ export function Streets({ city }: { city: CityId }) {
       receiveShadow
       raycast={() => {}}
     >
-      <meshStandardMaterial vertexColors roughness={0.94} side={2} />
+      <primitive object={material} attach="material" />
     </mesh>
   );
 }

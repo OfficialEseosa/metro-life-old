@@ -8,6 +8,8 @@ import type { CityId, PlotAd } from "../api/types";
 import { plotRectangle } from "../plot-selection";
 import { KitInstances } from "./kit-models";
 import { Builder } from "./geometry";
+
+const scratch = new THREE.Object3D();
 import { WorldText } from "./world-text";
 import { fictionalText } from "../content-names";
 import { apiFetch, apiUrl } from "../api/base";
@@ -112,7 +114,7 @@ function BookingPosters({
       return;
     dirty.current = false;
     lastCamera.current.copy(camera.matrixWorld);
-    const dummy = new THREE.Object3D();
+    const dummy = scratch;
     ads.forEach((a, i) => {
       dummy.position.set(
         -width / 2 + ((a.x + a.w / 2) / cols) * width,
@@ -234,7 +236,6 @@ function PlotField({ city, night }: { city: CityId; night: boolean }) {
       <KitInstances
         url="/models/kaykit/bench.gltf"
         shadow={false}
-        night={night}
         placements={[-1, 1].flatMap((side) =>
           [-0.3, 0.3].map((t) => ({
             x: side * (width / 2 + 1.6),
@@ -251,7 +252,6 @@ function PlotField({ city, night }: { city: CityId; night: boolean }) {
       <KitInstances
         url="/models/world/suburban/planter.glb"
         shadow={false}
-        night={night}
         placements={[-1, 1].flatMap((side) =>
           [-0.35, 0, 0.35].map((t) => ({
             x: width * t,

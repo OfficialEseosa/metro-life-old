@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { lightUniforms } from "../lighting";
 
 /** Occupied office windows follow the supplied glass faces; crowns retain their authored glow. */
 export function skylineWindows(
@@ -27,8 +28,7 @@ export function skylineWindows(
         : 0;
   }
   geometry.setAttribute("skylineGlass", new THREE.BufferAttribute(mask, 1));
-  const night = { value: 0 };
-  material.userData.skylineNight = night;
+  const night = lightUniforms.lights;
   material.onBeforeCompile = (shader) => {
     shader.uniforms.skylineNight = night;
     shader.vertexShader =

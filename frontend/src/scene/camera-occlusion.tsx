@@ -226,11 +226,16 @@ export function CameraOcclusion() {
       delete scene.userData.cameraOcclusion;
     };
   }, [scene, invalidate, target]);
+  const playerRef = useRef<THREE.Object3D | null>(null);
   useFrame(({ camera }) => {
     sync.current();
+    // Look the player group up only when the cached one has left the scene.
+    let player = playerRef.current;
+    if (!player || !player.parent) {
+      player = playerRef.current = scene.getObjectByName("controlled-player") ?? null;
+    }
     const state = useStore.getState(),
       p = motion.position,
-      player = scene.getObjectByName("controlled-player"),
       near =
         !!p &&
         Math.hypot(camera.position.x - p.x, camera.position.z - p.z) < 65;

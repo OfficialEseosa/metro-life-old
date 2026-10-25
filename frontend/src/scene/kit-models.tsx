@@ -12,7 +12,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import type { Placement } from "./fabric";
 import { ATLANTA_BLENDER_LANDMARKS, ATLANTA_TOWERS } from "./atlanta-models";
 import { atlSites } from "./cities/atl";
-import { useNightLighting } from "../lighting";
+import { lightUniforms } from "../lighting";
 
 export type DriveRoute = {
   x: number;
@@ -28,13 +28,11 @@ export function KitInstances({
   url,
   placements,
   shadow = true,
-  night = false,
   drive,
 }: {
   url: string;
   placements: Placement[];
   shadow?: boolean;
-  night?: boolean;
   drive?: DriveRoute[];
 }) {
   const { scene } = useGLTF(url);
@@ -79,6 +77,9 @@ export function KitInstances({
       parts.forEach((p) => p.dispose());
       if (!geometry) throw Error(`Cannot merge kit ${url}`);
       material.roughness = 0.78;
+      // Keep pure-white atlas texels from clipping under the bright sun.
+      material.color.multiplyScalar(0.96);
+      if (material.map) material.map.anisotropy = 8;
       // Streets meet the terrain at y=0; bias their coplanar faces to avoid distant green bands.
       if (/road_|\/streets\//.test(url)) {
         material.polygonOffset = true;
@@ -94,8 +95,8 @@ export function KitInstances({
         );
         bakeBuildingContact(geometry, 0.12);
         material.vertexColors = true;
-        const windowNight = { value: 0 };
-        material.userData.windowNight = windowNight;
+        // Every lit window reads the shared clock-driven lights uniform.
+        const windowNight = lightUniforms.lights;
         material.onBeforeCompile = (shader) => {
           shader.uniforms.windowNight = windowNight;
           shader.vertexShader =
@@ -134,16 +135,13 @@ export function KitInstances({
   );
   return (
     <group name={`kit:${url}`}>
-      {night && url.includes("streetlight") && (
-        <NightPools placements={placements} />
-      )}
+      {url.includes("streetlight") && <NightPools placements={placements} />}
       {batches.map((batch, i) => (
         <KitBatch
           key={i}
           {...batch}
           placements={placements}
           shadow={shadow}
-          night={night}
           drive={drive}
         />
       ))}
@@ -155,26 +153,16 @@ function KitBatch({
   material,
   placements,
   shadow,
-  night,
   drive,
 }: {
   geometry: THREE.BufferGeometry;
   material: THREE.MeshStandardMaterial;
   placements: Placement[];
   shadow: boolean;
-  night: boolean;
   drive?: DriveRoute[];
 }) {
   const ref = useRef<THREE.InstancedMesh>(null);
-  const { invalidate } = useThree(),
-    dummy = useMemo(() => new THREE.Object3D(), []);
-  useEffect(() => {
-    if (!drive) return;
-    const timer = setInterval(() => {
-      if (!document.hidden) invalidate();
-    }, 1000 / 30);
-    return () => clearInterval(timer);
-  }, [drive, invalidate]);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
   useFrame(({ clock }) => {
     if (!drive || !ref.current) return;
     drive.forEach((r, i) => {
@@ -214,15 +202,9 @@ function KitBatch({
     m.updateMatrix();
     m.matrixAutoUpdate = false;
   }, [placements]);
-  useLayoutEffect(() => {
-    material.emissive.set(night ? "#243c50" : "#000000");
-    material.emissiveIntensity = night ? 0.12 : 0;
-    if (material.userData.windowNight)
-      material.userData.windowNight.value = night ? 1 : 0;
-  }, [material, night]);
   return (
     <>
-      {night && drive && <CarLights source={ref} count={placements.length} />}
+      {drive && <CarLights source={ref} count={placements.length} />}
       <instancedMesh
         name={drive ? "driving-cars" : undefined}
         ref={ref}
@@ -309,7 +291,6 @@ function SuppliedAtlantaModel({
   scale?: [number, number, number];
 }) {
   const { scene } = useGLTF(asset.url),
-    night = useNightLighting(),
     { gl, invalidate } = useThree();
   const [scaleX, scaleY, scaleZ] = scale ?? [];
   const { model, materials, glowMaterial } = useMemo(() => {
@@ -409,17 +390,15 @@ function SuppliedAtlantaModel({
     };
   }, [scene, id, x, z, angle, asset, footprint, scaleX, scaleY, scaleZ]);
   useLayoutEffect(() => {
-    if (glowMaterial) {
-      glowMaterial.emissive.set(asset.nightColour);
-      glowMaterial.emissiveIntensity = night ? 1.6 : 0;
-    }
-    for (const material of materials)
-      if (material.userData.skylineNight)
-        material.userData.skylineNight.value = night ? 1 : 0;
-    model.userData.atlantaModel.night = night;
+    if (glowMaterial) glowMaterial.emissive.set(asset.nightColour);
     gl.shadowMap.needsUpdate = true;
     invalidate();
-  }, [model, glowMaterial, materials, asset, night, gl, invalidate]);
+  }, [glowMaterial, asset, gl, invalidate]);
+  useFrame(() => {
+    // Crowns and halos fade in with the street lights.
+    if (glowMaterial)
+      glowMaterial.emissiveIntensity = 2.2 * lightUniforms.lights.value;
+  });
   useEffect(
     () => () => {
       model.traverse((o) => {
@@ -430,6 +409,41 @@ function SuppliedAtlantaModel({
     [model, materials],
   );
   return <primitive object={model} />;
+}
+
+/**
+ * The museum is authored all white. Give the facades an enamel-panel rhythm,
+ * tint the sloped skylights like glass and warm the roof, so it reads as a
+ * building in daylight instead of an untextured block.
+ */
+function panelWhiteFacade(mesh: THREE.Mesh) {
+  const geometry = mesh.geometry.clone(),
+    position = geometry.getAttribute("position"),
+    normal = geometry.getAttribute("normal"),
+    colour = geometry.getAttribute("color");
+  if (!colour) return;
+  const glass = new THREE.Color("#8fb4c4"),
+    roof = new THREE.Color("#ded8cb"),
+    c = new THREE.Color();
+  for (let i = 0; i < position.count; i++) {
+    c.fromBufferAttribute(colour, i);
+    if (c.r + c.g + c.b < 2.6) continue;
+    const ny = normal.getY(i),
+      x = position.getX(i),
+      y = position.getY(i),
+      z = position.getZ(i);
+    if (ny > 0.3 && ny < 0.97) c.copy(glass);
+    else if (ny >= 0.97) c.copy(roof);
+    else {
+      const along = Math.abs(normal.getX(i)) > Math.abs(normal.getZ(i)) ? z : x,
+        panel = (Math.floor(along / 1.2) + Math.floor(y / 1.2)) % 2;
+      c.setRGB(0.93, 0.915, 0.885).multiplyScalar(panel ? 1 : 0.955);
+      if (y < 0.6) c.multiplyScalar(0.86);
+    }
+    colour.setXYZ(i, c.r, c.g, c.b);
+  }
+  colour.needsUpdate = true;
+  mesh.geometry = geometry;
 }
 
 /** Original authored scene-unit assets for the remaining cities and park sites. */
@@ -450,13 +464,6 @@ function LegacyBlenderLandmark({
   useFrame(({ clock }) => {
     fountainTime.value = clock.elapsedTime;
   });
-  useEffect(() => {
-    if (id !== "centennial") return;
-    const timer = setInterval(() => {
-      if (!document.hidden) invalidate();
-    }, 1000 / 30);
-    return () => clearInterval(timer);
-  }, [id, invalidate]);
   useLayoutEffect(() => {
     gl.shadowMap.needsUpdate = true;
     invalidate();
@@ -486,6 +493,7 @@ function LegacyBlenderLandmark({
           material.customProgramCacheKey = () => "metro-fountain-pulse-v1";
           o.material = material;
         }
+        if (id === "high") panelWhiteFacade(o);
         o.castShadow = !water;
         o.receiveShadow = !water;
         o.raycast = noPick;

@@ -1,5 +1,8 @@
 /* oxlint-disable react/only-export-components -- Layout exports feed the shared navigation generator. */
 import { Suspense, useEffect, useLayoutEffect, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import { grassify } from "./ground-material";
+import { timeOfDay } from "../lighting";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { Builder } from "./geometry";
@@ -13,6 +16,8 @@ import osm from "./city-osm.json";
 import { metricPlacement } from "./world-scale";
 import { fitMetricGroups } from "./metric-layout";
 import { outsidePlots, outsideBoards } from "./economy-sites";
+import { Trees } from "./trees";
+import { useEffectiveQuality } from "./render-quality";
 const noPick = () => {};
 function inside(x: number, z: number, poly: number[][]) {
   let yes = false;
@@ -306,8 +311,6 @@ export function dataFor(city: "nyc" | "bay") {
         Math.floor((row * 24) / rowCount)
       );
     });
-  for (const home of selectedBrownstones)
-    b.box(home.x, home.y + 0.25, home.z + 2.1, 0.7, 0.5, 0.7, "#927964");
   for (let i = 0; i < 470; i++) {
     const x = rand() * 210 - 95,
       z = rand() * 220 - 98;
@@ -425,13 +428,23 @@ export function dataFor(city: "nyc" | "bay") {
     roads: connectedRoads,
   };
 }
-export function MetropolitanFabric({
-  city,
-  night,
-}: {
-  city: "nyc" | "bay";
-  night: boolean;
-}) {
+const dayGround = new THREE.Color("#86b86a");
+export function MetropolitanFabric({ city }: { city: "nyc" | "bay" }) {
+  const landMaterial = useMemo(
+    () =>
+      grassify(
+        new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
+        "land",
+      ),
+    [],
+  );
+  useEffect(() => () => landMaterial.dispose(), [landMaterial]);
+  // The authored land colours stay; the clock scales them like the flat grass.
+  useFrame(() => {
+    landMaterial.color
+      .copy(timeOfDay.ground)
+      .multiply({ r: 1 / dayGround.r, g: 1 / dayGround.g, b: 1 / dayGround.b } as THREE.Color);
+  });
   const data = useMemo(() => dataFor(city), [city]);
   useEffect(
     () => () => {
@@ -440,27 +453,30 @@ export function MetropolitanFabric({
     },
     [data],
   );
-  const groups = useMemo(() => metropolitanGroups(data, city), [data, city]);
+  const groups = useMemo(() => metropolitanGroups(data, city), [data, city]),
+    quality = useEffectiveQuality(),
+    trees = useMemo(
+      () =>
+        Object.entries(groups)
+          .filter(([url]) => url.includes("tree-"))
+          .flatMap(([, list]) => list),
+      [groups],
+    );
   useLayoutEffect(() => {
-    Object.keys(groups).forEach((url) => useGLTF.preload(`/models/${url}`));
+    Object.keys(groups)
+      .filter((url) => !url.includes("tree-"))
+      .forEach((url) => useGLTF.preload(`/models/${url}`));
   }, [groups]);
   return (
     <group>
       <mesh
         name="terrain"
         geometry={data.land}
+        material={landMaterial}
         matrixAutoUpdate={false}
         receiveShadow
         raycast={noPick}
-      >
-        <meshStandardMaterial
-          vertexColors
-          color={night ? "#626a70" : "#ffffff"}
-          emissive={night ? "#586c83" : "#000000"}
-          emissiveIntensity={night ? 0.24 : 0}
-          roughness={1}
-        />
-      </mesh>
+      />
       <mesh
         geometry={data.streets}
         matrixAutoUpdate={false}
@@ -470,15 +486,20 @@ export function MetropolitanFabric({
       >
         <meshStandardMaterial vertexColors roughness={0.85} />
       </mesh>
+      <Trees spots={trees} density={quality === "low" ? 0.5 : 1} />
       {Object.entries(groups)
-        .filter(([url]) => !url.includes("car_") && !url.includes("road_"))
+        .filter(
+          ([url]) =>
+            !url.includes("car_") &&
+            !url.includes("road_") &&
+            !url.includes("tree-"),
+        )
         .map(([url, placements]) => (
           <Suspense key={url} fallback={null}>
             <KitInstances
               url={"/models/" + url}
               placements={placements}
-              night={night}
-              shadow={false}
+              shadow={/building_[DEFH]_|painted-row/.test(url)}
             />
           </Suspense>
         ))}

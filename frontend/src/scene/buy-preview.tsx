@@ -1,5 +1,5 @@
 /* oxlint-disable react/immutability -- Buy mode owns the temporary camera, material previews and ghost transform. */
-import { useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { OrbitControls } from "three-stdlib";
@@ -11,6 +11,8 @@ import {
 import { useBuyPreview } from "../buy-preview-state";
 import { motion } from "../walking";
 import { Builder } from "./geometry";
+import { PropBatch } from "./kaykit-props";
+import { furnitureProps, MODELLED_KINDS } from "./furniture-models";
 
 function ghostGeometry(p: FurnitureProduct) {
   const b = new Builder(),
@@ -100,6 +102,19 @@ export function BuyPreview() {
     [product],
   );
   useEffect(() => () => geometry?.dispose(), [geometry]);
+  const ghost = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: "#64c98b",
+        emissive: "#244a32",
+        emissiveIntensity: 0.25,
+        transparent: true,
+        opacity: 0.86,
+        depthWrite: false,
+      }),
+    [],
+  );
+  useEffect(() => () => ghost.dispose(), [ghost]);
   useEffect(() => {
     if (!open) return;
     const control = controls as unknown as OrbitControls | undefined,
@@ -331,18 +346,20 @@ export function BuyPreview() {
     invalidate();
   }, -0.1);
   if (!open || !geometry || !product) return null;
+  const modelled = MODELLED_KINDS.has(product.kind);
   return (
     <group name="buy-placement-ghost" ref={preview}>
-      <mesh geometry={geometry} raycast={() => {}}>
-        <meshStandardMaterial
-          color="#64c98b"
-          emissive="#244a32"
-          emissiveIntensity={0.25}
-          transparent
-          opacity={0.86}
-          depthWrite={false}
-        />
-      </mesh>
+      {modelled ? (
+        <Suspense fallback={null}>
+          <PropBatch
+            props={furnitureProps({ ...product, x: 0, z: 0, angle: 0 })}
+            castShadow={false}
+            override={ghost}
+          />
+        </Suspense>
+      ) : (
+        <mesh geometry={geometry} material={ghost} raycast={() => {}} />
+      )}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0.025, 0]}
