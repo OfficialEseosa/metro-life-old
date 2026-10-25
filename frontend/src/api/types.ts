@@ -273,8 +273,15 @@ export type Sim = {
   introDone?: boolean;
   arrivalDay?: number;
   firstDay?: Record<FirstDayStep, boolean> & {
+    /**
+     * True once outside, job, shift, meal and neighbour are done. Rent is tracked but never required
+     * (the starter studio's first two game days are prepaid, so `rent` starts true for new lives).
+     * Plots, billboards and moving home unlock when this is true.
+     */
     complete: boolean;
     closingSeen?: boolean;
+    /** Ready-to-show disabled reason listing what is left, e.g. "Unlocks after your first day. Still to do: work one shift and eat at a cafe." Empty when complete. */
+    remaining?: string;
   };
   outfits?: Record<string, boolean>;
   position?: import("../navigation").Position;
@@ -345,6 +352,20 @@ export type Sim = {
     canContinue: boolean;
   }[];
   pendingBeat: StoryBeat | null;
+  /**
+   * The next story not yet started in the sim's current city: any ordinary activity at `loc`
+   * opens its first beat. Null when every story here has begun.
+   */
+  storyLead?: {
+    id: string;
+    title: string;
+    city: CityId;
+    loc: string;
+    /** display name of the landmark */
+    name: string;
+    /** ready-to-show line, e.g. "A story is waiting at Fox Theatre. Do any activity there to begin." */
+    hint: string;
+  } | null;
   /**
    * Server epoch ms from which this sim may send the next wave, hang out or gift (3 s cooldown).
    * Compare with `serverNow()`. Private sim only; never on public `Player` presence.
@@ -552,7 +573,7 @@ export type BillboardAd = {
   image: string;
   owner: string;
   endsAt: number;
-  /** Not sent by the server today (stripped from public ads); use `BillboardSlot.freeFrom`. */
+  /** Server epoch ms when this booking goes live (later than now when it is queued). */
   startsAt?: number;
 };
 export type BillboardSlot = {

@@ -12,7 +12,12 @@ import {
 import { navigationRoute } from "./scene/navigation-route";
 import type { PickTarget } from "./scene/object-picking";
 import { useStore } from "./store";
-import { motion } from "./walking";
+import {
+  ERROR_TTL_MS,
+  friendlyMessage,
+  motion,
+  useWalking,
+} from "./walking";
 import { actionReason, policyHours } from "./ui/action-rules";
 import { serverNow } from "./server-time";
 
@@ -50,7 +55,6 @@ export const useInteractions = create<{
   error: string;
 }>(() => ({ menu: null, current: null, waiting: [], phase: null, error: "" }));
 let interactionEpoch = 0,
-  pathSyncing = false,
   cancelling = false,
   sequence = 0,
   path: Point[] = [],
@@ -58,6 +62,7 @@ let interactionEpoch = 0,
   manualAt = 0,
   lastRepath = 0,
   stuckAt = 0,
+  repaths = 0,
   lastProgress: Point | null = null,
   cancelled = new Set<string>();
 const state = () => useInteractions.getState();
@@ -114,8 +119,11 @@ function approach(
   )[0];
 }
 function closed(loc: string) {
-  const s = useStore.getState(),
-    place = s.world?.cities
+  const s = useStore.getState();
+  // Whoever came in before closing may finish their visit (the server allows it too).
+  const room = motion.position?.room ?? s.sim?.position?.room ?? "";
+  if (room && room.endsWith(`:${loc}`)) return false;
+  const place = s.world?.cities
       .find((c) => c.id === s.sim?.city)
       ?.landmarks.find((l) => l.id === loc);
   if (!place) return false;
@@ -593,12 +601,16 @@ export function enqueueAction(task: Task) {
 }
 function finish(error = "") {
   motion.useApproach = null;
-  pathSyncing = false;
   path = [];
   settleAt = 0;
   stuckAt = 0;
+  repaths = 0;
   lastProgress = null;
-  useInteractions.setState({ current: null, phase: null, error });
+  useInteractions.setState({
+    current: null,
+    phase: null,
+    error: error ? friendlyMessage(error) : "",
+  });
   motion.wake();
 }
 export async function cancelInteraction(id: string) {
@@ -634,7 +646,7 @@ export async function cancelInteraction(id: string) {
   } catch (e) {
     if (epoch === interactionEpoch)
       useInteractions.setState({
-        error: e instanceof Error ? e.message : "Could not cancel this action",
+        error: friendlyMessage(e, "Could not stop this action. Try again."),
       });
   } finally {
     if (epoch === interactionEpoch) cancelling = false;
@@ -699,6 +711,13 @@ async function perform(task: QueuedAction) {
       if (epoch !== interactionEpoch) return;
       s.setSim(r.sim);
     } else if (task.kind === "social") {
+      // The server allows one social moment every few seconds: wait it out instead of failing.
+      const readyIn = (s.sim.socialReadyAt ?? 0) - serverNow();
+      if (readyIn > 0)
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.min(readyIn + 60, 3500)),
+        );
+      if (epoch !== interactionEpoch) return;
       try {
         const r = await api.social(
           task.targetId!,
@@ -713,7 +732,7 @@ async function perform(task: QueuedAction) {
           epoch === interactionEpoch &&
           socialRetries < 3 &&
           error instanceof Error &&
-          /walk up|same place|nearby/i.test(error.message)
+          /walk up|walk a little closer|same place|nearby/i.test(error.message)
         ) {
           socialRetries++;
           path = [];
@@ -762,7 +781,7 @@ async function perform(task: QueuedAction) {
     useInteractions.setState({ phase: "performing" });
   } catch (e) {
     if (epoch === interactionEpoch)
-      finish(e instanceof Error ? e.message : "This action could not start.");
+      finish(friendlyMessage(e, "This action could not start. Try again."));
   } finally {
     cancelled.delete(task.id);
     if (epoch === interactionEpoch) useStore.setState({ acting: false });
@@ -871,34 +890,14 @@ export function interactionSteering(now: number, manual: boolean): Point {
       return { x: 0, z: 0 };
     }
   }
-  if (pathSyncing) return { x: 0, z: 0 };
-  if (
+  // Turn at each corner without stopping: the corner joins `motion.trail`, and the next position
+  // update carries it so the server checks both straight pieces instead of a chord.
+  while (
     path.length > 1 &&
-    Math.hypot(path[0].x - p.x, path[0].z - p.z) < 0.0001
+    Math.hypot(path[0].x - p.x, path[0].z - p.z) < 0.02
   ) {
-    // The server validates the chord between updates. Confirm each corner before turning.
-    pathSyncing = true;
-    const epoch = interactionEpoch,
-      id = task.id;
-    void motion
-      .flush()
-      .then(() => {
-        if (epoch === interactionEpoch && state().current?.id === id)
-          path.shift();
-      })
-      .catch((e) => {
-        if (epoch === interactionEpoch && state().current?.id === id)
-          finish(
-            e instanceof Error
-              ? e.message
-              : "Could not confirm the walking path.",
-          );
-      })
-      .finally(() => {
-        if (epoch === interactionEpoch) pathSyncing = false;
-        motion.wake();
-      });
-    return { x: 0, z: 0 };
+    const corner = path.shift()!;
+    if (motion.trail.length < 16) motion.trail.push({ x: corner.x, z: corner.z });
   }
   const next = path[0];
   if (!next) {
@@ -911,18 +910,55 @@ export function interactionSteering(now: number, manual: boolean): Point {
   ) {
     lastProgress = { ...p };
     stuckAt = now;
-  } else if (now - stuckAt > 2500) {
-    finish("The path is blocked. Choose another spot.");
+  } else if (now - stuckAt > 4000) {
+    // Something moved into the way: look for a fresh route once before giving up.
+    if (repaths < 2) {
+      repaths++;
+      path = navigationRoute(task.city, task.room, p, endpoint);
+      lastProgress = { ...p };
+      stuckAt = now;
+      if (path.length) return { x: path[0].x - p.x, z: path[0].z - p.z };
+    }
+    finish("Something is in the way. Choose another spot.");
     return { x: 0, z: 0 };
   }
   return { x: next.x - p.x, z: next.z - p.z };
 }
 
+// A message expires on its own, and any change of place or activity clears it at once, so a stale
+// "closed" or "walk closer" never contradicts what the player sees.
+let interactionErrorTimer: ReturnType<typeof setTimeout> | null = null;
+useInteractions.subscribe((next, previous) => {
+  if (next.error === previous.error) return;
+  if (interactionErrorTimer) clearTimeout(interactionErrorTimer);
+  interactionErrorTimer = null;
+  if (!next.error) return;
+  const shown = next.error;
+  interactionErrorTimer = setTimeout(() => {
+    interactionErrorTimer = null;
+    if (state().error === shown) useInteractions.setState({ error: "" });
+  }, ERROR_TTL_MS);
+});
+useStore.subscribe((next, previous) => {
+  const a = next.sim,
+    b = previous.sim;
+  if (!a || !b || a === b) return;
+  if (
+    a.loc !== b.loc ||
+    a.city !== b.city ||
+    (a.position?.room ?? null) !== (b.position?.room ?? null) ||
+    !!a.busyUntil !== !!b.busyUntil ||
+    !!a.pendingBeat !== !!b.pendingBeat
+  ) {
+    if (state().error) useInteractions.setState({ error: "" });
+    if (useWalking.getState().error) useWalking.setState({ error: "" });
+  }
+});
+
 // Browser-life changes invalidate queued work and every pending response.
 useStore.subscribe((next, previous) => {
   if (next.sim?.userId === previous.sim?.userId) return;
   interactionEpoch++;
-  pathSyncing = false;
   cancelling = false;
   cancelled.clear();
   path = [];

@@ -20,7 +20,8 @@ import {
 } from "../navigation";
 import { activityRoute } from "./activity-route";
 import { interactionSteering } from "../interactions";
-import { motion, useWalking, interact } from "../walking";
+import { friendlyMessage, motion, useWalking, interact } from "../walking";
+import { nearbyPerson } from "../ui/walking-actions";
 import { activeLifeAction, lifeLabel, lifeTopic } from "../life-actions";
 import { bodyCondition, visiblePose, velocityFacing } from "./character-life";
 import { LifeBubble, StinkCloud } from "./speech-bubbles";
@@ -72,6 +73,16 @@ function roomView(layout: RoomLayout, aspect: number) {
   };
 }
 
+/**
+ * Outdoor follow framing: close enough that the player reads as a person (about 16% of the screen
+ * height on a laptop, at least 60 px on a 375 px phone), far enough to see the street ahead.
+ */
+function streetView(width: number) {
+  return width < 700
+    ? { distance: 14, height: 7.5, targetY: 1.1, lookAhead: 1.5 }
+    : { distance: 11, height: 6.5, targetY: 1, lookAhead: 1.2 };
+}
+
 export function Walking({
   controls,
   cancelFlight,
@@ -99,6 +110,8 @@ export function Walking({
     lastContext = useRef(0),
     lastPosition = useRef(""),
     cameraAngle = useRef(0),
+    lastHeading = useRef(0),
+    lastTarget = useRef(0),
     groundY = useRef(0),
     phase = useRef(0),
     key = sim ? `${sim.worldId}:${sim.city}:${sim.position?.room ?? ""}` : "";
@@ -131,8 +144,15 @@ export function Walking({
       const revision = motion.revision,
         user = state.sim.userId,
         world = state.sim.worldId;
+      const via = motion.trail.splice(0);
       try {
-        const r = await api.move(state.sim.city, { ...p });
+        // A lost answer is retried once before the action that needs this position gives up.
+        const r = await api
+          .move(state.sim.city, { ...p }, via)
+          .catch((e: { status?: number }) => {
+            if (e?.status) throw e;
+            return api.move(state.sim!.city, { ...p }, via);
+          });
         const live = useStore.getState().sim;
         if (
           live?.userId !== user ||
@@ -178,7 +198,7 @@ export function Walking({
       motion.camera = null;
       cameraAngle.current = current.position.room ? 0.45 : 0;
       if (camera instanceof THREE.PerspectiveCamera) {
-        camera.fov = current.position.room ? 32 : 40;
+        camera.fov = current.position.room ? 32 : 38;
         camera.updateProjectionMatrix();
       }
       const type = roomType(current.position.room);
@@ -198,8 +218,17 @@ export function Walking({
           );
         controls.current?.target.copy(frame.target);
       } else {
-        camera.position.set(current.position.x, 9, current.position.z + 12);
-        controls.current?.target.set(current.position.x, 1, current.position.z);
+        const frame = streetView(size.width);
+        camera.position.set(
+          current.position.x,
+          frame.height + frame.targetY,
+          current.position.z + frame.distance,
+        );
+        controls.current?.target.set(
+          current.position.x,
+          frame.targetY,
+          current.position.z,
+        );
       }
       ref.current?.rotation.set(0, current.position.face, 0);
       controls.current?.update();
@@ -342,6 +371,9 @@ export function Walking({
       !ref.current
     )
       return;
+    // Real elapsed time drives walking, so speed is the same at 10 or 60 frames a second. Long
+    // stalls (a hidden tab) are capped so nobody teleports across the map.
+    const elapsed = Math.min(dt, 0.25);
     const s = useStore.getState(),
       blocked =
         useHomeDesign.getState().open ||
@@ -373,15 +405,55 @@ export function Walking({
       const condition = bodyCondition(s.sim ?? sim),
         speed =
           (manual && motion.run ? 7.2 : 4.2) *
-          (condition.tired ? 0.68 : condition.hungry ? 0.86 : 1),
-        step = Math.min(speed * Math.min(dt, 0.04), manual ? Infinity : length);
-      motion.position = slide(
-        city,
-        p,
-        (axis.x / length) * step,
-        (axis.z / length) * step,
-      );
-      phase.current += Math.min(dt, 0.04) * speed * 2.5;
+          (condition.tired ? 0.68 : condition.hungry ? 0.86 : 1);
+      // Walk the frame's distance in short pieces: collisions stay exact and a route turns its
+      // corners within the same frame instead of losing the rest of the step.
+      let remaining = speed * elapsed,
+        direction = axis,
+        pieces = 0;
+      while (remaining > 1e-4 && pieces++ < 12) {
+        const reach = Math.hypot(direction.x, direction.z);
+        if (reach < 1e-6) break;
+        const step = Math.min(remaining, 0.2, manual ? Infinity : reach),
+          before = motion.position;
+        motion.position = slide(
+          city,
+          before,
+          (direction.x / reach) * step,
+          (direction.z / reach) * step,
+        );
+        const moved = Math.hypot(
+          motion.position.x - before.x,
+          motion.position.z - before.z,
+        );
+        remaining -= step;
+        if (manual) {
+          // Joystick turns and wall slides bend the walked line; keep those bends for the server.
+          const last = motion.trail[motion.trail.length - 1] ?? s.sim?.position,
+            heading = Math.atan2(
+              motion.position.x - before.x,
+              motion.position.z - before.z,
+            );
+          if (
+            moved > 1e-3 &&
+            last &&
+            Math.abs(
+              Math.atan2(
+                Math.sin(heading - lastHeading.current),
+                Math.cos(heading - lastHeading.current),
+              ),
+            ) > 0.12 &&
+            motion.trail.length < 16
+          )
+            motion.trail.push({ x: before.x, z: before.z });
+          if (moved > 1e-3) lastHeading.current = heading;
+          if (moved < step * 0.2) break;
+        } else {
+          if (moved < 1e-4) break;
+          direction = interactionSteering(performance.now(), false);
+        }
+      }
+      phase.current += elapsed * speed * 2.5;
       invalidate();
     }
     const at = motion.position,
@@ -543,6 +615,12 @@ export function Walking({
       waterRef.current.instanceMatrix.needsUpdate = true;
       waterRef.current.computeBoundingSphere();
     }
+    // After a teleport the camera jumps to the player instead of sweeping across the map.
+    const snap = motion.snapCamera && motion.follow;
+    if (snap) {
+      motion.snapCamera = false;
+      cancelFlight();
+    }
     if (at.room && motion.follow && controls.current) {
       const type = roomType(at.room)!,
         frame = roomView(roomLayout(city, type), size.width / size.height),
@@ -574,26 +652,24 @@ export function Walking({
               Math.cos(angle) * distance,
             ),
           ),
-        smoothing = 1 - Math.exp(-Math.min(dt, 0.05) * 9);
+        smoothing = snap ? 1 : 1 - Math.exp(-Math.min(dt, 0.1) * 6);
       camera.position.lerp(eye, smoothing);
       control.target.lerp(target, smoothing);
       control.update();
       if (camera.position.distanceTo(eye) > 0.02) invalidate();
     }
     if (!at.room && motion.follow && controls.current) {
-      const phoneRoom = !!at.room && size.width < 700,
-        distance =
-          motion.camera?.distance ??
-          (phoneRoom ? 23 : at.room ? 12 : size.width < 700 ? 30 : 16),
-        height =
-          motion.camera?.height ??
-          (phoneRoom ? 15 : at.room ? 8 : size.width < 700 ? 12 : 9),
-        angle = motion.camera?.angle ?? cameraAngle.current;
+      const frame = streetView(size.width),
+        distance = motion.camera?.distance ?? frame.distance,
+        height = motion.camera?.height ?? frame.height,
+        angle = motion.camera?.angle ?? cameraAngle.current,
+        // Look a little ahead of a walking player so the street they head into stays in view.
+        ahead = moving ? frame.lookAhead : 0,
+        heading = ref.current.rotation.y;
       const target = new THREE.Vector3(
-        visual.current.x * (phoneRoom ? 0.25 : 1),
-        groundY.current +
-          (phoneRoom ? 0.3 : !at.room && size.width < 700 ? 3 : 1),
-        phoneRoom ? visual.current.z * 0.25 - 0.5 : visual.current.z,
+        visual.current.x + Math.sin(heading) * ahead,
+        groundY.current + frame.targetY,
+        visual.current.z + Math.cos(heading) * ahead,
       );
       let eye = target
         .clone()
@@ -634,13 +710,34 @@ export function Walking({
           }
         }
       }
-      const t = 1 - Math.exp(-Math.min(dt, 0.05) * 9);
+      const t = snap ? 1 : 1 - Math.exp(-Math.min(dt, 0.1) * 6);
       camera.position.lerp(eye, t);
       controls.current.target.lerp(target, t);
       controls.current.update();
       if (camera.position.distanceTo(eye) > 0.02) invalidate();
     }
     const now = performance.now();
+    if (now - lastTarget.current > 200) {
+      lastTarget.current = now;
+      const self = s.sim,
+        person =
+          self && !self.busyUntil && !self.trip
+            ? nearbyPerson(self, at, s.players)
+            : undefined;
+      s.setSocialTarget(
+        person?.position
+          ? {
+              id: person.id,
+              name: person.username,
+              npc: !!person.npc,
+              distance: Math.hypot(
+                person.position.x - at.x,
+                person.position.z - at.z,
+              ),
+            }
+          : null,
+      );
+    }
     if (
       now - lastContext.current > 100 &&
       lastPosition.current !== `${at.x}:${at.z}:${at.room}`
@@ -664,11 +761,12 @@ export function Walking({
       pending.current = true;
       sent.current = now;
       const requested = { ...at },
+        via = motion.trail.splice(0),
         world = sim.worldId,
         user = sim.userId,
         revision = motion.revision;
       void api
-        .move(city, requested)
+        .move(city, requested, via)
         .then((r) => {
           if (
             useStore.getState().sim?.worldId !== world ||
@@ -694,11 +792,30 @@ export function Walking({
             revision !== motion.revision
           )
             return;
-          useWalking.setState({ error: e.message });
+          // A lost or late answer is not a refusal: keep walking and send the same corners again
+          // with the next update.
+          if (!e?.status) {
+            if (motion.trail.length + via.length <= 16)
+              motion.trail.unshift(...via);
+            return;
+          }
+          // A refused step snaps back to the last confirmed spot. Being too fast is routine
+          // (a long frame); only a real obstacle is worth a word.
+          motion.trail = [];
+          if (/blocked/i.test(e?.message ?? ""))
+            useWalking.setState({
+              error: "Something is in the way. Try another direction.",
+            });
+          else if (!/faster than running/i.test(e?.message ?? ""))
+            useWalking.setState({ error: friendlyMessage(e) });
           try {
             const r = await api.sim();
-            if (r.sim.worldId === world && r.sim.userId === user) {
-              motion.position = { ...r.sim.position! };
+            if (
+              r.sim.worldId === world &&
+              r.sim.userId === user &&
+              r.sim.position
+            ) {
+              motion.position = { ...r.sim.position };
               useStore.getState().setSim(r.sim);
               invalidate();
             }

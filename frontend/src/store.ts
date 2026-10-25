@@ -1,5 +1,5 @@
 import { installHomeDesign, useHomeDesign } from "./home-design";
-import { motion, useWalking } from "./walking";
+import { friendlyMessage, motion, useWalking } from "./walking";
 import { serverNow, syncServerTime } from "./server-time";
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
@@ -60,6 +60,18 @@ export type Connection =
 export type CityData =
   "daily" | "mayor" | "plots" | "billboards" | "homes" | "players" | "chat";
 
+/**
+ * Who a Wave, Hang out or Gift would reach right now: the nearest resident the player faces, with
+ * real players preferred over city residents. `null` when nobody is within reach.
+ */
+export type SocialTarget = {
+  id: string;
+  name: string;
+  npc: boolean;
+  /** metres between the player and the target, from the latest positions frame */
+  distance: number;
+};
+
 type State = {
   sceneFailed: boolean;
   acting: boolean;
@@ -74,6 +86,9 @@ type State = {
   clock: Clock | null;
   stats: Stats | null;
   socialNotice: string;
+  /** See SocialTarget. Updated by the walking loop a few times a second, only when it changes. */
+  socialTarget: SocialTarget | null;
+  setSocialTarget: (target: SocialTarget | null) => void;
   connected: boolean;
   connection: Connection;
   /** when the live socket last dropped (ms epoch), null while connected */
@@ -133,7 +148,8 @@ type State = {
   /** re-read session, world info, sim and clock (after login, world switch, etc.), then the city data */
   syncSession: (known?: Me) => Promise<void>;
   changeSession: (change: () => Promise<unknown>) => Promise<void>;
-  setCity: (city: CityId) => Promise<void>;
+  /** `arrive`: the player's own sim moved here (flight, bus): keep following them, no overview flight. */
+  setCity: (city: CityId, arrive?: boolean) => Promise<void>;
   refresh: (...what: CityData[]) => Promise<void>;
   setSim: (sim: Sim | null) => void;
   setUser: (user: User | null) => void;
@@ -179,6 +195,19 @@ function announceResult(result: ActResult) {
 let socket: ReturnType<typeof connectSocket> | null = null;
 let loading: Promise<void> | null = null;
 let resultTimer: ReturnType<typeof setTimeout> | null = null;
+/**
+ * The accepted outcome of the running activity. It is shown once, when an authoritative sim (from
+ * the socket's `sim` event, any response, or the single fallback read) shows the activity finished.
+ */
+let pendingResult: {
+  result: ActResult;
+  worldId: string | undefined;
+  tries: number;
+} | null = null;
+/** First fallback read after the deadline, then a few slower retries, if no socket event arrived. */
+const SETTLE_GRACE_MS = 1500,
+  SETTLE_RETRY_MS = 2500,
+  SETTLE_TRIES = 5;
 let panelTrigger: HTMLElement | null = null;
 export const getPanelTrigger = () => panelTrigger;
 function rememberTrigger() {
@@ -337,17 +366,48 @@ export const useStore = create<State>((set, get) => {
       .sim()
       .then((r) => {
         if (get().worldInfo?.id === wid) {
-          const travelled = r.sim.city !== get().sim?.city;
-          get().setSim(r.sim);
           set({ clock: r.clock });
-          if (travelled) {
-            void get().setCity(r.sim.city);
-            get().selectLocation(r.sim.loc);
-            get().setFocus(r.sim.loc);
-          }
+          get().setSim(r.sim);
         }
       })
       .catch(() => {});
+  };
+
+  /** Show the finished activity once its outcome is authoritative. */
+  const deliverSettled = (sim: Sim) => {
+    const pending = pendingResult;
+    if (!pending || pending.worldId !== sim.worldId) return;
+    const { result } = pending;
+    const finished =
+      (!sim.busyUntil || sim.busyUntil !== result.busyUntil) &&
+      serverNow() >= (result.busyUntil ?? 0) - 400;
+    if (!finished) return;
+    pendingResult = null;
+    if (resultTimer) clearTimeout(resultTimer);
+    resultTimer = null;
+    set({ lastResult: result, rewardAnchor: null });
+    announceResult(result);
+  };
+  /** The socket normally reports completion; read the sim ourselves only if it has not. */
+  const scheduleSettleCheck = (delay: number) => {
+    if (resultTimer) clearTimeout(resultTimer);
+    resultTimer = setTimeout(() => {
+      resultTimer = null;
+      const pending = pendingResult;
+      if (!pending || pending.worldId !== get().sim?.worldId) return;
+      pending.tries++;
+      void api
+        .sim()
+        .then((r) => {
+          set({ clock: r.clock });
+          get().setSim(r.sim);
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (pendingResult === pending && pending.tries < SETTLE_TRIES)
+            scheduleSettleCheck(SETTLE_RETRY_MS);
+        });
+    }, delay);
   };
 
   const onEvent = (e: ServerEvent) => {
@@ -510,6 +570,19 @@ export const useStore = create<State>((set, get) => {
     disconnectedAt: null,
     retryAt: null,
     socialNotice: "",
+    socialTarget: null,
+    setSocialTarget: (socialTarget) => {
+      const current = get().socialTarget;
+      if (
+        current?.id === socialTarget?.id &&
+        current?.name === socialTarget?.name &&
+        (!current ||
+          !socialTarget ||
+          Math.abs(current.distance - socialTarget.distance) < 0.25)
+      )
+        return;
+      set({ socialTarget });
+    },
     city: "atl",
     sceneQuality: (() => {
       try {
@@ -667,6 +740,7 @@ export const useStore = create<State>((set, get) => {
       const city = me?.sim?.city ?? get().city;
       if (resultTimer) clearTimeout(resultTimer);
       resultTimer = null;
+      pendingResult = null;
       presenceRevision++;
       installHomeDesign(me?.sim?.homeDesign, me?.sim?.homeLayout);
       useHomeDesign.getState().setOpen(false);
@@ -679,6 +753,7 @@ export const useStore = create<State>((set, get) => {
         players: resetPlayers(),
         chat: [],
         socialNotice: "",
+        socialTarget: null,
         mayor: null,
         plots: null,
         billboards: null,
@@ -700,8 +775,13 @@ export const useStore = create<State>((set, get) => {
       await get().refresh("daily", "mayor", "plots", "billboards");
     },
 
-    setCity: async (city) => {
+    setCity: async (city, arrive = false) => {
       if (city === get().city) return;
+      if (arrive) {
+        motion.follow = true;
+        motion.snapCamera = true;
+        motion.camera = null;
+      }
       set({
         city,
         daily: null,
@@ -715,7 +795,8 @@ export const useStore = create<State>((set, get) => {
         selectedSlot: null,
         plotSelection: null,
         panel: null,
-        focus: "overview",
+        socialTarget: null,
+        focus: arrive ? null : "overview",
       });
       socket?.send({ type: "view", city });
       await get().refresh("daily", "mayor", "plots", "billboards");
@@ -786,52 +867,31 @@ export const useStore = create<State>((set, get) => {
       ) {
         motion.revision++;
         motion.teleport++;
+        motion.trail = [];
         motion.position = { ...sim.position };
         useWalking.setState({ position: { ...sim.position } });
         motion.follow = true;
+        motion.snapCamera = true;
         motion.wake();
       }
       set({ sim });
-      if (travelled && sim) {
-        void get().setCity(sim.city);
-        get().selectLocation(sim.loc);
-        get().setFocus(sim.loc);
-      }
+      // Arriving in another city (a flight or bus): follow the player there, never the overview.
+      if (travelled && sim) void get().setCity(sim.city, true);
+      if (sim) deliverSettled(sim);
     },
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {
       if (resultTimer) clearTimeout(resultTimer);
       resultTimer = null;
-      const wait = (lastResult?.busyUntil ?? 0) - serverNow(),
-        worldId = get().sim?.worldId,
-        sourceCity = get().sim?.city;
+      pendingResult = null;
+      const wait = (lastResult?.busyUntil ?? 0) - serverNow();
       if (lastResult && wait > 0) {
+        // One settlement path: the socket's `sim` event (or any fresher sim) delivers it in
+        // deliverSettled; a single fallback read covers a quiet or missing socket.
+        pendingResult = { result: lastResult, worldId: get().sim?.worldId, tries: 0 };
         set({ lastResult: null, rewardAnchor: null });
-        const complete = async () => {
-          if (get().sim?.worldId !== worldId) return;
-          try {
-            const r = await api.sim();
-            if (get().sim?.worldId !== worldId) return;
-            if (r.sim.busyUntil && r.sim.busyUntil > serverNow()) {
-              resultTimer = setTimeout(() => void complete(), 150);
-              return;
-            }
-            get().setSim(r.sim);
-            set({ clock: r.clock, lastResult, rewardAnchor: null });
-            announceResult(lastResult);
-            if (r.sim.city !== sourceCity) {
-              await get().setCity(r.sim.city);
-              get().selectLocation(r.sim.loc);
-              get().setFocus(r.sim.loc);
-            }
-            resultTimer = null;
-          } catch {
-            if (get().sim?.worldId === worldId)
-              resultTimer = setTimeout(() => void complete(), 1000);
-          }
-        };
-        resultTimer = setTimeout(() => void complete(), wait + 40);
+        scheduleSettleCheck(wait + SETTLE_GRACE_MS);
       } else {
         set({ lastResult, rewardAnchor: null });
         if (lastResult) announceResult(lastResult);
@@ -878,7 +938,7 @@ export const useStore = create<State>((set, get) => {
       try {
         await motion.flush();
         motion.revision++;
-        const current = get().sim!;
+        const current = get().sim ?? sim;
         const alreadyThere =
           !current.position?.room && current.position?.place === destination;
         let result = alreadyThere
@@ -898,17 +958,25 @@ export const useStore = create<State>((set, get) => {
             throw Error(
               "Your trip is taking longer than expected. Please try again.",
             );
-          await new Promise((resolve) => setTimeout(resolve, 150));
+          await new Promise((resolve) => setTimeout(resolve, 300));
           result = await api.sim();
           if (get().sim?.worldId !== world) return;
         }
+        const arrived = result.sim.position;
+        if (!arrived)
+          throw Error("Could not find your way there. Please try again.");
         motion.revision++;
         motion.teleport++;
-        motion.position = { ...result.sim.position! };
+        motion.trail = [];
+        motion.position = { ...arrived };
         motion.follow = true;
+        motion.camera = null;
+        motion.snapCamera = true;
+        // A map shortcut arrives behind a short fade, so the jump reads as travel, not a glitch.
         useWalking.setState({
-          position: { ...result.sim.position! },
+          position: { ...arrived },
           error: "",
+          ...(alreadyThere ? {} : { transition: true }),
         });
         installHomeDesign(result.sim.homeDesign, result.sim.homeLayout);
         set({
@@ -924,21 +992,20 @@ export const useStore = create<State>((set, get) => {
           emitFeedback({
             kind: "arrival",
             title: placeName(result.sim.city, destination),
-            anchor: { x: result.sim.position!.x, z: result.sim.position!.z },
+            detail: "Map shortcut",
+            anchor: { x: arrived.x, z: arrived.z },
             data: { loc: destination, city: result.sim.city },
           });
         if (afterPanel === "mayor") await get().refresh("mayor");
       } catch (error) {
         useWalking.setState({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Could not travel. Try again.",
+          error: friendlyMessage(error, "Could not travel there. Try again."),
         });
         throw error;
       } finally {
         indoorTravelPending = false;
         set({ acting: false });
+        setTimeout(() => useWalking.setState({ transition: false }), 500);
       }
     },
     setFocus: (focus) => {
