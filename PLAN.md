@@ -1,23 +1,25 @@
-# Metro Life checklist
-- Rounds 1 and 2: implemented and committed; R2 independent audit read and addressed in R3.
-- R2 test cleanup: a3f283c, backend 134 to 75 cases / 20 to 18 suites; 92 obsolete scripts removed.
-- Prior times: backend 26.142 s; frontend checks 6.565 s. Revised suite deliberately unrun under owner override.
-- R3 player-flow sources: 75 cases / 18 suites, one optional browser journey; no suite execution or new timing claim.
-- Round 3 item 1: done, native/adaptive DPR, full-resolution AO, SMAA, Neutral and outlined SDF signs.
-- Round 3 item 2: done, culled exterior, soft void/plinth and hero room framing.
-- Round 3 item 3: done, matching animated Quaternius people, forward movement and creator previews.
-- Round 3 item 4: done, zoned landmark interiors, Ponce hall/roof games, shared bowls/crowds and venue moments (89028bc).
-- Round 3 item 5: done, connected street graph, plaza ends, common walking/turning traffic routes.
-- Round 3 item 6: done, procedural city/place/day/night music, zone ambience, action sounds and saved mix.
-- Round 3 item 7: done, Sunday Morning fonts, cream/green panels, Phosphor, responsive/night styling.
-- Round 3 item 8: done, quick start, seven-minute days, emotes, events, celebrations, work timing, invites/open homes/job tags.
-- Round 3 item 9: done for main blockers, career limits, home anchors/rest, travel buttons/review, names, clocks, XP and 3D Buy.
-- Startup fix: 22f4d7d, Barbell import, all 65 Phosphor imports present, static loading/eight-second reload fallback.
-- Final startup repair: c9e5813, quick-start panel above city canvas so Play accepts clicks.
-- Final R3 startup/load: passed, Play opened game/canvas; zero captured JavaScript, console or failed-response errors.
-- Verification scope: final quick load only; no suite/lint, per-item browser passes, screenshots or measurements.
-- Limits: architecture is stylized geometry; freight lift is decorative, stairs provide roof access.
-- Pending independent visual judgment: airport band/tower appearance from audit #21 could not be established from source; museum Y is authored art.
-- Rules: short checklist only; never push/deploy; preserve browser lives, shared/world.json, reference and read-only research.
-- Play current source: http://127.0.0.1:5173/ ; API: http://127.0.0.1:8080/ .
-- Isolated development: http://127.0.0.1:5174/ ; API: http://127.0.0.1:8081/ .
+# Metro Life roadmap
+
+## Status
+
+- Playable: quick start or full creator, arrival home, walking, jobs and shifts, needs, cafe meals, home furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
+- Build: frontend type-checks, builds and lints with no errors; the backend packages as an API-only JAR; a Docker image for the API builds.
+- Deployment: frontend ready for Vercel (`frontend/vercel.json`, `VITE_API_URL`), API ready for one container with a volume (`backend/Dockerfile`, `METRO_ORIGINS`). Nothing is deployed yet.
+- Sessions work across origins: first-party cookie when same-site, `SameSite=None; Secure; Partitioned` cross-site over HTTPS, and a header session for browsers that block third-party cookies.
+- Connection problems show a screen with a button: server unreachable (auto retry), blocked cookies, ended session, slow first load, and a reconnect banner in play.
+
+## Next
+
+1. Characters: closer to stylised-realistic, cheaper per frame (cached bones, no per-frame lookups, steadier near/far switching, one shared portrait renderer).
+2. World and rendering: render continuously while playing instead of interval timers, shadows that follow the player outdoors, no full scene rebuild on city change, adaptive quality that recovers.
+3. HUD: one stylesheet and design system, controls mounted once, narrow store selectors so 5 Hz updates do not re-render the HUD.
+4. Gameplay flows: one settlement path instead of three pollers, smooth click-to-walk around corners, visible social cooldowns, every action with a complete start, progress, result and exit.
+5. Feedback: a visible and audible response for every event (start, finish, cancel, error, purchase, promotion, rent, arrival, travel); replace the filler speech bubble text.
+6. A few Playwright journeys as the regression gate (first start, a work shift, two players meeting, travel).
+
+## Known issues
+
+- Reloading at laptop size shortly after arriving can leave the 3D view black while the HUD works; reproduced on the code before the deployment work, so it is a scene loading issue.
+- The main JavaScript chunk is about 2.2 MB because large shared data is bundled into it.
+- Guest users and expired sessions are never purged and `/api/auth/guest` has no rate limit.
+- `SPEC.md` need-decay rates are older than the code.
