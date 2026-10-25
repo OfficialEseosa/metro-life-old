@@ -1,4 +1,4 @@
-/** Original procedural score and foley. No remote audio, samples or tracking. */
+/** Original procedural score, ambience and foley, plus a few short CC0 event samples served with the app. No tracking. */
 export type SoundKind =
   | "tap"
   | "open"
@@ -524,6 +524,7 @@ export async function unlockAudio() {
       timer = window.setInterval(scheduler, 100);
     }
     await context.resume();
+    loadSamples();
     scheduler();
   } catch {
     /* A browser without audio can still play the game. */
@@ -571,10 +572,34 @@ export function continueAudio() {
     void context.resume().catch(() => {});
 }
 const lastEffects = new Map<SoundKind, number>();
-export function sound(kind: SoundKind) {
-  if (mix.muted || !context || context.state !== "running" || !buses) return;
+/** Event kinds that older HUD code still plays directly; the feedback bus now owns these moments. */
+const legacyEventKinds = new Set<SoundKind>([
+  "coin",
+  "purchase",
+  "payday",
+  "reward",
+  "level",
+  "wave",
+]);
+let lastCueAt = -10_000;
+
+/** Dev builds keep a short history of what played, for journey scripts; production strips this. */
+function logSound(name: string, via: string) {
+  if (!import.meta.env.DEV) return;
+  const w = window as unknown as {
+    __metroSounds?: { name: string; via: string; at: number }[];
+  };
+  const list = (w.__metroSounds ??= []);
+  list.push({ name, via, at: Date.now() });
+  if (list.length > 200) list.splice(0, list.length - 200);
+  console.debug(`[sound] ${name} (${via})`);
+}
+
+function playTones(kind: SoundKind) {
+  if (!context || !buses) return;
   const now = context.currentTime;
-  if (now - (lastEffects.get(kind) ?? -10) < 0.09) return;
+  if (now - (lastEffects.get(kind) ?? -10) < (kind === "tap" ? 0.15 : 0.09))
+    return;
   lastEffects.set(kind, now);
   if (kind === "low") {
     if (now - lastLow < 30) return;
@@ -646,8 +671,206 @@ export function sound(kind: SoundKind) {
   if (kind === "shower") noiseHit(now, 1.5, 0.022, 2200, bus);
   if (kind === "eat") noiseHit(now, 0.1, 0.013, 1300, bus);
 }
+
+/** Procedural foley and UI tones. Big event sounds go through `cue()` instead. */
+export function sound(kind: SoundKind) {
+  if (mix.muted || !context || context.state !== "running" || !buses) {
+    logSound(kind, mix.muted ? "muted" : "locked");
+    return;
+  }
+  if (legacyEventKinds.has(kind)) {
+    // Older callers fire these alongside the feedback bus; let the bus cue win.
+    window.setTimeout(() => {
+      if (performance.now() - lastCueAt < 700) {
+        logSound(kind, "suppressed");
+        return;
+      }
+      logSound(kind, "tone");
+      playTones(kind);
+    }, 60);
+    return;
+  }
+  logSound(kind, "tone");
+  playTones(kind);
+}
+
+// ---- sampled event cues (CC0, Kenney; see docs/credits.md) -------------------
+
+export type Cue =
+  | "tap"
+  | "confirm"
+  | "done"
+  | "cancel"
+  | "error"
+  | "pop"
+  | "chat"
+  | "ding"
+  | "pluck"
+  | "arrive"
+  | "whoosh"
+  | "coinGain"
+  | "coinSpend"
+  | "goal"
+  | "level"
+  | "milestone"
+  | "promotion";
+type CueSpec = {
+  file: string;
+  gain: number;
+  bus: Bus;
+  /** Procedural stand-in while the sample loads or when it cannot decode. */
+  fallback: SoundKind;
+  /** Music dips under jingles. */
+  duck?: number;
+};
+const cues: Record<Cue, CueSpec> = {
+  tap: { file: "ui-tap.mp3", gain: 0.07, bus: "ui", fallback: "tap" },
+  confirm: { file: "ui-confirm.mp3", gain: 0.15, bus: "ui", fallback: "open" },
+  done: {
+    file: "ui-done.mp3",
+    gain: 0.16,
+    bus: "sfx",
+    fallback: "notification",
+  },
+  cancel: { file: "ui-cancel.mp3", gain: 0.14, bus: "ui", fallback: "close" },
+  error: { file: "ui-error.mp3", gain: 0.15, bus: "ui", fallback: "error" },
+  pop: { file: "ui-pop.mp3", gain: 0.12, bus: "ui", fallback: "notification" },
+  chat: {
+    file: "chat-pop.mp3",
+    gain: 0.13,
+    bus: "sfx",
+    fallback: "notification",
+  },
+  ding: { file: "social-ding.mp3", gain: 0.17, bus: "sfx", fallback: "wave" },
+  pluck: { file: "social-pluck.mp3", gain: 0.15, bus: "sfx", fallback: "wave" },
+  arrive: {
+    file: "chime-arrive.mp3",
+    gain: 0.14,
+    bus: "sfx",
+    fallback: "arrival",
+  },
+  whoosh: { file: "whoosh.mp3", gain: 0.11, bus: "sfx", fallback: "arrival" },
+  coinGain: {
+    file: "coins-gain.mp3",
+    gain: 0.24,
+    bus: "sfx",
+    fallback: "coin",
+  },
+  coinSpend: {
+    file: "coins-spend.mp3",
+    gain: 0.17,
+    bus: "sfx",
+    fallback: "purchase",
+  },
+  goal: {
+    file: "jingle-goal.mp3",
+    gain: 0.2,
+    bus: "sfx",
+    fallback: "reward",
+    duck: 1.2,
+  },
+  level: {
+    file: "jingle-level.mp3",
+    gain: 0.2,
+    bus: "sfx",
+    fallback: "level",
+    duck: 1.6,
+  },
+  milestone: {
+    file: "jingle-milestone.mp3",
+    gain: 0.22,
+    bus: "sfx",
+    fallback: "payday",
+    duck: 1.6,
+  },
+  promotion: {
+    file: "jingle-promotion.mp3",
+    gain: 0.22,
+    bus: "sfx",
+    fallback: "level",
+    duck: 2,
+  },
+};
+const samples = new Map<Cue, AudioBuffer>();
+const lastCues = new Map<Cue, number>();
+let samplesRequested = false;
+
+function loadSamples() {
+  if (samplesRequested || !context) return;
+  samplesRequested = true;
+  const ctx = context,
+    base = `${import.meta.env.BASE_URL ?? "/"}audio/`;
+  for (const [name, spec] of Object.entries(cues) as [Cue, CueSpec][])
+    void fetch(base + spec.file)
+      .then((response) => {
+        if (!response.ok) throw new Error(String(response.status));
+        return response.arrayBuffer();
+      })
+      .then((data) => ctx.decodeAudioData(data))
+      .then((buffer) => {
+        samples.set(name, buffer);
+      })
+      .catch(() => {
+        /* The procedural stand-in keeps the moment audible. */
+      });
+}
+
+let duckTimer: number | undefined;
+function duckMusic(seconds: number) {
+  if (!buses || !context) return;
+  ramp(buses.music.gain, mix.music * 0.35, 0.12);
+  window.clearTimeout(duckTimer);
+  duckTimer = window.setTimeout(() => updateGains(), seconds * 1000);
+}
+
+/**
+ * Play a feedback cue: a short CC0 sample when it has loaded, a procedural tone otherwise.
+ * `delay` is in seconds; `rate` shifts pitch slightly (1 = as recorded).
+ */
+export function cue(
+  name: Cue,
+  options: { delay?: number; rate?: number; gain?: number } = {},
+) {
+  const spec = cues[name];
+  if (mix.muted || !context || context.state !== "running" || !buses) {
+    logSound(name, mix.muted ? "muted" : "locked");
+    return;
+  }
+  const now = context.currentTime,
+    at = now + Math.max(0, options.delay ?? 0);
+  if (at - (lastCues.get(name) ?? -10) < (name === "tap" ? 0.12 : 0.18)) return;
+  lastCues.set(name, at);
+  lastCueAt = performance.now();
+  const buffer = samples.get(name);
+  if (spec.duck) duckMusic(spec.duck + (options.delay ?? 0));
+  if (!buffer) {
+    logSound(name, "tone");
+    if (options.delay)
+      window.setTimeout(() => playTones(spec.fallback), options.delay * 1000);
+    else playTones(spec.fallback);
+    return;
+  }
+  const source = context.createBufferSource(),
+    gain = context.createGain();
+  source.buffer = buffer;
+  source.playbackRate.value =
+    (options.rate ?? 1) * (name === "tap" ? 0.96 + Math.random() * 0.08 : 1);
+  gain.gain.value = spec.gain * (options.gain ?? 1);
+  source.connect(gain).connect(buses[spec.bus]);
+  source.start(at);
+  source.onended = () => {
+    source.disconnect();
+    gain.disconnect();
+  };
+  logSound(name, "sample");
+}
+
 export function resumeSound(kind: SoundKind) {
   void unlockAudio().then(() => sound(kind));
+}
+/** Unlock on a gesture, then play a cue (used by the global tap handler). */
+export function resumeCue(name: Cue) {
+  void unlockAudio().then(() => cue(name));
 }
 /** Kept for page lifecycle ownership; the active game normally retains one mixer for the tab. */
 export function stopAudio() {
@@ -660,4 +883,6 @@ export function stopAudio() {
   master = null;
   buses = null;
   noise = null;
+  samples.clear();
+  samplesRequested = false;
 }

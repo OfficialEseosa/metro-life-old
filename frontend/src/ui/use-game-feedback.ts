@@ -2,19 +2,24 @@ import { serverNow } from "../server-time";
 import { useEffect } from "react";
 import { api } from "../api/client";
 import { useStore } from "../store";
-import { resumeSound } from "./sound";
+import { resumeCue } from "./sound";
 export function useGameFeedback() {
   const until = useStore((s) => s.sim?.busyUntil),
     worldId = useStore((s) => s.sim?.worldId);
   useEffect(() => {
     const tap = (e: PointerEvent) => {
-      if (!(e.target instanceof Element) || !e.target.closest("button")) return;
-      resumeSound("tap");
+      if (
+        !(e.target instanceof Element) ||
+        !e.target.closest("button,a,[role=button],summary")
+      )
+        return;
+      resumeCue("tap");
       navigator.vibrate?.(8);
     };
     document.addEventListener("pointerdown", tap, { passive: true });
     return () => document.removeEventListener("pointerdown", tap);
   }, []);
+  // Settlement poll: kept until the gameplay owner's single settlement path replaces it.
   useEffect(() => {
     if (!until) return;
     useStore.setState({ socialNotice: "", lastResult: null });

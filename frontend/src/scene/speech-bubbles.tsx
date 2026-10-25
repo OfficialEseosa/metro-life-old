@@ -2,11 +2,13 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree, type RootState } from "@react-three/fiber";
 import * as THREE from "three";
-import { Billboard, RoundedBox } from "@react-three/drei";
+import { Billboard } from "@react-three/drei";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { WorldText } from "./world-text";
 import { useStore } from "../store";
 import { useInteractions } from "../interactions";
 import { motion } from "../walking";
+import { serverNow } from "../server-time";
 
 function topicIcon(
   c: CanvasRenderingContext2D,
@@ -74,6 +76,105 @@ function topicIcon(
   c.stroke();
   c.restore();
 }
+const topicTextures = new Map<string, THREE.CanvasTexture>(),
+  topicMaterials = new Map<string, THREE.MeshBasicMaterial>();
+/** One small icon texture and material per topic, shared by every bubble and never rebuilt. */
+function topicMaterial(topic: string) {
+  let material = topicMaterials.get(topic);
+  if (!material) {
+    let texture = topicTextures.get(topic);
+    if (!texture) {
+      texture = topicTexture(topic);
+      topicTextures.set(topic, texture);
+    }
+    material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+    });
+    topicMaterials.set(topic, material);
+  }
+  return material;
+}
+/** Rounded plate with a 2 px style edge, merged into one geometry with vertex colours. */
+const plateGeometries = new Map<string, THREE.BufferGeometry>(),
+  plateMaterial = new THREE.MeshBasicMaterial({
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.97,
+    depthTest: false,
+    depthWrite: false,
+  });
+function roundedRect(width: number, height: number, radius: number) {
+  const shape = new THREE.Shape(),
+    x = -width / 2,
+    y = -height / 2,
+    r = Math.min(radius, height / 2);
+  shape.moveTo(x + r, y);
+  shape.lineTo(x + width - r, y);
+  shape.quadraticCurveTo(x + width, y, x + width, y + r);
+  shape.lineTo(x + width, y + height - r);
+  shape.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  shape.lineTo(x + r, y + height);
+  shape.quadraticCurveTo(x, y + height, x, y + height - r);
+  shape.lineTo(x, y + r);
+  shape.quadraticCurveTo(x, y, x + r, y);
+  return shape;
+}
+function plateGeometry(height: number, real: boolean) {
+  const key = `${height}:${real}`;
+  let geometry = plateGeometries.get(key);
+  if (geometry) return geometry;
+  const paint = (g: THREE.BufferGeometry, colour: string) => {
+    const c = new THREE.Color(colour),
+      count = g.getAttribute("position").count,
+      colours = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) c.toArray(colours, i * 3);
+    g.setAttribute("color", new THREE.BufferAttribute(colours, 3));
+    g.deleteAttribute("uv");
+    g.deleteAttribute("normal");
+    return g;
+  };
+  const edge = paint(
+      new THREE.ShapeGeometry(roundedRect(3.98, height + 0.08, 0.15), 6),
+      real ? "#8DBFA9" : "#CBB79A",
+    ),
+    fill = paint(
+      new THREE.ShapeGeometry(roundedRect(3.9, height, 0.11), 6),
+      real ? "#E3F3EA" : "#FFF7EA",
+    );
+  fill.translate(0, 0, 0.002);
+  geometry = mergeGeometries([edge, fill]) ?? fill;
+  plateGeometries.set(key, geometry);
+  return geometry;
+}
+const iconGeometry = new THREE.PlaneGeometry(0.42, 0.42);
+
+/** Short spoken lines by topic; each person keeps one line per topic so bubbles never flicker. */
+const LINES: Record<string, string[]> = {
+  chat: [
+    "How's your day?",
+    "Nice to see you!",
+    "Love this place.",
+    "What's new?",
+    "Same time tomorrow?",
+    "Did you hear?",
+  ],
+  friendship: ["Hey there!", "Hi, neighbour!", "Good to see you!", "Hello!"],
+  music: ["What a tune!", "Encore!", "Love this song!", "Let's go!"],
+  sleep: ["Zzz..."],
+  food: ["Smells so good.", "Delicious!", "Just one more bite."],
+  work: ["Almost done.", "Busy, busy.", "One more task."],
+  water: ["Ahh, warm water.", "So refreshing."],
+};
+function lineFor(id: string, topic: string) {
+  const lines = LINES[topic] ?? LINES.chat;
+  let h = 7;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return lines[Math.abs(h) % lines.length];
+}
+
 function topicTexture(topic: string) {
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 128;
@@ -109,6 +210,53 @@ export function clearLabelHover(id: string) {
     motion.wake();
   }
 }
+type Candidate = {
+  entry: LabelEntry;
+  anchor: THREE.Vector3;
+  projected: THREE.Vector3;
+  distance: number;
+  priority: number;
+  focused: boolean;
+};
+type Box = { x: number; y: number; w: number; h: number };
+// Pools reused every frame: the layout allocates nothing once warmed up.
+const candidatePool: Candidate[] = [],
+  candidates: Candidate[] = [],
+  boxPool: Box[] = [],
+  screen = new THREE.Vector3(),
+  depthProbe = new THREE.Vector3(),
+  offsetCache = new Map<
+    number,
+    { plain: number[][]; persistent: number[][] }
+  >();
+function offsetsFor(width: number) {
+  let cached = offsetCache.get(width);
+  if (!cached) {
+    const plain = [
+      [0, 0],
+      [0, -48],
+      [-width * 0.65, -16],
+      [width * 0.65, -16],
+      [0, -96],
+      [-width * 0.7, -76],
+      [width * 0.7, -76],
+    ];
+    cached = {
+      plain,
+      persistent: [...plain, [-width, -125], [width, -125], [0, -150]],
+    };
+    offsetCache.set(width, cached);
+  }
+  return cached;
+}
+const byPriority = (a: Candidate, b: Candidate) =>
+  a.priority - b.priority || a.distance - b.distance;
+/** The player's own plate gives way to the activity badge while busy. */
+function selfBusy() {
+  const sim = useStore.getState().sim;
+  return !!sim?.busyUntil && sim.busyUntil > serverNow();
+}
+
 /** One screen-space budget serves staff and street NPCs, with real players taking priority. */
 function layoutLabels(state: RootState) {
   const { camera, size, clock } = state;
@@ -124,26 +272,34 @@ function layoutLabels(state: RootState) {
     halfWidth = width / 2,
     top = 64,
     bottom = size.height - (size.width < 600 ? 150 : 105),
-    candidates: {
-      entry: LabelEntry;
-      anchor: THREE.Vector3;
-      projected: THREE.Vector3;
-      distance: number;
-      priority: number;
-      focused: boolean;
-    }[] = [];
+    hideSelf = selfBusy();
+  candidates.length = 0;
   for (const entry of labels) {
     if (!entry.root) continue;
     entry.root.visible = false;
     if (!entry.name.trim() || !entry.visible()) continue;
+    if (entry.kind === "self" && hideSelf) continue;
     const at = entry.readPosition();
     if (!at) continue;
-    const anchor = new THREE.Vector3(
-        at.x,
-        (at.y ?? 0) + (entry.speaking ? 2.42 : 2.17),
-        at.z,
-      ),
-      projected = anchor.clone().project(camera),
+    let candidate = candidatePool[candidates.length];
+    if (!candidate) {
+      candidate = {
+        entry,
+        anchor: new THREE.Vector3(),
+        projected: new THREE.Vector3(),
+        distance: 0,
+        priority: 0,
+        focused: false,
+      };
+      candidatePool.push(candidate);
+    }
+    candidate.anchor.set(
+      at.x,
+      (at.y ?? 0) + (entry.speaking ? 2.42 : 2.17),
+      at.z,
+    );
+    candidate.projected.copy(candidate.anchor).project(camera);
+    const projected = candidate.projected,
       distance = position
         ? Math.hypot(at.x - position.x, at.z - position.z)
         : Infinity,
@@ -157,36 +313,17 @@ function layoutLabels(state: RootState) {
       (!real && !focused && distance > 6)
     )
       continue;
-    candidates.push({
-      entry,
-      anchor,
-      projected,
-      distance,
-      focused,
-      priority:
-        entry.kind === "self"
-          ? 0
-          : entry.kind === "player"
-            ? 1
-            : focused
-              ? 2
-              : 3,
-    });
+    candidate.entry = entry;
+    candidate.distance = distance;
+    candidate.focused = focused;
+    candidate.priority =
+      entry.kind === "self" ? 0 : entry.kind === "player" ? 1 : focused ? 2 : 3;
+    candidates.push(candidate);
   }
-  candidates.sort((a, b) => a.priority - b.priority || a.distance - b.distance);
-  const occupied: { x: number; y: number; w: number; h: number }[] = [],
-    offsets = [
-      [0, 0],
-      [0, -48],
-      [-width * 0.65, -16],
-      [width * 0.65, -16],
-      [0, -96],
-      [-width * 0.7, -76],
-      [width * 0.7, -76],
-    ],
-    persistentOffsets = [...offsets, [-width, -125], [width, -125], [0, -150]],
-    screen = new THREE.Vector3();
-  let ordinary = 0;
+  candidates.sort(byPriority);
+  const { plain, persistent } = offsetsFor(width);
+  let ordinary = 0,
+    boxes = 0;
   for (const candidate of candidates) {
     const { entry, anchor, projected, focused, priority } = candidate,
       root = entry.root!;
@@ -196,8 +333,10 @@ function layoutLabels(state: RootState) {
         3.9,
       originalX = ((projected.x + 1) * size.width) / 2,
       originalY = ((1 - projected.y) * size.height) / 2;
-    let placed: { x: number; y: number } | null = null;
-    for (const [dx, dy] of priority < 3 ? persistentOffsets : offsets) {
+    let placedX = 0,
+      placedY = 0,
+      placed = false;
+    for (const [dx, dy] of priority < 3 ? persistent : plain) {
       const x = THREE.MathUtils.clamp(
           originalX + dx,
           halfWidth + 8,
@@ -214,30 +353,41 @@ function layoutLabels(state: RootState) {
         !focused
       )
         continue;
-      if (
-        occupied.some(
-          (box) =>
-            Math.abs(x - box.x) < (width + box.w) / 2 + 7 &&
-            Math.abs(y - box.y) < (height + box.h) / 2 + 5,
-        )
-      )
-        continue;
-      placed = { x, y };
+      let blocked = false;
+      for (let b = 0; b < boxes; b++) {
+        const box = boxPool[b];
+        if (
+          Math.abs(x - box.x) < (width + box.w) / 2 + 7 &&
+          Math.abs(y - box.y) < (height + box.h) / 2 + 5
+        ) {
+          blocked = true;
+          break;
+        }
+      }
+      if (blocked) continue;
+      placedX = x;
+      placedY = y;
+      placed = true;
       break;
     }
     if (!placed) continue;
-    occupied.push({ ...placed, w: width, h: height });
+    const box = boxPool[boxes] ?? (boxPool[boxes] = { x: 0, y: 0, w: 0, h: 0 });
+    box.x = placedX;
+    box.y = placedY;
+    box.w = width;
+    box.h = height;
+    boxes++;
     if (priority === 3) ordinary++;
     screen
       .set(
-        (placed.x / size.width) * 2 - 1,
-        1 - (placed.y / size.height) * 2,
+        (placedX / size.width) * 2 - 1,
+        1 - (placedY / size.height) * 2,
         projected.z,
       )
       .unproject(camera);
     root.position.copy(root.parent ? root.parent.worldToLocal(screen) : screen);
     const depth = Math.abs(
-        anchor.clone().applyMatrix4(camera.matrixWorldInverse).z,
+        depthProbe.copy(anchor).applyMatrix4(camera.matrixWorldInverse).z,
       ),
       perPixel =
         camera instanceof THREE.PerspectiveCamera
@@ -273,7 +423,6 @@ export function LifeBubble({
 }) {
   const ref = useRef<THREE.Group>(null),
     { invalidate } = useThree(),
-    texture = useMemo(() => topicTexture(topic), [topic]),
     entry = useMemo<LabelEntry>(
       () => ({
         root: null,
@@ -288,7 +437,7 @@ export function LifeBubble({
       [id, kind, name, label, speaking, readPosition, visible],
     ),
     real = kind === "player" || kind === "self",
-    paper = real ? "#dcefe7" : "#fff8e7",
+    paper = real ? "#E3F3EA" : "#FFF7EA",
     ink = real ? "#224f45" : "#344c40",
     cleanName = name.trim(),
     cleanLabel = label.trim(),
@@ -301,26 +450,18 @@ export function LifeBubble({
       labels.delete(entry);
     };
   }, [entry, invalidate]);
-  useEffect(() => () => texture.dispose(), [texture]);
   useFrame((state) => layoutLabels(state));
   if (!cleanName) return null;
   return (
     <group ref={ref} visible={false} renderOrder={30}>
       <Billboard>
-        <RoundedBox
-          args={[3.9, height, 0.045]}
-          radius={0.11}
-          smoothness={2}
+        <mesh
+          geometry={plateGeometry(height, real)}
+          material={plateMaterial}
+          renderOrder={30}
+          dispose={null}
           raycast={() => {}}
-        >
-          <meshBasicMaterial
-            color={paper}
-            transparent
-            opacity={0.95}
-            depthTest={false}
-            depthWrite={false}
-          />
-        </RoundedBox>
+        />
         <WorldText
           position={[0, speaking ? 0.42 : cleanLabel ? 0.18 : 0, 0.04]}
           fontSize={0.28}
@@ -349,15 +490,14 @@ export function LifeBubble({
         )}
         {speaking && (
           <>
-            <mesh position={[-1.37, -0.36, 0.045]} raycast={() => {}}>
-              <planeGeometry args={[0.42, 0.42]} />
-              <meshBasicMaterial
-                map={texture}
-                transparent
-                depthTest={false}
-                depthWrite={false}
-              />
-            </mesh>
+            <mesh
+              position={[-1.37, -0.36, 0.045]}
+              geometry={iconGeometry}
+              material={topicMaterial(topic)}
+              renderOrder={31}
+              dispose={null}
+              raycast={() => {}}
+            />
             <WorldText
               position={[0.23, -0.36, 0.045]}
               fontSize={0.27}
@@ -368,7 +508,7 @@ export function LifeBubble({
               depthTest={false}
               renderOrder={32}
             >
-              {topic === "sleep" ? "Zzz..." : "Bla ba, nibu ba!"}
+              {lineFor(id, topic)}
             </WorldText>
           </>
         )}
@@ -385,12 +525,6 @@ export function StinkCloud({
   const ref = useRef<THREE.InstancedMesh>(null),
     dummy = useMemo(() => new THREE.Object3D(), []),
     { invalidate } = useThree();
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (!document.hidden) invalidate();
-    }, 1000 / 20);
-    return () => clearInterval(timer);
-  }, [invalidate]);
   useFrame(({ clock }) => {
     const p = readPosition();
     if (!p || !ref.current) return;
@@ -407,12 +541,14 @@ export function StinkCloud({
       ref.current.setMatrixAt(i, dummy.matrix);
     }
     ref.current.instanceMatrix.needsUpdate = true;
-    ref.current.computeBoundingSphere();
+    // The cloud drifts continuously; keep the demand loop alive while it is mounted.
+    if (!document.hidden) invalidate();
   });
   return (
     <instancedMesh
       ref={ref}
       args={[undefined, undefined, 7]}
+      frustumCulled={false}
       raycast={() => {}}
     >
       <sphereGeometry args={[1, 6, 4]} />

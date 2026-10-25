@@ -21,7 +21,6 @@ import {
   sound,
   pauseAudio,
   continueAudio,
-  type SoundKind,
 } from "./sound";
 import { Icon } from "./primitives";
 
@@ -39,13 +38,9 @@ function AudioSceneContent() {
     story = useStore((s) => !!s.sim?.pendingBeat),
     notice = useStore((s) => !!s.socialNotice),
     result = useStore((s) => s.lastResult),
-    until = useStore((s) => s.sim?.busyUntil),
-    busyLabel = useStore((s) => s.sim?.busyLabel),
     gesture = useStore((s) => s.sim?.lifeAction),
     night = useNightLighting(),
-    lastAction = useRef<number | null>(null),
     lastGesture = useRef(0),
-    lastEntry = useRef(""),
     lastFriend = useRef<Record<string, number> | null>(null);
   const [zone, setZone] = useState<{ id: string; ambient: string } | null>(
     null,
@@ -132,43 +127,15 @@ function AudioSceneContent() {
           void unlockAudio();
         } else void unlockAudio();
       };
-    const click = (event: MouseEvent) => {
-      if (
-        event.target instanceof Element &&
-        event.target.closest("button,a,[role=button],summary")
-      )
-        sound("tap");
-    };
-    document.addEventListener("click", click, { passive: true });
     document.addEventListener("pointerdown", unlock, { passive: true });
     document.addEventListener("keydown", key);
     document.addEventListener("visibilitychange", visible);
     return () => {
-      document.removeEventListener("click", click);
       document.removeEventListener("pointerdown", unlock);
       document.removeEventListener("keydown", key);
       document.removeEventListener("visibilitychange", visible);
     };
   }, []);
-  useEffect(() => {
-    if (!until || lastAction.current === until) return;
-    lastAction.current = until;
-    const label = (busyLabel ?? "").toLowerCase();
-    const effect: SoundKind = label.includes("cook")
-      ? "cook"
-      : label.includes("meal") || label.includes("eat")
-        ? "eat"
-        : label.includes("shower")
-          ? "shower"
-          : label.includes("sleep")
-            ? "sleep"
-            : label.includes("work") || label.includes("code")
-              ? "type"
-              : label.includes("fly") || label.includes("bus")
-                ? "arrival"
-                : "open";
-    sound(effect);
-  }, [until, busyLabel]);
   useEffect(() => {
     if (
       !gesture ||
@@ -193,9 +160,7 @@ function AudioSceneContent() {
     );
   }, [gesture]);
   useEffect(() => {
-    const initial = useStore.getState().sim,
-      last = initial?.economy?.entries?.at(-1);
-    lastEntry.current = last?.id ?? "";
+    const initial = useStore.getState().sim;
     lastFriend.current = initial?.relationships
       ? Object.fromEntries(
           Object.entries(initial.relationships).map(([id, row]) => [
@@ -206,22 +171,10 @@ function AudioSceneContent() {
       : {};
     return useStore.subscribe((state, previous) => {
       if (state.sim?.userId !== previous.sim?.userId) {
-        lastEntry.current = state.sim?.economy?.entries?.at(-1)?.id ?? "";
         lastFriend.current = null;
         return;
       }
-      const entry = state.sim?.economy?.entries?.at(-1);
-      if (entry && entry.id !== lastEntry.current) {
-        lastEntry.current = entry.id;
-        const reason = entry.reason.toLowerCase();
-        sound(
-          entry.amount < 0
-            ? "purchase"
-            : reason.includes("pay") || reason.includes("shift")
-              ? "payday"
-              : "reward",
-        );
-      }
+      // Money moments (pay, rent, purchases, milestones) sound through the feedback bus.
       const friendship = state.sim?.relationships;
       if (friendship) {
         const previousValues = lastFriend.current;
@@ -366,8 +319,8 @@ export function AudioSettings() {
       ))}
       <small>
         These settings stay on this browser. Music pauses while this tab is
-        hidden. Music and sound effects are composed inside Metro Life; no
-        third-party recordings.
+        hidden. The score is composed inside Metro Life; a few short effects are
+        free CC0 recordings by Kenney.
       </small>
     </section>
   );

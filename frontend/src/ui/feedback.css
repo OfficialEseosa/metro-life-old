@@ -1,0 +1,298 @@
+/* Feedback layer: toasts, floating money and coins. Colours come from the HUD tokens in index.css. */
+
+.feedback-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--feedback-z, 36);
+  font-family: var(--font-ui);
+}
+
+.feedback-toasts {
+  position: absolute;
+  top: var(--feedback-top, max(10px, env(safe-area-inset-top)));
+  left: 50%;
+  width: var(--feedback-max-width, 440px);
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  transform: translateX(-50%);
+}
+
+.feedback-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 14px 8px 8px;
+  border-radius: var(--r-md, 20px);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  border: 2px solid var(--c-line);
+  box-shadow: var(--shadow-1);
+  animation: feedback-in 280ms var(--ease-out, ease-out) both;
+}
+.feedback-toast.is-leaving {
+  animation: feedback-out 220ms ease-in both;
+}
+
+.feedback-icon {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: var(--c-primary-soft);
+  color: var(--c-primary-text);
+}
+.feedback-badge {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  color: var(--c-primary);
+  background: var(--c-surface);
+  border-radius: 50%;
+}
+
+.feedback-text {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  line-height: 1.2;
+}
+.feedback-text small {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: var(--track-micro, 0.04em);
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+}
+.feedback-text strong {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: var(--w-display, 600);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.feedback-detail {
+  font-size: 14px;
+  color: var(--c-ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feedback-amount {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: var(--r-pill, 999px);
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.feedback-amount.is-gain {
+  background: var(--c-primary-soft);
+  color: var(--c-primary-text);
+}
+.feedback-amount.is-spend {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+
+/* Tones */
+.tone-money .feedback-icon {
+  background: var(--c-accent-soft);
+  color: var(--c-accent-text);
+}
+.tone-calm .feedback-icon {
+  background: var(--c-sunken);
+  color: var(--c-ink-soft);
+}
+.tone-bad {
+  border-color: var(--c-danger);
+}
+.tone-bad .feedback-icon {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+.tone-bad.feedback-toast:not(.is-leaving) {
+  animation:
+    feedback-in 280ms var(--ease-out, ease-out) both,
+    feedback-nudge 360ms 120ms ease-in-out;
+}
+.tone-social .feedback-icon {
+  background: var(--c-accent-soft);
+  color: var(--c-accent-text);
+}
+.tone-social {
+  border-color: var(--c-accent);
+}
+.tone-big {
+  min-height: 64px;
+  border-color: var(--c-accent);
+  background:
+    radial-gradient(
+      120% 140% at 0% 0%,
+      var(--c-accent-soft) 0%,
+      transparent 60%
+    ),
+    var(--c-surface);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--c-accent) 28%, transparent),
+    var(--shadow-1);
+}
+.tone-big .feedback-icon {
+  width: 46px;
+  height: 46px;
+  background: var(--c-accent);
+  color: var(--c-surface);
+}
+.tone-big .feedback-icon svg {
+  width: 26px;
+  height: 26px;
+}
+.tone-big .feedback-text strong {
+  font-size: 19px;
+}
+.tone-big.feedback-toast:not(.is-leaving) {
+  animation: feedback-pop 520ms var(--ease-out, ease-out) both;
+}
+
+/* Floating money and level labels above the character */
+.feedback-float {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 3px 11px;
+  border-radius: var(--r-pill, 999px);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  background: var(--c-surface);
+  border: 2px solid var(--c-line);
+  box-shadow: var(--shadow-1);
+  will-change: transform, opacity;
+}
+.feedback-float[data-tone="gain"] {
+  color: var(--c-primary-text);
+  border-color: var(--c-primary);
+}
+.feedback-float[data-tone="spend"] {
+  color: var(--c-danger);
+  border-color: var(--c-danger);
+}
+.feedback-float[data-tone="level"] {
+  color: var(--c-accent-text);
+  border-color: var(--c-accent);
+}
+
+.feedback-coin {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  color: var(--c-accent-text);
+  border: 2px solid var(--c-surface);
+  box-shadow: 0 2px 6px rgba(46, 36, 51, 0.25);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes feedback-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+@keyframes feedback-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.86);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes feedback-nudge {
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+}
+
+@media (max-width: 700px) {
+  .feedback-toasts {
+    width: var(--feedback-max-width, min(340px, calc(100vw - 320px)));
+    min-width: min(300px, calc(100vw - 32px));
+    gap: 6px;
+  }
+  .feedback-toast {
+    min-height: 52px;
+    padding: 6px 12px 6px 6px;
+    gap: 10px;
+  }
+  .feedback-detail {
+    display: none;
+  }
+  .feedback-text strong,
+  .tone-big .feedback-text strong {
+    font-size: 16px;
+  }
+  .feedback-amount {
+    font-size: 16px;
+    padding: 3px 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-toast,
+  .feedback-toast.is-leaving,
+  .tone-big.feedback-toast:not(.is-leaving),
+  .tone-bad.feedback-toast:not(.is-leaving) {
+    animation-name: feedback-fade;
+    animation-duration: 160ms;
+  }
+  .feedback-toast.is-leaving {
+    animation-direction: reverse;
+  }
+}
+@keyframes feedback-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
