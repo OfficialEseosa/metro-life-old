@@ -1,50 +1,152 @@
-/* oxlint-disable react/immutability -- Mixer, skeletons and materials are owned Three resources. */
-import { useEffect,useMemo,useRef } from 'react'
-import { useFrame,useThree,useLoader } from '@react-three/fiber'
-import { useGLTF } from '@react-three/drei'
-import * as THREE from 'three'
-import { clone } from 'three/addons/utils/SkeletonUtils.js'
-import type { Look } from '../api/types'
-import { METRES } from './world-scale'
-import type { BodyCondition } from './character-life'
-import { mountCharacterAppearance,dressedLook,softenCharacterHeads } from './character-appearance'
-import { serverNow } from '../server-time'
+/* oxlint-disable react/immutability -- The actor, mixer and marker are owned Three resources. */
+import { use, useEffect, useMemo, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+import type { Look } from "../api/types";
+import type { BodyCondition } from "./character-life";
+import { serverNow } from "../server-time";
+import {
+  CharacterActor,
+  loadLook,
+  lookKey,
+  lookReady,
+  preloadAllBodies,
+  type ActorOptions,
+  type CharacterPose,
+} from "./characters/actor";
+import { SelectionMarker } from "./characters/marker";
 
-export type CharacterPose='Idle'|'Walk'|'Run'|'Wave'|'Interact'|'Sit'|'Lie'|'Sleep'|'Type'|'Eat'|'Dance'|'Cheer'|'Jog'|'Talk'|'Shower'|'Cook'|'Browse'|'Photo'|'Play'|'Listen'|'Celebrate'|'Read'|'React'
-const smoothGeometry=new WeakMap<THREE.BufferGeometry,THREE.BufferGeometry>()
-const activityCache=new Map<string,ActivityData>()
-const clipCache=new Map<string,THREE.AnimationClip[]>()
-const inPlaceClips=new WeakMap<THREE.AnimationClip,THREE.AnimationClip>()
-function inPlace(source:THREE.AnimationClip){let clip=inPlaceClips.get(source);if(clip)return clip;clip=source.clone();for(const track of clip.tracks)if(/(?:^|\.)(?:Root|Hips|CharacterArmature)\.position$/i.test(track.name)){for(let i=0;i<track.values.length;i+=3){track.values[i]=track.values[0];track.values[i+2]=track.values[2]}}inPlaceClips.set(source,clip);return clip}
-const animationCanvases=new Map<()=>void,number>()
-let animationTimer:ReturnType<typeof setInterval>|undefined
-function animateCanvas(invalidate:()=>void){animationCanvases.set(invalidate,(animationCanvases.get(invalidate)??0)+1);if(!animationTimer)animationTimer=setInterval(()=>{if(!document.hidden)for(const draw of animationCanvases.keys())draw()},1000/60);return()=>{const users=(animationCanvases.get(invalidate)??1)-1;if(users)animationCanvases.set(invalidate,users);else animationCanvases.delete(invalidate);if(!animationCanvases.size&&animationTimer){clearInterval(animationTimer);animationTimer=undefined}}}
-const poseAliases:Partial<Record<CharacterPose,CharacterPose>>={Browse:'Idle',Photo:'Interact',Play:'Type',Listen:'Sit',Celebrate:'Cheer',Read:'Type',React:'Wave',Shower:'Interact',Cook:'Interact'}
-type ActivityData={clips:Parameters<typeof THREE.AnimationClip.parse>[0][];metadata:Record<string,{hip:number[];head:number[];duration:number}>}
-function characterUrl(look:Look){return `/models/chars/${look.body==='f'?'f':'m'}_${look.style==='street'?'street':look.style==='smart'?'smart':look.style==='work'?'work':look.style==='party'?'party':'casual'}.glb`}
-function footShadow(){const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const c=canvas.getContext('2d')!,g=c.createRadialGradient(64,64,6,64,64,63);g.addColorStop(0,'rgba(35,26,30,.3)');g.addColorStop(.45,'rgba(35,26,30,.18)');g.addColorStop(1,'rgba(35,26,30,0)');c.fillStyle=g;c.fillRect(0,0,128,128);return new THREE.CanvasTexture(canvas)}
-/** Average cloth normals across coincident vertices, including material/UV seams. */
-function smoothCloth(source:THREE.BufferGeometry){
- const cached=smoothGeometry.get(source);if(cached)return cached
- const g=source.clone(),p=g.getAttribute('position'),index=g.index,count=index?.count??p.count,sums=new Map<string,THREE.Vector3>(),keys=Array.from({length:p.count},(_,i)=>`${Math.round(p.getX(i)*10000)}:${Math.round(p.getY(i)*10000)}:${Math.round(p.getZ(i)*10000)}`),a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3(),ab=new THREE.Vector3(),ac=new THREE.Vector3()
- for(let face=0;face<count;face+=3){const ids=[0,1,2].map(j=>index?index.getX(face+j):face+j);a.fromBufferAttribute(p,ids[0]);b.fromBufferAttribute(p,ids[1]);c.fromBufferAttribute(p,ids[2]);ab.subVectors(b,a);ac.subVectors(c,a);ab.cross(ac);for(const i of ids){const key=keys[i];if(!sums.has(key))sums.set(key,new THREE.Vector3());sums.get(key)!.add(ab)}}
- const normal=new Float32Array(p.count*3);for(let i=0;i<p.count;i++)sums.get(keys[i])!.normalize().toArray(normal,i*3);g.setAttribute('normal',new THREE.BufferAttribute(normal,3));smoothGeometry.set(source,g);return g
+export type { CharacterPose } from "./characters/actor";
+
+// Bodies and clips are shared by everyone in the city; start loading with the scene code.
+if (typeof window !== "undefined") void preloadAllBodies().catch(() => {});
+
+const animationCanvases = new Map<() => void, number>();
+let animationTimer: ReturnType<typeof setInterval> | undefined;
+function animateCanvas(invalidate: () => void) {
+  animationCanvases.set(
+    invalidate,
+    (animationCanvases.get(invalidate) ?? 0) + 1,
+  );
+  if (!animationTimer)
+    animationTimer = setInterval(() => {
+      if (!document.hidden) for (const draw of animationCanvases.keys()) draw();
+    }, 1000 / 60);
+  return () => {
+    const users = (animationCanvases.get(invalidate) ?? 1) - 1;
+    if (users) animationCanvases.set(invalidate, users);
+    else animationCanvases.delete(invalidate);
+    if (!animationCanvases.size && animationTimer) {
+      clearInterval(animationTimer);
+      animationTimer = undefined;
+    }
+  };
 }
-/** Same renderer for controlled people, previews, portraits and near residents. */
-export function RiggedCharacter({look,readPose=()=> 'Idle',readHipHeight,readCondition,readSpeed,readDistance,readStartedAt}:{look:Look;readPose?:()=>CharacterPose;readHipHeight?:()=>number|undefined;readCondition?:()=>BodyCondition;readSpeed?:()=>number;readDistance?:()=>number;readStartedAt?:()=>number|undefined}){
- const {scene,animations}=useGLTF(characterUrl(look)),invalidate=useThree(s=>s.invalidate),wardrobeKey=JSON.stringify(look.outfits??{})
- const activityText=useLoader(THREE.FileLoader,`/models/chars/activities-${look.body==='f'?'f':'m'}.json`) as string,activity=useMemo(()=>{if(!activityCache.has(activityText))activityCache.set(activityText,JSON.parse(activityText) as ActivityData);return activityCache.get(activityText)!},[activityText])
- const actor=useMemo(()=>{
-  const root=clone(scene),materials:THREE.Material[]=[],clothes:{material:THREE.MeshStandardMaterial;part:'top'|'bottom'|'shoeColor'}[]=[],geometries:THREE.BufferGeometry[]=[],skeletons=new Set<THREE.Skeleton>();root.updateMatrixWorld(true)
-  const box=new THREE.Box3().setFromObject(root),scale=METRES.person/box.getSize(new THREE.Vector3()).y
-  root.traverse(o=>{if(o instanceof THREE.SkinnedMesh){skeletons.add(o.skeleton);if(/Body|Legs/.test(o.name)){o.geometry=smoothCloth(o.geometry)}o.frustumCulled=false;o.castShadow=o.receiveShadow=true;const recolour=(source:THREE.MeshStandardMaterial)=>{const m=source.clone();m.roughness=.82;m.onBeforeCompile=shader=>{shader.fragmentShader=shader.fragmentShader.replace('#include <dithering_fragment>','#include <dithering_fragment>\nfloat characterRim=pow(1.-clamp(dot(normal,normalize(vViewPosition)),0.,1.),3.);gl_FragColor.rgb+=vec3(.055,.045,.035)*characterRim;')};m.customProgramCacheKey=()=> 'metro-character-rim';materials.push(m);if(/^Skin/.test(m.name))m.color.set(look.skin).multiplyScalar(m.name==='Skin_Darker'?.82:1);else if(/Head/.test(o.name)&&/^(Hair(?:_|$)|Red_Dark$|Red$|DarkBrown$|Moustache$|Eyebrows$)/.test(m.name))m.color.set(look.hairColor).multiplyScalar(m.name==='Eyebrows'?.7:1);else if(/Body/.test(o.name)&&!['Grey','Brown'].includes(m.name)){m.color.set(look.top);clothes.push({material:m,part:'top'})}else if(/Legs/.test(o.name)){m.color.set(look.bottom);clothes.push({material:m,part:'bottom'})}else if(/Feet/.test(o.name)&&m.name==='Brown'){m.color.set(look.shoeColor);clothes.push({material:m,part:'shoeColor'})}return m};o.material=Array.isArray(o.material)?o.material.map(m=>recolour(m as THREE.MeshStandardMaterial)):recolour(o.material as THREE.MeshStandardMaterial)}})
-  for(const skeleton of skeletons)skeleton.update();softenCharacterHeads(root);const disposeAppearance=mountCharacterAppearance(root,look,scale),bones=['Abdomen','Chest','Neck','UpperArm.L','LowerArm.L','UpperArm.R','LowerArm.R'].map(name=>(root.getObjectByName(name)??root.getObjectByName(name.replace(/\./g,'')))).filter((b):b is THREE.Object3D=>!!b),boneRest=new Map(bones.map(b=>[b,b.quaternion.clone()]));
-  const mixer=new THREE.AnimationMixer(root),actions=new Map<CharacterPose,THREE.AnimationAction>();for(const name of ['Idle','Walk','Run','Wave','Interact'] as const){const clip=animations.find(a=>a.name.split('|').at(-1)===name);if(!clip)throw Error('Missing character clip '+name);actions.set(name,mixer.clipAction(inPlace(clip)))}if(!clipCache.has(activityText))clipCache.set(activityText,activity.clips.map(data=>THREE.AnimationClip.parse(data)));for(const clip of clipCache.get(activityText)!)actions.set(clip.name as CharacterPose,mixer.clipAction(clip))
-  return {owners:0,clothes,outfitKey:'',disposeAppearance,bones,boneRest,root,scale,floor:-box.min.y,materials,geometries,skeletons,mixer,actions,shadow:footShadow()}
- },[scene,animations,activity,look.skin,look.hairColor,look.top,look.bottom,look.shoeColor,look.hair,look.face,wardrobeKey])
- const anchor=useRef<THREE.Group>(null),renderRoot=useRef<THREE.Group>(null),pan=useRef<THREE.Group>(null),frame=useRef(0),elapsed=useRef(0)
- const current=useRef<THREE.AnimationAction|null>(null),previous=useRef<{action:THREE.AnimationAction;left:number}|null>(null)
- useEffect(()=>{actor.owners++;current.current=null;previous.current=null;const stopAnimating=animateCanvas(invalidate);return()=>{stopAnimating();actor.owners--;actor.mixer.stopAllAction();queueMicrotask(()=>{if(actor.owners)return;actor.mixer.uncacheRoot(actor.root);actor.materials.forEach(m=>m.dispose());actor.geometries.forEach(g=>g.dispose());actor.skeletons.forEach(s=>s.dispose());actor.shadow.dispose();actor.disposeAppearance()})}},[actor,invalidate])
- useFrame((_,dt)=>{elapsed.current+=Math.min(dt,.05);if((readDistance?.()??0)>15&&++frame.current%2)return;dt=elapsed.current;elapsed.current=0;const pose=readPose(),outfit=dressedLook(look,pose),outfitKey=[outfit.top,outfit.bottom,outfit.shoeColor].join(':');if(actor.outfitKey!==outfitKey){actor.outfitKey=outfitKey;for(const clothing of actor.clothes)clothing.material.color.set(outfit[clothing.part])}const next=actor.actions.get(pose)??actor.actions.get(poseAliases[pose]??'Idle')!;if(current.current!==next){next.reset().play();const started=readStartedAt?.();if(started)next.time=Math.max(0,serverNow()-started)/1000%next.getClip().duration;if(current.current){current.current.crossFadeTo(next,.2,false);previous.current={action:current.current,left:.2}}else next.fadeIn(.2);current.current=next;actor.root.userData.clip=pose;actor.root.userData.crossFadeSeconds=.2}if(['Walk','Run','Jog'].includes(pose)&&readSpeed)next.timeScale=THREE.MathUtils.clamp(readSpeed()/(pose==='Walk'?1.4:3.5),.35,3.2);else next.timeScale=1;for(const bone of actor.bones)bone.quaternion.copy(actor.boneRest.get(bone)!);actor.mixer.update(Math.min(dt,.1));for(const bone of actor.bones)actor.boneRest.get(bone)!.copy(bone.quaternion);const condition=readCondition?.(),upright=['Idle','Walk','Run','Jog','Talk','Wave','Interact','Shower','Cook'].includes(pose),t=actor.mixer.time;const bend=(name:string,x:number,z=0)=>{const bone=actor.root.getObjectByName(name)??actor.root.getObjectByName(name.replace(/\./g,''));if(bone){bone.rotateX(x);bone.rotateZ(z)}};if(condition?.tired&&upright){bend('Abdomen',.16);bend('Chest',.12);bend('Neck',.12)}if(condition?.hungry&&upright&&pose!=='Wave'){bend('UpperArm.L',-.65,.35);bend('LowerArm.L',-1.2);bend('Abdomen',.07)}if(pose==='Shower'){bend('UpperArm.L',-1.7,.25);bend('UpperArm.R',-1.6,-.25);bend('LowerArm.L',-.6+Math.sin(t*5)*.2);bend('LowerArm.R',-.6-Math.sin(t*5)*.2)}if(pose==='Photo'){bend('UpperArm.L',-1.15,.25);bend('UpperArm.R',-1.15,-.25);bend('LowerArm.L',-1.1);bend('LowerArm.R',-1.1)}if(pose==='Browse'||pose==='React')bend('Neck',Math.sin(t*.8)*.08,Math.sin(t*.5)*.10);if(pose==='Play'){bend('UpperArm.R',-.6);bend('LowerArm.R',-.7+Math.sin(t*7)*.24)}if(pose==='Read'){bend('Neck',.15);bend('LowerArm.L',-.95);bend('LowerArm.R',-.95)}if(pose==='Idle'){bend('Neck',Math.sin(t*.55)*.025,Math.sin(t*.3)*.035)}if(pose==='Cook'){bend('UpperArm.R',-.65);bend('LowerArm.R',-1.0+Math.sin(t*5)*.3);bend('UpperArm.L',-.5,.2)}if(pose==='Sleep'||pose==='Lie'){actor.root.updateMatrixWorld(true);for(const side of ['L','R'])for(const [from,to]of [['UpperArm','LowerArm'],['LowerArm','Wrist']]){const bone=actor.root.getObjectByName(from+side),child=actor.root.getObjectByName(to+side);if(!bone||!child||!bone.parent)continue;const at=bone.getWorldPosition(new THREE.Vector3()),direction=child.getWorldPosition(new THREE.Vector3()).sub(at).normalize(),desired=new THREE.Vector3(side==='L'?.035:-.035,.025,1).transformDirection(actor.root.matrixWorld),rotation=new THREE.Quaternion().setFromUnitVectors(direction,desired).multiply(bone.getWorldQuaternion(new THREE.Quaternion()));bone.quaternion.copy(bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(rotation));bone.updateMatrixWorld(true)}}if(pan.current){pan.current.visible=pose==='Cook';if(pose==='Cook'&&renderRoot.current){actor.root.updateMatrixWorld(true);const wrist=actor.root.getObjectByName('WristL')??actor.root.getObjectByName('Wrist.L');if(wrist){wrist.getWorldPosition(pan.current.position);renderRoot.current.worldToLocal(pan.current.position);pan.current.position.y-=.035;pan.current.position.z+=.12}}}const hip=readHipHeight?.(),meta=activity.metadata[pose];if(anchor.current){if(hip!==undefined&&meta)anchor.current.position.set(-meta.hip[0]*actor.scale,hip-(meta.hip[1]+actor.floor)*actor.scale,-meta.hip[2]*actor.scale);else anchor.current.position.set(0,0,0)}if(previous.current){previous.current.left-=dt;if(previous.current.left<=0){previous.current.action.stop();previous.current=null}}})
- return <group ref={renderRoot} name="rigged-character" userData={{heightMetres:METRES.person,forward:'+Z',source:'Quaternius Modular + UAL'}}><group ref={anchor}><group scale={actor.scale}><primitive object={actor.root} position={[0,actor.floor,0]}/></group></group><group ref={pan} visible={false} name="cooking-pan"><mesh><cylinderGeometry args={[.18,.155,.055,16]}/><meshStandardMaterial color="#3a4248" roughness={.5}/></mesh><mesh position={[-.24,0,0]}><boxGeometry args={[.23,.045,.065]}/><meshStandardMaterial color="#6f5840"/></mesh><mesh position={[0,.033,0]}><cylinderGeometry args={[.14,.14,.012,14]}/><meshStandardMaterial color="#cfb35b"/></mesh><mesh position={[.045,.05,.015]}><sphereGeometry args={[.04,7,5]}/><meshStandardMaterial color="#8b9f61"/></mesh></group><mesh rotation={[-Math.PI/2,0,0]} position={[0,.014,0]} raycast={()=>{}}><planeGeometry args={[1.1,1.1]}/><meshBasicMaterial map={actor.shadow} transparent depthWrite={false} polygonOffset polygonOffsetFactor={-1}/></mesh></group>
+
+/** Same renderer for the controlled person, residents, staff and the pose studio. */
+export function RiggedCharacter({
+  look,
+  readPose = () => "Idle",
+  readHipHeight,
+  readCondition,
+  readSpeed,
+  readDistance,
+  readStartedAt,
+  selected,
+  options,
+}: {
+  look: Look;
+  readPose?: () => CharacterPose;
+  readHipHeight?: () => number | undefined;
+  readCondition?: () => BodyCondition;
+  readSpeed?: () => number;
+  readDistance?: () => number;
+  readStartedAt?: () => number | undefined;
+  /** Show the player's own marker. Detected automatically under "controlled-player". */
+  selected?: boolean;
+  /** Resident identity and accessories; omitted for the player. */
+  options?: ActorOptions;
+}) {
+  const key = lookKey(look),
+    optionsKey = JSON.stringify(options ?? null);
+  // Suspend only while the look's parts are still loading.
+  if (!lookReady(look, options)) use(loadLook(look, options));
+  const invalidate = useThree((s) => s.invalidate);
+  const actor = useMemo(
+    () => new CharacterActor(look, options),
+    // The key strings capture every field the actor reads.
+    [key, optionsKey], // oxlint-disable-line react-hooks/exhaustive-deps
+  );
+  const group = useRef<THREE.Group>(null),
+    marker = useRef<SelectionMarker | null>(null),
+    frame = useRef(0),
+    pending = useRef(0),
+    head = useMemo(() => new THREE.Vector3(), []);
+  useEffect(() => {
+    // StrictMode mounts twice; dispose only when nobody re-acquired the actor.
+    actor.owners++;
+    const stop = animateCanvas(invalidate);
+    return () => {
+      stop();
+      actor.owners--;
+      queueMicrotask(() => {
+        if (!actor.owners) actor.dispose();
+      });
+    };
+  }, [actor, invalidate]);
+  useEffect(() => {
+    let own = selected;
+    if (own === undefined) {
+      let parent = group.current?.parent;
+      while (parent && own === undefined) {
+        if (parent.name === "controlled-player") own = true;
+        parent = parent.parent;
+      }
+    }
+    if (!own || !group.current) return;
+    const m = new SelectionMarker();
+    group.current.add(m.group);
+    marker.current = m;
+    return () => {
+      m.group.removeFromParent();
+      m.dispose();
+      marker.current = null;
+    };
+  }, [selected, actor]);
+  useFrame((state, dt) => {
+    pending.current += Math.min(dt, 0.1);
+    const distance = readDistance?.() ?? 0,
+      every = distance > 28 ? 3 : distance > 16 ? 2 : 1;
+    if (++frame.current % every) return;
+    const step = pending.current;
+    pending.current = 0;
+    // Development only: the lab can hold the player in a pose to inspect it in a real room.
+    const forced =
+      import.meta.env.DEV && marker.current
+        ? (window as { __metroForcePose?: { pose: CharacterPose; hip?: number } })
+            .__metroForcePose
+        : undefined;
+    const pose = forced?.pose ?? readPose(),
+      condition = readCondition?.();
+    actor.update(step, {
+      pose,
+      speed: forced ? 0 : (readSpeed?.() ?? 0),
+      hip: forced ? forced.hip : readHipHeight?.(),
+      tired: condition?.tired,
+      hungry: condition?.hungry,
+      startedAt: readStartedAt?.(),
+      now: serverNow(),
+    });
+    actor.root.userData.clip = pose;
+    actor.root.userData.crossFadeSeconds = 0.25;
+    if (marker.current) {
+      actor.headTop(head);
+      marker.current.update(state.clock.elapsedTime, head.y);
+    }
+  });
+  return (
+    <group ref={group}>
+      <primitive object={actor.root} />
+    </group>
+  );
 }
