@@ -46,7 +46,7 @@ const night: Omit<Key, "at"> = {
   shadowTint: "#3a4a8a",
   highlightTint: "#ffd2a0",
   shadowIntensity: 0.7,
-  ground: "#6f9a74",
+  ground: "#5c7f68",
 };
 const day: Omit<Key, "at"> = {
   sunElevation: 58,

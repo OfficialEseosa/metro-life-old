@@ -91,7 +91,7 @@ export function RoomPlinth({ room }: { room: string }) {
   useEffect(() => () => ground.dispose(), [ground]);
   useFrame(() => {
     // The room key light is strong; keep the lawn calmer than the street grass.
-    if (home) ground.color.copy(timeOfDay.ground).lerp(lawnShade, 0.35).multiplyScalar(0.78);
+    if (home) ground.color.copy(timeOfDay.ground).lerp(lawnShade, 0.5).multiplyScalar(0.58);
     else ground.color.lerpColors(paving, pavingNight, dark ? 1 : timeOfDay.nightFactor * 0.7);
   });
   const trees = useMemo<TreeSpot[]>(() => {
