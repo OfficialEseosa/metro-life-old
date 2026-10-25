@@ -200,9 +200,15 @@ function describe(e: FeedbackEvent): Omit<Toast, "id" | "count" | "leaving"> {
         life: 3800,
       };
     case "social": {
-      const kind = socialWord(e);
+      const kind = socialWord(e),
+        me = useStore.getState().sim?.username?.trim();
       return {
         ...base,
+        // The server words it for everyone ("Ana waved to Kai."); the sender reads "You waved to Kai."
+        title:
+          me && e.title.startsWith(me + " ")
+            ? "You" + e.title.slice(me.length)
+            : e.title,
         tone: "social",
         icon:
           kind === "gift" ? Gift : kind === "hangout" ? Handshake : HandWaving,
