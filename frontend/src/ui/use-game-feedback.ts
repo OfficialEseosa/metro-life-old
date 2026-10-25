@@ -62,24 +62,21 @@ function useEventFeedback() {
       const now = next.event,
         before = previous.event;
       if (!now || !before || now.id !== before.id || !now.active) return;
-      if (now.joined && !before.joined)
+      const joined = now.joined && !before.joined,
+        ready = now.progress >= now.target && before.progress < now.target;
+      if (joined)
         emitFeedback({
           kind: "event",
           title: now.name,
-          detail: "Dance, wave or cheer there to add moments",
+          detail: `${now.progress} of ${now.target} shared moments. Dance, wave or cheer to add more`,
           data: eventData(now, "join"),
         });
-      if (now.progress > before.progress)
+      if (now.progress > before.progress && (ready || !joined))
         emitFeedback({
           kind: "event",
           title: now.name,
           detail: `${now.progress} of ${now.target} shared moments`,
-          data: eventData(
-            now,
-            now.progress >= now.target && before.progress < now.target
-              ? "ready"
-              : "progress",
-          ),
+          data: eventData(now, ready ? "ready" : "progress"),
         });
     });
     return () => {

@@ -22,6 +22,8 @@
   list-style: none;
   display: grid;
   gap: 8px;
+  /* When another area sets a top while the phone anchors a bottom, cards stay their own height. */
+  align-content: end;
   transform: translateX(var(--feedback-shift, -50%));
 }
 

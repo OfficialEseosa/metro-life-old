@@ -668,9 +668,10 @@ function reactionLine(kind: SocialKind) {
   return material;
 }
 let bubbleGeometry: THREE.BufferGeometry | null = null;
-/** Opaque so it draws before the lettering, which sorts in the opaque pass. */
+/** Sorted with the name plates so the answer draws over them. */
 const reactionPlate = new THREE.MeshBasicMaterial({
   vertexColors: true,
+  transparent: true,
   depthTest: false,
   depthWrite: false,
 });
