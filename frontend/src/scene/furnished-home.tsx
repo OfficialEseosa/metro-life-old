@@ -1,34 +1,263 @@
-import { useEffect, useMemo } from 'react'
-import { useHomeDesign } from '../home-design'
-import { roomLayout } from '../navigation'
-import { useStore } from '../store'
-import { Builder } from './geometry'
-import { RoomWalls } from './room-walls'
-import { roomPalette, roomTexture } from './room-surfaces'
+/* oxlint-disable react/immutability -- Effect instances and window colours are imperative renderer resources. */
+import { Suspense, useEffect, useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { useHomeDesign } from "../home-design";
+import { roomLayout } from "../navigation";
+import { useStore } from "../store";
+import { Builder } from "./geometry";
+import { RoomWalls, WallMounted } from "./room-walls";
+import { roomPalette, roomTexture } from "./room-surfaces";
+import { PropBatch, type Prop } from "./kaykit-props";
+import { furnitureProps, MODELLED_KINDS } from "./furniture-models";
+import { timeOfDay } from "../lighting";
 
-/** Furniture pieces are local authored geometry; the same dimensions drive Buy mode and collision. */
-export function FurnishedHome(){
- const city=useStore(s=>s.city),design=useHomeDesign(s=>s.design),open=useHomeDesign(s=>s.open),layout=roomLayout(city,'home'),bounds=layout.bounds??{w:7,d:6},hw=bounds.w/2,hd=bounds.d/2
- const palette=useMemo(()=>({...roomPalette(city,'home'),wall:design?.wallColor??'#e5d8bf',floor:design?.floorColor??'#ad8b69'}),[city,design?.wallColor,design?.floorColor])
- const textures=useMemo(()=>({floor:roomTexture('wood',palette,28),paper:roomTexture('paper',palette,17)}),[palette])
- useEffect(()=>()=>{textures.floor.dispose();textures.paper.dispose()},[textures])
- const pieces=useMemo(()=>layout.furniture.map(f=>{const b=new Builder(),colour=(f as typeof f&{color?:string}).color??palette.fabric,w=f.w,d=f.d
-  const legs=(h:number)=>{for(const x of [-w*.38,w*.38])for(const z of [-d*.35,d*.35])b.box(x,h/2,z,.075,h,.075,palette.wood)}
-  if(f.kind==='bed'){b.box(0,.22,0,w,.38,d,palette.wood);b.box(0,.48,0,w-.05,.22,d-.06,'#f2eadb');b.box(-w*.14,.64,0,w*.68,.13,d-.08,colour);b.box(w*.34,.66,0,w*.23,.16,d*.8,'#fff4e2');b.box(w/2,.62,0,.1,1.05,d+.06,palette.wood)}
-  else if(['chair','sofa','bench'].includes(f.kind)){legs(.35);b.box(0,.4,0,w,.18,d,colour);b.box(0,.83,-d*.43,w,.78,.16,colour);for(const x of [-w*.44,w*.44])b.box(x,.65,0,.15,.35,d,colour);b.box(0,.53,0,w*.8,.12,d*.8,'#d4ccb9')}
-  else if(f.kind==='stove'){b.box(0,.43,0,w,.86,d,colour);b.box(0,.89,0,w+.04,.06,d+.04,'#384b4e');b.box(0,.45,d*.505,w*.7,.4,.03,'#253a42');for(const x of [-w*.25,w*.25])for(const z of [-d*.25,d*.25])b.cylinder(x,.94,z,.14,.025,'#1b2a30',12);b.cylinder(w*.25,1.03,-d*.25,.17,.18,'#b5a184',12)}
-  else if(f.kind==='fridge'){b.box(0,1,0,w,2,d,colour);b.box(0,1.45,d*.51,w*.95,.035,.025,'#6e7d7a');b.box(w*.34,1.2,d*.53,.05,.5,.06,'#d7dad0')}
-  else if(f.kind==='shower'){b.box(0,.08,0,w,.16,d,'#dae3db');b.box(0,1.15,-d/2,w,2.3,.08,colour);b.cylinder(0,1.3,-d*.42,.035,2.1,'#9caeaf',8);b.box(0,2.25,-d*.25,.42,.07,.4,'#9aa8a8');for(const x of [-w/2,w/2]){b.box(x,1.1,0,.04,2.2,d,'#b5d1cd');b.box(x,2.2,0,.07,.07,d,palette.trim)}}
-  else if(f.kind==='tub'){b.box(0,.28,0,w,.5,d,colour);b.box(0,.55,0,w*.84,.06,d*.72,'#7fb4ba');for(const z of [-d*.46,d*.46])b.box(0,.5,z,w,.15,.08,'#e1e8dc');for(const x of [-w*.46,w*.46])b.box(x,.5,0,.08,.15,d,'#e1e8dc');b.cylinder(w*.4,.8,-d*.3,.035,.6,'#a2b1b3',8)}
-  else if(f.kind==='sink'){b.box(0,.38,0,w*.8,.76,d*.8,colour);b.box(0,.8,0,w,.12,d,'#e5e9df');b.cylinder(0,1,-d*.3,.03,.3,'#a1b0b0',8)}
-  else if(f.kind==='table'||f.kind==='desk'){legs(.7);b.box(0,.75,0,w,.09,d,colour);if(f.kind==='desk'){b.box(0,1.05,-d*.3,w*.55,.48,.06,'#374e59');b.box(0,1.05,-d*.24,w*.48,.4,.02,'#9bcbc6');b.box(0,.83,d*.2,w*.4,.04,.18,'#657a79')}}
-  else if(f.kind==='lamp'){b.cylinder(0,.06,0,w*.45,.12,'#7f8273',12);b.cylinder(0,.85,0,.028,1.6,'#8c8c79',8);b.cylinder(0,1.55,0,w*.55,.5,colour,12,w*.35)}
-  else if(f.kind==='rug'){b.box(0,.025,0,w,.03,d,colour);b.box(0,.044,0,w*.75,.006,d*.7,palette.trim)}
-  else if(f.kind==='shelf'){for(const x of [-w*.45,w*.45])b.box(x,.8,0,.06,1.6,d,palette.wood);for(const y of [.1,.55,1,1.45]){b.box(0,y,0,w,.06,d,palette.wood);for(let i=0;i<5;i++)b.box(-w*.35+i*w*.17,y+.17,0,w*.12,.27,d*.7,i%2?colour:'#c8a675')}}
-  else if(f.kind==='sculpture'){b.box(0,.15,0,w,.3,d,palette.wood);b.torus(0,.8,0,w*.46,.1,colour);b.sphere(0,1.35,0,w*.25,colour)}
-  else{b.cylinder(0,.2,0,w*.37,.4,palette.wood,10,w*.46);b.cylinder(0,.7,0,.03,1.2,'#63825a',6);for(let i=0;i<7;i++){const a=i*2.4;b.sphere(Math.sin(a)*w*.35,.65+i*.09,Math.cos(a)*d*.35,w*.4,f.kind==='flowers'&&i>2?'#c98e9d':colour,.8,.65,.8)}}
-  return {f,geometry:b.build({bakeAO:true})}
- }),[layout,palette])
- useEffect(()=>()=>pieces.forEach(p=>p.geometry.dispose()),[pieces])
- return <group name="furnished-home"><mesh position={[0,-.13,0]} receiveShadow><boxGeometry args={[bounds.w,.25,bounds.d]}/><meshStandardMaterial color={palette.floor} map={textures.floor} roughness={.9}/></mesh><RoomWalls hw={hw} hd={hd} palette={palette} paper={textures.paper}/>{pieces.map(({f,geometry})=><mesh key={f.id} name={`home-furniture:${f.id}`} geometry={geometry} position={[f.x,0,f.z]} rotation={[0,f.angle,0]} castShadow receiveShadow><meshStandardMaterial vertexColors roughness={.78}/></mesh>)}<mesh position={[0,.012,hd-.22]}><boxGeometry args={[1.4,.035,.3]}/><meshStandardMaterial color="#d4ad67"/></mesh>{open&&<gridHelper args={[Math.max(bounds.w,bounds.d),Math.round(Math.max(bounds.w,bounds.d)*4),'#688477','#b5b39a']} position={[0,.045,0]}/>}</group>
+type Piece = ReturnType<typeof roomLayout>["furniture"][number] & {
+  color?: string;
+};
+
+/** Pieces KayKit has no model for: built here, sized to the same footprint. */
+function proceduralPiece(f: Piece, palette: ReturnType<typeof roomPalette>) {
+  const b = new Builder(),
+    colour = f.color ?? palette.fabric,
+    w = f.w,
+    d = f.d;
+  if (f.kind === "shower") {
+    b.box(0, 0.06, 0, w, 0.12, d, "#e9eee8");
+    b.box(0, 0.125, 0, w * 0.86, 0.01, d * 0.86, "#cfdad6");
+    b.box(0, 1.2, -d / 2 + 0.04, w, 2.4, 0.08, "#dfe8e4");
+    // Tiles on the back wall.
+    for (let y = 0.4; y < 2.3; y += 0.3)
+      b.box(0, y, -d / 2 + 0.085, w * 0.98, 0.012, 0.01, "#c4d2cf");
+    b.cylinder(0, 1.3, -d / 2 + 0.14, 0.025, 2.1, "#a9b6b7", 8);
+    b.box(0, 2.28, -d * 0.28, 0.05, 0.05, d * 0.42, "#a9b6b7");
+    b.cylinder(0, 2.22, -d * 0.08, 0.16, 0.05, "#c9d3d4", 16);
+    for (const x of [-w / 2, w / 2]) b.box(x, 2.25, 0, 0.05, 0.05, d, palette.trim);
+  } else if (f.kind === "tub") {
+    b.box(0, 0.28, 0, w, 0.52, d, "#f1f3ee");
+    b.box(0, 0.53, 0, w * 0.84, 0.03, d * 0.7, "#8fc3c8");
+    for (const z of [-d * 0.46, d * 0.46]) b.box(0, 0.55, z, w, 0.06, 0.08, "#ffffff");
+    for (const x of [-w * 0.46, w * 0.46]) b.box(x, 0.55, 0, 0.08, 0.06, d, "#ffffff");
+    b.cylinder(w * 0.4, 0.75, -d * 0.32, 0.03, 0.45, "#a2b1b3", 8);
+    b.box(w * 0.36, 0.95, -d * 0.32, 0.12, 0.03, 0.03, "#a2b1b3");
+  } else if (f.kind === "sculpture") {
+    b.box(0, 0.25, 0, w * 0.8, 0.5, d * 0.8, "#efe6d6");
+    b.torus(0, 0.92, 0, w * 0.36, 0.08, colour);
+    b.sphere(0, 1.36, 0, w * 0.22, colour);
+  } else {
+    // Plants and flowers: a glazed pot with a soft round crown.
+    b.cylinder(0, 0.2, 0, w * 0.34, 0.4, "#c97a5a", 12, w * 0.42);
+    b.cylinder(0, 0.41, 0, w * 0.36, 0.04, "#5b4636", 12);
+    b.cylinder(0, 0.62, 0, 0.025, 0.5, "#5d7d52", 6);
+    for (let i = 0; i < 7; i++) {
+      const a = i * 2.4,
+        r = i ? w * 0.26 : 0;
+      b.sphere(
+        Math.sin(a) * r,
+        0.78 + (i ? 0 : 0.18) + (i % 2) * 0.1,
+        Math.cos(a) * r,
+        w * 0.3,
+        f.kind === "flowers" && i > 2 ? ["#e48ea4", "#f4cf6c", "#ffffff"][i % 3] : colour,
+        1,
+        0.85,
+        1,
+      );
+    }
+  }
+  return b.build({ bakeAO: true });
+}
+
+/** Furniture is KayKit models fitted to the same footprints Buy mode and collision use. */
+export function FurnishedHome() {
+  const city = useStore((s) => s.city),
+    design = useHomeDesign((s) => s.design),
+    open = useHomeDesign((s) => s.open),
+    layout = roomLayout(city, "home"),
+    bounds = layout.bounds ?? { w: 7, d: 6 },
+    hw = bounds.w / 2,
+    hd = bounds.d / 2;
+  const palette = useMemo(
+    () => ({
+      ...roomPalette(city, "home"),
+      wall: design?.wallColor ?? "#e5d8bf",
+      floor: design?.floorColor ?? "#ad8b69",
+    }),
+    [city, design?.wallColor, design?.floorColor],
+  );
+  const textures = useMemo(
+    () => ({
+      floor: roomTexture("wood", palette, 28),
+      paper: roomTexture("paper", palette, 17),
+    }),
+    [palette],
+  );
+  useEffect(
+    () => () => {
+      textures.floor.dispose();
+      textures.paper.dispose();
+    },
+    [textures],
+  );
+  const furniture = layout.furniture as Piece[];
+  if (import.meta.env.DEV)
+    (window as unknown as { __metroHome?: unknown }).__metroHome = furniture.map(
+      (f) => ({ id: f.id, kind: f.kind, x: f.x, z: f.z, w: f.w, d: f.d, angle: f.angle }),
+    );
+  const cooking = useCooking();
+  const modelled = useMemo(
+    () =>
+      furniture
+        .filter((f) => MODELLED_KINDS.has(f.kind))
+        .map((f) => ({
+          f,
+          props: furnitureProps(f).filter(
+            (p) => !(cooking && p.name === "pot_A_stew"),
+          ),
+        })),
+    [furniture, cooking],
+  );
+  // Wall art and a sill plant: decoration that never takes floor space from Buy mode.
+  const decor = useMemo<Prop[]>(
+    () => [
+      { pack: "furniture", name: "pictureframe_large_B", x: 1.45, y: 1.75, z: -hd + 0.1, s: 0.62 },
+      { pack: "furniture", name: "pictureframe_small_A", x: hw - 0.1, y: 1.6, z: 0.2, ry: -Math.PI / 2, s: 0.8 },
+      { pack: "furniture", name: "pictureframe_medium", x: hw - 0.1, y: 1.75, z: -0.55, ry: -Math.PI / 2, s: 0.7 },
+      { pack: "furniture", name: "cactus_small_A", x: -1.15, y: 1.17, z: -hd + 0.2, s: 0.55 },
+      { pack: "furniture", name: "cactus_small_B", x: -0.25, y: 1.17, z: -hd + 0.2, s: 0.5 },
+    ],
+    [hw, hd],
+  );
+  const pieces = useMemo(
+    () =>
+      furniture
+        .filter((f) => !MODELLED_KINDS.has(f.kind))
+        .map((f) => ({ f, geometry: proceduralPiece(f, palette) })),
+    [furniture, palette],
+  );
+  useEffect(() => () => pieces.forEach((p) => p.geometry.dispose()), [pieces]);
+  const desks = furniture.filter((f) => f.kind === "desk");
+  return (
+    <group name="furnished-home">
+      <mesh position={[0, -0.13, 0]} receiveShadow>
+        <boxGeometry args={[bounds.w, 0.25, bounds.d]} />
+        <meshStandardMaterial color={palette.floor} map={textures.floor} roughness={0.82} />
+      </mesh>
+      <RoomWalls hw={hw} hd={hd} palette={palette} paper={textures.paper} />
+      <WallMounted side="back">
+        <RoomWindow hd={hd} />
+        <Suspense fallback={null}>
+          <PropBatch props={decor.slice(0, 1).concat(decor.slice(3))} name="home-wall-decor" />
+        </Suspense>
+      </WallMounted>
+      <WallMounted side="right">
+        <Suspense fallback={null}>
+          <PropBatch props={decor.slice(1, 3)} name="home-wall-art" castShadow={false} />
+        </Suspense>
+      </WallMounted>
+      <Suspense fallback={null}>
+        {modelled.map(({ f, props }) => (
+          <PropBatch key={f.id} props={props} name={`home-furniture:${f.id}`} />
+        ))}
+      </Suspense>
+      {pieces.map(({ f, geometry }) => (
+        <mesh
+          key={f.id}
+          name={`home-furniture:${f.id}`}
+          geometry={geometry}
+          position={[f.x, 0, f.z]}
+          rotation={[0, f.angle, 0]}
+          castShadow
+          receiveShadow
+        >
+          <meshStandardMaterial vertexColors roughness={0.6} />
+        </mesh>
+      ))}
+      {desks.map((f) => (
+        <DeskScreen key={f.id} piece={f} />
+      ))}
+      <mesh position={[0, 0.012, hd - 0.22]} receiveShadow>
+        <boxGeometry args={[1.4, 0.035, 0.3]} />
+        <meshStandardMaterial color="#d4ad67" />
+      </mesh>
+      {open && (
+        <gridHelper
+          args={[
+            Math.max(bounds.w, bounds.d),
+            Math.round(Math.max(bounds.w, bounds.d) * 4),
+            "#688477",
+            "#b5b39a",
+          ]}
+          position={[0, 0.045, 0]}
+        />
+      )}
+    </group>
+  );
+}
+
+const warmNight = new THREE.Color("#ffcf8a");
+/** Glass in the back-wall opening: the sky by day, a warm reflection after dark. */
+export function RoomWindow({ hd }: { hd: number }) {
+  const material = useRef<THREE.MeshStandardMaterial>(null);
+  useFrame(() => {
+    const m = material.current;
+    if (!m) return;
+    m.emissive.copy(timeOfDay.skyBottom).lerp(timeOfDay.skyTop, 0.35);
+    m.emissiveIntensity = 0.9 - timeOfDay.nightFactor * 0.55;
+    m.color.copy(timeOfDay.skyTop).lerp(warmNight, timeOfDay.nightFactor * 0.25);
+  });
+  return (
+    <group position={[-0.7, 1.85, -hd]}>
+      <mesh name="room-window" position={[0, 0, 0.02]}>
+        <planeGeometry args={[1.7, 1.3]} />
+        <meshStandardMaterial ref={material} roughness={0.15} metalness={0.1} />
+      </mesh>
+      {[-0.85, 0.85].map((x) => (
+        <mesh key={x} position={[x, 0, 0.06]} castShadow>
+          <boxGeometry args={[0.07, 1.36, 0.1]} />
+          <meshStandardMaterial color="#fff6e6" />
+        </mesh>
+      ))}
+      {[-0.65, 0, 0.65].map((y) => (
+        <mesh key={y} position={[0, y, 0.06]} castShadow>
+          <boxGeometry args={[1.76, 0.07, y ? 0.1 : 0.06]} />
+          <meshStandardMaterial color="#fff6e6" />
+        </mesh>
+      ))}
+      <mesh position={[0, -0.7, 0.14]} castShadow>
+        <boxGeometry args={[1.9, 0.06, 0.22]} />
+        <meshStandardMaterial color="#fff6e6" />
+      </mesh>
+    </group>
+  );
+}
+
+/** A monitor on the desk whose screen softly glows. */
+function DeskScreen({ piece }: { piece: Piece }) {
+  const back = -piece.d * 0.28;
+  return (
+    <group position={[piece.x, 0.76, piece.z]} rotation={[0, piece.angle, 0]}>
+      <mesh position={[0, 0.06, back]} castShadow>
+        <boxGeometry args={[0.24, 0.12, 0.16]} />
+        <meshStandardMaterial color="#3b4a52" roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 0.36, back]} castShadow>
+        <boxGeometry args={[Math.min(0.9, piece.w * 0.55), 0.46, 0.05]} />
+        <meshStandardMaterial color="#2c3a42" roughness={0.4} />
+      </mesh>
+      <mesh position={[0, 0.36, back + 0.027]}>
+        <planeGeometry args={[Math.min(0.82, piece.w * 0.5), 0.38]} />
+        <meshStandardMaterial color="#1b2a30" emissive="#9fd8e6" emissiveIntensity={1.15} toneMapped />
+      </mesh>
+      <mesh position={[0, 0.012, back + 0.38]}>
+        <boxGeometry args={[0.55, 0.02, 0.18]} />
+        <meshStandardMaterial color="#e9e4da" />
+      </mesh>
+    </group>
+  );
+}
+
+/** The decorative pot on the hob steps aside while the cook's own pot is in use. */
+function useCooking() {
+  const label = useStore((s) => s.sim?.busyLabel ?? "");
+  return /cook|meal|kitchen/i.test(label);
 }

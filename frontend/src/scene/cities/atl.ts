@@ -1,5 +1,11 @@
-import transit from '../../shared-data/transit.json'
-export type Site = { x: number; z: number; size: number; height: number; angle?: number }
+import transit from "../../shared-data/transit.json";
+export type Site = {
+  x: number;
+  z: number;
+  size: number;
+  height: number;
+  angle?: number;
+};
 export const atlSites: Record<string, Site> = {
   benz: { x: -32, z: 34, size: 28, height: 7.1 },
   arena: { x: -39, z: 8, size: 18, height: 4.9 },
@@ -22,4 +28,4 @@ export const atlSites: Record<string, Site> = {
   grady: { x: 21, z: 47, size: 12, height: 13 },
   atlBus: transit.cities.atl.bus.site,
   atlAirport: { x: -16, z: 76, size: 42, height: 8 },
-}
+};

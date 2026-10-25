@@ -1,8 +1,52 @@
-import transit from '../../shared-data/transit.json'
-import type { Site } from './atl'
-export const nycSites:Record<string,Site>={
- nycBus:transit.cities.nyc.bus.site,
- timesSquare:{x:-18,z:-17,size:12,height:18},centralPark:{x:-19,z:-48,size:25,height:2},empire:{x:-17,z:4,size:14,height:41.2},grandCentral:{x:1,z:-6,size:21,height:9},msg:{x:-36,z:8,size:13,height:5},broadway:{x:-36,z:-16,size:12,height:8},met:{x:4,z:-46,size:29,height:7.5},apollo:{x:-23,z:-73,size:10,height:7},columbia:{x:-39,z:-69,size:15,height:10},highLine:{x:-40,z:29,size:21,height:3},wallStreet:{x:-9,z:47,size:13,height:12},oneWtc:{x:-29,z:45,size:16,height:41},brooklynBridge:{x:21,z:47,size:43,height:16,angle:Math.PI/2},dumbo:{x:49,z:41,size:14,height:8},williamsburgVenue:{x:53,z:10,size:11,height:6},chinatown:{x:0,z:28,size:13,height:6},fifthAve:{x:0,z:-25,size:10,height:12},cityHall:{x:-15,z:28,size:13,height:9},liberty:{x:-51,z:79,size:17,height:23},yankee:{x:9,z:-85,size:23,height:7},coney:{x:73,z:78,size:28,height:12},presbyterian:{x:5,z:-64,size:12,height:17},nycAirport:{x:92,z:32,size:37,height:9}
-}
-export const nycLand=[[-48,-88],[-8,-91],[15,-72],[15,-27],[10,9],[4,37],[-7,60],[-37,60],[-48,27]]
-export const nycEast=[[25,-32],[58,-26],[72,-4],[115,12],[115,55],[91,72],[86,91],[58,91],[36,57],[34,20],[21,-16]]
+import transit from "../../shared-data/transit.json";
+import type { Site } from "./atl";
+export const nycSites: Record<string, Site> = {
+  nycBus: transit.cities.nyc.bus.site,
+  timesSquare: { x: -18, z: -17, size: 12, height: 18 },
+  centralPark: { x: -19, z: -48, size: 25, height: 2 },
+  empire: { x: -17, z: 4, size: 14, height: 41.2 },
+  grandCentral: { x: 1, z: -6, size: 21, height: 9 },
+  msg: { x: -36, z: 8, size: 13, height: 5 },
+  broadway: { x: -36, z: -16, size: 12, height: 8 },
+  met: { x: 4, z: -46, size: 29, height: 7.5 },
+  apollo: { x: -23, z: -73, size: 10, height: 7 },
+  columbia: { x: -39, z: -69, size: 15, height: 10 },
+  highLine: { x: -40, z: 29, size: 21, height: 3 },
+  wallStreet: { x: -9, z: 47, size: 13, height: 12 },
+  oneWtc: { x: -29, z: 45, size: 16, height: 41 },
+  brooklynBridge: { x: 21, z: 47, size: 43, height: 16, angle: Math.PI / 2 },
+  dumbo: { x: 49, z: 41, size: 14, height: 8 },
+  williamsburgVenue: { x: 53, z: 10, size: 11, height: 6 },
+  chinatown: { x: 0, z: 28, size: 13, height: 6 },
+  fifthAve: { x: 0, z: -25, size: 10, height: 12 },
+  cityHall: { x: -15, z: 28, size: 13, height: 9 },
+  liberty: { x: -51, z: 79, size: 17, height: 23 },
+  yankee: { x: 9, z: -85, size: 23, height: 7 },
+  coney: { x: 73, z: 78, size: 28, height: 12 },
+  presbyterian: { x: 5, z: -64, size: 12, height: 17 },
+  nycAirport: { x: 92, z: 32, size: 37, height: 9 },
+};
+export const nycLand = [
+  [-48, -88],
+  [-8, -91],
+  [15, -72],
+  [15, -27],
+  [10, 9],
+  [4, 37],
+  [-7, 60],
+  [-37, 60],
+  [-48, 27],
+];
+export const nycEast = [
+  [25, -32],
+  [58, -26],
+  [72, -4],
+  [115, 12],
+  [115, 55],
+  [91, 72],
+  [86, 91],
+  [58, 91],
+  [36, 57],
+  [34, 20],
+  [21, -16],
+];

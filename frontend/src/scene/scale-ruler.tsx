@@ -1,21 +1,226 @@
 /* oxlint-disable react/immutability -- Development evidence scene owns refs/camera. */
-import { Suspense,useEffect,useRef } from 'react'
-import { useThree } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
-import * as THREE from 'three'
-import { RiggedCharacter,type CharacterPose } from './character'
-import { KitInstances } from './kit-models'
-import { metricPlacement,METRES } from './world-scale'
-import type { CityId,Look } from '../api/types'
-declare global{interface Window{__metroRuler?:{pose:(pose:CharacterPose)=>void;measure:()=>{sizes:Record<string,number[]>;bones:number[][];clip:unknown;uniform:boolean}}}}
-const look:Look={body:'f',skin:'#b77a51',hair:'short',hairColor:'#493025',top:'#579485',bottom:'#394f67',style:'casual',shoeColor:'#654539'}
-export function ScaleRuler({city}:{city:CityId}){
- const {camera,size,scene,invalidate}=useThree(),pose=useRef<CharacterPose>('Idle'),phone=size.width<700
- const house=metricPlacement('kaykit/building_B_withoutBase.gltf',{x:7,y:0,z:0,sx:1,sy:1,sz:1,angle:0,color:'#ffffff'}),car=metricPlacement('vehicles/sedan.glb',{x:-1.3,y:0,z:0,sx:1,sy:1,sz:1,angle:0,color:'#b96c55'}),lamp=metricPlacement('kaykit/streetlight.gltf',{x:2,y:0,z:0,sx:1,sy:1,sz:1,angle:Math.PI,color:'#ffffff'})
- useEffect(()=>{camera.position.set(size.width<700?1.4:8,size.width<700?12:8,size.width<700?67:29);camera.lookAt(size.width<700?1.4:0,2,0);camera.updateProjectionMatrix();invalidate();window.__metroRuler={pose:p=>{pose.current=p;invalidate()},measure:()=>{const sizes:Record<string,number[]>={},bones:number[][]=[];let clip:unknown,uniform=true;for(const id of ['person','door','car','lamp','house']){const o=scene.getObjectByName('ruler-'+id);if(o)sizes[id]=new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3()).toArray()}scene.traverse(o=>{if(o instanceof THREE.Bone)bones.push(o.quaternion.toArray());if(o.userData.clip)clip=o.userData.clip;if(o instanceof THREE.InstancedMesh){const m=new THREE.Matrix4(),s=new THREE.Vector3();o.getMatrixAt(0,m);m.decompose(new THREE.Vector3(),new THREE.Quaternion(),s);uniform&&=Math.max(s.x,s.y,s.z)-Math.min(s.x,s.y,s.z)<1e-5}});return{sizes,bones,clip,uniform}}};return()=>{delete window.__metroRuler}},[camera,size.width,scene,invalidate])
- return <><color attach="background" args={[city==='atl'?'#e9ddc7':city==='nyc'?'#dce8e4':'#e6dfd4']}/><hemisphereLight args={['#fff1d6','#a9b2a2',.8]}/><directionalLight position={[-5,12,9]} intensity={2.6} castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-15} shadow-camera-right={15} shadow-camera-top={12} shadow-camera-bottom={-12} shadow-normalBias={.035} shadow-bias={-.0002}/><mesh rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[40,25]}/><meshStandardMaterial color="#b1c49c" roughness={1}/></mesh>
- <group name="ruler-person" position={[-7,0,0]}><RiggedCharacter look={look} readPose={()=>pose.current}/><Html position={[0,2.2,0]} center><span className="scale-label">{phone?'1':'1.78 m'}</span></Html></group>
- <group name="ruler-door" position={[-4.6,0,0]}><mesh position={[0,METRES.door/2,0]} castShadow><boxGeometry args={[.9,METRES.door,.12]}/><meshStandardMaterial color="#467e7b"/></mesh><Html position={[0,2.4,0]} center><span className="scale-label">{phone?'2':'Door 2.1 m'}</span></Html></group>
- <Suspense fallback={null}><group name="ruler-car"><KitInstances url="/models/vehicles/sedan.glb" placements={[car]}/></group><group name="ruler-lamp"><KitInstances url="/models/kaykit/streetlight.gltf" placements={[lamp]}/></group><group name="ruler-house"><KitInstances url="/models/kaykit/building_B_withoutBase.gltf" placements={[house]}/></group></Suspense>
- <Html position={[-1.3,.1,3]} center><span className="scale-label">{phone?'3':'Car 4.4 m long'}</span></Html><Html position={[2,5.9,0]} center><span className="scale-label">{phone?'4':'Lamp 5.5 m'}</span></Html><Html position={[7,7.1,0]} center><span className="scale-label">{phone?'5':'House 6.64 m · 3 m storeys'}</span></Html><Html position={[phone?1.4:0,2,0]} fullscreen style={{pointerEvents:'none'}}><div style={{position:'absolute',top:20,left:20,color:'#2d4b43',fontWeight:700}}>Scale ruler · {city==='atl'?'Atlanta':city==='nyc'?'New York':'Bay Area'}<br/><small>One scene unit is one metre</small></div>{phone&&<div style={{position:'absolute',bottom:80,left:24,right:24,color:'#2d4b43',fontSize:14,lineHeight:1.9}}><div>1 · Person 1.78 m</div><div>2 · Door 2.1 m</div><div>3 · Car 4.4 m long</div><div>4 · Lamp 5.5 m</div><div>5 · House 6.64 m · 3 m storeys</div></div>}</Html></>
+import { Suspense, useEffect, useRef } from "react";
+import { useThree } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
+import * as THREE from "three";
+import { RiggedCharacter, type CharacterPose } from "./character";
+import { KitInstances } from "./kit-models";
+import { metricPlacement, METRES } from "./world-scale";
+import type { CityId, Look } from "../api/types";
+declare global {
+  interface Window {
+    __metroRuler?: {
+      pose: (pose: CharacterPose) => void;
+      measure: () => {
+        sizes: Record<string, number[]>;
+        bones: number[][];
+        clip: unknown;
+        uniform: boolean;
+      };
+    };
+  }
+}
+const look: Look = {
+  body: "f",
+  skin: "#b77a51",
+  hair: "short",
+  hairColor: "#493025",
+  top: "#579485",
+  bottom: "#394f67",
+  style: "casual",
+  shoeColor: "#654539",
+};
+export function ScaleRuler({ city }: { city: CityId }) {
+  const { camera, size, scene, invalidate } = useThree(),
+    pose = useRef<CharacterPose>("Idle"),
+    phone = size.width < 700;
+  const house = metricPlacement("kaykit/building_B_withoutBase.gltf", {
+      x: 7,
+      y: 0,
+      z: 0,
+      sx: 1,
+      sy: 1,
+      sz: 1,
+      angle: 0,
+      color: "#ffffff",
+    }),
+    car = metricPlacement("vehicles/sedan.glb", {
+      x: -1.3,
+      y: 0,
+      z: 0,
+      sx: 1,
+      sy: 1,
+      sz: 1,
+      angle: 0,
+      color: "#b96c55",
+    }),
+    lamp = metricPlacement("kaykit/streetlight.gltf", {
+      x: 2,
+      y: 0,
+      z: 0,
+      sx: 1,
+      sy: 1,
+      sz: 1,
+      angle: Math.PI,
+      color: "#ffffff",
+    });
+  useEffect(() => {
+    camera.position.set(
+      size.width < 700 ? 1.4 : 8,
+      size.width < 700 ? 12 : 8,
+      size.width < 700 ? 67 : 29,
+    );
+    camera.lookAt(size.width < 700 ? 1.4 : 0, 2, 0);
+    camera.updateProjectionMatrix();
+    invalidate();
+    window.__metroRuler = {
+      pose: (p) => {
+        pose.current = p;
+        invalidate();
+      },
+      measure: () => {
+        const sizes: Record<string, number[]> = {},
+          bones: number[][] = [];
+        let clip: unknown,
+          uniform = true;
+        for (const id of ["person", "door", "car", "lamp", "house"]) {
+          const o = scene.getObjectByName("ruler-" + id);
+          if (o)
+            sizes[id] = new THREE.Box3()
+              .setFromObject(o)
+              .getSize(new THREE.Vector3())
+              .toArray();
+        }
+        scene.traverse((o) => {
+          if (o instanceof THREE.Bone) bones.push(o.quaternion.toArray());
+          if (o.userData.clip) clip = o.userData.clip;
+          if (o instanceof THREE.InstancedMesh) {
+            const m = new THREE.Matrix4(),
+              s = new THREE.Vector3();
+            o.getMatrixAt(0, m);
+            m.decompose(new THREE.Vector3(), new THREE.Quaternion(), s);
+            uniform &&=
+              Math.max(s.x, s.y, s.z) - Math.min(s.x, s.y, s.z) < 1e-5;
+          }
+        });
+        return { sizes, bones, clip, uniform };
+      },
+    };
+    return () => {
+      delete window.__metroRuler;
+    };
+  }, [camera, size.width, scene, invalidate]);
+  return (
+    <>
+      <color
+        attach="background"
+        args={[
+          city === "atl" ? "#e9ddc7" : city === "nyc" ? "#dce8e4" : "#e6dfd4",
+        ]}
+      />
+      <hemisphereLight args={["#fff1d6", "#a9b2a2", 0.8]} />
+      <directionalLight
+        position={[-5, 12, 9]}
+        intensity={2.6}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+        shadow-camera-left={-15}
+        shadow-camera-right={15}
+        shadow-camera-top={12}
+        shadow-camera-bottom={-12}
+        shadow-normalBias={0.035}
+        shadow-bias={-0.0002}
+      />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[40, 25]} />
+        <meshStandardMaterial color="#b1c49c" roughness={1} />
+      </mesh>
+      <group name="ruler-person" position={[-7, 0, 0]}>
+        <RiggedCharacter look={look} readPose={() => pose.current} />
+        <Html position={[0, 2.2, 0]} center>
+          <span className="scale-label">{phone ? "1" : "1.78 m"}</span>
+        </Html>
+      </group>
+      <group name="ruler-door" position={[-4.6, 0, 0]}>
+        <mesh position={[0, METRES.door / 2, 0]} castShadow>
+          <boxGeometry args={[0.9, METRES.door, 0.12]} />
+          <meshStandardMaterial color="#467e7b" />
+        </mesh>
+        <Html position={[0, 2.4, 0]} center>
+          <span className="scale-label">{phone ? "2" : "Door 2.1 m"}</span>
+        </Html>
+      </group>
+      <Suspense fallback={null}>
+        <group name="ruler-car">
+          <KitInstances url="/models/vehicles/sedan.glb" placements={[car]} />
+        </group>
+        <group name="ruler-lamp">
+          <KitInstances
+            url="/models/kaykit/streetlight.gltf"
+            placements={[lamp]}
+          />
+        </group>
+        <group name="ruler-house">
+          <KitInstances
+            url="/models/kaykit/building_B_withoutBase.gltf"
+            placements={[house]}
+          />
+        </group>
+      </Suspense>
+      <Html position={[-1.3, 0.1, 3]} center>
+        <span className="scale-label">{phone ? "3" : "Car 4.4 m long"}</span>
+      </Html>
+      <Html position={[2, 5.9, 0]} center>
+        <span className="scale-label">{phone ? "4" : "Lamp 5.5 m"}</span>
+      </Html>
+      <Html position={[7, 7.1, 0]} center>
+        <span className="scale-label">
+          {phone ? "5" : "House 6.64 m · 3 m storeys"}
+        </span>
+      </Html>
+      <Html
+        position={[phone ? 1.4 : 0, 2, 0]}
+        fullscreen
+        style={{ pointerEvents: "none" }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+            color: "#2d4b43",
+            fontWeight: 700,
+          }}
+        >
+          Scale ruler ·{" "}
+          {city === "atl"
+            ? "Atlanta"
+            : city === "nyc"
+              ? "New York"
+              : "Bay Area"}
+          <br />
+          <small>One scene unit is one metre</small>
+        </div>
+        {phone && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 80,
+              left: 24,
+              right: 24,
+              color: "#2d4b43",
+              fontSize: 14,
+              lineHeight: 1.9,
+            }}
+          >
+            <div>1 · Person 1.78 m</div>
+            <div>2 · Door 2.1 m</div>
+            <div>3 · Car 4.4 m long</div>
+            <div>4 · Lamp 5.5 m</div>
+            <div>5 · House 6.64 m · 3 m storeys</div>
+          </div>
+        )}
+      </Html>
+    </>
+  );
 }
