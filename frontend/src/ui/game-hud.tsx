@@ -138,6 +138,31 @@ function Vitals() {
     if (low > lowCount.current) sound("low");
     lowCount.current = low;
   }, [low]);
+  // The money sheet is a quick peek: Escape, a tap elsewhere or opening a panel puts it away.
+  useEffect(() => {
+    if (!cashOpen) return;
+    const closeIt = () => setCashOpen(false);
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopImmediatePropagation();
+        closeIt();
+      }
+    };
+    const outside = (e: PointerEvent) => {
+      if (!(e.target as Element | null)?.closest(".vitals-money, .cash-detail"))
+        closeIt();
+    };
+    window.addEventListener("keydown", key, true);
+    window.addEventListener("pointerdown", outside, true);
+    const unsubscribe = useStore.subscribe((s, previous) => {
+      if (s.panel && s.panel !== previous.panel) closeIt();
+    });
+    return () => {
+      window.removeEventListener("keydown", key, true);
+      window.removeEventListener("pointerdown", outside, true);
+      unsubscribe();
+    };
+  }, [cashOpen]);
   if (!vitals || !identity)
     return (
       <header className="vitals plate">

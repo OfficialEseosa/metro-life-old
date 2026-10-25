@@ -536,10 +536,13 @@ export function Residents() {
       {crowd
         .filter((p) => !p.person.npc || nearIds.includes(p.id))
         .map((p) => {
-          const role =
-            p.person.job ??
-            (p.person.npc
-              ? room?.startsWith("cafe:") || room?.startsWith("foodhall:")
+          // Other people playing right now say so on their plate; residents name their role.
+          const role = !p.person.npc
+            ? p.person.job
+              ? `${p.person.job} · Player`
+              : "Player"
+            : (p.person.job ??
+              (room?.startsWith("cafe:") || room?.startsWith("foodhall:")
                 ? "Market patron"
                 : room?.startsWith("work:")
                   ? "Neighbour at work"
@@ -547,8 +550,7 @@ export function Residents() {
                     ? "Theatre guest"
                     : room?.startsWith("arena:") || room?.startsWith("stadium:")
                       ? "Supporter"
-                      : "Neighbour"
-              : "Neighbour");
+                      : "Neighbour"));
           return (
             <group key={p.id}>
               <LifeBubble

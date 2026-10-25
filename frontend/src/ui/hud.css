@@ -17,10 +17,13 @@
   --hud-gap: var(--s-4);
   --hud-top: 112px; /* below the vitals plate */
   --hud-bottom: 112px; /* above dock and action button */
-  /* The feedback toast stack (ui/feedback.css) sits top-centre under the
-     event banner, clear of the vitals plate and the controls. */
+  /* The feedback toast stack (ui/feedback.css) starts right of the vitals
+     plate, on the same column as the event banner, so neither can cover the
+     needs; it flows under the banner when one is showing. */
   --feedback-top: calc(max(var(--hud-gap), env(safe-area-inset-top)) + 0px);
-  --feedback-max-width: min(440px, calc(100vw - 2 * 560px + 440px));
+  --feedback-left: 540px;
+  --feedback-shift: 0;
+  --feedback-max-width: max(280px, min(440px, calc(100vw - 540px - 340px)));
   --feedback-z: var(--z-toast);
   position: absolute;
   inset: 0;
@@ -1024,6 +1027,8 @@
        where neither the cue column, the queue pill nor the event chip can reach them. */
     --feedback-top: auto;
     --feedback-bottom: calc(var(--hud-bottom) + var(--s-2));
+    --feedback-left: 50%;
+    --feedback-shift: -50%;
     --feedback-max-width: min(380px, calc(100vw - 32px));
   }
   .metro-hud:has(.walk-help) {

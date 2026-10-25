@@ -13,7 +13,8 @@
   /* The HUD anchors the stack to the top edge on laptops and above the dock on phones. */
   top: var(--feedback-top, max(10px, env(safe-area-inset-top)));
   bottom: var(--feedback-bottom, auto);
-  left: 50%;
+  /* Centred by default; the HUD can anchor the stack beside its vitals plate instead. */
+  left: var(--feedback-left, 50%);
   width: var(--feedback-max-width, 440px);
   max-width: calc(100vw - 32px);
   margin: 0;
@@ -21,7 +22,7 @@
   list-style: none;
   display: grid;
   gap: 8px;
-  transform: translateX(-50%);
+  transform: translateX(var(--feedback-shift, -50%));
 }
 
 .feedback-toast {
