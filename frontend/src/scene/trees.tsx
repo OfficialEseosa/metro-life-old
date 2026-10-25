@@ -38,7 +38,7 @@ function treeGeometry() {
   };
   const trunk = new THREE.CylinderGeometry(0.13, 0.2, 2.4, 7, 1);
   trunk.translate(0, 1.2, 0);
-  mark(trunk.toNonIndexed(), 1);
+  mark(trunk.index ? trunk.toNonIndexed() : trunk, 1);
   const crownCentre = new THREE.Vector3(0, 3.55, 0),
     clumps: [number, number, number, number][] = [
       [0, 3.5, 0, 1.45],
@@ -51,7 +51,8 @@ function treeGeometry() {
   for (const [x, y, z, r] of clumps) {
     const g = new THREE.IcosahedronGeometry(r, 1);
     g.translate(x, y, z);
-    crown.push(g.toNonIndexed());
+    // Polyhedra are already non-indexed.
+    crown.push(g.index ? g.toNonIndexed() : g);
   }
   const merged = mergeGeometries(crown)!;
   crown.forEach((g) => g.dispose());
