@@ -400,7 +400,7 @@ function PublicInterior({ room }: { room: string }) {
       wallglow: wallglow.parts.length ? wallglow.build() : null,
       ...architecture,
     };
-  }, [layout, palette, hw, hd, type, city, height, windowed, loc]);
+  }, [layout, palette, hw, hd, type, city, windowed, loc]);
   useEffect(
     () => () =>
       Object.values(built).forEach((g) => {
