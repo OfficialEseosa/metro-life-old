@@ -9,7 +9,8 @@ export type SkillId =
   | "charisma"
   | "creativity"
   | "business";
-export type NeedId = "energy" | "hunger" | "fun" | "social";
+/** Every need is 0..100 and always present on `Sim.needs`. */
+export type NeedId = "energy" | "hunger" | "fun" | "social" | "hygiene";
 export type Mood = "great" | "good" | "okay" | "low" | "rough";
 export type ActionKind =
   | "work"
@@ -299,7 +300,14 @@ export type Sim = {
   city: CityId;
   /** landmark id, "home", or null when just arrived */
   loc: string | null;
-  home: { kind?: string; city: CityId; neighborhood: string; rent: number };
+  home: {
+    kind?: string;
+    city: CityId;
+    neighborhood: string;
+    rent: number;
+    /** game day through which rent is already paid (first rent) */
+    rentPaidThrough?: number;
+  };
   cash: number;
   homeDesign?: import("../home-design").HomeDesign;
   homeLayout?: import("../navigation").RoomLayout;
@@ -314,7 +322,7 @@ export type Sim = {
   /** xp needed for the next level */
   xpNext: number;
   lifeAction?: import("../life-actions").LifeAction | null;
-  needs: Record<NeedId, number> & { hygiene?: number };
+  needs: Record<NeedId, number>;
   mood: Mood;
   skills: Record<SkillId, { level: number; xp: number; next: number }>;
   job: (Job & { shifts: number; shiftsToPromote: number }) | null;
@@ -349,6 +357,11 @@ export type Sim = {
     canContinue: boolean;
   }[];
   pendingBeat: StoryBeat | null;
+  /**
+   * Server epoch ms from which this sim may send the next wave, hang out or gift (3 s cooldown).
+   * Compare with `serverNow()`. Private sim only; never on public `Player` presence.
+   */
+  socialReadyAt: number;
   visited: string[];
   setupDone: boolean;
 };
@@ -521,6 +534,7 @@ export type PlotAd = Rect & {
   id: string;
   title: string;
   link: string;
+  /** Server-relative path (`/api/plots/{id}/image`). Always load through `apiUrl()`. */
   image: string;
   owner: string;
   endsAt: number;
@@ -534,7 +548,10 @@ export type Plots = {
   days: number;
   cols: number;
   rows: number;
-  /** one PNG of the whole grid: cols*atlasCell x rows*atlasCell px */
+  /**
+   * One PNG of the whole grid: cols*atlasCell x rows*atlasCell px. Server-relative path
+   * (`/api/plots/atlas.png?...`). Always load through `apiUrl()`.
+   */
   atlas: string;
   atlasCell: number;
 };
@@ -543,9 +560,11 @@ export type BillboardAd = {
   id: string;
   title: string;
   link: string;
+  /** Server-relative path (`/api/billboards/{id}/image`). Always load through `apiUrl()`. */
   image: string;
   owner: string;
   endsAt: number;
+  /** Not sent by the server today (stripped from public ads); use `BillboardSlot.freeFrom`. */
   startsAt?: number;
 };
 export type BillboardSlot = {
@@ -591,33 +610,66 @@ export type Me = {
 
 // ---- socket ---------------------------------------------------------------
 
+/** Live fields patched onto a known `Player` by a `positions` frame (5 Hz). */
+export type PlayerPatch = Pick<
+  Player,
+  | "id"
+  | "position"
+  | "activity"
+  | "loc"
+  | "activitySlot"
+  | "socialBusy"
+  | "tripId"
+  | "travelStatus"
+  | "lifeAction"
+  | "needs"
+  | "busyLabel"
+>;
+
+export type SocialKind = "wave" | "hangout" | "gift";
+
+/** Sent only to the target's own sockets when another resident waves, hangs out or gifts. */
+export type SocialReceived = {
+  type: "socialReceived";
+  kind: SocialKind;
+  fromId: string;
+  fromName: string;
+  /** ready-made sentence, e.g. "Ada waved to Bo." */
+  text: string;
+  /** gift amount in dollars (gift only) */
+  amount?: number;
+  /** server epoch ms */
+  at: number;
+};
+
+/**
+ * Kinds of `event` frame. `sim` means "your own sim changed: re-read /api/sim".
+ * `story` is the old name of `sim`, still accepted by the client for one release.
+ */
+export type ServerEventKind =
+  | "mayor"
+  | "plots"
+  | "billboards"
+  | "homes"
+  | "sim"
+  | "story";
+
 export type ServerEvent =
   | { type: "hello"; worldId: string; clock: Clock }
+  /** Full player list of the viewed city: on change, after (re)connect and after a resync. */
   | { type: "presence"; city: CityId; players: Player[] }
-  | {
-      type: "positions";
-      city: CityId;
-      at: number;
-      players: Pick<
-        Player,
-        | "id"
-        | "position"
-        | "activity"
-        | "loc"
-        | "activitySlot"
-        | "socialBusy"
-        | "tripId"
-        | "travelStatus"
-        | "lifeAction"
-        | "needs"
-        | "busyLabel"
-      >[];
-    }
+  /** Latest live fields of the viewed city; coalesced per client (only the newest is delivered). */
+  | { type: "positions"; city: CityId; at: number; players: PlayerPatch[] }
   | { type: "chat"; message: ChatMessage }
   | {
       type: "event";
-      kind: "mayor" | "plots" | "billboards" | "homes" | "story";
+      kind: ServerEventKind;
       city: CityId;
+      /** legacy social sentence; replaced by `socialReceived` */
       text?: string;
     }
-  | { type: "clock"; clock: Clock };
+  /** On every game-hour change and at least every 5 s as a heartbeat. */
+  | { type: "clock"; clock: Clock }
+  | SocialReceived
+  /** The server skipped frames for this client; re-read players and chat over HTTP. */
+  | { type: "resync" };

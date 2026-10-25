@@ -2,6 +2,8 @@ import { installHomeDesign, useHomeDesign } from "./home-design";
 import { motion, useWalking } from "./walking";
 import { serverNow, syncServerTime } from "./server-time";
 import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
+import { emitFeedback } from "./feedback";
 import { api, ApiError, connectSocket, onUnauthorized } from "./api/client";
 import { session } from "./api/base";
 import type {
@@ -15,6 +17,7 @@ import type {
   MayorState,
   Me,
   Player,
+  PlayerPatch,
   Plots,
   ServerEvent,
   Sim,
@@ -113,6 +116,12 @@ type State = {
   plots: Plots | null;
   billboards: Billboards | null;
   homes: Homes | null;
+  /**
+   * Stable roster of the viewed city. The array changes only when someone joins or leaves,
+   * changes city, look, online state or visible state (activity, label, slot, room, condition);
+   * never for position or need drift. Entries are the live objects of `livePlayers`, so
+   * `players[i].position` read inside a frame loop or event handler is current.
+   */
   players: Player[];
   chat: ChatMessage[];
   // ui <-> scene
@@ -144,6 +153,32 @@ type State = {
 };
 
 const safe = <T>(p: Promise<T>) => p.catch(() => null);
+const selfAnchor = () =>
+  motion.position ? { x: motion.position.x, z: motion.position.z } : undefined;
+function placeName(city: CityId, loc: string | null) {
+  if (!loc) return "Out in the city";
+  if (loc === "home") return "Home";
+  return (
+    useStore
+      .getState()
+      .world?.cities.find((c) => c.id === city)
+      ?.landmarks.find((l) => l.id === loc)?.name ?? "Arrived"
+  );
+}
+/** A settled activity (or story outcome) reached the player. */
+function announceResult(result: ActResult) {
+  const anchor = selfAnchor();
+  emitFeedback({
+    kind: "actionDone",
+    title: result.activity?.label ?? result.text,
+    detail: result.activity ? result.text : undefined,
+    amount: result.deltas.cash,
+    anchor,
+    data: { actionId: result.activity?.id ?? null, leveledUp: result.leveledUp },
+  });
+  for (const goal of result.goalsCompleted)
+    emitFeedback({ kind: "goal", title: goal, anchor });
+}
 let socket: ReturnType<typeof connectSocket> | null = null;
 let loading: Promise<void> | null = null;
 let resultTimer: ReturnType<typeof setTimeout> | null = null;
@@ -173,7 +208,135 @@ export const mergeChat = (current: ChatMessage[], incoming: ChatMessage[]) =>
     .sort((a, b) => a.at - b.at || a.id.localeCompare(b.id))
     .slice(-50);
 
+/**
+ * Live players of the viewed city keyed by id: mutated in place by presence (1 Hz) and
+ * positions (5 Hz) frames without a React update. Read it from useFrame or handlers.
+ * `revision` increments on every patch; `at` is the server time of the last positions frame.
+ */
+export const livePlayers = {
+  byId: new Map<string, Player>(),
+  revision: 0,
+  at: 0,
+  listeners: new Set<() => void>(),
+  get(id: string) {
+    return this.byId.get(id);
+  },
+  /** Called after every presence or positions patch (e.g. to invalidate a demand frame loop). */
+  subscribe(listener: () => void) {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  },
+};
+function notifyLive() {
+  livePlayers.revision++;
+  for (const listener of livePlayers.listeners) listener();
+}
+
+const low = (value: number | undefined) => (value ?? 100) < 20;
+/** Fields whose change is worth a React update; position and raw needs are excluded on purpose. */
+function visibleKey(p: Player) {
+  const action = p.lifeAction as { label?: string; pose?: string } | null | undefined;
+  return [
+    p.loc,
+    p.position?.room ?? "",
+    p.activity ?? "",
+    p.busyLabel ?? "",
+    action?.label ?? action?.pose ?? "",
+    p.activitySlot?.id ?? "",
+    p.socialBusy ? 1 : 0,
+    p.tripId ?? "",
+    p.travelStatus ?? "",
+    low(p.needs?.energy) ? 1 : 0,
+    low(p.needs?.hunger) ? 1 : 0,
+    low(p.needs?.hygiene) ? 1 : 0,
+  ].join("|");
+}
+const identityKeys = new WeakMap<Player, string>();
+function identityKey(p: Player) {
+  let key = identityKeys.get(p);
+  if (key === undefined) {
+    key = [p.id, p.username, p.city, p.online ? 1 : 0, p.npc ? 1 : 0, p.job ?? "", p.level, JSON.stringify(p.look)].join("|");
+    identityKeys.set(p, key);
+  }
+  return key;
+}
+let rosterKey = "";
+function computeRosterKey(list: Player[]) {
+  let key = "";
+  for (const p of list) key += identityKey(p) + "~" + visibleKey(p) + "\n";
+  return key;
+}
+/** Replace the live map with a full player list; returns the new roster or null when unchanged. */
+function applyPresence(list: Player[], current: Player[]): Player[] | null {
+  const next = new Map<string, Player>();
+  const roster: Player[] = [];
+  for (const incoming of list) {
+    const existing = livePlayers.byId.get(incoming.id);
+    let entry: Player;
+    if (existing && identityKey(existing) === identityKey(incoming)) {
+      Object.assign(existing, incoming);
+      entry = existing;
+    } else entry = { ...incoming };
+    next.set(entry.id, entry);
+    roster.push(entry);
+  }
+  livePlayers.byId = next;
+  notifyLive();
+  const key = computeRosterKey(roster);
+  const same = key === rosterKey && roster.length === current.length && roster.every((p, i) => p === current[i]);
+  rosterKey = key;
+  return same ? null : roster;
+}
+/** Patch live fields in place; returns a new roster array only when visible state changed. */
+function applyPositions(patches: PlayerPatch[], current: Player[]): Player[] | null {
+  for (const patch of patches) {
+    const existing = livePlayers.byId.get(patch.id);
+    if (existing) Object.assign(existing, patch);
+  }
+  notifyLive();
+  const key = computeRosterKey(current);
+  if (key === rosterKey) return null;
+  rosterKey = key;
+  return [...current];
+}
+function resetPlayers(): Player[] {
+  livePlayers.byId = new Map();
+  notifyLive();
+  rosterKey = "";
+  return [];
+}
+/** World position of a player for feedback anchors (own sim falls back to `motion.position`). */
+export function playerAnchor(id: string | undefined) {
+  if (!id) return undefined;
+  const self = useStore.getState().user?.id === id ? motion.position : null;
+  const at = self ?? livePlayers.get(id)?.position;
+  return at ? { x: at.x, z: at.z } : undefined;
+}
+
 export const useStore = create<State>((set, get) => {
+  /** Re-read the authoritative sim after the server says it changed. */
+  const refreshSim = () => {
+    const wid = get().worldInfo?.id;
+    if (!wid) return;
+    void api
+      .sim()
+      .then((r) => {
+        if (get().worldInfo?.id === wid) {
+          const travelled = r.sim.city !== get().sim?.city;
+          get().setSim(r.sim);
+          set({ clock: r.clock });
+          if (travelled) {
+            void get().setCity(r.sim.city);
+            get().selectLocation(r.sim.loc);
+            get().setFocus(r.sim.loc);
+          }
+        }
+      })
+      .catch(() => {});
+  };
+
   const onEvent = (e: ServerEvent) => {
     const { city } = get();
     switch (e.type) {
@@ -185,42 +348,51 @@ export const useStore = create<State>((set, get) => {
       case "presence":
         if (e.city === city) {
           presenceRevision++;
-          set({ players: e.players });
+          const roster = applyPresence(e.players, get().players);
+          if (roster) set({ players: roster });
         }
         break;
       case "positions":
         if (e.city === city) {
           presenceRevision++;
-          const positions = new Map(e.players.map((p) => [p.id, p]));
-          set((s) => ({
-            players: s.players.map((p) =>
-              positions.has(p.id) ? { ...p, ...positions.get(p.id) } : p,
-            ),
-          }));
+          livePlayers.at = e.at;
+          const roster = applyPositions(e.players, get().players);
+          if (roster) set({ players: roster });
         }
         break;
       case "chat":
-        if (e.message.city === city)
+        if (e.message.city === city) {
+          const known = get().chat.some((m) => m.id === e.message.id);
           set((s) => ({ chat: mergeChat(s.chat, [e.message]) }));
+          if (!known && e.message.userId !== get().user?.id)
+            emitFeedback({
+              kind: "chat",
+              title: e.message.username,
+              detail: e.message.text,
+              anchor: playerAnchor(e.message.userId),
+              data: { userId: e.message.userId, npc: e.message.npc },
+            });
+        }
+        break;
+      case "socialReceived": {
+        set({ socialNotice: e.text });
+        emitFeedback({
+          kind: "socialReceived",
+          title: e.text,
+          amount: e.kind === "gift" ? e.amount : undefined,
+          anchor: playerAnchor(e.fromId),
+          data: { social: e.kind, fromId: e.fromId, fromName: e.fromName },
+        });
+        refreshSim();
+        break;
+      }
+      case "resync":
+        void get().refresh("players", "chat");
+        refreshSim();
         break;
       case "event":
-        if (e.kind === "story") {
-          const wid = get().worldInfo?.id;
-          void api
-            .sim()
-            .then((r) => {
-              if (get().worldInfo?.id === wid) {
-                const travelled = r.sim.city !== get().sim?.city;
-                get().setSim(r.sim);
-                set({ clock: r.clock });
-                if (travelled) {
-                  void get().setCity(r.sim.city);
-                  get().selectLocation(r.sim.loc);
-                  get().setFocus(r.sim.loc);
-                }
-              }
-            })
-            .catch(() => {});
+        if (e.kind === "sim" || e.kind === "story") {
+          refreshSim();
           if (e.text) set({ socialNotice: e.text });
         } else if (e.city === city) void get().refresh(e.kind);
         break;
@@ -460,7 +632,7 @@ export const useStore = create<State>((set, get) => {
       set({
         plots: null,
         billboards: null,
-        players: [],
+        players: resetPlayers(),
         chat: [],
         connected: false,
       });
@@ -491,7 +663,7 @@ export const useStore = create<State>((set, get) => {
         sim: me?.sim ?? null,
         clock: me?.clock ?? null,
         city,
-        players: [],
+        players: resetPlayers(),
         chat: [],
         socialNotice: "",
         mayor: null,
@@ -524,7 +696,7 @@ export const useStore = create<State>((set, get) => {
         plots: null,
         billboards: null,
         homes: null,
-        players: [],
+        players: resetPlayers(),
         chat: [],
         selectedLoc: null,
         selectedSlot: null,
@@ -562,8 +734,12 @@ export const useStore = create<State>((set, get) => {
               set((s) => ({ chat: mergeChat(s.chat, v as ChatMessage[]) }));
               return;
             }
-            if (key === "players" && presenceRevision !== presenceAtStart)
+            if (key === "players") {
+              if (presenceRevision !== presenceAtStart) return;
+              const roster = applyPresence(v as Player[], get().players);
+              if (roster) set({ players: roster });
               return;
+            }
             set({ [key]: v } as Pick<State, K>);
           }),
         );
@@ -630,6 +806,7 @@ export const useStore = create<State>((set, get) => {
             }
             get().setSim(r.sim);
             set({ clock: r.clock, lastResult, rewardAnchor: null });
+            announceResult(lastResult);
             if (r.sim.city !== sourceCity) {
               await get().setCity(r.sim.city);
               get().selectLocation(r.sim.loc);
@@ -642,7 +819,10 @@ export const useStore = create<State>((set, get) => {
           }
         };
         resultTimer = setTimeout(() => void complete(), wait + 40);
-      } else set({ lastResult, rewardAnchor: null });
+      } else {
+        set({ lastResult, rewardAnchor: null });
+        if (lastResult) announceResult(lastResult);
+      }
     },
     openPanel: (panel) => {
       if (panel) rememberTrigger();
@@ -727,6 +907,13 @@ export const useStore = create<State>((set, get) => {
           cameraMoving: false,
         });
         motion.wake();
+        if (!alreadyThere)
+          emitFeedback({
+            kind: "arrival",
+            title: placeName(result.sim.city, destination),
+            anchor: { x: result.sim.position!.x, z: result.sim.position!.z },
+            data: { loc: destination, city: result.sim.city },
+          });
         if (afterPanel === "mayor") await get().refresh("mayor");
       } catch (error) {
         useWalking.setState({
@@ -766,3 +953,126 @@ export const useStore = create<State>((set, get) => {
     },
   };
 });
+
+// ---- outcomes derived from authoritative sim changes ------------------------
+
+const ledgerSeen = new Set<string>();
+let ledgerOwner = "";
+useStore.subscribe((state, previous) => {
+  const next = state.sim,
+    before = previous.sim;
+  if (!next || next === before) return;
+  const entries = next.economy?.entries ?? [];
+  if (!before || before.userId !== next.userId || ledgerOwner !== next.userId) {
+    ledgerOwner = next.userId;
+    ledgerSeen.clear();
+    for (const entry of entries) ledgerSeen.add(entry.id);
+    return;
+  }
+  const anchor = selfAnchor();
+  for (const entry of entries) {
+    if (ledgerSeen.has(entry.id)) continue;
+    ledgerSeen.add(entry.id);
+    if (/rent/i.test(entry.reason) && entry.amount !== 0)
+      emitFeedback({
+        kind: "rent",
+        title: entry.reason,
+        amount: -Math.abs(entry.amount),
+        anchor,
+      });
+  }
+  if (next.level > before.level)
+    emitFeedback({
+      kind: "levelUp",
+      title: `Level ${next.level}`,
+      amount: next.level,
+      anchor,
+    });
+  if (next.job && (!before.job || next.job.id !== before.job.id))
+    emitFeedback({
+      kind: "promotion",
+      title: before.job && before.job.track === next.job.track ? `Promoted to ${next.job.title}` : `Hired as ${next.job.title}`,
+      detail: `$${next.job.payPerHour} an hour`,
+      anchor,
+      data: { hired: !before.job || before.job.track !== next.job.track, jobId: next.job.id },
+    });
+  if (
+    next.aspiration &&
+    before.aspiration &&
+    next.aspiration.id === before.aspiration.id &&
+    next.aspiration.step > before.aspiration.step
+  )
+    emitFeedback({
+      kind: "milestone",
+      title: before.aspiration.current?.text ?? next.aspiration.label,
+      detail: next.aspiration.label,
+      amount: before.aspiration.current?.reward.cash,
+      anchor,
+    });
+  if (next.city !== before.city)
+    emitFeedback({
+      kind: "travel",
+      title: `Arrived in ${state.world?.cities.find((c) => c.id === next.city)?.name ?? next.city}`,
+      anchor,
+      data: { from: before.city, to: next.city },
+    });
+});
+
+// ---- narrow selectors ---------------------------------------------------------
+
+export type SimVitals = { needs: Sim["needs"]; cash: number; mood: Sim["mood"] };
+/** Needs, cash and mood of the player's sim; re-renders only when one of them changes. */
+export const useSimVitals = (): SimVitals | null =>
+  useStore(
+    useShallow((s) =>
+      s.sim ? { needs: s.sim.needs, cash: s.sim.cash, mood: s.sim.mood } : null,
+    ),
+  );
+
+export type SimIdentity = {
+  userId: string;
+  name: string;
+  look: Sim["look"];
+  city: CityId;
+  loc: string | null;
+};
+/** Who and where the player is; ignores needs, cash and every other sim field. */
+let stableLook: { key: string; look: Sim["look"] } | null = null;
+const lookOf = (look: Sim["look"]) => {
+  const key = JSON.stringify(look);
+  if (stableLook?.key !== key) stableLook = { key, look };
+  return stableLook.look;
+};
+export const useSimIdentity = (): SimIdentity | null =>
+  useStore(
+    useShallow((s) =>
+      s.sim
+        ? {
+            userId: s.sim.userId,
+            name: s.sim.username,
+            look: lookOf(s.sim.look),
+            city: s.sim.city,
+            loc: s.sim.loc,
+          }
+        : null,
+    ),
+  );
+
+export type ConnectionInfo = {
+  connection: Connection;
+  connected: boolean;
+  disconnectedAt: number | null;
+  retryAt: number | null;
+  retryNow: () => void;
+};
+/** Connection state for banners and gates. */
+export const useConnection = (): ConnectionInfo =>
+  useStore(
+    useShallow((s) => ({
+      connection: s.connection,
+      connected: s.connected,
+      disconnectedAt: s.disconnectedAt,
+      retryAt: s.retryAt,
+      retryNow: s.retryNow,
+    })),
+  );

@@ -16,6 +16,7 @@ import type {
   Plots,
   ServerEvent,
   Sim,
+  SocialKind,
   Stats,
   StoryOutcome,
   User,
@@ -28,6 +29,8 @@ import { syncServerTime } from "../server-time";
 import { apiUrl, session, sessionHeaders, socketUrl } from "./base";
 import { useStore } from "../store";
 import { confirmPurchase } from "../ui/purchase-confirmation";
+import { emitFeedback } from "../feedback";
+import { motion } from "../walking";
 
 let mutationRevision = 0,
   mutations = 0,
@@ -38,6 +41,16 @@ export function onUnauthorized(listener: ((path: string) => void) | null) {
   unauthorized = listener;
 }
 const signInPaths = new Set(["/api/auth/guest", "/api/life/new"]);
+/** Mutations whose refusals are routine and silent (movement is corrected by a snap). */
+const quietErrors = new Set(["/api/move", "/api/posture"]);
+const here = () =>
+  motion.position ? { x: motion.position.x, z: motion.position.z } : undefined;
+/** Report a confirmed spend after the server accepted it. */
+function purchased<T>(result: T, title: string, amount: number) {
+  if (amount > 0)
+    emitFeedback({ kind: "purchase", title, amount: -amount, anchor: here() });
+  return result;
+}
 
 export class ApiError extends Error {
   status: number;
@@ -81,11 +94,20 @@ async function req<T>(
     }
     const data = await res.json().catch(() => null);
     if (res.status === 401 && !signIn) unauthorized?.(path);
-    if (!res.ok)
-      throw new ApiError(
+    if (!res.ok) {
+      const error = new ApiError(
         res.status,
         data?.error ?? `Request failed (${res.status})`,
       );
+      if (mutation && !quietErrors.has(path) && res.status !== 401)
+        emitFeedback({
+          kind: "error",
+          title: error.message,
+          anchor: here(),
+          data: { path, status: res.status },
+        });
+      throw error;
+    }
     if (signIn && typeof data?.sessionToken === "string") {
       session.store(data.sessionToken);
       delete data.sessionToken;
@@ -134,14 +156,16 @@ export const api = {
         ["casual", "street"].includes(style) ||
         (style === "work" && !!sim?.job) ||
         !!sim?.outfits?.[style];
-    await approvePurchase(
-      owned ? 0 : style === "party" ? 90 : 120,
+    const price = owned ? 0 : style === "party" ? 90 : 120;
+    await approvePurchase(price, `New ${style} outfit`);
+    return purchased(
+      await req<{ sim: Sim }>("POST", "/api/sim/outfit", {
+        style,
+        confirm: true,
+      }),
       `New ${style} outfit`,
+      price,
     );
-    return req<{ sim: Sim }>("POST", "/api/sim/outfit", {
-      style,
-      confirm: true,
-    });
   },
 
   travel: (city: CityId, loc: string) =>
@@ -165,12 +189,16 @@ export const api = {
       route.fare,
       `${mode === "bus" ? "Bus" : "Plane"} ticket to ${city}. Visiting keeps your home.`,
     );
-    return req<{ sim: Sim; clock: Clock }>("POST", "/api/transit/book", {
-      to,
-      mode,
-      confirmTimeAdvance,
-      confirm: true,
-    });
+    return purchased(
+      await req<{ sim: Sim; clock: Clock }>("POST", "/api/transit/book", {
+        to,
+        mode,
+        confirmTimeAdvance,
+        confirm: true,
+      }),
+      `${mode === "bus" ? "Bus" : "Plane"} ticket to ${city}`,
+      route.fare,
+    );
   },
   napTransit: () => req<{ sim: Sim; clock: Clock }>("POST", "/api/transit/nap"),
   chatTransit: (text: string) =>
@@ -206,16 +234,35 @@ export const api = {
           : c?.landmarks.find((l) => l.id === loc)?.actions
       )?.find((a) => a.id === action);
     await approvePurchase(a?.cost ?? 0, a?.label ?? "City activity");
-    return req<{ sim: Sim; result: ActResult }>("POST", "/api/act", {
+    const r = await req<{ sim: Sim; result: ActResult }>("POST", "/api/act", {
       city,
       loc,
       action,
       confirm: true,
       ...(slotId ? { slotId } : {}),
     });
+    emitFeedback({
+      kind: "actionStart",
+      title: r.sim.busyLabel ?? a?.label ?? r.result.text,
+      amount: a?.cost ? -a.cost : undefined,
+      anchor: here(),
+      data: { actionId: action, loc, busyUntil: r.result.busyUntil },
+    });
+    return r;
   },
-  cancelAction: () =>
-    req<{ sim: Sim; clock: Clock }>("POST", "/api/action/cancel"),
+  cancelAction: async () => {
+    const label = useStore.getState().sim?.busyLabel;
+    const r = await req<{ sim: Sim; clock: Clock }>(
+      "POST",
+      "/api/action/cancel",
+    );
+    emitFeedback({
+      kind: "cancel",
+      title: label ? `Stopped ${label.toLowerCase()}` : "Stopped",
+      anchor: here(),
+    });
+    return r;
+  },
   choose: (beatId: string, choice: string) =>
     req<{ sim: Sim; outcome: StoryOutcome }>("POST", "/api/story/choose", {
       beatId,
@@ -229,11 +276,15 @@ export const api = {
       home.rent,
       `Move your home to ${home.name}, ${c?.name ?? city}. One daily rent deposit; future daily rent is $${home.rent}.`,
     );
-    return req<{ sim: Sim }>("POST", "/api/home/move", {
-      city,
-      neighborhood,
-      confirm: true,
-    });
+    return purchased(
+      await req<{ sim: Sim }>("POST", "/api/home/move", {
+        city,
+        neighborhood,
+        confirm: true,
+      }),
+      `New home in ${home.name}`,
+      home.rent,
+    );
   },
   setAspiration: (aspiration: string) =>
     req<{ sim: Sim }>("POST", "/api/aspiration", { aspiration }),
@@ -249,16 +300,24 @@ export const api = {
 
   players: (city?: CityId) =>
     req<{ players: Player[] }>("GET", `/api/players${q(city)}`),
-  social: (
-    targetId: string,
-    kind: "wave" | "hangout" | "gift",
-    amount?: number,
-  ) =>
-    req<{ sim: Sim; text: string }>("POST", "/api/social", {
+  social: async (targetId: string, kind: SocialKind, amount?: number) => {
+    const r = await req<{ sim: Sim; text: string }>("POST", "/api/social", {
       targetId,
       kind,
       amount,
-    }),
+    });
+    const target = useStore.getState().players.find((p) => p.id === targetId);
+    emitFeedback({
+      kind: "social",
+      title: r.text,
+      amount: kind === "gift" && amount ? -amount : undefined,
+      anchor: target?.position
+        ? { x: target.position.x, z: target.position.z }
+        : here(),
+      data: { social: kind, targetId },
+    });
+    return r;
+  },
   chat: (city?: CityId) =>
     req<{ messages: ChatMessage[] }>("GET", `/api/chat${q(city)}`),
   say: (city: CityId, text: string) =>
@@ -288,10 +347,14 @@ export const api = {
       plot.w * plot.h * 35,
       `Community plot booking: ${plot.w} by ${plot.h} cells for 7 days`,
     );
-    return req<{ ad: PlotAd; sim: Sim }>("POST", "/api/plots", {
-      ...plot,
-      confirm: true,
-    });
+    return purchased(
+      await req<{ ad: PlotAd; sim: Sim }>("POST", "/api/plots", {
+        ...plot,
+        confirm: true,
+      }),
+      `Plot booked: ${plot.title}`,
+      plot.w * plot.h * 35,
+    );
   },
   billboards: (city?: CityId) =>
     req<Billboards>("GET", `/api/billboards${q(city)}`),
@@ -302,13 +365,17 @@ export const api = {
     link: string,
   ) => {
     await approvePurchase(300, "Billboard booking for 3 days");
-    return req<{ ad: BillboardAd; sim: Sim }>("POST", "/api/billboards", {
-      city,
-      slot,
-      title,
-      link,
-      confirm: true,
-    });
+    return purchased(
+      await req<{ ad: BillboardAd; sim: Sim }>("POST", "/api/billboards", {
+        city,
+        slot,
+        title,
+        link,
+        confirm: true,
+      }),
+      `Billboard booked: ${title}`,
+      300,
+    );
   },
   homes: (city?: CityId) => req<Homes>("GET", `/api/homes${q(city)}`),
 };
@@ -319,6 +386,8 @@ export const api = {
  * before the socket ever opens, `verify` decides whether to keep trying (the server may be down)
  * or stop (the session behind this socket no longer exists).
  */
+const STALE_SOCKET_MS = 15000;
+
 export function connectSocket(
   onEvent: (e: ServerEvent) => void,
   onStatus?: (open: boolean) => void,
@@ -328,7 +397,18 @@ export function connectSocket(
   let closed = false;
   let retry = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let lastFrameAt = Date.now();
   const queue: string[] = [];
+  /** The server sends at least a clock frame every 5 s; silence means a dead link. */
+  const watchdog = setInterval(() => {
+    if (closed || document.hidden || ws?.readyState !== WebSocket.OPEN) return;
+    if (Date.now() - lastFrameAt <= STALE_SOCKET_MS) return;
+    // Treat it as closed now: a close handshake on a dead link can take minutes.
+    const dead = ws;
+    dead.onclose?.(new CloseEvent("close"));
+    dead.onclose = dead.onmessage = dead.onerror = null;
+    dead.close();
+  }, 3000);
 
   const schedule = (delay: number) => {
     clearTimeout(timer);
@@ -343,12 +423,14 @@ export function connectSocket(
     socket.onopen = () => {
       if (ws !== socket) return;
       opened = true;
+      lastFrameAt = Date.now();
       retry = 0;
       onStatus?.(true);
       while (queue.length) socket.send(queue.shift()!);
     };
     socket.onmessage = (m) => {
       if (ws !== socket) return;
+      lastFrameAt = Date.now();
       try {
         onEvent(JSON.parse(m.data as string) as ServerEvent);
       } catch {
@@ -387,6 +469,7 @@ export function connectSocket(
   const stop = () => {
     closed = true;
     clearTimeout(timer);
+    clearInterval(watchdog);
     window.removeEventListener("online", wake);
     document.removeEventListener("visibilitychange", wake);
   };
