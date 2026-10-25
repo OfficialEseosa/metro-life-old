@@ -11,6 +11,7 @@ import { Icon, ErrorMessage, ReasonButton } from "./primitives";
 import { HudNotice, ToastPortal } from "./notices";
 import { sound, setPartyAudio } from "./sound";
 import { venueName } from "../content-names";
+import { emitFeedback } from "../feedback";
 import "./social-life.css";
 
 export type CityEvent = {
@@ -112,11 +113,17 @@ export async function refreshSocialLife() {
   )
     useSocialLife.setState(data);
 }
+/**
+ * A small celebration. The scene listens for the burst; the feedback bus shows
+ * the toast and plays the sound. Paydays and goals already reach the bus from
+ * the settled result, so only moments the bus cannot see are emitted here.
+ */
 export function celebrate(label: string, kind = "reward") {
   window.dispatchEvent(
     new CustomEvent("metro-celebrate", { detail: { label, kind } }),
   );
-  sound(kind === "friend" ? "friend" : kind === "payday" ? "payday" : "reward");
+  if (kind === "friend") emitFeedback({ kind: "social", title: label });
+  else if (kind === "event") emitFeedback({ kind: "goal", title: label });
 }
 function useCelebrations() {
   useEffect(
@@ -163,27 +170,6 @@ function useCelebrations() {
       }),
     [],
   );
-}
-function CelebrationToast() {
-  const [label, setLabel] = useState("");
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    const show = (e: Event) => {
-      setLabel((e as CustomEvent).detail?.label ?? "A little moment of joy!");
-      clearTimeout(timer);
-      timer = setTimeout(() => setLabel(""), 2400);
-    };
-    window.addEventListener("metro-celebrate", show);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("metro-celebrate", show);
-    };
-  }, []);
-  return label ? (
-    <div className="celebration-toast" role="status">
-      {label}
-    </div>
-  ) : null;
 }
 function useClockTick() {
   const [now, setNow] = useState(serverNow);
@@ -262,7 +248,6 @@ function WorkTiming({
               setNotice(
                 r.text ?? "Nice timing. Your best tap adds to your pay.",
               );
-              sound("tap");
             })
             .catch(() => {})
         }
@@ -390,6 +375,7 @@ export function SocialLifeHud() {
       (event.success || event.progress >= event.target
         ? "City goal complete! +$25"
         : "Thanks for joining! +$10") + " · party outfit unlocked",
+      "event",
     );
     void socialRequest<{ sim: Sim }>("sim")
       .then((r) => {
@@ -446,7 +432,6 @@ export function SocialLifeHud() {
       (!event.finished || event.joined);
   return (
     <>
-      <CelebrationToast />
       {wheel && (
         <div className="emote-scrim" onPointerDown={() => setWheel(false)}>
           <section

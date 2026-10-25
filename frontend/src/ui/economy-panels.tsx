@@ -472,7 +472,6 @@ export function PlotsPanel() {
       setNotice(
         `Your ${rect.w} × ${rect.h} plot is booked for ${plots.days} game days.`,
       );
-      sound("tap");
     });
   };
   return (
@@ -742,7 +741,6 @@ export function BillboardPanel() {
               ? "Booked. Your message starts after the current bookings."
               : "Your message is now on the board.",
           );
-          sound("tap");
         });
       }}
     >
@@ -962,7 +960,6 @@ export function HomesPanel() {
                   setNotice(
                     `Your home is now ${choice.name}. Paid ${money(choice.rent)} upfront.`,
                   );
-                  sound("tap");
                   state().setFocus("home");
                 })
               }

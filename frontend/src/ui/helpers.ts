@@ -62,3 +62,13 @@ export function useNow() {
   }, []);
   return now;
 }
+
+/** Raw script failures are never shown to players. */
+const technical =
+  /cannot read prop|undefined|null \(reading|is not a function|is not defined|unexpected token|networkerror|failed to fetch|load failed/i;
+export function friendlyError(text: string) {
+  if (!text) return "";
+  if (technical.test(text))
+    return "Something got in the way. Try that again in a moment.";
+  return text;
+}

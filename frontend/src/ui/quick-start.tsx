@@ -78,7 +78,6 @@ export function QuickStart({ onCustomize }: { onCustomize?: () => void }) {
           disabled={working}
           onClick={() => {
             setLook(readyLook());
-            sound("tap");
           }}
         >
           <Icon name="dice" />A fresh look

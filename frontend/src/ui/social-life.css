@@ -65,9 +65,9 @@
 .world-event-banner .event-dismiss {
   align-self: center;
 }
-/* Toasts flow under the banner on wide screens. */
-.metro-hud:has(.world-event-banner) .hud-toasts {
-  top: calc(max(var(--hud-gap, 16px), env(safe-area-inset-top)) + 104px);
+/* The feedback toast stack flows under the banner on wide screens. */
+.metro-hud:has(.world-event-banner) {
+  --feedback-top: calc(max(var(--hud-gap, 16px), env(safe-area-inset-top)) + 100px);
 }
 
 /* ---------- emote wheel ---------- */
@@ -274,27 +274,6 @@
   transform: translateX(-50%);
 }
 
-/* ---------- celebration pop ---------- */
-.celebration-toast {
-  position: fixed;
-  left: 50%;
-  top: 34%;
-  z-index: var(--z-popover);
-  translate: -50% -50%;
-  max-width: calc(100vw - 40px);
-  padding: var(--s-4) var(--s-8);
-  border-radius: var(--r-xl);
-  border: 3px solid var(--c-money);
-  background: var(--c-surface);
-  color: var(--c-ink);
-  box-shadow: var(--shadow-float);
-  font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 38px);
-  font-weight: 600;
-  text-align: center;
-  pointer-events: none;
-  animation: social-pop 0.3s var(--ease-pop);
-}
 @keyframes social-pop {
   from {
     opacity: 0;
@@ -439,9 +418,6 @@
   }
   .world-event-banner .event-dismiss {
     align-self: center;
-  }
-  .metro-hud:has(.world-event-banner) .hud-toasts {
-    top: calc(max(var(--s-2), env(safe-area-inset-top)) + 64px);
   }
   .social-life-panel {
     top: var(--s-2);

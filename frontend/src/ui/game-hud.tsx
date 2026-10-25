@@ -12,7 +12,7 @@ import { ObjectActions } from "./object-actions";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { Compass, Moon, Sun, X, Scan } from "@phosphor-icons/react";
+import { Compass, Moon, Sun, Scan } from "@phosphor-icons/react";
 import canonical from "../shared-data/world.json";
 import { api } from "../api/client";
 import { useSimIdentity, useSimVitals, useStore } from "../store";
@@ -331,51 +331,71 @@ function Dock({ search }: { search: () => void }) {
   );
 }
 
-/** First-day progress, or the first-job nudge, and the activity in progress. */
+/**
+ * Left column: action queue, first-day progress (or the first-job nudge), the
+ * activity in progress, then the HUD's own notices (reconnect, errors, needs).
+ * Notices stay visible while a side sheet is open; the cues step aside.
+ */
 function LeftColumn() {
   const busy = useStore((s) => !!s.sim?.busyUntil),
     job = useStore((s) => !!s.sim?.job),
     firstDay = useStore((s) => !!s.sim?.firstDay);
   return (
-    <div className="hud-left hide-with-panel">
-      <ObjectActions />
-      {firstDay ? (
-        <FirstDayGoals compact />
-      ) : (
-        !job && (
-          <button
-            className="first-job-cue plate"
-            onClick={() => state().openPanel("jobs")}
-          >
-            <span className="semantic-tile work">
-              <Icon name="briefcase" />
-            </span>
-            <span>Find your first job</span>
-            <ArrowUpRight size={20} />
-          </button>
-        )
-      )}
-      {busy && (
-        <div className="idle-progress">
-          <Busy />
-        </div>
-      )}
+    <div className="hud-left">
+      <div className="hud-cues">
+        <ObjectActions />
+        {firstDay ? (
+          <FirstDayGoals compact />
+        ) : (
+          !job && (
+            <button
+              className="first-job-cue plate"
+              onClick={() => state().openPanel("jobs")}
+            >
+              <span className="semantic-tile work">
+                <Icon name="briefcase" />
+              </span>
+              <span>Find your first job</span>
+              <ArrowUpRight size={20} />
+            </button>
+          )
+        )}
+        {busy && (
+          <div className="idle-progress">
+            <Busy />
+          </div>
+        )}
+      </div>
+      <div
+        id={TOAST_REGION_ID}
+        className="hud-toasts"
+        aria-live="polite"
+        aria-label="Messages"
+      >
+        <ReconnectBanner />
+        <ErrorNotices />
+        <NeedWarning />
+      </div>
     </div>
   );
 }
 
 function ChatTool({ onOpen }: { onOpen: () => void }) {
   const userId = useStore((s) => s.sim?.userId),
-    city = useStore((s) => s.sim?.city),
-    panel = useStore((s) => s.panel),
     messages = useStore((s) => s.chat),
     [seen, setSeen] = useState(serverNow);
-  useEffect(() => {
-    setSeen(serverNow());
-  }, [city]);
-  useEffect(() => {
-    if (panel === "chat") setSeen(serverNow());
-  }, [panel, messages.length]);
+  useEffect(
+    () =>
+      useStore.subscribe((s, previous) => {
+        if (
+          s.sim?.city !== previous.sim?.city ||
+          s.panel === "chat" ||
+          previous.panel === "chat"
+        )
+          setSeen(serverNow());
+      }),
+    [],
+  );
   const unread = messages.filter(
     (m) => !m.npc && m.userId !== userId && m.at > seen,
   ).length;
@@ -402,12 +422,15 @@ function ChatTool({ onOpen }: { onOpen: () => void }) {
 
 /** Bottom-right: tools, social buttons and the contextual action. Always mounted. */
 function ActionStack() {
-  const [expanded, setExpanded] = useState(false),
-    city = useStore((s) => s.sim?.city),
-    panel = useStore((s) => s.panel);
-  useEffect(() => {
-    setExpanded(false);
-  }, [city, panel]);
+  const [expanded, setExpanded] = useState(false);
+  useEffect(
+    () =>
+      useStore.subscribe((s, previous) => {
+        if (s.panel !== previous.panel || s.sim?.city !== previous.sim?.city)
+          setExpanded(false);
+      }),
+    [],
+  );
   return (
     <div
       className={`hud-action-stack hide-with-panel ${expanded ? "is-open" : ""}`}
@@ -437,129 +460,7 @@ function ActionStack() {
   );
 }
 
-function ResultToast() {
-  const result = useStore((s) => s.lastResult),
-    social = useStore((s) => !!s.socialNotice),
-    modal = useStore(
-      (s) =>
-        !!s.sim?.pendingBeat ||
-        ["creator", "settings", "city"].includes(s.panel ?? ""),
-    ),
-    [paused, setPaused] = useState(false),
-    start = useRef(0),
-    show = !!result && !social && !modal;
-  useEffect(() => {
-    if (!show || paused) return;
-    const timer = setTimeout(() => state().setLastResult(null), 8000);
-    return () => clearTimeout(timer);
-  }, [result, paused, show]);
-  if (!result || !show) return null;
-  const gain = result.deltas.cash ?? 0;
-  return (
-    <div
-      className="hud-toast result-toast"
-      role="status"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onPointerDown={(e) => {
-        start.current = e.clientX;
-      }}
-      onPointerUp={(e) => {
-        if (Math.abs(e.clientX - start.current) > 60)
-          state().setLastResult(null);
-      }}
-    >
-      <span
-        className={`semantic-tile ${result.leveledUp ? "fun" : gain > 0 ? "money" : "travel"}`}
-      >
-        <Icon
-          name={result.leveledUp ? "trophy" : gain > 0 ? "coins" : "sparkles"}
-        />
-      </span>
-      <div>
-        <strong>
-          {result.promoted ??
-            (result.activity?.id === "cook"
-              ? "Dinner is ready"
-              : result.leveledUp
-                ? "Level up!"
-                : (result.activity?.pay ?? 0) > 0
-                  ? "Shift finished"
-                  : gain > 0
-                    ? `${money(gain)} earned`
-                    : "A little better already")}
-        </strong>
-        <p>{result.text}</p>
-        {result.activity && (
-          <div className="payoff-breakdown">
-            {result.activity.cost > 0 && (
-              <span>Spent {money(result.activity.cost)}</span>
-            )}
-            {result.activity.pay > 0 && (
-              <span>Shift pay +{money(result.activity.pay)}</span>
-            )}
-            {result.activity.dailyCash > 0 && (
-              <span>Daily goal +{money(result.activity.dailyCash)}</span>
-            )}
-            {result.activity.bonusCash > 0 && (
-              <span>Milestone +{money(result.activity.bonusCash)}</span>
-            )}
-          </div>
-        )}
-      </div>
-      <button
-        className="icon-button"
-        aria-label="Dismiss result"
-        onClick={() => state().setLastResult(null)}
-      >
-        <X size={20} weight="bold" />
-      </button>
-    </div>
-  );
-}
 
-function SocialNotice() {
-  const text = useStore((s) => s.socialNotice),
-    modal = useStore(
-      (s) =>
-        !!s.sim?.pendingBeat ||
-        ["creator", "settings", "city"].includes(s.panel ?? ""),
-    ),
-    show = !!text && !modal;
-  useEffect(() => {
-    if (!show) return;
-    const timer = setTimeout(
-      () => useStore.setState({ socialNotice: "" }),
-      8000,
-    );
-    return () => clearTimeout(timer);
-  }, [text, show]);
-  if (!show) return null;
-  return (
-    <div role="status" className="hud-toast social-notice">
-      <span className="semantic-tile social">
-        <Icon name="hand-waving" />
-      </span>
-      <div>
-        <strong>
-          {/joined as|hired|application/i.test(text)
-            ? "A new chapter at work"
-            : /invitation|invite/i.test(text)
-              ? "An invitation to share"
-              : "A friendly moment"}
-        </strong>
-        <p>{text}</p>
-      </div>
-      <button
-        className="icon-button"
-        aria-label="Dismiss social message"
-        onClick={() => useStore.setState({ socialNotice: "" })}
-      >
-        <X size={20} weight="bold" />
-      </button>
-    </div>
-  );
-}
 
 const PANEL_TITLES: Record<string, string> = {
   city: "Your city",
@@ -938,18 +839,6 @@ function HudBody() {
       <TopControls />
       <LeftColumn />
       <SocialLifeHud />
-      <div
-        id={TOAST_REGION_ID}
-        className="hud-toasts"
-        aria-live="polite"
-        aria-label="Messages"
-      >
-        <ReconnectBanner />
-        <ErrorNotices />
-        <ResultToast />
-        <SocialNotice />
-        <NeedWarning />
-      </div>
       <Joystick />
       <Dock search={openSearch} />
       <ActionStack />

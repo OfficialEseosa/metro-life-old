@@ -72,7 +72,6 @@ export function PeoplePanel() {
       useStore.setState({ socialNotice: r.text });
       setNotice(r.text);
       setCooldown(Date.now() + 3100);
-      sound("tap");
       void state().refresh("players");
     });
   return (

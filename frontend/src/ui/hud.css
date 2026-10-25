@@ -17,6 +17,11 @@
   --hud-gap: var(--s-4);
   --hud-top: 112px; /* below the vitals plate */
   --hud-bottom: 112px; /* above dock and action button */
+  /* The feedback toast stack (ui/feedback.css) sits top-centre under the
+     event banner, clear of the vitals plate and the controls. */
+  --feedback-top: calc(max(var(--hud-gap), env(safe-area-inset-top)) + 0px);
+  --feedback-max-width: min(440px, calc(100vw - 2 * 560px + 440px));
+  --feedback-z: var(--z-toast);
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -265,20 +270,17 @@
   display: none;
 }
 
-/* ---------------- toasts (top-centre) ---------------- */
+/* ---------------- notices (left column, under the cues) ---------------- */
 .hud-toasts {
-  position: absolute;
-  z-index: var(--z-toast);
-  top: max(var(--hud-gap), env(safe-area-inset-top));
-  left: 50%;
-  translate: -50% 0;
-  width: min(440px, calc(100vw - 2 * 460px));
-  min-width: min(360px, calc(100vw - 24px));
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: var(--s-2);
+  width: 100%;
   pointer-events: none;
+}
+.hud-toasts:empty {
+  display: none;
 }
 .hud-toasts > * {
   pointer-events: auto;
@@ -386,8 +388,22 @@
   align-items: flex-start;
   gap: var(--s-2);
 }
-.hud-left > * {
+.hud-left > *,
+.hud-cues > * {
   max-width: 100%;
+}
+.hud-cues {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  width: 100%;
+}
+.hud-cues:empty {
+  display: none;
+}
+.metro-hud.is-panel-open .hud-cues {
+  display: none;
 }
 .first-day-cue,
 .first-job-cue {
@@ -968,9 +984,6 @@
   .bottom-dock button {
     width: 64px;
   }
-  .hud-toasts {
-    width: min(400px, calc(100vw - 2 * 320px));
-  }
 }
 
 /* ================================================================== *
@@ -981,6 +994,11 @@
     --hud-gap: var(--s-2);
     --hud-top: 76px;
     --hud-bottom: 72px;
+    --feedback-top: calc(max(var(--s-2), env(safe-area-inset-top)) + 64px);
+    --feedback-max-width: min(380px, calc(100vw - 32px));
+  }
+  .metro-hud:has(.world-event-banner) {
+    --feedback-top: calc(max(var(--s-2), env(safe-area-inset-top)) + 116px);
   }
 
   /* vitals: one 60px strip */
@@ -1032,12 +1050,7 @@
     display: none;
   }
 
-  /* toasts sit under the top strip */
-  .hud-toasts {
-    top: calc(max(var(--hud-gap), env(safe-area-inset-top)) + 64px);
-    width: min(400px, calc(100vw - 24px));
-    min-width: 0;
-  }
+  /* notices: compact cards, at most two at once */
   .hud-toast {
     padding: var(--s-2);
     gap: var(--s-2);
@@ -1054,6 +1067,9 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  .hud-toasts > :nth-child(n + 3) {
+    display: none;
   }
 
   /* left column */

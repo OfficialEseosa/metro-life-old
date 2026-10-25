@@ -6,6 +6,8 @@ import { useStore } from "../store";
 import { useWalking } from "../walking";
 import { useInteractions } from "../interactions";
 import { Icon } from "./primitives";
+import { friendlyError } from "./helpers";
+import { onFeedback } from "../feedback";
 
 /** id of the top-centre toast region; other features may portal into it. */
 export const TOAST_REGION_ID = "hud-toasts";
@@ -23,16 +25,6 @@ export function ToastPortal({ children }: { children: ReactNode }) {
     return () => cancelAnimationFrame(frame);
   }, [target]);
   return target ? createPortal(children, target) : null;
-}
-
-/** Raw script failures are never shown to players. */
-const technical =
-  /cannot read prop|undefined|null \(reading|is not a function|is not defined|unexpected token|networkerror|failed to fetch|load failed/i;
-export function friendlyError(text: string) {
-  if (!text) return "";
-  if (technical.test(text))
-    return "Something got in the way. Try that again in a moment.";
-  return text;
 }
 
 /** One dismissable notice. It hides itself after `ttl` ms even if the store keeps the text. */
@@ -84,19 +76,37 @@ export function HudNotice({
   );
 }
 
+/** Server errors the feedback bus has just announced, so the HUD does not repeat them. */
+const announced = new Map<string, number>();
+let listening = false;
+function listenForAnnouncements() {
+  if (listening) return;
+  listening = true;
+  onFeedback((event) => {
+    if (event.kind === "error") announced.set(event.title, event.at);
+  });
+}
+/** Only defer to the bus when its toast layer is actually on screen. */
+const recentlyAnnounced = (text: string) =>
+  !!document.querySelector(".feedback-layer") &&
+  Date.now() - (announced.get(text) ?? 0) < 4000;
+
 /** Walking and interaction errors, shown once, dismissable and short-lived. */
 export function ErrorNotices() {
   const walking = useWalking((s) => s.error),
     queue = useInteractions((s) => s.error),
     blocked = useStore((s) => !!s.panel || !!s.sim?.pendingBeat);
+  useEffect(listenForAnnouncements, []);
   if (blocked) return null;
   return (
     <>
-      <HudNotice
-        text={walking}
-        onDismiss={() => useWalking.setState({ error: "" })}
-      />
-      {queue !== walking && (
+      {!recentlyAnnounced(walking) && (
+        <HudNotice
+          text={walking}
+          onDismiss={() => useWalking.setState({ error: "" })}
+        />
+      )}
+      {queue !== walking && !recentlyAnnounced(queue) && (
         <HudNotice
           text={queue}
           onDismiss={() => useInteractions.setState({ error: "" })}
