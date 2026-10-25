@@ -18,7 +18,9 @@ export type FeedbackKind =
   | "travel"
   | "goal"
   | "milestone"
-  | "chat";
+  | "chat"
+  /** City event moments; `data.stage` is "find", "join", "progress" or "ready". */
+  | "event";
 
 /** A world position in scene units (same space as `Position.x/z`). */
 export type FeedbackAnchor = { x: number; y?: number; z: number };

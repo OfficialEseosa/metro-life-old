@@ -52,22 +52,42 @@ type MusicLayer = {
 type AmbienceLayer = { gain: GainNode; sources: AudioScheduledSourceNode[] };
 const defaultMix: AudioMix = {
   muted: false,
-  master: 0.7,
-  music: 0.5,
-  ambience: 0.6,
-  sfx: 0.8,
-  ui: 0.7,
+  master: 0.8,
+  music: 0.6,
+  ambience: 0.65,
+  sfx: 0.9,
+  ui: 0.85,
 };
+const MIX_KEY = "metro:audio:v3";
+/** Fixed lift after the master fader so default play sits near -20 dBFS RMS at the speakers. */
+const OUTPUT_GAIN = 3;
+/** Hard output ceiling, about -1.6 dBFS, below which the soft clipper stays linear. */
+const CEILING = 0.83;
+/** Cues sit about 6 dB above the music and ambience bed at any fader position. */
+const BUS_TRIM = { music: 1, ambience: 1, sfx: 2, ui: 2.2 } as const;
+/**
+ * Levels saved before the output stage existed were tuned against a near-silent mix,
+ * so only the mute choice and buses switched fully off carry over.
+ */
+function migrateMix(): Partial<AudioMix> {
+  const old = JSON.parse(
+      localStorage.getItem("metro:audio:v2") ?? "null",
+    ) as Partial<AudioMix> | null,
+    carried: Partial<AudioMix> = {
+      muted: old
+        ? !!old.muted
+        : localStorage.getItem("metro:sound:v1") === "off",
+    };
+  if (old)
+    for (const field of ["music", "ambience", "sfx", "ui"] as const)
+      if (old[field] === 0) carried[field] = 0;
+  return carried;
+}
 function loadMix(): AudioMix {
   try {
-    const saved =
-        JSON.parse(localStorage.getItem("metro:audio:v2") ?? "null") ?? {},
+    const stored = localStorage.getItem(MIX_KEY),
+      saved = stored ? (JSON.parse(stored) ?? {}) : migrateMix(),
       mix = { ...defaultMix, ...saved };
-    if (
-      !localStorage.getItem("metro:audio:v2") &&
-      localStorage.getItem("metro:sound:v1") === "off"
-    )
-      mix.muted = true;
     for (const field of ["master", "music", "ambience", "sfx", "ui"] as const)
       mix[field] = Math.max(
         0,
@@ -121,7 +141,7 @@ function updateGains() {
   for (const bus of ["music", "ambience", "sfx", "ui"] as const)
     ramp(
       buses[bus].gain,
-      mix[bus] * (bus === "music" && scene.duck ? 0.5 : 1),
+      mix[bus] * BUS_TRIM[bus] * (bus === "music" && scene.duck ? 0.5 : 1),
       bus === "music" ? 0.8 : 0.15,
     );
 }
@@ -130,7 +150,7 @@ export function setAudioMix(update: Partial<AudioMix>) {
   for (const field of ["master", "music", "ambience", "sfx", "ui"] as const)
     mix[field] = Math.max(0, Math.min(1, mix[field]));
   try {
-    localStorage.setItem("metro:audio:v2", JSON.stringify(mix));
+    localStorage.setItem(MIX_KEY, JSON.stringify(mix));
     localStorage.setItem("metro:sound:v1", mix.muted ? "off" : "on");
   } catch {
     /* The current tab still retains the mix. */
@@ -491,16 +511,51 @@ function scheduler() {
     }
   }
 }
+/** Linear up to -6 dBFS, then a smooth knee that never passes the ceiling. */
+function softClip() {
+  const size = 2048,
+    curve = new Float32Array(size),
+    knee = 0.5;
+  for (let i = 0; i < size; i++) {
+    const x = (i / (size - 1)) * 2 - 1,
+      a = Math.abs(x);
+    curve[i] =
+      Math.sign(x) *
+      (a <= knee
+        ? a
+        : knee + (CEILING - knee) * Math.tanh((a - knee) / (CEILING - knee)));
+  }
+  return curve;
+}
 export async function unlockAudio() {
   if (typeof AudioContext === "undefined") return;
   try {
     if (!context) {
       context = new AudioContext();
-      const compressor = context.createDynamicsCompressor();
-      compressor.threshold.value = -18;
-      compressor.ratio.value = 3;
       master = context.createGain();
-      master.connect(compressor).connect(context.destination);
+      const output = context.createGain(),
+        glue = context.createDynamicsCompressor(),
+        limiter = context.createDynamicsCompressor(),
+        ceiling = context.createWaveShaper();
+      output.gain.value = OUTPUT_GAIN;
+      glue.threshold.value = -20;
+      glue.knee.value = 10;
+      glue.ratio.value = 2.5;
+      glue.attack.value = 0.02;
+      glue.release.value = 0.3;
+      limiter.threshold.value = -5;
+      limiter.knee.value = 0;
+      limiter.ratio.value = 20;
+      limiter.attack.value = 0.001;
+      limiter.release.value = 0.12;
+      ceiling.curve = softClip();
+      ceiling.oversample = "4x";
+      master
+        .connect(output)
+        .connect(glue)
+        .connect(limiter)
+        .connect(ceiling)
+        .connect(context.destination);
       buses = {
         music: context.createGain(),
         ambience: context.createGain(),
@@ -747,7 +802,13 @@ const cues: Record<Cue, CueSpec> = {
     bus: "sfx",
     fallback: "notification",
   },
-  ding: { file: "social-ding.mp3", gain: 0.22, bus: "sfx", fallback: "wave" },
+  ding: {
+    file: "social-ding.mp3",
+    gain: 0.34,
+    bus: "sfx",
+    fallback: "wave",
+    duck: 0.6,
+  },
   pluck: { file: "social-pluck.mp3", gain: 0.2, bus: "sfx", fallback: "wave" },
   arrive: {
     file: "chime-arrive.mp3",
@@ -758,9 +819,10 @@ const cues: Record<Cue, CueSpec> = {
   whoosh: { file: "whoosh.mp3", gain: 0.09, bus: "sfx", fallback: "arrival" },
   coinGain: {
     file: "coins-gain.mp3",
-    gain: 0.36,
+    gain: 0.5,
     bus: "sfx",
     fallback: "coin",
+    duck: 0.6,
   },
   coinSpend: {
     file: "coins-spend.mp3",

@@ -315,6 +315,40 @@ function describe(e: FeedbackEvent): Omit<Toast, "id" | "count" | "leaving"> {
         title: e.detail ?? "",
         life: 3800,
       };
+    case "event": {
+      const stage = e.data?.stage;
+      return stage === "find"
+        ? {
+            ...base,
+            tone: "calm",
+            icon: MapPin,
+            kicker: "On the way",
+            life: 3000,
+          }
+        : stage === "join"
+          ? {
+              ...base,
+              tone: "social",
+              icon: Handshake,
+              kicker: "You joined",
+              life: 3800,
+            }
+          : stage === "ready"
+            ? {
+                ...base,
+                tone: "big",
+                icon: Trophy,
+                kicker: "Event goal reached",
+                life: 4800,
+              }
+            : {
+                ...base,
+                tone: "good",
+                icon: Sparkle,
+                kicker: "Shared moment",
+                life: 3000,
+              };
+    }
   }
 }
 
@@ -324,6 +358,7 @@ const priority: Record<FeedbackKind, number> = {
   milestone: 9,
   levelUp: 8,
   goal: 7,
+  event: 6,
   travel: 6,
   socialReceived: 6,
   error: 5,
@@ -375,14 +410,49 @@ function primaryCue(e: FeedbackEvent): Cue {
       return "whoosh";
     case "chat":
       return "chat";
+    case "event":
+      return e.data?.stage === "find"
+        ? "confirm"
+        : e.data?.stage === "join"
+          ? "ding"
+          : e.data?.stage === "ready"
+            ? "goal"
+            : "pluck";
   }
+}
+const socialFoley: Record<string, SoundKind> = {
+  wave: "wave",
+  hangout: "laugh",
+  gift: "friend",
+};
+/** Pitch rises with the city event's progress so each shared moment sounds closer to the goal. */
+function eventRate(e: FeedbackEvent) {
+  const progress = Number(e.data?.progress ?? 0),
+    target = Number(e.data?.target ?? 0);
+  return target > 0 ? 0.9 + 0.3 * Math.min(1, progress / target) : 1;
 }
 function playBatch(batch: FeedbackEvent[]) {
   const top = batch.reduce((a, b) =>
     priority[b.kind] > priority[a.kind] ? b : a,
   );
   const main = primaryCue(top);
-  cue(main, top.kind === "rent" ? { rate: 0.86 } : undefined);
+  cue(
+    main,
+    top.kind === "rent"
+      ? { rate: 0.86 }
+      : top.kind === "event" && top.data?.stage === "progress"
+        ? { rate: eventRate(top) }
+        : undefined,
+  );
+  if (top.kind === "event" && top.data?.stage === "find")
+    cue("whoosh", { delay: 0.12 });
+  if (top.kind === "event" && top.data?.stage === "join")
+    window.setTimeout(() => sound("cheer"), 260);
+  if (top.kind === "social" || top.kind === "socialReceived") {
+    // The target's answer lands with its speech bubble in the scene.
+    const foley = socialFoley[socialWord(top)];
+    if (foley) window.setTimeout(() => sound(foley), 380);
+  }
   if (top.kind === "arrival" || top.kind === "travel")
     cue("arrive", { delay: top.kind === "travel" ? 0.26 : 0.16 });
   if (top.kind === "actionStart") {
@@ -408,8 +478,43 @@ const holdFor = (life: number) => feedbackHold() || life,
   compactLayout = () =>
     matchMedia("(max-width: 760px), (max-height: 520px)").matches;
 const COINS = 6,
-  FLOATS = 4;
+  FLOATS = 4,
+  TOAST_STEP = 58;
+/** Open task cards the stack must never cover; other areas can opt in with `data-task-card`. */
+const TASK_CARDS = ".shift-timing, [data-task-card]";
 let activeLayers = 0;
+
+/**
+ * Keeps the stack clear of an open task card on compact screens: it sits just above the card,
+ * holds only as many toasts as fit there, and returns that count (0 hides toasts for now).
+ */
+function placeStack(stack: HTMLElement | null) {
+  const compact = innerWidth <= 760 || innerHeight <= 520,
+    normal = compact ? 2 : 3;
+  if (!stack) return normal;
+  let card: DOMRect | null = null;
+  for (const el of document.querySelectorAll<HTMLElement>(TASK_CARDS)) {
+    const box = el.getBoundingClientRect();
+    if (box.width && box.height && (!card || box.top < card.top)) card = box;
+  }
+  const column = stack.getBoundingClientRect(),
+    overlaps =
+      !!card &&
+      (compact || (column.bottom > card.top && column.top < card.bottom)) &&
+      column.left < card.right &&
+      column.right > card.left;
+  if (!card || !overlaps) {
+    if (stack.style.bottom) {
+      stack.style.removeProperty("top");
+      stack.style.removeProperty("bottom");
+    }
+    return normal;
+  }
+  const room = card.top - 16;
+  stack.style.top = "auto";
+  stack.style.bottom = `${Math.round(innerHeight - card.top + 8)}px`;
+  return Math.max(0, Math.min(normal, Math.floor((room + 6) / TOAST_STEP)));
+}
 
 // ---- the layer ---------------------------------------------------------------
 
@@ -423,6 +528,7 @@ export function FeedbackLayer() {
     coins = useRef<(HTMLSpanElement | null)[]>([]),
     floats = useRef<(HTMLSpanElement | null)[]>([]),
     nextFloat = useRef(0),
+    stack = useRef<HTMLOListElement>(null),
     point = useRef<ScreenPoint>({ x: 0, y: 0, visible: false });
 
   useEffect(() => {
@@ -442,9 +548,33 @@ export function FeedbackLayer() {
       },
       lastChat = { at: 0 };
 
+    let watch: number | undefined;
     const commit = (next: Toast[]) => {
       list.current = next;
       setToasts(next);
+      // Task cards open and close on their own; follow them only while toasts are up.
+      if (next.length && watch === undefined)
+        watch = window.setInterval(fit, 200);
+      else if (!next.length && watch !== undefined) {
+        window.clearInterval(watch);
+        watch = undefined;
+      }
+    };
+    const fit = () => {
+      const room = placeStack(stack.current),
+        shown = list.current.filter((t) => !t.leaving);
+      if (shown.length <= room) return;
+      const keep = new Set(
+        [...shown]
+          .sort(
+            (a, b) =>
+              Number(b.tone === "big") - Number(a.tone === "big") ||
+              b.id - a.id,
+          )
+          .slice(0, room)
+          .map((t) => t.id),
+      );
+      commit(list.current.filter((t) => t.leaving || keep.has(t.id)));
     };
     const dismiss = (toastId: number) => {
       commit(
@@ -458,7 +588,7 @@ export function FeedbackLayer() {
     const showToast = (e: FeedbackEvent) => {
       const look = describe(e);
       if (!look.title.trim()) return;
-      const max = innerWidth <= 700 ? 2 : 3,
+      const max = placeStack(stack.current),
         same = list.current.find(
           (t) => !t.leaving && t.kind === look.kind && t.title === look.title,
         );
@@ -470,6 +600,7 @@ export function FeedbackLayer() {
               ? {
                   ...t,
                   count: t.count + 1,
+                  detail: look.detail ?? t.detail,
                   amount: (t.amount ?? 0) + (look.amount ?? 0) || undefined,
                 }
               : t,
@@ -662,12 +793,13 @@ export function FeedbackLayer() {
       off();
       timers.forEach((t) => clearTimeout(t));
       if (flush !== undefined) clearTimeout(flush);
+      if (watch !== undefined) clearInterval(watch);
     };
   }, []);
 
   return (
     <div className="feedback-layer">
-      <ol className="feedback-toasts" aria-live="polite">
+      <ol ref={stack} className="feedback-toasts" aria-live="polite">
         {toasts.map((t) => (
           <FeedbackToast key={t.id} toast={t} />
         ))}

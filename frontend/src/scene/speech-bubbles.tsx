@@ -1,5 +1,5 @@
 /* oxlint-disable react/immutability -- Canvas textures and sprite positions are owned Three resources. */
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree, type RootState } from "@react-three/fiber";
 import * as THREE from "three";
 import { Billboard } from "@react-three/drei";
@@ -8,6 +8,8 @@ import { WorldText } from "./world-text";
 import { useStore } from "../store";
 import { useInteractions } from "../interactions";
 import { motion } from "../walking";
+import { onFeedback, type FeedbackAnchor } from "../feedback";
+import { feedbackHold } from "../ui/feedback-anchor";
 
 function topicIcon(
   c: CanvasRenderingContext2D,
@@ -60,6 +62,30 @@ function topicIcon(
     c.lineTo(6, -10);
     c.moveTo(-16, 0);
     c.lineTo(16, 0);
+  } else if (topic === "wave") {
+    c.moveTo(-9, 16);
+    c.lineTo(-9, -6);
+    c.moveTo(-3, 14);
+    c.lineTo(-3, -14);
+    c.moveTo(3, 14);
+    c.lineTo(3, -12);
+    c.moveTo(9, 14);
+    c.lineTo(9, -6);
+    c.moveTo(-9, 4);
+    c.lineTo(-16, -2);
+    c.moveTo(14, -16);
+    c.quadraticCurveTo(19, -12, 19, -6);
+    c.moveTo(-16, -14);
+    c.quadraticCurveTo(-20, -10, -20, -4);
+  } else if (topic === "gift") {
+    c.rect(-15, -4, 30, 20);
+    c.rect(-17, -10, 34, 6);
+    c.moveTo(0, -10);
+    c.lineTo(0, 16);
+    c.moveTo(0, -10);
+    c.quadraticCurveTo(-12, -22, -9, -10);
+    c.moveTo(0, -10);
+    c.quadraticCurveTo(12, -22, 9, -10);
   } else if (topic === "friendship") {
     c.moveTo(0, 14);
     c.bezierCurveTo(-28, -2, -10, -24, 0, -10);
@@ -579,5 +605,263 @@ export function StinkCloud({
         depthWrite={false}
       />
     </instancedMesh>
+  );
+}
+
+// ---- social reactions: the person a wave, hang-out or gift reached answers over their head ----
+
+type SocialKind = "wave" | "hangout" | "gift";
+type Reaction = {
+  key: number;
+  kind: SocialKind;
+  /** Rendered object name of the person who answers. */
+  target: string;
+  anchor?: FeedbackAnchor;
+};
+const REACTION_LINES: Record<SocialKind, string> = {
+  wave: "Hi there!",
+  hangout: "Good times!",
+  gift: "Thank you!",
+};
+const REACTION_TOPICS: Record<SocialKind, string> = {
+  wave: "wave",
+  hangout: "friendship",
+  gift: "gift",
+};
+const REACTION_MS = 2800,
+  REACTION_WIDTH = 2.7;
+const lineGeometry = new THREE.PlaneGeometry(2.1, 0.525),
+  lineMaterials = new Map<SocialKind, THREE.MeshBasicMaterial>();
+/** The answer is painted once per kind in the interface's display face, so it reads at any size. */
+function reactionLine(kind: SocialKind) {
+  let material = lineMaterials.get(kind);
+  if (material) return material;
+  const canvas = document.createElement("canvas"),
+    c = canvas.getContext("2d");
+  canvas.width = 512;
+  canvas.height = 128;
+  if (c) {
+    const face =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--font-display")
+        .trim() || "sans-serif";
+    c.font = `600 84px ${face}`;
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.lineJoin = "round";
+    c.lineWidth = 12;
+    c.strokeStyle = "#FFF7EA";
+    c.strokeText(REACTION_LINES[kind], 256, 66, 496);
+    c.fillStyle = "#7A2E4D";
+    c.fillText(REACTION_LINES[kind], 256, 66, 496);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  lineMaterials.set(kind, material);
+  return material;
+}
+let bubbleGeometry: THREE.BufferGeometry | null = null;
+/** Opaque so it draws before the lettering, which sorts in the opaque pass. */
+const reactionPlate = new THREE.MeshBasicMaterial({
+  vertexColors: true,
+  depthTest: false,
+  depthWrite: false,
+});
+/** A speech bubble with a tail, pink edge for social moments; one geometry for every reaction. */
+function reactionGeometry() {
+  if (bubbleGeometry) return bubbleGeometry;
+  const paint = (g: THREE.BufferGeometry, colour: string, z: number) => {
+    const c = new THREE.Color(colour),
+      count = g.getAttribute("position").count,
+      colours = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) c.toArray(colours, i * 3);
+    g.setAttribute("color", new THREE.BufferAttribute(colours, 3));
+    g.deleteAttribute("uv");
+    g.deleteAttribute("normal");
+    g.translate(0, 0, z);
+    return g;
+  };
+  const tail = (grow: number) => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-0.22 - grow, -0.38);
+    shape.lineTo(0.18 + grow, -0.38);
+    shape.lineTo(-0.12, -0.7 - grow * 1.6);
+    shape.closePath();
+    return shape;
+  };
+  bubbleGeometry =
+    mergeGeometries([
+      paint(
+        new THREE.ShapeGeometry(
+          roundedRect(REACTION_WIDTH + 0.1, 0.86, 0.3),
+          6,
+        ),
+        "#D9668F",
+        0,
+      ),
+      paint(new THREE.ShapeGeometry(tail(0.06), 1), "#D9668F", 0),
+      paint(
+        new THREE.ShapeGeometry(roundedRect(REACTION_WIDTH, 0.76, 0.26), 6),
+        "#FFF7EA",
+        0.002,
+      ),
+      paint(new THREE.ShapeGeometry(tail(0), 1), "#FFF7EA", 0.002),
+    ]) ?? new THREE.PlaneGeometry(REACTION_WIDTH, 0.76);
+  return bubbleGeometry;
+}
+
+function ReactionBubble({
+  reaction,
+  onDone,
+}: {
+  reaction: Reaction;
+  onDone: (key: number) => void;
+}) {
+  const ref = useRef<THREE.Group>(null),
+    started = useRef(0),
+    person = useRef<THREE.Object3D | null>(null),
+    lookups = useRef(0),
+    at = useMemo(() => new THREE.Vector3(), []),
+    probe = useMemo(() => new THREE.Vector3(), []),
+    { scene, invalidate } = useThree(),
+    finished = useRef(false);
+  useFrame(({ camera, size }) => {
+    const group = ref.current;
+    if (!group || finished.current) return;
+    if (!started.current) started.current = performance.now();
+    const life = feedbackHold() ? REACTION_MS * 12 : REACTION_MS,
+      t = (performance.now() - started.current) / life;
+    if (t >= 1) {
+      finished.current = true;
+      group.visible = false;
+      onDone(reaction.key);
+      return;
+    }
+    if (!person.current?.parent && lookups.current++ % 20 === 0)
+      person.current = scene.getObjectByName(reaction.target) ?? null;
+    if (person.current?.parent && person.current.visible !== false)
+      person.current.getWorldPosition(at);
+    else if (reaction.anchor)
+      at.set(reaction.anchor.x, reaction.anchor.y ?? 0, reaction.anchor.z);
+    else {
+      group.visible = false;
+      invalidate();
+      return;
+    }
+    const pop =
+        t < 0.08
+          ? THREE.MathUtils.smootherstep(t / 0.08, 0, 1) * 1.15
+          : t < 0.14
+            ? 1.15 - ((t - 0.08) / 0.06) * 0.15
+            : t > 0.9
+              ? Math.max(0, 1 - (t - 0.9) / 0.1)
+              : 1,
+      bob = Math.sin(t * Math.PI * 6) * 0.04 * (1 - t);
+    at.y += 3.3 + t * 0.3 + bob;
+    group.position.copy(group.parent ? group.parent.worldToLocal(at) : at);
+    const depth = Math.abs(
+        probe.copy(at).applyMatrix4(camera.matrixWorldInverse).z,
+      ),
+      perPixel =
+        camera instanceof THREE.PerspectiveCamera
+          ? (2 * depth * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2)) /
+            size.height
+          : camera instanceof THREE.OrthographicCamera
+            ? (camera.top - camera.bottom) / camera.zoom / size.height
+            : 0.015,
+      pixels = size.width < 700 ? 170 : 210;
+    group.scale.setScalar(
+      Math.max(0.0001, (perPixel * pixels * pop) / REACTION_WIDTH),
+    );
+    group.visible = true;
+    invalidate();
+  });
+  return (
+    <group ref={ref} visible={false} renderOrder={34}>
+      <Billboard>
+        <mesh
+          geometry={reactionGeometry()}
+          material={reactionPlate}
+          renderOrder={34}
+          dispose={null}
+          raycast={() => {}}
+        />
+        <mesh
+          position={[-0.92, 0, 0.045]}
+          geometry={iconGeometry}
+          material={topicMaterial(REACTION_TOPICS[reaction.kind])}
+          renderOrder={35}
+          dispose={null}
+          raycast={() => {}}
+        />
+        <mesh
+          position={[0.22, 0, 0.05]}
+          geometry={lineGeometry}
+          material={reactionLine(reaction.kind)}
+          renderOrder={36}
+          dispose={null}
+          raycast={() => {}}
+        />
+      </Billboard>
+    </group>
+  );
+}
+
+/**
+ * When a wave, hang-out or gift lands, the person it reached answers in a speech bubble.
+ * The sender sees it over the friend they chose; the receiver sees it over themselves.
+ */
+export function SocialReactions() {
+  const [reactions, setReactions] = useState<Reaction[]>([]),
+    next = useRef(0);
+  useEffect(
+    () =>
+      onFeedback((e) => {
+        if (e.kind !== "social" && e.kind !== "socialReceived") return;
+        const word = String(e.data?.social ?? "wave"),
+          kind: SocialKind =
+            word === "gift" || word === "hangout" ? word : "wave",
+          targetId = e.data?.targetId;
+        if (e.kind === "social" && !targetId && !e.anchor) return;
+        const reaction: Reaction = {
+          key: ++next.current,
+          kind,
+          target:
+            e.kind === "socialReceived"
+              ? "controlled-player"
+              : "resident-" + String(targetId ?? ""),
+          anchor:
+            e.kind === "socialReceived"
+              ? motion.position
+                ? { x: motion.position.x, z: motion.position.z }
+                : undefined
+              : e.anchor,
+        };
+        setReactions((list) => [
+          ...list.filter((r) => r.target !== reaction.target).slice(-2),
+          reaction,
+        ]);
+      }),
+    [],
+  );
+  return (
+    <>
+      {reactions.map((r) => (
+        <ReactionBubble
+          key={r.key}
+          reaction={r}
+          onDone={(key) =>
+            setReactions((list) => list.filter((item) => item.key !== key))
+          }
+        />
+      ))}
+    </>
   );
 }

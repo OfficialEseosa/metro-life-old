@@ -43,7 +43,18 @@ function AudioSceneContent() {
     gesture = useStore((s) => s.sim?.lifeAction),
     night = useNightLighting(),
     lastGesture = useRef(0),
-    lastFriend = useRef<Record<string, number> | null>(null);
+    lastFriend = useRef<Record<string, number> | null>(null),
+    [moment, setMoment] = useState(false);
+  // A social notice or result can stay in the store for minutes; the music dips only briefly.
+  useEffect(() => {
+    if (!notice && !result) return;
+    const start = setTimeout(() => setMoment(true), 0),
+      end = setTimeout(() => setMoment(false), 2600);
+    return () => {
+      clearTimeout(start);
+      clearTimeout(end);
+    };
+  }, [notice, result]);
   const [zone, setZone] = useState<{ id: string; ambient: string } | null>(
     null,
   );
@@ -104,9 +115,9 @@ function AudioSceneContent() {
       zone: zone?.id,
       ambient: zone?.ambient,
       night,
-      duck: story || notice || !!result || panel === "chat",
+      duck: story || moment || panel === "chat",
     });
-  }, [city, place, zone, night, story, notice, result, panel]);
+  }, [city, place, zone, night, story, moment, panel]);
   useEffect(() => {
     const unlock = () => {
         void unlockAudio();

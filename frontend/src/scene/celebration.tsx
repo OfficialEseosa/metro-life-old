@@ -10,6 +10,7 @@ import {
   type FeedbackEvent,
 } from "../feedback";
 import { feedbackHold, setFeedbackProjector } from "../ui/feedback-anchor";
+import { SocialReactions } from "./speech-bubbles";
 
 const CONFETTI = 80,
   RINGS = 12;
@@ -89,6 +90,7 @@ export function Celebration() {
     dummy = useMemo(() => new THREE.Object3D(), []),
     direction = useMemo(() => new THREE.Vector3(), []),
     scratch = useMemo(() => new THREE.Vector3(), []),
+    target = useMemo(() => new THREE.Vector3(), []),
     reduced = useRef(false),
     nudge = useRef(false),
     slots = useMemo<RingSlot[]>(
@@ -184,11 +186,12 @@ export function Celebration() {
 
   useEffect(() => {
     reduced.current = reducedMotion();
-    const burst = (big: boolean) => {
+    const burst = (big: boolean, at?: THREE.Vector3, count = 36) => {
       started.current = performance.now();
-      burstCount.current = reduced.current ? 16 : big ? CONFETTI : 36;
+      burstCount.current = reduced.current ? 16 : big ? CONFETTI : count;
       nudge.current = big && !reduced.current;
-      groundAt(undefined, origin.current);
+      if (at) origin.current.copy(at);
+      else groundAt(undefined, origin.current);
       origin.current.y += 2.2;
       particles.forEach((p, i) => mesh.current?.setColorAt(i, p.colour));
       if (mesh.current?.instanceColor)
@@ -233,12 +236,38 @@ export function Celebration() {
           ring(undefined, "bad", 1.2, 520);
           ring(undefined, "bad", 1.7, 520, 150);
           break;
-        case "social":
+        case "social": {
+          // The friend who was reached gets the celebration, not the sender.
+          const friend = scene.getObjectByName(
+            "resident-" + String(e.data?.targetId ?? ""),
+          );
+          if (friend?.visible) friend.getWorldPosition(target);
+          else if (e.anchor)
+            target.set(e.anchor.x, e.anchor.y ?? 0, e.anchor.z);
           ring(e.anchor, "social", 1.4);
+          ring(e.anchor, "social", 2, 1000, 200);
+          if (friend?.visible || e.anchor) burst(false, target, 22);
           break;
+        }
         case "socialReceived":
           ring(e.anchor, "social", 1.6, 1100);
           ring(undefined, "social", 1.3, 1000, 180);
+          ring(undefined, "social", 2, 1100, 360);
+          burst(false, undefined, 22);
+          break;
+        case "event":
+          if (e.data?.stage === "find") {
+            ring(e.anchor, "arrive", 2.6, 1300);
+            ring(e.anchor, "arrive", 3.8, 1500, 240);
+          } else if (e.data?.stage === "ready") {
+            ring(undefined, "money", 1.8, 1100);
+            ring(undefined, "money", 2.8, 1300, 200);
+            burst(true);
+          } else if (e.data?.stage === "join") {
+            ring(undefined, "social", 1.5, 1000);
+            ring(undefined, "social", 2.4, 1200, 200);
+            burst(false, undefined, 28);
+          } else ring(undefined, "good", 1.6, 900);
           break;
         case "purchase":
         case "rent":
@@ -272,7 +301,7 @@ export function Celebration() {
       off();
       window.removeEventListener("metro-celebrate", legacy);
     };
-  }, [particles, invalidate, slots, groundAt, scratch]);
+  }, [particles, invalidate, slots, groundAt, scratch, scene, target]);
 
   useFrame(() => {
     if (previousPush.current.lengthSq()) {
@@ -355,6 +384,7 @@ export function Celebration() {
 
   return (
     <>
+      <SocialReactions />
       <instancedMesh
         name="celebration-confetti"
         ref={mesh}
