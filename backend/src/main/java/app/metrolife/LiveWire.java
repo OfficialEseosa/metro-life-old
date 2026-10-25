@@ -6,6 +6,7 @@ import jakarta.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.*;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -47,6 +48,11 @@ public class LiveWire
     final Queue<String> outgoing = new ConcurrentLinkedQueue<>();
     final AtomicBoolean draining = new AtomicBoolean();
     final Map<String, Integer> resources = new HashMap<>();
+    /** Only the newest positions frame is worth sending; older ones are replaced, never queued. */
+    final AtomicReference<String> latestPositions = new AtomicReference<>();
+    /** Set when frames were discarded; the next tick resends a full snapshot. */
+    volatile boolean resync;
+    long clockSentAt;
 
     Client(WebSocketSession ws, String token, String wid) {
       this.ws = new ConcurrentWebSocketSessionDecorator(ws, 2000, 65536);
@@ -55,8 +61,21 @@ public class LiveWire
     }
   }
 
+  /** Queued frames per client before the backlog is discarded and replaced by a snapshot. */
+  static final int MAX_QUEUED = 64;
+  /** Heartbeat: a clock frame at least this often, so clients can detect a dead link. */
+  static final long CLOCK_HEARTBEAT_MS = 5000;
+
   LiveWire(GameService g) {
     this.g = g;
+    g.userFrames = this::sendToUser;
+  }
+
+  /** Deliver a frame to every open socket of one user (called under the simulation monitor; never writes inline). */
+  void sendToUser(String wid, String uid, String frame) {
+    for (Client c : clients.values()) if (
+      c.wid.equals(wid) && c.uid.equals(uid) && c.ws.isOpen()
+    ) send(c, frame);
   }
 
   /** Cookie-less fallback: the page passes its session as ?session= when the browser blocks the API cookie. */
@@ -209,18 +228,29 @@ public class LiveWire
     if (c != null) drop(c);
   }
 
+  /**
+   * Queue a frame. A slow client is never silently dropped: when its backlog is full the backlog
+   * is discarded, the client is told to resync, and the next tick resends a full snapshot.
+   */
   void send(Client c, String frame) {
-    if (c.outgoing.size() > 64) {
-      drop(c);
-      sends.submit(() -> {
-        try {
-          c.ws.close(CloseStatus.SESSION_NOT_RELIABLE);
-        } catch (Exception ignored) {}
-      });
-      return;
+    if (c.outgoing.size() >= MAX_QUEUED) {
+      c.outgoing.clear();
+      c.resync = true;
+      c.outgoing.add("{\"type\":\"resync\"}");
     }
     c.outgoing.add(frame);
     drain(c);
+  }
+
+  /** Replace any unsent positions frame with the newest one. */
+  void sendPositions(Client c, String frame) {
+    c.latestPositions.set(frame);
+    drain(c);
+  }
+
+  String nextFrame(Client c) {
+    String text = c.outgoing.poll();
+    return text != null ? text : c.latestPositions.getAndSet(null);
   }
 
   void drain(Client c) {
@@ -228,7 +258,7 @@ public class LiveWire
     sends.submit(() -> {
       try {
         String text;
-        while ((text = c.outgoing.poll()) != null)
+        while ((text = nextFrame(c)) != null)
           if (c.ws.isOpen()) c.ws.sendMessage(new TextMessage(text));
       } catch (Exception e) {
         drop(c);
@@ -237,7 +267,10 @@ public class LiveWire
         } catch (Exception ignored) {}
       } finally {
         c.draining.set(false);
-        if (!c.outgoing.isEmpty() && c.ws.isOpen()) drain(c);
+        if (
+          (!c.outgoing.isEmpty() || c.latestPositions.get() != null) &&
+          c.ws.isOpen()
+        ) drain(c);
       }
     });
   }
@@ -311,7 +344,7 @@ public class LiveWire
         }
       }
     }
-    for (var frame : frames) send(frame.getKey(), frame.getValue());
+    for (var frame : frames) sendPositions(frame.getKey(), frame.getValue());
   }
 
   @Scheduled(fixedDelay = 1000)
@@ -342,6 +375,16 @@ public class LiveWire
         if (invalid.contains(c)) continue;
         ObjectNode ses = g.session(c.token, false),
           w = g.world(ses);
+        if (c.resync) {
+          // Frames were discarded: forget what this client has seen so everything is resent now.
+          c.resync = false;
+          c.presence = "";
+          c.positions = "";
+          c.sim = "";
+          c.clock = "";
+          c.resources.clear();
+          c.chatSeen.clear();
+        }
         ObjectNode p = g.community.players(w, c.city);
         String presence = p.path("players").toString();
         if (!presence.equals(c.presence)) {
@@ -353,8 +396,11 @@ public class LiveWire
         JsonNode time = g.clock(w);
         String clock =
           time.path("day").asText() + ":" + time.path("hour").asText();
-        if (!clock.equals(c.clock)) {
+        if (
+          !clock.equals(c.clock) || g.now() - c.clockSentAt >= CLOCK_HEARTBEAT_MS
+        ) {
           c.clock = clock;
+          c.clockSentAt = g.now();
           ObjectNode f = g.object().put("type", "clock");
           f.set("clock", time);
           frames.add(Map.entry(c, f.toString()));
@@ -379,21 +425,14 @@ public class LiveWire
             ":" +
             g.transit.trip(sim);
           if (!key.equals(c.sim)) {
-            boolean initial = c.sim.isEmpty();
             c.sim = key;
+            // "sim": your own sim changed, re-read /api/sim. Received social moments arrive as
+            // their own "socialReceived" frame (see GameService.social).
             ObjectNode f = g
               .object()
               .put("type", "event")
-              .put("kind", "story")
+              .put("kind", "sim")
               .put("city", sim.path("city").asText());
-            if (
-              !initial &&
-              !sim
-                .path("_socialFrom")
-                .asText()
-                .equals(sim.path("userId").asText()) &&
-              sim.path("_socialAt").asLong() > g.now() - 5000
-            ) f.put("text", sim.path("_socialText").asText());
             frames.add(Map.entry(c, f.toString()));
           }
         }
