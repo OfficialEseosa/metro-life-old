@@ -231,6 +231,8 @@ let retryTimer: ReturnType<typeof setTimeout> | null = null,
   retryStep = 0,
   verifying: Promise<boolean> | null = null;
 const RETRY_DELAYS = [2000, 4000, 8000, 15000];
+/** The first load shows the game or a card with a button within this time, never an endless spinner. */
+const LOAD_DEADLINE_MS = 22000;
 export const mergeChat = (current: ChatMessage[], incoming: ChatMessage[]) =>
   [...new Map([...current, ...incoming].map((m) => [m.id, m])).values()]
     .sort((a, b) => a.at - b.at || a.id.localeCompare(b.id))
@@ -648,6 +650,18 @@ export const useStore = create<State>((set, get) => {
         clearTimeout(retryTimer);
         retryTimer = null;
       }
+      // Whatever happens below, the first load ends in the game or in a card with a button
+      // within LOAD_DEADLINE_MS; a request stuck on a starved or flaky link cannot hold it.
+      const deadline = setTimeout(() => {
+        if (get().user && get().connection !== "connecting") return;
+        set({
+          connection: "unreachable",
+          ready: true,
+          loadError: "The city is slow to answer. Trying again.",
+        });
+        loading = null;
+        scheduleRetry();
+      }, LOAD_DEADLINE_MS);
       loading = (async () => {
         try {
           const [world, stats] = await Promise.all([api.world(), api.stats()]);
@@ -681,8 +695,15 @@ export const useStore = create<State>((set, get) => {
                   : "Could not reach the city. Try again.",
             });
         } finally {
+          clearTimeout(deadline);
           set({ ready: true });
           loading = null;
+          // A late success after the deadline card cancels the pending retry.
+          if (get().user && get().connection === "online" && retryTimer) {
+            clearTimeout(retryTimer);
+            retryTimer = null;
+            set({ retryAt: null, loadError: null });
+          }
         }
       })();
       return loading;
@@ -745,7 +766,29 @@ export const useStore = create<State>((set, get) => {
     },
 
     syncSession: async (known) => {
-      const me = known ?? (await safe(api.me()));
+      // Never leave the player on a loading card: a failed read is retried, and if the city still
+      // cannot be reached the unreachable card (with its countdown and Try now) takes over.
+      let me = known ?? (await safe(api.me()));
+      for (let attempt = 1; !me && attempt <= 2; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, 800 * attempt));
+        me = await safe(api.me());
+      }
+      if (!me) {
+        set({
+          connection: "unreachable",
+          loadError: "Could not reach the city. Trying again.",
+        });
+        scheduleRetry();
+        return;
+      }
+      // The server answered but knows no life for this browser: say so instead of loading forever.
+      if (!me.user && get().user) {
+        socketEpoch++;
+        socket?.close();
+        socket = null;
+        set({ connected: false, connection: "ended" });
+        return;
+      }
       const city = me?.sim?.city ?? get().city;
       if (resultTimer) clearTimeout(resultTimer);
       resultTimer = null;
