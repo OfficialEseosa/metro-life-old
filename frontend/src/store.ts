@@ -2,7 +2,8 @@ import { installHomeDesign,useHomeDesign } from './home-design'
 import { motion, useWalking } from './walking'
 import { serverNow, syncServerTime } from './server-time'
 import { create } from 'zustand'
-import { api, connectSocket } from './api/client'
+import { api, ApiError, connectSocket, onUnauthorized } from './api/client'
+import { session } from './api/base'
 import type {
   ActResult,
   Billboards,
@@ -12,6 +13,7 @@ import type {
   Daily,
   Homes,
   MayorState,
+  Me,
   Player,
   Plots,
   ServerEvent,
@@ -40,6 +42,13 @@ export type Panel =
   | 'travel'
 
 
+/**
+ * connecting: first load. online: API and socket reachable. reconnecting: the live socket dropped
+ * while playing. unreachable: the API cannot be reached (retrying on a timer). blocked: the browser
+ * keeps no session for this site. ended: the saved session no longer exists on the server.
+ */
+export type Connection = 'connecting' | 'online' | 'reconnecting' | 'unreachable' | 'blocked' | 'ended'
+
 export type CityData = 'daily' | 'mayor' | 'plots' | 'billboards' | 'homes' | 'players' | 'chat'
 
 type State = {
@@ -57,6 +66,15 @@ type State = {
   stats: Stats | null
   socialNotice: string
   connected: boolean
+  connection: Connection
+  /** when the live socket last dropped (ms epoch), null while connected */
+  disconnectedAt: number | null
+  /** when the next automatic retry runs while the API is unreachable */
+  retryAt: number | null
+  /** retry the API or the live socket immediately */
+  retryNow: () => void
+  /** forget this browser's saved session and begin again as a new guest */
+  startFresh: () => Promise<void>
   // the city map being looked at (may differ from sim.city)
   city: CityId
   sceneQuality: 'normal' | 'low'
@@ -98,7 +116,7 @@ type State = {
 
   load: () => Promise<void>
   /** re-read session, world info, sim and clock (after login, world switch, etc.), then the city data */
-  syncSession: () => Promise<void>
+  syncSession: (known?: Me) => Promise<void>
   changeSession: (change: () => Promise<unknown>) => Promise<void>
   setCity: (city: CityId) => Promise<void>
   refresh: (...what: CityData[]) => Promise<void>
@@ -123,6 +141,8 @@ function rememberTrigger(){const active=document.activeElement;if(active instanc
 const realtimeEnabled = true
 let socketEpoch=0,presenceRevision=0,resourceRevision=0,sessionChanging=false
 let indoorTravelPending=false
+let retryTimer:ReturnType<typeof setTimeout>|null=null,retryStep=0,verifying:Promise<boolean>|null=null
+const RETRY_DELAYS=[2000,4000,8000,15000]
 export const mergeChat=(current:ChatMessage[],incoming:ChatMessage[])=>[...new Map([...current,...incoming].map(m=>[m.id,m])).values()].sort((a,b)=>a.at-b.at||a.id.localeCompare(b.id)).slice(-50)
 
 export const useStore = create<State>((set, get) => {
@@ -155,9 +175,29 @@ export const useStore = create<State>((set, get) => {
     if(!get().user){socket=null;set({connected:false});return}
     socket = connectSocket(e=>{if(epoch===socketEpoch)onEvent(e)}, (connected) => {
       if(epoch!==socketEpoch)return
-      set({ connected })
+      set(s=>({ connected, connection:connected?'online':s.connection==='online'?'reconnecting':s.connection, disconnectedAt:connected?null:s.disconnectedAt??Date.now() }))
       if (connected){socket?.send({ type: 'view', city: get().city });void get().refresh('players','chat','mayor','plots','billboards','homes')}
-    })
+    }, ()=>epoch===socketEpoch?verifySession():Promise.resolve(false))
+  }
+
+  /** The socket or an API call was refused: check whether this browser's session still exists. */
+  const verifySession = () => {
+    if(verifying)return verifying
+    const userId=get().user?.id
+    verifying=api.me().then(me=>{
+      if(!me.user){socketEpoch++;socket?.close();socket=null;set({connected:false,connection:'ended'});return false}
+      if(me.user.id!==userId){void get().syncSession(me);return false}
+      return true
+    },()=>true).finally(()=>{verifying=null})
+    return verifying
+  }
+  onUnauthorized(()=>{if(get().user&&get().connection!=='ended')void verifySession()})
+
+  const scheduleRetry = () => {
+    if(retryTimer)clearTimeout(retryTimer)
+    const delay=RETRY_DELAYS[Math.min(retryStep,RETRY_DELAYS.length-1)];retryStep++
+    set({retryAt:Date.now()+delay})
+    retryTimer=setTimeout(()=>{retryTimer=null;void get().load()},delay)
   }
 
   return {
@@ -172,6 +212,9 @@ export const useStore = create<State>((set, get) => {
     clock: null,
     stats: null,
     connected: false,
+    connection: 'connecting',
+    disconnectedAt: null,
+    retryAt: null,
     socialNotice: '',
     city: 'atl',
     sceneQuality: (()=>{try{return localStorage.getItem('metro-quality')==='low'?'low':'normal'}catch{return 'normal'}})(),
@@ -202,8 +245,34 @@ export const useStore = create<State>((set, get) => {
 
     load: () => {
       if (loading) return loading
-      loading=(async()=>{try{const [world,stats]=await Promise.all([api.world(),api.stats()]);set({world,stats,loadError:null});await api.guest();await get().syncSession()}catch(error){set({loadError:error instanceof Error?error.message:'Could not reach the city. Try again.'})}finally{set({ready:true});loading=null}})()
+      if(retryTimer){clearTimeout(retryTimer);retryTimer=null}
+      loading=(async()=>{try{
+        const [world,stats]=await Promise.all([api.world(),api.stats()]);set({world,stats,loadError:null})
+        await api.guest()
+        let me=await api.me()
+        // The cookie did not stick (third-party cookies blocked): switch to the header session once.
+        if(!me.user&&!session.token){session.want();await api.guest();me=await api.me()}
+        retryStep=0
+        if(!me.user){set({connection:'blocked',retryAt:null});return}
+        set({connection:'online',retryAt:null})
+        await get().syncSession(me)
+      }catch(error){
+        if(error instanceof ApiError&&error.status===0){set({connection:'unreachable',loadError:error.message});scheduleRetry()}
+        else set({connection:'unreachable',retryAt:null,loadError:error instanceof Error?error.message:'Could not reach the city. Try again.'})
+      }finally{set({ready:true});loading=null}})()
       return loading
+    },
+
+    retryNow: () => {
+      const {connection}=get()
+      if(connection==='reconnecting'){socket?.retryNow();return}
+      retryStep=0;void get().load()
+    },
+
+    startFresh: async () => {
+      session.forget();socketEpoch++;socket?.close();socket=null;retryStep=0
+      set({user:null,sim:null,worldInfo:null,connected:false,connection:'connecting',disconnectedAt:null,loadError:null,panel:null})
+      await get().load()
     },
 
     changeSession: async (change) => {
@@ -215,8 +284,8 @@ export const useStore = create<State>((set, get) => {
       try{await change();await api.guest();await get().syncSession()}catch(error){await get().syncSession();set({panel});throw error}
     },
 
-    syncSession: async () => {
-      const me = await safe(api.me())
+    syncSession: async (known) => {
+      const me = known ?? await safe(api.me())
       const city = me?.sim?.city ?? get().city
       if(resultTimer)clearTimeout(resultTimer);resultTimer=null;presenceRevision++
       installHomeDesign(me?.sim?.homeDesign,me?.sim?.homeLayout);useHomeDesign.getState().setOpen(false)
