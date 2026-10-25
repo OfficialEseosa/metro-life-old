@@ -1,9 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
-import { game, newPlayer, onlineCount, poll, quickPlay, shot, whoAmI } from "../support/game";
+import { game, newPlayer, onlineCount, poll, quickPlay, roster, serverSim, shot, whoAmI } from "../support/game";
 
 /** True when this page's city roster lists that player online in the city it is showing. */
 const sees = (page: Page, id: string) =>
   game<boolean>(page, `(s) => s.players.some(p => p.id === ${JSON.stringify(id)} && p.online && p.city === s.sim.city)`);
+
+/** True when the API's roster for this player's city lists the other one online. */
+const listed = async (page: Page, id: string) => {
+  const city = (await serverSim(page))?.city ?? "atl";
+  return (await roster(page, city)).some((p) => p.id === id && p.online && p.city === city);
+};
 
 test("c. two players see each other online in the same city", async ({ browser }, testInfo) => {
   const a = await newPlayer(browser, testInfo);
@@ -18,8 +24,12 @@ test("c. two players see each other online in the same city", async ({ browser }
   const [idA, idB] = (await Promise.all([whoAmI(a.page), whoAmI(b.page)])).map((m) => m.id!);
   expect(idA).toBeTruthy();
   expect(idB).toBeTruthy();
-  expect(await poll(() => sees(a.page, idB), Boolean)).toBe(true);
-  expect(await poll(() => sees(b.page, idA), Boolean)).toBe(true);
+  expect(await poll(() => listed(a.page, idB), Boolean)).toBe(true);
+  expect(await poll(() => listed(b.page, idA), Boolean)).toBe(true);
+  // The pages' own rosters follow over the socket. Two software-rendered pages answer a script
+  // call only every half minute or so, so this gets the long timeout.
+  expect(await poll(() => sees(a.page, idB), Boolean, 600_000, 2000)).toBe(true);
+  expect(await poll(() => sees(b.page, idA), Boolean, 600_000, 2000)).toBe(true);
   await shot(a.page, testInfo, "c-player-a");
   await shot(b.page, testInfo, "c-player-b");
   await a.context.close();

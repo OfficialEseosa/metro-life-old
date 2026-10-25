@@ -36,14 +36,17 @@ test("d. backend stopped shows the reconnect screens and recovers", async ({ bro
   };
 
   await down();
-  await expect(page.getByText(/Reconnecting|Connection lost/i).first()).toBeVisible({ timeout: 180_000 });
-  await shot(page, testInfo, "d-reconnecting");
+  try {
+    await expect(page.getByText(/Reconnecting|Connection lost/i).first()).toBeVisible({ timeout: 180_000 });
+    await shot(page, testInfo, "d-reconnecting");
 
-  await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.getByText(/taking a breather/i).first()).toBeVisible({ timeout: 180_000 });
-  await shot(page, testInfo, "d-unreachable");
-
-  await up();
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.getByText(/taking a breather/i).first()).toBeVisible({ timeout: 180_000 });
+    await shot(page, testInfo, "d-unreachable");
+  } finally {
+    // The journeys after this one need the API back even when an expectation above failed.
+    await up();
+  }
   await page.getByRole("button", { name: /Try now/ }).dispatchEvent("click").catch(() => {});
   await expect(playing(page)).toBeVisible({ timeout: 300_000 });
   expect((await whoAmI(page))?.id).toBe(before?.id);

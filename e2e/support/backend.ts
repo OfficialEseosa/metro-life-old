@@ -39,14 +39,38 @@ export async function start(fresh = false) {
   throw new Error(`The API did not start on ${API}`);
 }
 
+const alive = (pid: number) => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Stop the API and wait for the process itself to be gone: a paused connector already refuses new
+ * requests while open sockets keep streaming, which would leave the game looking connected.
+ */
 export async function stop() {
   if (!managed()) return;
   const pid = Number(readFileSync(pidFile, "utf8"));
+  const started = Date.now();
   try {
     process.kill(pid, "SIGTERM");
   } catch {
     /* Already gone. */
   }
-  for (let i = 0; i < 120 && (await reachable()); i++) await sleep(500);
+  for (let i = 0; i < 40 && alive(pid); i++) await sleep(500);
+  if (alive(pid)) {
+    console.warn(`The API ignored SIGTERM for ${Math.round((Date.now() - started) / 1000)} s; killing it.`);
+    try {
+      process.kill(pid, "SIGKILL");
+    } catch {
+      /* Gone meanwhile. */
+    }
+    for (let i = 0; i < 40 && alive(pid); i++) await sleep(250);
+  }
+  for (let i = 0; i < 20 && (await reachable()); i++) await sleep(500);
   rmSync(pidFile, { force: true });
 }

@@ -1,12 +1,13 @@
 import { expect, test } from "@playwright/test";
-import { createCharacter, game, newPlayer, poll, shot, simInfo } from "../support/game";
+import { createCharacter, game, newPlayer, poll, serverSim, shot, simInfo, uniqueName } from "../support/game";
 
 test("a. first start: create a character, arrive home, use the bed", async ({ browser }, testInfo) => {
   const { context, page } = await newPlayer(browser, testInfo);
-  await createCharacter(page, "Robin Vale");
+  const name = uniqueName("Robin");
+  await createCharacter(page, name);
   await shot(page, testInfo, "a-arrived");
   const arrived = await simInfo(page);
-  expect(arrived?.name).toBe("Robin Vale");
+  expect(arrived?.name).toBe(name);
 
   // The creator path begins inside the studio. Leave and come back through the door.
   if (arrived?.room) {
@@ -32,9 +33,15 @@ test("a. first start: create a character, arrive home, use the bed", async ({ br
   );
   const choice = page.locator(".object-pie-choice").filter({ hasText: /Sleep|Nap|Bed/i }).first();
   await expect(choice).toBeVisible();
+  const before = await serverSim(page);
+  expect(before?.needs.energy).toBeLessThan(100);
   await choice.dispatchEvent("click");
-  const busy = await poll(() => simInfo(page), (s) => !!s?.busy, 600_000, 2000);
-  expect(busy?.busy).toBeTruthy();
+  // A home action keeps the sim busy for only a few seconds, so watch for its outcome on the
+  // server (every action grants 15 XP; sleep restores all energy) instead of racing that window.
+  const slept = await poll(() => serverSim(page), (s) => (s?.xp ?? 0) > (before?.xp ?? 0), 600_000, 2000);
+  expect(slept?.xp).toBe((before?.xp ?? 0) + 15);
+  expect(slept?.needs.energy).toBeGreaterThan(99);
+  expect(slept?.loc).toBe("home");
   await shot(page, testInfo, "a-bed");
   await context.close();
 });

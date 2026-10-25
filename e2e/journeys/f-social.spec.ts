@@ -48,8 +48,9 @@ test("f. wave, hang out and gift both ways", async ({ browser }, testInfo) => {
       expect(paid.at(-1)?.amount).toBe(-25);
       expect(received.at(-1)?.amount).toBe(25);
     }
-    // The receiver hears about it over the socket, not only the sender.
-    const heard = await poll(() => game<string>(to, `(s) => s.socialNotice`), (n) => n === text, 30_000);
+    // The receiver hears about it over the socket, not only the sender. Reading the page is slow
+    // while two software-rendered scenes share one machine, so allow a long wait.
+    const heard = await poll(() => game<string>(to, `(s) => s.socialNotice`), (n) => n === text, 240_000, 2000);
     expect(heard).toBe(text);
   };
 
