@@ -297,21 +297,32 @@ Newly started browser lives opt their shared world into a seven-minute day (`Clo
   current city so the HUD can point at it.
 - **Venues and civic life.** Music and nightlife venues always offer "Dance the night away" ($10, fun +28,
   social +12) on the dance floor. Every election term opens with two residents on the ballot, so there is always
-  someone to vote for; running for mayor needs Charisma 1.
+  someone to vote for; running for mayor needs Charisma 1. Ponce Works Market has customer order slots at its
+  burger, noodle, gelato, coffee and grocery stalls. Groceries cost $9 and add three pantry meals (maximum six);
+  each home cook consumes one meal for an additional 15 hunger and 5 fun, with the result reporting the pantry.
 - **City events.** A 90-second shared event runs every nine minutes per city. `/api/social-life` returns
   `event: null` unless it starts within 90 seconds, is live, or finished and this player joined it; a finished
   event's `result` speaks only to people who joined.
 - **Social reach.** A wave reaches 8 m; hang out and gift reach 3.3 m (3.8 m for walking residents). A greeted
   resident stops for nine seconds so a hang out can follow. The client targets the
   nearest person the player faces, real players before residents (`SocialTarget` in the store), and waits out the
-  3-second cooldown instead of failing.
+  3-second cooldown instead of failing. `POST /api/social` returns `targetId`, `targetName` (the target username)
+  and `kind`. The store publishes each sent or received notice as `socialMoment` with a sequence, text, kind,
+  direction, actor and target ids/names, and server timestamp; `useSocialTarget` selects the current nearby target.
 - **Movement.** `POST /api/move` may carry `via: [{x,z}]` (up to 16 corners walked since the last confirmed
   position). The server checks every straight piece of that polyline for collisions and the whole length against
   the speed budget (7.5 m/s, saved up to 12 m), so walking never pauses at a corner to wait for the server.
+  A pending story still returns 409; a move during a running activity returns the unchanged server position
+  without applying coordinates or consuming speed credit. A door request during a running activity discards its
+  unfinished action and continues through the door without its cost or reward. Transit remains protected, and a
+  pending story blocks the door with 409.
 - **Settlement.** The client learns that an activity finished from the socket `event: sim` (the server settles
   due activities for connected players every second) or from any fresher sim; one fallback `GET /api/sim` runs
   1.5 s after the deadline only if neither arrived. The accepted result is shown once.
-- **Guests and caching.** New guest lives are limited to 12 per address and 240 in total per ten minutes (429
-  with a friendly message). Expired sessions are removed, unused guests after a day, and lives nobody can sign
-  into after thirty quiet days. JSON responses over 1 KB are gzip-compressed; `/api/world` and `/api/version`
+- **Guests and caching.** New guest lives are limited to 12 per forwarded address (or connecting address when
+  no forwarded address is present), 60 per connecting peer when forwarded addresses differ, and 240 total per
+  ten minutes (429 with a friendly message). Expired sessions are removed, unused guests after a day, and lives
+  nobody can sign into after thirty quiet days. Removing a guest also sweeps their relationship and house-like
+  references from remaining sims and residents, their property arrays and event contributors/claims, plus any
+  sessions for missing users. Saves are compact JSON. JSON responses over 1 KB are gzip-compressed; `/api/world` and `/api/version`
   may be cached for five minutes, revisioned plot atlases for a day, and every other API response is `no-store`.

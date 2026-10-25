@@ -9866,7 +9866,7 @@
       },
       {
         "id": "stall-north-0",
-        "name": "Stall North 0",
+        "name": "Brick & Bun",
         "action": "use",
         "x": -17,
         "z": 0.7,
@@ -9874,7 +9874,7 @@
       },
       {
         "id": "stall-south-1",
-        "name": "Stall South 1",
+        "name": "Ponce Grocer",
         "action": "use",
         "x": -8,
         "z": 6.3,
@@ -9882,7 +9882,7 @@
       },
       {
         "id": "stall-north-1",
-        "name": "Stall North 1",
+        "name": "Noodle Lantern",
         "action": "use",
         "x": -8,
         "z": 0.7,
@@ -9890,7 +9890,7 @@
       },
       {
         "id": "stall-south-2",
-        "name": "Stall South 2",
+        "name": "Bakery",
         "action": "use",
         "x": 1,
         "z": 6.3,
@@ -9898,7 +9898,7 @@
       },
       {
         "id": "stall-north-2",
-        "name": "Stall North 2",
+        "name": "Honeycomb Gelato",
         "action": "use",
         "x": 1,
         "z": 0.7,
@@ -9906,7 +9906,7 @@
       },
       {
         "id": "stall-south-3",
-        "name": "Stall South 3",
+        "name": "Coffee Bar",
         "action": "use",
         "x": 10,
         "z": 6.3,
@@ -9914,7 +9914,7 @@
       },
       {
         "id": "stall-north-3",
-        "name": "Stall North 3",
+        "name": "Coffee Counter",
         "action": "use",
         "x": 10,
         "z": 0.7,
@@ -9999,6 +9999,15 @@
             "z": -2.5,
             "y": 0.48,
             "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-0-order",
+            "station": "stall-north-0",
+            "pose": "Interact",
+            "x": -17,
+            "z": 0.7,
+            "y": 0,
+            "face": 3.141592653589793
           }
         ]
       },
@@ -10019,6 +10028,15 @@
             "z": 6.5,
             "y": 0.48,
             "face": 3.141592653589793
+          },
+          {
+            "id": "stall-south-1-order",
+            "station": "stall-south-1",
+            "pose": "Interact",
+            "x": -8,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
           }
         ]
       },
@@ -10038,6 +10056,15 @@
             "x": -8,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-1-order",
+            "station": "stall-north-1",
+            "pose": "Interact",
+            "x": -8,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           }
         ]
@@ -10059,6 +10086,15 @@
             "z": 6.5,
             "y": 0.48,
             "face": 3.141592653589793
+          },
+          {
+            "id": "stall-south-2-order",
+            "station": "stall-south-2",
+            "pose": "Interact",
+            "x": 1,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
           }
         ]
       },
@@ -10078,6 +10114,15 @@
             "x": 1,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-2-order",
+            "station": "stall-north-2",
+            "pose": "Interact",
+            "x": 1,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           }
         ]
@@ -10099,6 +10144,15 @@
             "z": 6.5,
             "y": 0.48,
             "face": 3.141592653589793
+          },
+          {
+            "id": "stall-south-3-order",
+            "station": "stall-south-3",
+            "pose": "Interact",
+            "x": 10,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
           }
         ]
       },
@@ -10118,6 +10172,15 @@
             "x": 10,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-3-order",
+            "station": "stall-north-3",
+            "pose": "Interact",
+            "x": 10,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           }
         ]
@@ -10442,6 +10505,15 @@
         "face": 3.141592653589793
       },
       {
+        "id": "stall-north-0-order",
+        "station": "stall-north-0",
+        "pose": "Interact",
+        "x": -17,
+        "z": 0.7,
+        "y": 0,
+        "face": 3.141592653589793
+      },
+      {
         "id": "stall-south-1-service",
         "station": "stall-south-1",
         "pose": "Type",
@@ -10451,12 +10523,30 @@
         "face": 3.141592653589793
       },
       {
+        "id": "stall-south-1-order",
+        "station": "stall-south-1",
+        "pose": "Interact",
+        "x": -8,
+        "z": 6.3,
+        "y": 0,
+        "face": 0.0
+      },
+      {
         "id": "stall-north-1-service",
         "station": "stall-north-1",
         "pose": "Type",
         "x": -8,
         "z": -2.5,
         "y": 0.48,
+        "face": 3.141592653589793
+      },
+      {
+        "id": "stall-north-1-order",
+        "station": "stall-north-1",
+        "pose": "Interact",
+        "x": -8,
+        "z": 0.7,
+        "y": 0,
         "face": 3.141592653589793
       },
       {
@@ -10469,12 +10559,30 @@
         "face": 3.141592653589793
       },
       {
+        "id": "stall-south-2-order",
+        "station": "stall-south-2",
+        "pose": "Interact",
+        "x": 1,
+        "z": 6.3,
+        "y": 0,
+        "face": 0.0
+      },
+      {
         "id": "stall-north-2-service",
         "station": "stall-north-2",
         "pose": "Type",
         "x": 1,
         "z": -2.5,
         "y": 0.48,
+        "face": 3.141592653589793
+      },
+      {
+        "id": "stall-north-2-order",
+        "station": "stall-north-2",
+        "pose": "Interact",
+        "x": 1,
+        "z": 0.7,
+        "y": 0,
         "face": 3.141592653589793
       },
       {
@@ -10487,12 +10595,30 @@
         "face": 3.141592653589793
       },
       {
+        "id": "stall-south-3-order",
+        "station": "stall-south-3",
+        "pose": "Interact",
+        "x": 10,
+        "z": 6.3,
+        "y": 0,
+        "face": 0.0
+      },
+      {
         "id": "stall-north-3-service",
         "station": "stall-north-3",
         "pose": "Type",
         "x": 10,
         "z": -2.5,
         "y": 0.48,
+        "face": 3.141592653589793
+      },
+      {
+        "id": "stall-north-3-order",
+        "station": "stall-north-3",
+        "pose": "Interact",
+        "x": 10,
+        "z": 0.7,
+        "y": 0,
         "face": 3.141592653589793
       },
       {
@@ -10603,7 +10729,7 @@
       },
       {
         "id": "stall-south-1-cook",
-        "name": "Noodle chef",
+        "name": "Grocer",
         "x": -8,
         "z": 7.3,
         "face": 0
@@ -10814,7 +10940,7 @@
           },
           {
             "id": "stall-north-0",
-            "name": "Stall North 0",
+            "name": "Burger Stall",
             "action": "use",
             "x": -17,
             "z": 0.7,
@@ -10822,7 +10948,7 @@
           },
           {
             "id": "stall-south-1",
-            "name": "Stall South 1",
+            "name": "Grocer",
             "action": "use",
             "x": -8,
             "z": 6.3,
@@ -10830,7 +10956,7 @@
           },
           {
             "id": "stall-north-1",
-            "name": "Stall North 1",
+            "name": "Noodle Stall",
             "action": "use",
             "x": -8,
             "z": 0.7,
@@ -10838,7 +10964,7 @@
           },
           {
             "id": "stall-south-2",
-            "name": "Stall South 2",
+            "name": "Bakery",
             "action": "use",
             "x": 1,
             "z": 6.3,
@@ -10846,7 +10972,7 @@
           },
           {
             "id": "stall-north-2",
-            "name": "Stall North 2",
+            "name": "Gelato Stall",
             "action": "use",
             "x": 1,
             "z": 0.7,
@@ -10854,7 +10980,7 @@
           },
           {
             "id": "stall-south-3",
-            "name": "Stall South 3",
+            "name": "Coffee Bar",
             "action": "use",
             "x": 10,
             "z": 6.3,
@@ -10862,7 +10988,7 @@
           },
           {
             "id": "stall-north-3",
-            "name": "Stall North 3",
+            "name": "Coffee Counter",
             "action": "use",
             "x": 10,
             "z": 0.7,
@@ -10947,6 +11073,15 @@
                 "z": -2.5,
                 "y": 0.48,
                 "face": 3.141592653589793
+              },
+              {
+                "id": "stall-north-0-order",
+                "station": "stall-north-0",
+                "pose": "Interact",
+                "x": -17,
+                "z": 0.7,
+                "y": 0,
+                "face": 3.141592653589793
               }
             ]
           },
@@ -10967,6 +11102,15 @@
                 "z": 6.5,
                 "y": 0.48,
                 "face": 3.141592653589793
+              },
+              {
+                "id": "stall-south-1-order",
+                "station": "stall-south-1",
+                "pose": "Interact",
+                "x": -8,
+                "z": 6.3,
+                "y": 0,
+                "face": 0.0
               }
             ]
           },
@@ -10986,6 +11130,15 @@
                 "x": -8,
                 "z": -2.5,
                 "y": 0.48,
+                "face": 3.141592653589793
+              },
+              {
+                "id": "stall-north-1-order",
+                "station": "stall-north-1",
+                "pose": "Interact",
+                "x": -8,
+                "z": 0.7,
+                "y": 0,
                 "face": 3.141592653589793
               }
             ]
@@ -11007,6 +11160,15 @@
                 "z": 6.5,
                 "y": 0.48,
                 "face": 3.141592653589793
+              },
+              {
+                "id": "stall-south-2-order",
+                "station": "stall-south-2",
+                "pose": "Interact",
+                "x": 1,
+                "z": 6.3,
+                "y": 0,
+                "face": 0.0
               }
             ]
           },
@@ -11026,6 +11188,15 @@
                 "x": 1,
                 "z": -2.5,
                 "y": 0.48,
+                "face": 3.141592653589793
+              },
+              {
+                "id": "stall-north-2-order",
+                "station": "stall-north-2",
+                "pose": "Interact",
+                "x": 1,
+                "z": 0.7,
+                "y": 0,
                 "face": 3.141592653589793
               }
             ]
@@ -11047,6 +11218,15 @@
                 "z": 6.5,
                 "y": 0.48,
                 "face": 3.141592653589793
+              },
+              {
+                "id": "stall-south-3-order",
+                "station": "stall-south-3",
+                "pose": "Interact",
+                "x": 10,
+                "z": 6.3,
+                "y": 0,
+                "face": 0.0
               }
             ]
           },
@@ -11066,6 +11246,15 @@
                 "x": 10,
                 "z": -2.5,
                 "y": 0.48,
+                "face": 3.141592653589793
+              },
+              {
+                "id": "stall-north-3-order",
+                "station": "stall-north-3",
+                "pose": "Interact",
+                "x": 10,
+                "z": 0.7,
+                "y": 0,
                 "face": 3.141592653589793
               }
             ]
@@ -11390,6 +11579,15 @@
             "face": 3.141592653589793
           },
           {
+            "id": "stall-north-0-order",
+            "station": "stall-north-0",
+            "pose": "Interact",
+            "x": -17,
+            "z": 0.7,
+            "y": 0,
+            "face": 3.141592653589793
+          },
+          {
             "id": "stall-south-1-service",
             "station": "stall-south-1",
             "pose": "Type",
@@ -11399,12 +11597,30 @@
             "face": 3.141592653589793
           },
           {
+            "id": "stall-south-1-order",
+            "station": "stall-south-1",
+            "pose": "Interact",
+            "x": -8,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
+          },
+          {
             "id": "stall-north-1-service",
             "station": "stall-north-1",
             "pose": "Type",
             "x": -8,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-1-order",
+            "station": "stall-north-1",
+            "pose": "Interact",
+            "x": -8,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           },
           {
@@ -11417,12 +11633,30 @@
             "face": 3.141592653589793
           },
           {
+            "id": "stall-south-2-order",
+            "station": "stall-south-2",
+            "pose": "Interact",
+            "x": 1,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
+          },
+          {
             "id": "stall-north-2-service",
             "station": "stall-north-2",
             "pose": "Type",
             "x": 1,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-2-order",
+            "station": "stall-north-2",
+            "pose": "Interact",
+            "x": 1,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           },
           {
@@ -11435,12 +11669,30 @@
             "face": 3.141592653589793
           },
           {
+            "id": "stall-south-3-order",
+            "station": "stall-south-3",
+            "pose": "Interact",
+            "x": 10,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
+          },
+          {
             "id": "stall-north-3-service",
             "station": "stall-north-3",
             "pose": "Type",
             "x": 10,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-3-order",
+            "station": "stall-north-3",
+            "pose": "Interact",
+            "x": 10,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           },
           {
@@ -11551,7 +11803,7 @@
           },
           {
             "id": "stall-south-1-cook",
-            "name": "Noodle chef",
+            "name": "Grocer",
             "x": -8,
             "z": 7.3,
             "face": 0
@@ -11758,7 +12010,7 @@
           },
           {
             "id": "stall-north-0",
-            "name": "Stall North 0",
+            "name": "Burger Stall",
             "action": "use",
             "x": -17,
             "z": 0.7,
@@ -11766,7 +12018,7 @@
           },
           {
             "id": "stall-south-1",
-            "name": "Stall South 1",
+            "name": "Grocer",
             "action": "use",
             "x": -8,
             "z": 6.3,
@@ -11774,7 +12026,7 @@
           },
           {
             "id": "stall-north-1",
-            "name": "Stall North 1",
+            "name": "Noodle Stall",
             "action": "use",
             "x": -8,
             "z": 0.7,
@@ -11782,7 +12034,7 @@
           },
           {
             "id": "stall-south-2",
-            "name": "Stall South 2",
+            "name": "Bakery",
             "action": "use",
             "x": 1,
             "z": 6.3,
@@ -11790,7 +12042,7 @@
           },
           {
             "id": "stall-north-2",
-            "name": "Stall North 2",
+            "name": "Gelato Stall",
             "action": "use",
             "x": 1,
             "z": 0.7,
@@ -11798,7 +12050,7 @@
           },
           {
             "id": "stall-south-3",
-            "name": "Stall South 3",
+            "name": "Coffee Bar",
             "action": "use",
             "x": 10,
             "z": 6.3,
@@ -11806,7 +12058,7 @@
           },
           {
             "id": "stall-north-3",
-            "name": "Stall North 3",
+            "name": "Coffee Counter",
             "action": "use",
             "x": 10,
             "z": 0.7,
@@ -11891,6 +12143,15 @@
                 "z": -2.5,
                 "y": 0.48,
                 "face": 3.141592653589793
+              },
+              {
+                "id": "stall-north-0-order",
+                "station": "stall-north-0",
+                "pose": "Interact",
+                "x": -17,
+                "z": 0.7,
+                "y": 0,
+                "face": 3.141592653589793
               }
             ]
           },
@@ -11911,6 +12172,15 @@
                 "z": 6.5,
                 "y": 0.48,
                 "face": 3.141592653589793
+              },
+              {
+                "id": "stall-south-1-order",
+                "station": "stall-south-1",
+                "pose": "Interact",
+                "x": -8,
+                "z": 6.3,
+                "y": 0,
+                "face": 0.0
               }
             ]
           },
@@ -11930,6 +12200,15 @@
                 "x": -8,
                 "z": -2.5,
                 "y": 0.48,
+                "face": 3.141592653589793
+              },
+              {
+                "id": "stall-north-1-order",
+                "station": "stall-north-1",
+                "pose": "Interact",
+                "x": -8,
+                "z": 0.7,
+                "y": 0,
                 "face": 3.141592653589793
               }
             ]
@@ -11951,6 +12230,15 @@
                 "z": 6.5,
                 "y": 0.48,
                 "face": 3.141592653589793
+              },
+              {
+                "id": "stall-south-2-order",
+                "station": "stall-south-2",
+                "pose": "Interact",
+                "x": 1,
+                "z": 6.3,
+                "y": 0,
+                "face": 0.0
               }
             ]
           },
@@ -11970,6 +12258,15 @@
                 "x": 1,
                 "z": -2.5,
                 "y": 0.48,
+                "face": 3.141592653589793
+              },
+              {
+                "id": "stall-north-2-order",
+                "station": "stall-north-2",
+                "pose": "Interact",
+                "x": 1,
+                "z": 0.7,
+                "y": 0,
                 "face": 3.141592653589793
               }
             ]
@@ -11991,6 +12288,15 @@
                 "z": 6.5,
                 "y": 0.48,
                 "face": 3.141592653589793
+              },
+              {
+                "id": "stall-south-3-order",
+                "station": "stall-south-3",
+                "pose": "Interact",
+                "x": 10,
+                "z": 6.3,
+                "y": 0,
+                "face": 0.0
               }
             ]
           },
@@ -12010,6 +12316,15 @@
                 "x": 10,
                 "z": -2.5,
                 "y": 0.48,
+                "face": 3.141592653589793
+              },
+              {
+                "id": "stall-north-3-order",
+                "station": "stall-north-3",
+                "pose": "Interact",
+                "x": 10,
+                "z": 0.7,
+                "y": 0,
                 "face": 3.141592653589793
               }
             ]
@@ -12334,6 +12649,15 @@
             "face": 3.141592653589793
           },
           {
+            "id": "stall-north-0-order",
+            "station": "stall-north-0",
+            "pose": "Interact",
+            "x": -17,
+            "z": 0.7,
+            "y": 0,
+            "face": 3.141592653589793
+          },
+          {
             "id": "stall-south-1-service",
             "station": "stall-south-1",
             "pose": "Type",
@@ -12343,12 +12667,30 @@
             "face": 3.141592653589793
           },
           {
+            "id": "stall-south-1-order",
+            "station": "stall-south-1",
+            "pose": "Interact",
+            "x": -8,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
+          },
+          {
             "id": "stall-north-1-service",
             "station": "stall-north-1",
             "pose": "Type",
             "x": -8,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-1-order",
+            "station": "stall-north-1",
+            "pose": "Interact",
+            "x": -8,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           },
           {
@@ -12361,12 +12703,30 @@
             "face": 3.141592653589793
           },
           {
+            "id": "stall-south-2-order",
+            "station": "stall-south-2",
+            "pose": "Interact",
+            "x": 1,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
+          },
+          {
             "id": "stall-north-2-service",
             "station": "stall-north-2",
             "pose": "Type",
             "x": 1,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-2-order",
+            "station": "stall-north-2",
+            "pose": "Interact",
+            "x": 1,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           },
           {
@@ -12379,12 +12739,30 @@
             "face": 3.141592653589793
           },
           {
+            "id": "stall-south-3-order",
+            "station": "stall-south-3",
+            "pose": "Interact",
+            "x": 10,
+            "z": 6.3,
+            "y": 0,
+            "face": 0.0
+          },
+          {
             "id": "stall-north-3-service",
             "station": "stall-north-3",
             "pose": "Type",
             "x": 10,
             "z": -2.5,
             "y": 0.48,
+            "face": 3.141592653589793
+          },
+          {
+            "id": "stall-north-3-order",
+            "station": "stall-north-3",
+            "pose": "Interact",
+            "x": 10,
+            "z": 0.7,
+            "y": 0,
             "face": 3.141592653589793
           },
           {
@@ -12495,7 +12873,7 @@
           },
           {
             "id": "stall-south-1-cook",
-            "name": "Noodle chef",
+            "name": "Grocer",
             "x": -8,
             "z": 7.3,
             "face": 0

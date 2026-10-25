@@ -539,7 +539,9 @@ final class Navigation {
       w = g.world(ses);
     g.decay(s, w);
     ObjectNode p = position(s);
-    idle(s);
+    GameService.require(!g.transit.active(s), 409, "This departure is booked. You will arrive at the destination hub.");
+    GameService.require(s.path("pendingBeat").isNull(), 409, "Finish this moment first");
+    if (!s.path("busyUntil").isNull()) g.stopAction(s);
     s.putNull("activitySlot");
     boolean enter = body.path("enter").asBoolean();
     if (enter) {
@@ -703,11 +705,15 @@ final class Navigation {
       w = g.world(ses);
     g.decay(s, w);
     ObjectNode p = position(s);
-    GameService.require(
-      s.path("busyUntil").isNull() && s.path("pendingBeat").isNull(),
-      409,
-      "Finish this moment before walking"
-    );
+    GameService.require(s.path("pendingBeat").isNull(), 409, "Finish this moment before walking");
+    if (!s.path("busyUntil").isNull()) {
+      long at = g.now();
+      g.community.online.put(s.path("worldId").asText() + ":" + s.path("userId").asText(), at);
+      ObjectNode out = g.object();
+      out.set("position", p.deepCopy());
+      out.put("now", at);
+      return out;
+    }
     GameService.require(b.path("city").asText().equals(s.path("city").asText()), 409, "You are in a different city");
     double x = b.path("x").asDouble(Double.NaN),
       z = b.path("z").asDouble(Double.NaN),
