@@ -8,7 +8,6 @@ import { WorldText } from "./world-text";
 import { useStore } from "../store";
 import { useInteractions } from "../interactions";
 import { motion } from "../walking";
-import { serverNow } from "../server-time";
 
 function topicIcon(
   c: CanvasRenderingContext2D,
@@ -251,10 +250,17 @@ function offsetsFor(width: number) {
 }
 const byPriority = (a: Candidate, b: Candidate) =>
   a.priority - b.priority || a.distance - b.distance;
-/** The player's own plate gives way to the activity badge while busy. */
-function selfBusy() {
-  const sim = useStore.getState().sim;
-  return !!sim?.busyUntil && sim.busyUntil > serverNow();
+/** Plates clear the head (and the player's chevron): lower for people sitting or lying down. */
+function plateHeight(entry: LabelEntry) {
+  const label = entry.label.toLowerCase(),
+    base = /sleep|lying|\bnap/.test(label)
+      ? 1.15
+      : /sitting|seated|eating|typing|working at|reading|chatting at/.test(
+            label,
+          )
+        ? 1.8
+        : 2.3;
+  return base + (entry.speaking ? 0.2 : 0);
 }
 
 /** One screen-space budget serves staff and street NPCs, with real players taking priority. */
@@ -271,14 +277,14 @@ function layoutLabels(state: RootState) {
     width = size.width < 500 ? 146 : 174,
     halfWidth = width / 2,
     top = 64,
-    bottom = size.height - (size.width < 600 ? 150 : 105),
-    hideSelf = selfBusy();
+    bottom = size.height - (size.width < 600 ? 150 : 105);
   candidates.length = 0;
   for (const entry of labels) {
     if (!entry.root) continue;
     entry.root.visible = false;
     if (!entry.name.trim() || !entry.visible()) continue;
-    if (entry.kind === "self" && hideSelf) continue;
+    // The player has their own marker; their plate would only cover them.
+    if (entry.kind === "self") continue;
     const at = entry.readPosition();
     if (!at) continue;
     let candidate = candidatePool[candidates.length];
@@ -293,18 +299,14 @@ function layoutLabels(state: RootState) {
       };
       candidatePool.push(candidate);
     }
-    candidate.anchor.set(
-      at.x,
-      (at.y ?? 0) + (entry.speaking ? 2.42 : 2.17),
-      at.z,
-    );
+    candidate.anchor.set(at.x, (at.y ?? 0) + plateHeight(entry), at.z);
     candidate.projected.copy(candidate.anchor).project(camera);
     const projected = candidate.projected,
       distance = position
         ? Math.hypot(at.x - position.x, at.z - position.z)
         : Infinity,
       focused = entry.id === hoveredLabel || entry.id === selected,
-      real = entry.kind === "self" || entry.kind === "player";
+      real = entry.kind === "player";
     if (
       projected.z < -1 ||
       projected.z > 1 ||
@@ -316,8 +318,7 @@ function layoutLabels(state: RootState) {
     candidate.entry = entry;
     candidate.distance = distance;
     candidate.focused = focused;
-    candidate.priority =
-      entry.kind === "self" ? 0 : entry.kind === "player" ? 1 : focused ? 2 : 3;
+    candidate.priority = entry.kind === "player" ? 1 : focused ? 2 : 3;
     candidates.push(candidate);
   }
   candidates.sort(byPriority);

@@ -398,14 +398,15 @@ function emit(
   const slow = reduced ? 0.35 : 1;
   switch (effect) {
     case "steam": {
-      const px = localX(0.02, 0.44),
-        pz = localZ(0.02, 0.44);
+      // Pot centre in the cook's frame (characters' COOK_POT: 0.02, 0.94, 0.84); steam leaves its rim.
+      const px = localX(0.02, 0.84),
+        pz = localZ(0.02, 0.84);
       for (let i = 0; i < 7; i++) {
         const f = (t * 0.42 * slow + i / 7) % 1,
           drift = Math.sin(a.seed + i * 1.7 + f * 3) * 0.1;
         batch.push(
           px + drift,
-          a.y + 1.08 + f * 0.95,
+          a.y + 1.02 + f * 0.95,
           pz + Math.cos(a.seed + i * 2.3 + f * 2) * 0.08,
           0.16 + f * 0.36,
           0,
@@ -643,7 +644,7 @@ export function WorldActivity() {
           u.uIcon.value = BADGE_ICON[effect ?? "sparkle"];
           // Constant on-screen size (about 46 px on a phone, 56 px on a laptop).
           const camera = state.camera as THREE.PerspectiveCamera,
-            lift = effect === "sleep" ? 1.75 : 2.35;
+            lift = effect === "sleep" ? 1.9 : 2.6;
           badgeMesh.current.position.set(world.x, world.y + lift, world.z);
           const distance = camera.position.distanceTo(
               badgeMesh.current.position,
