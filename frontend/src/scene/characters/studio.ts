@@ -127,11 +127,11 @@ class CharacterStudio {
     renderer.setClearColor(view.background, 1);
     // Full body, a little room above the head.
     const aspect = w / h,
-      fit = Math.max(1.05, 1.0 / aspect);
+      distance = Math.max(3.75, 1.75 / aspect);
     this.camera.fov = 30;
     this.camera.aspect = aspect;
-    this.camera.position.set(0, 1.05, 3.6 * fit);
-    this.camera.lookAt(0, 0.92, 0);
+    this.camera.position.set(0, 1.0, distance);
+    this.camera.lookAt(0, 0.9, 0);
     this.camera.updateProjectionMatrix();
     renderer.render(this.scene, this.camera);
     this.scene.remove(actor.root);
