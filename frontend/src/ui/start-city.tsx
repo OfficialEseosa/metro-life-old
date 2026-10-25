@@ -1,9 +1,125 @@
-import type { City, CityId, Look } from '../api/types'
-import { CharacterPreview } from './character-preview'
-import { ErrorMessage, Icon, ReasonButton } from './primitives'
-import { money } from './helpers'
-import './start-city.css'
+import type { City, CityId, Look } from "../api/types";
+import { CharacterPreview } from "./character-preview";
+import { ErrorMessage, Icon, ReasonButton } from "./primitives";
+import { money } from "./helpers";
+import "./start-city.css";
 
-export function StartCity({cities,selected,look,name,choose,back,begin,working,error}:{cities:City[];selected:CityId;look:Look;name:string;choose:(city:CityId)=>void;back:()=>void;begin:()=>void;working:boolean;error:string}){
- return <div className="life-start"><section className="start-city-card plate" role="dialog" aria-modal="true" aria-label="Choose your home city"><div className="start-city-heading"><div className="start-city-person"><CharacterPreview look={look}/></div><div><span className="eyebrow">A PLACE TO BEGIN</span><h1>Where will {name} call home?</h1><p>One studio and a new neighbourhood. Rent and wages change with the city you choose.</p></div></div><div className="start-city-options">{cities.map(city=>{const start=city.startingLife,neighborhood=city.neighborhoods.find(n=>n.id===start?.neighborhood)??city.neighborhoods[0],rent=start?.rent??neighborhood.rent,pay=start?.payPerShift??70;return <button type="button" key={city.id} aria-pressed={selected===city.id} className="start-city-option" onClick={()=>choose(city.id)}><span className={`start-city-silhouette ${city.id}`} aria-hidden="true"><i/><i/><i/><i/><i/></span><span className="start-city-title"><strong>{city.name}</strong>{selected===city.id&&<Icon name="check"/>}</span><span>{neighborhood.name} studio</span><dl><div><dt>Daily rent</dt><dd>{money(rent)}</dd></div><div><dt>Entry shift pay</dt><dd>{money(pay)}</dd></div><div><dt>After rent, per shift</dt><dd>{money(pay-rent)}</dd></div></dl><small>{city.tagline}</small></button>})}</div><p className="small-copy">These are the prices and wages in your game. You begin with $150. Visiting another city keeps this home; moving later is a separate paid choice.</p><ErrorMessage text={error}/><footer><ReasonButton className="secondary" reason={working?'Packing your suitcase…':''} onClick={back}>Back to my character</ReasonButton><ReasonButton className="primary" reason={working?'Packing your suitcase…':''} onClick={begin}>Begin in {cities.find(c=>c.id===selected)?.short}<Icon name="arrow-up-right"/></ReasonButton></footer></section></div>
+export function StartCity({
+  cities,
+  selected,
+  look,
+  name,
+  choose,
+  back,
+  begin,
+  working,
+  error,
+}: {
+  cities: City[];
+  selected: CityId;
+  look: Look;
+  name: string;
+  choose: (city: CityId) => void;
+  back: () => void;
+  begin: () => void;
+  working: boolean;
+  error: string;
+}) {
+  return (
+    <div className="life-start">
+      <section
+        className="start-city-card plate"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Choose your home city"
+      >
+        <div className="start-city-heading">
+          <div className="start-city-person">
+            <CharacterPreview look={look} />
+          </div>
+          <div>
+            <span className="eyebrow">A place to begin</span>
+            <h1>Where will {name} call home?</h1>
+            <p>
+              One studio and a new neighbourhood. Rent and wages change with the
+              city you choose.
+            </p>
+          </div>
+        </div>
+        <div className="start-city-options">
+          {cities.map((city) => {
+            const start = city.startingLife,
+              neighborhood =
+                city.neighborhoods.find((n) => n.id === start?.neighborhood) ??
+                city.neighborhoods[0],
+              rent = start?.rent ?? neighborhood.rent,
+              pay = start?.payPerShift ?? 70;
+            return (
+              <button
+                type="button"
+                key={city.id}
+                aria-pressed={selected === city.id}
+                className="start-city-option"
+                onClick={() => choose(city.id)}
+              >
+                <span
+                  className={`start-city-silhouette ${city.id}`}
+                  aria-hidden="true"
+                >
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </span>
+                <span className="start-city-title">
+                  <strong>{city.name}</strong>
+                  {selected === city.id && <Icon name="check" />}
+                </span>
+                <span>{neighborhood.name} studio</span>
+                <dl>
+                  <div>
+                    <dt>Daily rent</dt>
+                    <dd>{money(rent)}</dd>
+                  </div>
+                  <div>
+                    <dt>Entry shift pay</dt>
+                    <dd>{money(pay)}</dd>
+                  </div>
+                  <div>
+                    <dt>Left after rent</dt>
+                    <dd>{money(pay - rent)}</dd>
+                  </div>
+                </dl>
+                <small>{city.tagline}</small>
+              </button>
+            );
+          })}
+        </div>
+        <p className="small-copy">
+          These are the prices and wages in your game. You begin with $150.
+          Visiting another city keeps this home; moving later is a separate paid
+          choice.
+        </p>
+        <ErrorMessage text={error} />
+        <footer>
+          <ReasonButton
+            className="secondary"
+            reason={working ? "Packing your suitcase…" : ""}
+            onClick={back}
+          >
+            Back to my character
+          </ReasonButton>
+          <ReasonButton
+            className="primary"
+            reason={working ? "Packing your suitcase…" : ""}
+            onClick={begin}
+          >
+            Begin in {cities.find((c) => c.id === selected)?.short}
+            <Icon name="arrow-right" />
+          </ReasonButton>
+        </footer>
+      </section>
+    </div>
+  );
 }
