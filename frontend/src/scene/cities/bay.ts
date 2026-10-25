@@ -1,4 +1,4 @@
-import transit from '../../../../shared/transit.json'
+import transit from '../../shared-data/transit.json'
 import type { Site } from './atl'
 export const baySites:Record<string,Site>={
  bayBus:transit.cities.bay.bus.site,

@@ -1,4 +1,4 @@
-import metrics from '../../../shared/model-metrics.json'
+import metrics from '../shared-data/model-metrics.json'
 import type { Placement } from './fabric'
 
 export const METRES={person:1.78,door:2.1,storey:3,counter:.9,desk:.75,seat:.45,bed:[2,1.5],lane:3.2,sidewalk:2,curb:.15,lamp:5.5,tree:8} as const

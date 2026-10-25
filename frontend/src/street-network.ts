@@ -1,4 +1,4 @@
-import network from '../../shared/streets.json'
+import network from './shared-data/streets.json'
 import type { CityId } from './api/types'
 export type StreetGraph={nodes:number[][];links:number[][];edges:number[][];plazas:number[];access:Record<string,{node:number;points:number[][]}>;width:number}
 export const streets=network.cities as Record<CityId,StreetGraph>

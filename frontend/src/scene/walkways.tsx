@@ -1,6 +1,6 @@
 import { useEffect,useMemo } from 'react'
 import * as THREE from 'three'
-import routes from '../../../shared/resident-routes.json'
+import routes from '../shared-data/resident-routes.json'
 import { navigation } from '../navigation'
 import type { CityId } from '../api/types'
 import { Builder } from './geometry'

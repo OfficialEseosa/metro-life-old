@@ -1,6 +1,6 @@
-import residentRoutes from '../../shared/resident-routes.json'
-import rooms from '../../shared/interiors.json'
-import data from '../../shared/navigation.json'
+import residentRoutes from './shared-data/resident-routes.json'
+import rooms from './shared-data/interiors.json'
+import data from './shared-data/navigation.json'
 import type { CityId, Sim, World } from './api/types'
 import { venueName } from './content-names'
 export type Position={x:number;z:number;face:number;place:string;room:string|null}

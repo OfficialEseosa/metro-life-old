@@ -5,7 +5,7 @@ import * as THREE from 'three'
 import type { CityId } from '../api/types'
 import { doorsFor, inBox, inPolygon, navigation, roomLayout, roomType, type RoomLayout } from '../navigation'
 import { useStore } from '../store'
-import survey from '../../../shared/resident-routes.json'
+import survey from '../shared-data/resident-routes.json'
 import { groundHeight } from './ground'
 
 export type PickTarget={kind:'ground'|'furniture'|'person'|'door'|'bench';city:CityId;room:string|null;id:string;stationId?:string;point:{x:number;z:number};screen:{x:number;y:number}}

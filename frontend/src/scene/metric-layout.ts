@@ -1,6 +1,6 @@
 import type { CityId } from '../api/types'
 import type { Placement } from './fabric'
-import nav from '../../../shared/navigation.json'
+import nav from '../shared-data/navigation.json'
 import { metricPlacement, METRES } from './world-scale'
 import { outsidePlots,outsideBoards } from './economy-sites'
 import { homeSitesFor } from './cities'

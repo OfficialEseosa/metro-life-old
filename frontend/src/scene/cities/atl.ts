@@ -1,4 +1,4 @@
-import transit from '../../../../shared/transit.json'
+import transit from '../../shared-data/transit.json'
 export type Site = { x: number; z: number; size: number; height: number; angle?: number }
 export const atlSites: Record<string, Site> = {
   benz: { x: -32, z: 34, size: 28, height: 7.1 },

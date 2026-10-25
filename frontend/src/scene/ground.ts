@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import type { CityId } from '../api/types'
 import { navigation, inBox } from '../navigation'
-import survey from '../../../shared/resident-routes.json'
+import survey from '../shared-data/resident-routes.json'
 import { terrainHeight } from './terrain-height'
 
 /** Picking is disabled on scenery; sample its real terrain geometry directly for feet. */
