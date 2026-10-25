@@ -6,27 +6,498 @@ import java.util.*;
 
 /** Short, shared moments on the authoritative world clock, persisted with browser lives. */
 final class SocialLife {
- final GameService g;
- SocialLife(GameService g){this.g=g;}
- void pace(ObjectNode w){if(w.has("minuteMs"))return;long base=g.absoluteMinutes(w)-w.path("transitMinutes").asLong();w.put("clockAnchorMinutes",base).put("clockAnchorAt",g.now()).put("minuteMs",420000.0/1440);}
- ObjectNode state(ObjectNode w,String city){ObjectNode events=w.withObject("socialLife").withObject("events");ObjectNode event=(ObjectNode)events.get(city);if(event!=null&&g.now()>=event.path("endsAt").asLong()&&!event.path("finished").asBoolean()){event.put("finished",true).put("success",event.path("progress").asInt()>=event.path("target").asInt()).put("result",event.path("progress").asInt()>=event.path("target").asInt()?"City goal complete!":"Thanks for being part of it!");for(JsonNode actor:g.table("sims"))if(actor.path("worldId").equals(w.path("id")))claim((ObjectNode)actor,event);}if(event==null||g.now()>event.path("endsAt").asLong()+45000){long start=event==null?g.now()+45000:Math.max(g.now()+15000,event.path("startsAt").asLong()+360000);String loc=city.equals("atl")?"ponce":city.equals("nyc")?"timesSquare":"dolores";event=events.putObject(city).put("id",g.id()).put("city",city).put("loc",loc).put("name",city.equals("atl")?"Ponce rooftop concert":city.equals("nyc")?"Lantern block party":"Mission sunset social").put("startsAt",start).put("endsAt",start+90000).put("progress",0).put("target",3).put("finished",false);event.putObject("contributors");event.putObject("claims");}if(active(event)&&event.path("progress").asInt()>0&&g.now()-event.path("npcAt").asLong()>=12000){event.put("npcAt",g.now()).put("progress",Math.min(event.path("target").asInt(),event.path("progress").asInt()+1));}return event;}
- boolean active(JsonNode event){return !event.path("finished").asBoolean()&&g.now()>=event.path("startsAt").asLong()&&g.now()<event.path("endsAt").asLong();}
- ObjectNode actor(String token){ObjectNode ses=g.session(token,true),s=g.sim(ses);g.decay(s,g.world(ses));return s;}
- ObjectNode world(ObjectNode s){return (ObjectNode)g.table("worlds").get(s.path("worldId").asText());}
- String code(ObjectNode s){if(!s.has("_inviteCode"))s.put("_inviteCode",g.id().replace("-","").substring(0,12));return s.path("_inviteCode").asText();}
- ObjectNode read(String token,String city){g.content.city(city);ObjectNode ses=g.session(token,true),w=g.world(ses);ObjectNode s=(ObjectNode)g.table("sims").get(g.simKey(ses));ObjectNode out=g.object();ObjectNode event=state(w,city);if(s!=null)claim(s,event);ObjectNode copy=event.deepCopy();copy.remove(List.of("contributors","claims","npcAt"));copy.put("active",active(event)).put("joined",s!=null&&event.path("contributors").has(s.path("userId").asText())).put("rewardClaimed",s!=null&&event.path("claims").has(s.path("userId").asText()));out.set("event",copy);ArrayNode homes=out.putArray("openHouses");for(JsonNode row:g.table("sims"))if(row.path("worldId").asText().equals(w.path("id").asText())&&row.path("home").path("city").asText().equals(city)&&row.path("openHouse").asBoolean()){homes.addObject().put("ownerId",row.path("userId").asText()).put("username",row.path("username").asText()).put("city",city).put("neighborhood",row.path("home").path("neighborhood").asText()).put("likes",row.path("homeLikes").asInt()).put("here",s!=null&&s.path("position").path("room").asText().equals("home:"+row.path("userId").asText()));}out.put("inviteCode",s==null?"":code(s));out.set("clock",g.clock(w));g.store.save();return out;}
-void contribute(ObjectNode s){ObjectNode e=state(world(s),s.path("city").asText());if(!active(e)||!s.path("loc").asText().equals(e.path("loc").asText()))return;int present=0;for(JsonNode row:g.table("sims"))if(row.path("worldId").equals(s.path("worldId"))&&row.path("city").equals(s.path("city"))&&row.path("loc").equals(e.path("loc"))&&(row.path("userId").equals(s.path("userId"))||g.community.isOnline(s.path("worldId").asText(),row.path("userId").asText())))present++;e.put("target",Math.max(3,Math.min(5,present)*3));String uid=s.path("userId").asText();long last=e.path("contributors").path(uid).asLong();if(g.now()-last<4000)return;e.withObject("contributors").put(uid,g.now());e.put("progress",Math.min(e.path("target").asInt(),e.path("progress").asInt()+1));claim(s,e);}
- void claim(ObjectNode s,ObjectNode e){String uid=s.path("userId").asText();boolean success=e.path("progress").asInt()>=e.path("target").asInt();if((!success&&!e.path("finished").asBoolean())||!e.path("contributors").has(uid)||e.path("claims").has(uid))return;e.withObject("claims").put(uid,true);int reward=success?25:10;g.economy.credit(s,reward,success?"Shared city event reward":"City event participation reward");s.withObject("outfits").put("party",true);g.community.gesture(s,"Celebrate","music",(success?"City goal complete!":"Thanks for joining!")+" +$"+reward+" and party outfit");}
- ObjectNode emote(String token,JsonNode body){ObjectNode s=actor(token);g.navigation.idle(s);String kind=body.path("kind").asText();GameService.require(Set.of("dance","wave","cheer","laugh","clap","point","sit","honk").contains(kind),400,"Choose an emote");GameService.require(g.now()-s.path("_lastEmote").asLong()>=900,429,"Let that moment play");String pose=switch(kind){case "dance"->"Dance";case "wave"->"Wave";case "sit"->"Sit";case "laugh","honk"->"Talk";case "point"->"Photo";default->"Cheer";};s.put("_lastEmote",g.now());s.putObject("lifeAction").put("pose",pose).put("topic",kind.equals("dance")?"music":kind.equals("honk")?"honk":"friendship").put("text",Content.title(kind)).put("startedAt",g.now()/2000*2000).put("until",g.now()+8000);s.withObject("needs").put("fun",Math.min(100,s.path("needs").path("fun").asDouble()+3));int dancers=1;for(JsonNode row:g.navigation.people(s.path("worldId").asText()))if(row instanceof ObjectNode other&&!other.path("userId").equals(s.path("userId"))&&g.community.near(s,other)){if(kind.equals("dance")&&other.path("lifeAction").path("pose").asText().equals("Dance")&&other.path("lifeAction").path("until").asLong()>g.now()){dancers++;s.withObject("needs").put("social",Math.min(100,s.path("needs").path("social").asDouble()+4));g.relationships.chat(s,other);}else if(other.path("npc").asBoolean()&&!g.community.socialBusy(other)&&kind.equals("wave")){g.community.gesture(other,"Wave","friendship","Hello there!");other.put("_socialHoldUntil",g.now()+4000);}}if(dancers>1)s.withObject("lifeAction").put("text","Dance party ×"+dancers);contribute(s);g.store.save();return g.simResponse(s,world(s));}
- ObjectNode joinEvent(String token){ObjectNode s=actor(token),e=state(world(s),s.path("city").asText());GameService.require(active(e),409,"The event has not started yet");GameService.require(s.path("loc").asText().equals(e.path("loc").asText()),409,"Meet us at "+g.content.landmark(s.path("city").asText(),e.path("loc").asText()).path("name").asText());contribute(s);claim(s,e);g.store.save();return g.simResponse(s,world(s));}
- ObjectNode invite(String token){ObjectNode s=actor(token);String code=code(s);g.store.save();return g.object().put("code",code).put("url","?invite="+code);}
- ObjectNode invited(String code){for(JsonNode row:g.table("sims"))if(row.path("_inviteCode").asText().equals(code)&&!code.isBlank())return (ObjectNode)row;throw new ApiException(404,"That invitation is no longer available");}
- ObjectNode joinInvite(String token,JsonNode body){ObjectNode s=actor(token),friend=invited(body.path("code").asText());g.navigation.idle(s);GameService.require(!g.transit.active(friend),409,"Your friend is travelling; join after they arrive");String city=friend.path("city").asText(),room=friend.path("position").path("room").asText();if(room.startsWith("home:")&&!friend.path("openHouse").asBoolean())room="";s.put("city",city).put("loc",friend.path("loc").asText());s.remove(List.of("position","_outside","_visitingHome"));if(!room.isEmpty()&&room.startsWith("home:")){s.put("_visitingHome",room.substring(5));ObjectNode host=g.homeDesign.owner(room);if(host!=null){JsonNode door=g.navigation.city(city).path("homes").path(host.path("home").path("neighborhood").asText());s.set("_outside",g.navigation.arrival(s,"home","",door.path("x").asDouble(),door.path("z").asDouble(),0));}}JsonNode p=friend.path("position");if(room.isEmpty()&&friend.path("position").path("room").isTextual()){JsonNode door=g.navigation.door(friend,friend.path("loc").asText());s.set("position",g.navigation.arrival(s,friend.path("loc").asText(),"",door.path("x").asDouble(),door.path("z").asDouble(),0));}else s.set("position",g.navigation.arrival(s,friend.path("loc").asText(),room,p.path("x").asDouble(),p.path("z").asDouble(),p.path("face").asDouble()));s.putNull("activitySlot");s.put("introDone",true);g.store.save();return g.simResponse(s,world(s));}
- ObjectNode quickStart(String token,JsonNode body){ObjectNode ses=g.session(token,true),w=g.world(ses);pace(w);ObjectNode s=(ObjectNode)g.table("sims").get(g.simKey(ses));if(s==null){String city=body.path("invite").asText().isBlank()?body.path("city").asText("atl"):invited(body.path("invite").asText()).path("city").asText();JsonNode definition=g.content.city(city);ObjectNode setup=g.object().put("username",g.user(ses).path("username").asText()).put("pronouns","they").put("city",city).put("neighborhood",definition.path("startingLife").path("neighborhood").asText()).put("aspiration","founder");int seed=Math.floorMod(g.user(ses).path("id").asText().hashCode(),6);setup.putObject("look").put("body",seed%2==0?"f":"m").put("skin",new String[]{"#f2d3b5","#d49a72","#b47752","#996340","#7d4d34","#603c2d"}[seed]).put("hair",new String[]{"bob","curly","afro","bun","braids","short"}[seed]).put("hairColor","#493326").put("top",new String[]{"#326957","#bc6b45","#4d6587","#976b8c","#d4b162","#785443"}[seed]).put("bottom","#313c4b").put("style","casual");if(body.path("look").isObject())setup.set("look",body.path("look").deepCopy());if(!body.path("username").asText().isBlank())setup.put("username",body.path("username").asText());g.setup(token,setup);s=g.sim(ses);s.put("introDone",true);g.firstDay.mark(s,"outside");String loc=city.equals("atl")?"ponce":city.equals("nyc")?"timesSquare":"dolores";s.put("loc",loc);s.remove("position");g.navigation.position(s);g.recordArrival(s);}if(!body.path("invite").asText().isBlank())joinInvite(token,g.object().put("code",body.path("invite").asText()));g.store.save();ObjectNode out=g.simResponse(s,w);out.set("user",g.publicUser(g.user(ses)));return out;}
- ObjectNode house(String token,JsonNode body){ObjectNode s=actor(token);s.put("openHouse",body.path("open").asBoolean());if(!s.path("openHouse").asBoolean())for(JsonNode row:g.table("sims"))if(row instanceof ObjectNode visitor&&visitor.path("_visitingHome").asText().equals(s.path("userId").asText()))leaveHouse(visitor);g.store.save();return g.simResponse(s,world(s));}
- void leaveHouse(ObjectNode s){ObjectNode owner=g.homeDesign.owner(s.path("position").path("room").asText());s.remove(List.of("_visitingHome","position","_outside"));s.putNull("activitySlot");if(owner!=null){JsonNode d=g.navigation.city(s.path("city").asText()).path("homes").path(owner.path("home").path("neighborhood").asText());s.set("position",g.navigation.arrival(s,"home","",d.path("x").asDouble(),d.path("z").asDouble(),0));}else g.navigation.position(s);}
- ObjectNode visit(String token,JsonNode body){ObjectNode s=actor(token);g.navigation.idle(s);ObjectNode owner=g.community.target(world(s),body.path("ownerId").asText());GameService.require(owner!=null&&owner.path("openHouse").asBoolean(),409,"This home is not open to visitors");GameService.require(s.path("city").asText().equals(owner.path("home").path("city").asText()),409,"Travel to this city's open house first");String uid=owner.path("userId").asText();s.put("loc","home").put("_visitingHome",uid);JsonNode layout=g.homeDesign.layout(owner,g.homeDesign.ensure(owner)),exit=layout.path("exit");s.set("position",g.navigation.arrival(s,"home","home:"+uid,exit.path("x").asDouble(),exit.path("z").asDouble(),Math.PI));JsonNode d=g.navigation.city(s.path("city").asText()).path("homes").path(owner.path("home").path("neighborhood").asText());s.set("_outside",g.navigation.arrival(s,"home","",d.path("x").asDouble(),d.path("z").asDouble(),0));s.putNull("activitySlot");g.community.gesture(owner,"Wave","friendship",s.path("username").asText()+" is visiting!");g.store.save();return g.simResponse(s,world(s));}
- ObjectNode like(String token,JsonNode body){ObjectNode s=actor(token);String uid=body.path("ownerId").asText();ObjectNode owner=g.community.target(world(s),uid);GameService.require(owner!=null&&!uid.equals(s.path("userId").asText())&&owner.path("openHouse").asBoolean(),409,"Visit someone else's open home");GameService.require(s.path("position").path("room").asText().equals("home:"+uid),409,"Step inside before leaving a like");GameService.require(!s.path("_houseLikesGiven").has(uid),409,"You already liked this home");s.withObject("_houseLikesGiven").put(uid,true);owner.put("homeLikes",owner.path("homeLikes").asInt()+1);g.relationships.social(s,owner,"wave");g.community.gesture(owner,"Celebrate","friendship",s.path("username").asText()+" liked your home");g.store.save();return g.simResponse(s,world(s));}
- boolean sharedHome(JsonNode a,JsonNode b){String room=a.path("position").path("room").asText();ObjectNode owner=g.homeDesign.owner(room);return room.startsWith("home:")&&room.equals(b.path("position").path("room").asText())&&owner!=null&&owner.path("openHouse").asBoolean();}
- ObjectNode timing(String token){ObjectNode s=actor(token);JsonNode gameNode=s.path("workGame");GameService.require(gameNode.isObject()&&gameNode.has("id"),409,"Start a work shift to play");ObjectNode game=(ObjectNode)gameNode;GameService.require(game.has("id")&&s.has("_pendingAction")&&g.now()<game.path("endsAt").asLong(),409,"Start a work shift to play");GameService.require(game.path("taps").asInt()<3&&g.now()-game.path("lastTap").asLong()>400,409,"Three well-timed taps per shift");double fraction=((g.now()-game.path("startsAt").asLong())%1600)/1600.0,phase=fraction<.5?fraction*2:2-fraction*2,score=Math.max(0,1-Math.abs(phase-.5)/.43),best=Math.max(score,game.path("best").asDouble());int base=game.path("basePay").asInt(),old=game.path("bonus").asInt(),bonus=(int)Math.round(base*.25*best);game.put("taps",game.path("taps").asInt()+1).put("best",best).put("lastTap",g.now()).put("bonus",bonus);ObjectNode pending=s.withObject("_pendingAction");pending.withObject("deltas").put("cash",pending.path("deltas").path("cash").asDouble()+bonus-old);pending.withObject("activity").put("pay",base+bonus);g.store.save();return g.simResponse(s,world(s));}
+
+  final GameService g;
+
+  SocialLife(GameService g) {
+    this.g = g;
+  }
+
+  void pace(ObjectNode w) {
+    if (w.has("minuteMs")) return;
+    long base = g.absoluteMinutes(w) - w.path("transitMinutes").asLong();
+    w.put("clockAnchorMinutes", base)
+      .put("clockAnchorAt", g.now())
+      .put("minuteMs", 420000.0 / 1440);
+  }
+
+  ObjectNode state(ObjectNode w, String city) {
+    ObjectNode events = w.withObject("socialLife").withObject("events");
+    ObjectNode event = (ObjectNode) events.get(city);
+    if (event != null && g.now() >= event.path("endsAt").asLong() && !event.path("finished").asBoolean()) {
+      event
+        .put("finished", true)
+        .put("success", event.path("progress").asInt() >= event.path("target").asInt())
+        .put(
+          "result",
+          event.path("progress").asInt() >= event.path("target").asInt()
+            ? "City goal complete!"
+            : "Thanks for being part of it!"
+        );
+      for (JsonNode actor : g.table("sims"))
+        if (actor.path("worldId").equals(w.path("id"))) claim((ObjectNode) actor, event);
+    }
+    if (event == null || g.now() > event.path("endsAt").asLong() + 45000) {
+      long start =
+        event == null ? g.now() + 45000 : Math.max(g.now() + 15000, event.path("startsAt").asLong() + 540000);
+      String loc = city.equals("atl") ? "ponce" : city.equals("nyc") ? "timesSquare" : "dolores";
+      event = events
+        .putObject(city)
+        .put("id", g.id())
+        .put("city", city)
+        .put("loc", loc)
+        .put(
+          "name",
+          city.equals("atl")
+            ? "Ponce rooftop concert"
+            : city.equals("nyc")
+              ? "Lantern block party"
+              : "Mission sunset social"
+        )
+        .put("startsAt", start)
+        .put("endsAt", start + 90000)
+        .put("progress", 0)
+        .put("target", 3)
+        .put("finished", false);
+      event.putObject("contributors");
+      event.putObject("claims");
+    }
+    if (active(event) && event.path("progress").asInt() > 0 && g.now() - event.path("npcAt").asLong() >= 12000) {
+      event
+        .put("npcAt", g.now())
+        .put("progress", Math.min(event.path("target").asInt(), event.path("progress").asInt() + 1));
+    }
+    return event;
+  }
+
+  static final long ANNOUNCE_MS = 90000;
+
+  boolean visible(JsonNode event, boolean joined) {
+    if (active(event)) return true;
+    if (event.path("finished").asBoolean()) return joined;
+    return event.path("startsAt").asLong() - g.now() <= ANNOUNCE_MS;
+  }
+
+  boolean active(JsonNode event) {
+    return (
+      !event.path("finished").asBoolean() &&
+      g.now() >= event.path("startsAt").asLong() &&
+      g.now() < event.path("endsAt").asLong()
+    );
+  }
+
+  ObjectNode actor(String token) {
+    ObjectNode ses = g.session(token, true),
+      s = g.sim(ses);
+    g.decay(s, g.world(ses));
+    return s;
+  }
+
+  ObjectNode world(ObjectNode s) {
+    return (ObjectNode) g.table("worlds").get(s.path("worldId").asText());
+  }
+
+  String code(ObjectNode s) {
+    if (!s.has("_inviteCode")) s.put("_inviteCode", g.id().replace("-", "").substring(0, 12));
+    return s.path("_inviteCode").asText();
+  }
+
+  ObjectNode read(String token, String city) {
+    g.content.city(city);
+    ObjectNode ses = g.session(token, true),
+      w = g.world(ses);
+    ObjectNode s = (ObjectNode) g.table("sims").get(g.simKey(ses));
+    ObjectNode out = g.object();
+    ObjectNode event = state(w, city);
+    if (s != null) claim(s, event);
+    ObjectNode copy = event.deepCopy();
+    copy.remove(List.of("contributors", "claims", "npcAt"));
+    boolean joined = s != null && event.path("contributors").has(s.path("userId").asText());
+    copy
+      .put("active", active(event))
+      .put("joined", joined)
+      .put("rewardClaimed", s != null && event.path("claims").has(s.path("userId").asText()));
+    if (event.path("finished").asBoolean()) copy.put(
+      "result",
+      !joined
+        ? "This one has finished. The next moment starts soon."
+        : event.path("success").asBoolean()
+          ? "City goal complete! Thanks for being part of it."
+          : "Thanks for joining in!"
+    );
+    // Only announce what concerns this player: an event starting within ninety seconds, a live one, or
+    // the result of one they joined. Everything else stays off screen.
+    out.set("event", visible(event, joined) ? copy : g.mapper.nullNode());
+    ArrayNode homes = out.putArray("openHouses");
+    for (JsonNode row : g.table("sims"))
+      if (
+        row.path("worldId").asText().equals(w.path("id").asText()) &&
+        row.path("home").path("city").asText().equals(city) &&
+        row.path("openHouse").asBoolean()
+      ) {
+        homes
+          .addObject()
+          .put("ownerId", row.path("userId").asText())
+          .put("username", row.path("username").asText())
+          .put("city", city)
+          .put("neighborhood", row.path("home").path("neighborhood").asText())
+          .put("likes", row.path("homeLikes").asInt())
+          .put(
+            "here",
+            s != null &&
+              s
+                .path("position")
+                .path("room")
+                .asText()
+                .equals("home:" + row.path("userId").asText())
+          );
+      }
+    out.put("inviteCode", s == null ? "" : code(s));
+    out.set("clock", g.clock(w));
+    g.store.save();
+    return out;
+  }
+
+  void contribute(ObjectNode s) {
+    ObjectNode e = state(world(s), s.path("city").asText());
+    if (!active(e) || !s.path("loc").asText().equals(e.path("loc").asText())) return;
+    int present = 0;
+    for (JsonNode row : g.table("sims"))
+      if (
+        row.path("worldId").equals(s.path("worldId")) &&
+        row.path("city").equals(s.path("city")) &&
+        row.path("loc").equals(e.path("loc")) &&
+        (row.path("userId").equals(s.path("userId")) ||
+          g.community.isOnline(s.path("worldId").asText(), row.path("userId").asText()))
+      ) present++;
+    e.put("target", Math.max(3, Math.min(5, present) * 3));
+    String uid = s.path("userId").asText();
+    long last = e.path("contributors").path(uid).asLong();
+    if (g.now() - last < 4000) return;
+    e.withObject("contributors").put(uid, g.now());
+    e.put("progress", Math.min(e.path("target").asInt(), e.path("progress").asInt() + 1));
+    claim(s, e);
+  }
+
+  void claim(ObjectNode s, ObjectNode e) {
+    String uid = s.path("userId").asText();
+    boolean success = e.path("progress").asInt() >= e.path("target").asInt();
+    if (
+      (!success && !e.path("finished").asBoolean()) || !e.path("contributors").has(uid) || e.path("claims").has(uid)
+    ) return;
+    e.withObject("claims").put(uid, true);
+    int reward = success ? 25 : 10;
+    g.economy.credit(s, reward, success ? "Shared city event reward" : "City event participation reward");
+    s.withObject("outfits").put("party", true);
+    g.community.gesture(
+      s,
+      "Celebrate",
+      "music",
+      (success ? "City goal complete!" : "Thanks for joining!") + " +$" + reward + " and party outfit"
+    );
+  }
+
+  ObjectNode emote(String token, JsonNode body) {
+    ObjectNode s = actor(token);
+    g.navigation.idle(s);
+    String kind = body.path("kind").asText();
+    GameService.require(
+      Set.of("dance", "wave", "cheer", "laugh", "clap", "point", "sit", "honk").contains(kind),
+      400,
+      "Choose an emote"
+    );
+    GameService.require(g.now() - s.path("_lastEmote").asLong() >= 900, 429, "Let that moment play");
+    String pose = switch (kind) {
+      case "dance" -> "Dance";
+      case "wave" -> "Wave";
+      case "sit" -> "Sit";
+      case "laugh", "honk" -> "Talk";
+      case "point" -> "Photo";
+      default -> "Cheer";
+    };
+    s.put("_lastEmote", g.now());
+    s.putObject("lifeAction")
+      .put("pose", pose)
+      .put("topic", kind.equals("dance") ? "music" : kind.equals("honk") ? "honk" : "friendship")
+      .put("text", Content.title(kind))
+      .put("startedAt", (g.now() / 2000) * 2000)
+      .put("until", g.now() + 8000);
+    s.withObject("needs").put("fun", Math.min(100, s.path("needs").path("fun").asDouble() + 3));
+    int dancers = 1;
+    for (JsonNode row : g.navigation.people(s.path("worldId").asText()))
+      if (
+        row instanceof ObjectNode other && !other.path("userId").equals(s.path("userId")) && g.community.near(s, other)
+      ) {
+        if (
+          kind.equals("dance") &&
+          other.path("lifeAction").path("pose").asText().equals("Dance") &&
+          other.path("lifeAction").path("until").asLong() > g.now()
+        ) {
+          dancers++;
+          s.withObject("needs").put("social", Math.min(100, s.path("needs").path("social").asDouble() + 4));
+          g.relationships.chat(s, other);
+        } else if (other.path("npc").asBoolean() && !g.community.socialBusy(other) && kind.equals("wave")) {
+          g.community.gesture(other, "Wave", "friendship", "Hello there!");
+          other.put("_socialHoldUntil", g.now() + 4000);
+        }
+      }
+    if (dancers > 1) s.withObject("lifeAction").put("text", "Dance party ×" + dancers);
+    contribute(s);
+    g.store.save();
+    return g.simResponse(s, world(s));
+  }
+
+  ObjectNode joinEvent(String token) {
+    ObjectNode s = actor(token),
+      e = state(world(s), s.path("city").asText());
+    GameService.require(active(e), 409, "The event has not started yet");
+    GameService.require(
+      s.path("loc").asText().equals(e.path("loc").asText()),
+      409,
+      "Meet us at " + g.content.landmark(s.path("city").asText(), e.path("loc").asText()).path("name").asText()
+    );
+    contribute(s);
+    claim(s, e);
+    g.store.save();
+    return g.simResponse(s, world(s));
+  }
+
+  ObjectNode invite(String token) {
+    ObjectNode s = actor(token);
+    String code = code(s);
+    g.store.save();
+    return g
+      .object()
+      .put("code", code)
+      .put("url", "?invite=" + code);
+  }
+
+  ObjectNode invited(String code) {
+    for (JsonNode row : g.table("sims"))
+      if (row.path("_inviteCode").asText().equals(code) && !code.isBlank()) return (ObjectNode) row;
+    throw new ApiException(404, "That invitation is no longer available");
+  }
+
+  ObjectNode joinInvite(String token, JsonNode body) {
+    ObjectNode s = actor(token),
+      friend = invited(body.path("code").asText());
+    g.navigation.idle(s);
+    GameService.require(!g.transit.active(friend), 409, "Your friend is travelling; join after they arrive");
+    String city = friend.path("city").asText(),
+      room = friend.path("position").path("room").asText();
+    if (room.startsWith("home:") && !friend.path("openHouse").asBoolean()) room = "";
+    s.put("city", city).put("loc", friend.path("loc").asText());
+    s.remove(List.of("position", "_outside", "_visitingHome"));
+    if (!room.isEmpty() && room.startsWith("home:")) {
+      s.put("_visitingHome", room.substring(5));
+      ObjectNode host = g.homeDesign.owner(room);
+      if (host != null) {
+        JsonNode door = g.navigation.city(city).path("homes").path(host.path("home").path("neighborhood").asText());
+        s.set("_outside", g.navigation.arrival(s, "home", "", door.path("x").asDouble(), door.path("z").asDouble(), 0));
+      }
+    }
+    JsonNode p = friend.path("position");
+    if (room.isEmpty() && friend.path("position").path("room").isTextual()) {
+      JsonNode door = g.navigation.door(friend, friend.path("loc").asText());
+      s.set(
+        "position",
+        g.navigation.arrival(
+          s,
+          friend.path("loc").asText(),
+          "",
+          door.path("x").asDouble(),
+          door.path("z").asDouble(),
+          0
+        )
+      );
+    } else s.set(
+      "position",
+      g.navigation.arrival(
+        s,
+        friend.path("loc").asText(),
+        room,
+        p.path("x").asDouble(),
+        p.path("z").asDouble(),
+        p.path("face").asDouble()
+      )
+    );
+    s.putNull("activitySlot");
+    s.put("introDone", true);
+    g.store.save();
+    return g.simResponse(s, world(s));
+  }
+
+  ObjectNode quickStart(String token, JsonNode body) {
+    ObjectNode ses = g.session(token, true),
+      w = g.world(ses);
+    pace(w);
+    ObjectNode s = (ObjectNode) g.table("sims").get(g.simKey(ses));
+    if (s == null) {
+      String city = body.path("invite").asText().isBlank()
+        ? body.path("city").asText("atl")
+        : invited(body.path("invite").asText()).path("city").asText();
+      JsonNode definition = g.content.city(city);
+      ObjectNode setup = g
+        .object()
+        .put("username", g.user(ses).path("username").asText())
+        .put("pronouns", "they")
+        .put("city", city)
+        .put("neighborhood", definition.path("startingLife").path("neighborhood").asText())
+        .put("aspiration", "founder");
+      int seed = Math.floorMod(g.user(ses).path("id").asText().hashCode(), 6);
+      setup
+        .putObject("look")
+        .put("body", seed % 2 == 0 ? "f" : "m")
+        .put("skin", new String[] { "#f2d3b5", "#d49a72", "#b47752", "#996340", "#7d4d34", "#603c2d" }[seed])
+        .put("hair", new String[] { "bob", "curly", "afro", "bun", "braids", "short" }[seed])
+        .put("hairColor", "#493326")
+        .put("top", new String[] { "#326957", "#bc6b45", "#4d6587", "#976b8c", "#d4b162", "#785443" }[seed])
+        .put("bottom", "#313c4b")
+        .put("style", "casual");
+      if (body.path("look").isObject()) setup.set("look", body.path("look").deepCopy());
+      if (!body.path("username").asText().isBlank()) setup.put("username", body.path("username").asText());
+      g.setup(token, setup);
+      s = g.sim(ses);
+      s.put("introDone", true);
+      g.firstDay.mark(s, "outside");
+      String loc = city.equals("atl") ? "ponce" : city.equals("nyc") ? "timesSquare" : "dolores";
+      s.put("loc", loc);
+      s.remove("position");
+      g.navigation.position(s);
+      g.recordArrival(s);
+    }
+    if (!body.path("invite").asText().isBlank()) joinInvite(
+      token,
+      g.object().put("code", body.path("invite").asText())
+    );
+    g.store.save();
+    ObjectNode out = g.simResponse(s, w);
+    out.set("user", g.publicUser(g.user(ses)));
+    return out;
+  }
+
+  ObjectNode house(String token, JsonNode body) {
+    ObjectNode s = actor(token);
+    s.put("openHouse", body.path("open").asBoolean());
+    if (!s.path("openHouse").asBoolean()) for (JsonNode row : g.table("sims"))
+      if (
+        row instanceof ObjectNode visitor && visitor.path("_visitingHome").asText().equals(s.path("userId").asText())
+      ) leaveHouse(visitor);
+    g.store.save();
+    return g.simResponse(s, world(s));
+  }
+
+  void leaveHouse(ObjectNode s) {
+    ObjectNode owner = g.homeDesign.owner(s.path("position").path("room").asText());
+    s.remove(List.of("_visitingHome", "position", "_outside"));
+    s.putNull("activitySlot");
+    if (owner != null) {
+      JsonNode d = g.navigation
+        .city(s.path("city").asText())
+        .path("homes")
+        .path(owner.path("home").path("neighborhood").asText());
+      s.set("position", g.navigation.arrival(s, "home", "", d.path("x").asDouble(), d.path("z").asDouble(), 0));
+    } else g.navigation.position(s);
+  }
+
+  ObjectNode visit(String token, JsonNode body) {
+    ObjectNode s = actor(token);
+    g.navigation.idle(s);
+    ObjectNode owner = g.community.target(world(s), body.path("ownerId").asText());
+    GameService.require(owner != null && owner.path("openHouse").asBoolean(), 409, "This home is not open to visitors");
+    GameService.require(
+      s.path("city").asText().equals(owner.path("home").path("city").asText()),
+      409,
+      "Travel to this city's open house first"
+    );
+    String uid = owner.path("userId").asText();
+    s.put("loc", "home").put("_visitingHome", uid);
+    JsonNode layout = g.homeDesign.layout(owner, g.homeDesign.ensure(owner)),
+      exit = layout.path("exit");
+    s.set(
+      "position",
+      g.navigation.arrival(s, "home", "home:" + uid, exit.path("x").asDouble(), exit.path("z").asDouble(), Math.PI)
+    );
+    JsonNode d = g.navigation
+      .city(s.path("city").asText())
+      .path("homes")
+      .path(owner.path("home").path("neighborhood").asText());
+    s.set("_outside", g.navigation.arrival(s, "home", "", d.path("x").asDouble(), d.path("z").asDouble(), 0));
+    s.putNull("activitySlot");
+    g.community.gesture(owner, "Wave", "friendship", s.path("username").asText() + " is visiting!");
+    g.store.save();
+    return g.simResponse(s, world(s));
+  }
+
+  ObjectNode like(String token, JsonNode body) {
+    ObjectNode s = actor(token);
+    String uid = body.path("ownerId").asText();
+    ObjectNode owner = g.community.target(world(s), uid);
+    GameService.require(
+      owner != null && !uid.equals(s.path("userId").asText()) && owner.path("openHouse").asBoolean(),
+      409,
+      "Visit someone else's open home"
+    );
+    GameService.require(
+      s
+        .path("position")
+        .path("room")
+        .asText()
+        .equals("home:" + uid),
+      409,
+      "Step inside before leaving a like"
+    );
+    GameService.require(!s.path("_houseLikesGiven").has(uid), 409, "You already liked this home");
+    s.withObject("_houseLikesGiven").put(uid, true);
+    owner.put("homeLikes", owner.path("homeLikes").asInt() + 1);
+    g.relationships.social(s, owner, "wave");
+    g.community.gesture(owner, "Celebrate", "friendship", s.path("username").asText() + " liked your home");
+    g.store.save();
+    return g.simResponse(s, world(s));
+  }
+
+  boolean sharedHome(JsonNode a, JsonNode b) {
+    String room = a.path("position").path("room").asText();
+    ObjectNode owner = g.homeDesign.owner(room);
+    return (
+      room.startsWith("home:") &&
+      room.equals(b.path("position").path("room").asText()) &&
+      owner != null &&
+      owner.path("openHouse").asBoolean()
+    );
+  }
+
+  ObjectNode timing(String token) {
+    ObjectNode s = actor(token);
+    JsonNode gameNode = s.path("workGame");
+    GameService.require(gameNode.isObject() && gameNode.has("id"), 409, "Start a work shift to play");
+    ObjectNode game = (ObjectNode) gameNode;
+    GameService.require(
+      game.has("id") && s.has("_pendingAction") && g.now() < game.path("endsAt").asLong(),
+      409,
+      "Start a work shift to play"
+    );
+    GameService.require(
+      game.path("taps").asInt() < 3 && g.now() - game.path("lastTap").asLong() > 400,
+      409,
+      "Three well-timed taps per shift"
+    );
+    double fraction = ((g.now() - game.path("startsAt").asLong()) % 1600) / 1600.0,
+      phase = fraction < .5 ? fraction * 2 : 2 - fraction * 2,
+      score = Math.max(0, 1 - Math.abs(phase - .5) / .43),
+      best = Math.max(score, game.path("best").asDouble());
+    int base = game.path("basePay").asInt(),
+      old = game.path("bonus").asInt(),
+      bonus = (int) Math.round(base * .25 * best);
+    game
+      .put("taps", game.path("taps").asInt() + 1)
+      .put("best", best)
+      .put("lastTap", g.now())
+      .put("bonus", bonus);
+    ObjectNode pending = s.withObject("_pendingAction");
+    pending.withObject("deltas").put("cash", pending.path("deltas").path("cash").asDouble() + bonus - old);
+    pending.withObject("activity").put("pay", base + bonus);
+    g.store.save();
+    return g.simResponse(s, world(s));
+  }
 }

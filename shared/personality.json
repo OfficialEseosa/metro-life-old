@@ -13,6 +13,6 @@
     {"id":"homebody","label":"Homebody","icon":"house","detail":"Home activities restore extra fun. Your own room is your happy place."},
     {"id":"curious","label":"Curious","icon":"compass","detail":"All skill practice earns 10% more XP. A new place is always inviting."}
   ],
-  "hair": [{"id":"short","label":"Crop"},{"id":"bob","label":"Bob"},{"id":"long","label":"Long"},{"id":"curly","label":"Curls"},{"id":"afro","label":"Afro"},{"id":"bun","label":"Bun"},{"id":"ponytail","label":"Ponytail"},{"id":"braids","label":"Braids"},{"id":"mohawk","label":"Mohawk"},{"id":"bald","label":"Shaved"}],
+  "hair": [{"id":"short","label":"Crop"},{"id":"bob","label":"Bob"},{"id":"long","label":"Long"},{"id":"curly","label":"Curls"},{"id":"afro","label":"Afro"},{"id":"bun","label":"Bun"},{"id":"ponytail","label":"Ponytail"},{"id":"braids","label":"Braids"},{"id":"mohawk","label":"Mohawk"},{"id":"quiff","label":"Quiff"},{"id":"spiky","label":"Spiky"},{"id":"messy","label":"Messy"},{"id":"sideshave","label":"Side shave"},{"id":"bald","label":"Shaved"}],
   "faces": [{"id":"soft","label":"Soft"},{"id":"bright","label":"Bright"},{"id":"angular","label":"Angular"},{"id":"freckled","label":"Freckled"}]
 }

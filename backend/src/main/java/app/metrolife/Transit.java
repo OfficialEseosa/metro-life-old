@@ -6,32 +6,402 @@ import java.util.*;
 
 /** Durable shared departures; callers hold GameService's monitor. */
 final class Transit {
- final GameService g;final JsonNode config;boolean ticking;
- Transit(GameService g){this.g=g;config=g.content.transit;}
- ObjectNode journeys(ObjectNode w){return g.store.data.withObject("transit").withObject(w.path("id").asText());}
- boolean active(JsonNode s){return s.path("trip").isObject();}
- ObjectNode cohort(JsonNode s){JsonNode row=g.store.data.path("transit").path(s.path("worldId").asText()).path(s.path("trip").path("id").asText());return row instanceof ObjectNode n?n:null;}
- String hub(String city,String mode){return mode.equals("bus")?config.path("cities").path(city).path("bus").path("id").asText():config.path("cities").path(city).path("airport").asText();}
- String cityName(String city){return g.content.city(city).path("name").asText();}
- int fare(String from,String to,String mode){String pair=from.compareTo(to)<0?from+":"+to:to+":"+from;int price=config.path("fares").path(pair).asInt();if(price==0)price=config.path("fares").path(to+":"+from).asInt(config.path("fares").path(from+":"+to).asInt());GameService.require(price>0,400,"Choose another destination city");return mode.equals("bus")?price/4:price;}
- ObjectNode hubInfo(String city,String mode){String loc=hub(city,mode);JsonNode d=g.navigation.city(city).path("doors").path(loc);return g.object().put("loc",loc).put("name",g.content.landmark(city,loc).path("name").asText()).put("x",d.path("x").asDouble()).put("z",d.path("z").asDouble());}
- boolean atHub(ObjectNode s,String mode){String city=s.path("city").asText(),hub=hub(city,mode);ObjectNode p=g.navigation.position(s);if(!p.path("room").isNull())return mode.equals("plane")&&p.path("place").asText().equals(hub)&&p.path("room").asText().equals(g.navigation.roomId(s,hub));JsonNode d=g.navigation.city(city).path("doors").path(hub);return d.isObject()&&Math.hypot(p.path("x").asDouble()-d.path("x").asDouble(),p.path("z").asDouble()-d.path("z").asDouble())<=3;}
- String reason(ObjectNode s,String city,String to,String mode){if(s==null)return "Start your life first";if(active(s))return "You are already travelling";if(!s.path("city").asText().equals(city))return "Travel to this departure city first";if(!s.path("busyUntil").isNull())return "Finish your current activity first";if(s.path("pendingBeat").isObject())return "Choose your story first";if(!atHub(s,mode))return mode.equals("bus")?"Go to the downtown bus station":"Go to the airport";if(s.path("cash").asDouble()<fare(city,to,mode))return "Not enough money for the "+mode;return "";}
- String warning(String mode){return (mode.equals("bus")?"Eight":"Two")+" game hours pass for your traveller's needs and schedule only. The shared world clock and everyone else's rent are unchanged. Visiting keeps your home.";}
 
- ObjectNode read(String token,String city){g.content.city(city);ObjectNode ses=g.session(token,false),w=g.world(ses);tick(w);ObjectNode s=ses==null?null:(ObjectNode)g.table("sims").get(g.simKey(ses));if(s!=null)g.decay(s,w);ObjectNode out=g.object().put("city",city);ObjectNode hubs=out.putObject("hubs");for(String mode:List.of("plane","bus"))hubs.set(mode,hubInfo(city,mode));ArrayNode routes=out.putArray("routes");for(JsonNode destination:g.content.world.path("cities")){String to=destination.path("id").asText();if(to.equals(city))continue;for(String mode:List.of("plane","bus")){JsonNode timing=config.path("modes").path(mode);routes.addObject().put("to",to).put("mode",mode).put("fare",fare(city,to,mode)).put("durationSeconds",timing.path("durationSeconds").asInt()).put("gameMinutes",timing.path("gameMinutes").asInt()).put("boardingSeconds",config.path("boardingSeconds").asInt()).put("fromHub",hub(city,mode)).put("toHub",hub(to,mode)).put("reason",reason(s,city,to,mode)).put("warning",warning(mode));}}out.set("trip",s==null?g.mapper.nullNode():trip(s));out.set("clock",g.clock(w));return out;}
- ObjectNode book(String token,JsonNode body){ObjectNode ses=g.session(token,true),s=g.sim(ses),w=g.world(ses);g.decay(s,w);String from=s.path("city").asText(),to=body.path("to").asText(),mode=body.path("mode").asText();g.content.city(to);GameService.require(Set.of("bus","plane").contains(mode),400,"Choose bus or plane");GameService.require(!from.equals(to),400,"Choose another destination city");String blocked=reason(s,from,to,mode);GameService.require(blocked.isEmpty(),s.path("cash").asDouble()<fare(from,to,mode)?402:409,blocked);
-  ObjectNode ride=null;for(JsonNode row:journeys(w))if(!row.path("finished").asBoolean()&&row.path("departAt").asLong()>g.now()&&row.path("from").asText().equals(from)&&row.path("to").asText().equals(to)&&row.path("mode").asText().equals(mode)&&row.path("passengers").size()<32){ride=(ObjectNode)row;break;}
-  if(ride==null){String id=g.id();JsonNode timing=config.path("modes").path(mode);long departure=g.now()+config.path("boardingSeconds").asLong()*1000;ride=journeys(w).putObject(id).put("id",id).put("from",from).put("to",to).put("mode",mode).put("departAt",departure).put("arriveAt",departure+timing.path("durationSeconds").asLong()*1000).put("durationSeconds",timing.path("durationSeconds").asInt()).put("gameMinutes",timing.path("gameMinutes").asInt()).put("startMinutes",g.absoluteMinutes(w)).put("finished",false);ride.putArray("passengers");ride.putArray("messages");ArrayNode events=ride.putArray("events");Random random=new Random(id.hashCode());String[] texts=mode.equals("bus")?new String[]{"A chatty seatmate shares a favourite neighbourhood tip.","The driver points out a landmark beyond the window.","A local travel programme shares a neighbourhood story."}:new String[]{"The clouds open to a clear view of the city below.","A fellow passenger recommends a place to visit."};int count=1+random.nextInt(2);for(int i=0;i<count;i++)events.addObject().put("id",id+"-"+i).put("text",texts[random.nextInt(texts.length)]).put("at",departure+timing.path("durationSeconds").asLong()*1000*(i+1)/(count+1)).put("social",mode.equals("bus")?3:0).put("fun",mode.equals("plane")?3:0);}
-  int seat=ride.path("passengers").size(),cost=fare(from,to,mode);g.property.confirm(body,cost);ride.withArray("passengers").add(s.path("userId").asText());g.property.pay(s,cost,Content.title(mode)+" fare to "+g.content.city(to).path("name").asText());s.putObject("trip").put("id",ride.path("id").asText()).put("fare",cost).put("seat",seat).put("bookedAt",g.now()).put("nap",false).putArray("seenEvents");s.remove("_outside");s.putNull("activitySlot");s.put("loc",hub(from,mode)).put("busyStartedAt",g.now()).put("busyUntil",ride.path("arriveAt").asLong()).put("busyLabel",status(s)).put("busyKind","travel");s.putObject("position").put("x",(seat%4-1.5)*.9).put("z",Math.floor(seat/4.0)*1.2).put("face",0).put("city",from).put("place",hub(from,mode)).put("room","transit:"+ride.path("id").asText());g.store.save();return g.simResponse(s,w);
- }
- String status(JsonNode s){ObjectNode ride=cohort(s);return ride==null?null:(ride.path("mode").asText().equals("bus")?"On the bus to ":"Flying to ")+cityName(ride.path("to").asText());}
- JsonNode trip(JsonNode s){ObjectNode ride=cohort(s);if(!active(s)||ride==null||ride.path("finished").asBoolean())return g.mapper.nullNode();String mode=ride.path("mode").asText(),from=ride.path("from").asText(),to=ride.path("to").asText();long departure=ride.path("departAt").asLong(),arrival=ride.path("arriveAt").asLong();ObjectNode out=g.object();for(String key:List.of("id","mode","from","to","departAt","arriveAt","durationSeconds","gameMinutes"))out.set(key,ride.path(key).deepCopy());for(String key:List.of("fare","seat","bookedAt","nap"))out.set(key,s.path("trip").path(key).deepCopy());out.put("fromName",cityName(from)).put("toName",cityName(to)).put("fromHub",hub(from,mode)).put("toHub",hub(to,mode)).put("status",g.now()<departure?"boarding":"riding").put("progress",Math.clamp((g.now()-departure)/(double)Math.max(1,arrival-departure),0,1)).put("napAvailable",mode.equals("bus")&&!s.path("trip").path("nap").asBoolean()).put("warning",warning(mode));ArrayNode passengers=out.putArray("passengers");for(JsonNode id:ride.path("passengers")){JsonNode actor=g.table("sims").path(id.asText()+":"+s.path("worldId").asText());if(!actor.path("trip").path("id").equals(ride.path("id")))continue;ObjectNode p=passengers.addObject().put("id",id.asText()).put("username",actor.path("username").asText()).put("seat",actor.path("trip").path("seat").asInt()).put("nap",actor.path("trip").path("nap").asBoolean()).put("online",g.community.isOnline(s.path("worldId").asText(),id.asText()));p.set("look",actor.path("look").deepCopy());}out.set("messages",ride.path("messages").deepCopy());ArrayNode events=out.putArray("events");for(JsonNode event:ride.path("events"))if(event.path("at").asLong()<=g.now())events.addObject().put("id",event.path("id").asText()).put("text",event.path("text").asText()).put("at",event.path("at").asLong());return out;}
- ObjectNode nap(String token){ObjectNode ses=g.session(token,true),s=g.sim(ses),w=g.world(ses);g.decay(s,w);GameService.require(active(s)&&cohort(s)!=null&&cohort(s).path("mode").asText().equals("bus"),409,"You can nap during a bus ride");GameService.require(!s.path("trip").path("nap").asBoolean(),409,"You have already chosen to nap on this ride");s.withObject("trip").put("nap",true);g.store.save();return g.simResponse(s,w);}
- ArrayNode history(ObjectNode s){ObjectNode ride=cohort(s);GameService.require(active(s)&&ride!=null,409,"You are not on a shared departure");return ride.withArray("messages");}
- ObjectNode say(String token,JsonNode body){ObjectNode ses=g.session(token,true),s=g.sim(ses),w=g.world(ses);g.decay(s,w);ArrayNode list=history(s);String text=g.civic.text(body,"text",1,240);GameService.require(g.now()-s.path("_lastTripChat").asLong()>=1500,429,"Give your fellow passengers a moment");ObjectNode message=g.object().put("id",g.id()).put("tripId",s.path("trip").path("id").asText()).put("city",s.path("city").asText()).put("userId",s.path("userId").asText()).put("username",s.path("username").asText()).put("npc",false).put("text",text).put("at",g.now());list.add(message);while(list.size()>50)list.remove(0);s.put("_lastTripChat",g.now());g.store.save();ObjectNode out=g.object();out.set("message",message.deepCopy());out.set("trip",trip(s));out.set("clock",g.clock(w));return out;}
- void tick(ObjectNode w){if(ticking)return;ticking=true;boolean save=false;try{for(JsonNode node:journeys(w)){ObjectNode ride=(ObjectNode)node;if(ride.path("finished").asBoolean())continue;for(JsonNode id:ride.path("passengers")){JsonNode value=g.table("sims").get(id.asText()+":"+w.path("id").asText());if(!(value instanceof ObjectNode s)||!s.path("trip").path("id").equals(ride.path("id")))continue;for(JsonNode event:ride.path("events")){if(event.path("at").asLong()>g.now())continue;boolean seen=false;for(JsonNode existing:s.path("trip").path("seenEvents"))if(existing.equals(event.path("id")))seen=true;if(!seen){s.withObject("trip").withArray("seenEvents").add(event.path("id"));for(String need:List.of("social","fun"))s.withObject("needs").put(need,Math.min(100,s.path("needs").path(need).asDouble()+event.path(need).asInt()));save=true;}}}
-   if(ride.path("arriveAt").asLong()>g.now())continue;ride.put("finished",true);
-   for(JsonNode id:ride.path("passengers")){JsonNode value=g.table("sims").get(id.asText()+":"+w.path("id").asText());if(!(value instanceof ObjectNode s)||!s.path("trip").path("id").equals(ride.path("id")))continue;boolean nap=s.path("trip").path("nap").asBoolean();long travel=Math.max(0,ride.path("startMinutes").asLong()+ride.path("gameMinutes").asLong()-g.absoluteMinutes(w));s.put("scheduleMinutes",s.path("scheduleMinutes").asLong()+travel).put("updatedAt",s.path("updatedAt").asLong()-(long)(travel*g.minuteMillis(w))).put("_transitMinutes",s.path("_transitMinutes").asLong()+travel);s.remove("trip");String to=ride.path("to").asText(),loc=hub(to,ride.path("mode").asText());s.put("city",to).put("loc",loc).putNull("busyUntil").putNull("busyStartedAt").putNull("busyLabel").putNull("busyKind").putNull("activitySlot");s.remove("position");g.navigation.position(s);if(nap)s.put("_transitNap",25);g.firstDay.outside(s);g.recordArrival(s);}save=true;
-  }if(save)g.store.save();}finally{ticking=false;}}
+  final GameService g;
+  final JsonNode config;
+  boolean ticking;
+
+  Transit(GameService g) {
+    this.g = g;
+    config = g.content.transit;
+  }
+
+  ObjectNode journeys(ObjectNode w) {
+    return g.store.data.withObject("transit").withObject(w.path("id").asText());
+  }
+
+  boolean active(JsonNode s) {
+    return s.path("trip").isObject();
+  }
+
+  ObjectNode cohort(JsonNode s) {
+    JsonNode row = g.store.data
+      .path("transit")
+      .path(s.path("worldId").asText())
+      .path(s.path("trip").path("id").asText());
+    return row instanceof ObjectNode n ? n : null;
+  }
+
+  String hub(String city, String mode) {
+    return mode.equals("bus")
+      ? config.path("cities").path(city).path("bus").path("id").asText()
+      : config.path("cities").path(city).path("airport").asText();
+  }
+
+  String cityName(String city) {
+    return g.content.city(city).path("name").asText();
+  }
+
+  int fare(String from, String to, String mode) {
+    String pair = from.compareTo(to) < 0 ? from + ":" + to : to + ":" + from;
+    int price = config.path("fares").path(pair).asInt();
+    if (price == 0) price = config
+      .path("fares")
+      .path(to + ":" + from)
+      .asInt(
+        config
+          .path("fares")
+          .path(from + ":" + to)
+          .asInt()
+      );
+    GameService.require(price > 0, 400, "Choose another destination city");
+    return mode.equals("bus") ? price / 4 : price;
+  }
+
+  ObjectNode hubInfo(String city, String mode) {
+    String loc = hub(city, mode);
+    JsonNode d = g.navigation.city(city).path("doors").path(loc);
+    return g
+      .object()
+      .put("loc", loc)
+      .put("name", g.content.landmark(city, loc).path("name").asText())
+      .put("x", d.path("x").asDouble())
+      .put("z", d.path("z").asDouble());
+  }
+
+  boolean atHub(ObjectNode s, String mode) {
+    String city = s.path("city").asText(),
+      hub = hub(city, mode);
+    ObjectNode p = g.navigation.position(s);
+    if (!p.path("room").isNull()) return (
+      mode.equals("plane") &&
+      p.path("place").asText().equals(hub) &&
+      p.path("room").asText().equals(g.navigation.roomId(s, hub))
+    );
+    JsonNode d = g.navigation.city(city).path("doors").path(hub);
+    return (
+      d.isObject() &&
+      Math.hypot(p.path("x").asDouble() - d.path("x").asDouble(), p.path("z").asDouble() - d.path("z").asDouble()) <= 3
+    );
+  }
+
+  String reason(ObjectNode s, String city, String to, String mode) {
+    if (s == null) return "Start your life first";
+    if (active(s)) return "You are already travelling";
+    if (!s.path("city").asText().equals(city)) return "Travel to this departure city first";
+    if (!s.path("busyUntil").isNull()) return "Finish your current activity first";
+    if (s.path("pendingBeat").isObject()) return "Choose your story first";
+    if (!atHub(s, mode)) return mode.equals("bus") ? "Go to the downtown bus station" : "Go to the airport";
+    if (s.path("cash").asDouble() < fare(city, to, mode)) return "Not enough money for the " + mode;
+    return "";
+  }
+
+  String warning(String mode) {
+    return (
+      (mode.equals("bus") ? "Eight" : "Two") +
+      " game hours pass for your traveller's needs and schedule only. The shared world clock and everyone else's rent are unchanged. Visiting keeps your home."
+    );
+  }
+
+  ObjectNode read(String token, String city) {
+    g.content.city(city);
+    ObjectNode ses = g.session(token, false),
+      w = g.world(ses);
+    tick(w);
+    ObjectNode s = ses == null ? null : (ObjectNode) g.table("sims").get(g.simKey(ses));
+    if (s != null) g.decay(s, w);
+    ObjectNode out = g.object().put("city", city);
+    ObjectNode hubs = out.putObject("hubs");
+    for (String mode : List.of("plane", "bus")) hubs.set(mode, hubInfo(city, mode));
+    ArrayNode routes = out.putArray("routes");
+    for (JsonNode destination : g.content.world.path("cities")) {
+      String to = destination.path("id").asText();
+      if (to.equals(city)) continue;
+      for (String mode : List.of("plane", "bus")) {
+        JsonNode timing = config.path("modes").path(mode);
+        routes
+          .addObject()
+          .put("to", to)
+          .put("mode", mode)
+          .put("fare", fare(city, to, mode))
+          .put("durationSeconds", timing.path("durationSeconds").asInt())
+          .put("gameMinutes", timing.path("gameMinutes").asInt())
+          .put("boardingSeconds", config.path("boardingSeconds").asInt())
+          .put("fromHub", hub(city, mode))
+          .put("toHub", hub(to, mode))
+          .put("reason", reason(s, city, to, mode))
+          .put("warning", warning(mode));
+      }
+    }
+    out.set("trip", s == null ? g.mapper.nullNode() : trip(s));
+    out.set("clock", g.clock(w));
+    return out;
+  }
+
+  ObjectNode book(String token, JsonNode body) {
+    ObjectNode ses = g.session(token, true),
+      s = g.sim(ses),
+      w = g.world(ses);
+    g.decay(s, w);
+    String from = s.path("city").asText(),
+      to = body.path("to").asText(),
+      mode = body.path("mode").asText();
+    g.content.city(to);
+    GameService.require(Set.of("bus", "plane").contains(mode), 400, "Choose bus or plane");
+    GameService.require(!from.equals(to), 400, "Choose another destination city");
+    String blocked = reason(s, from, to, mode);
+    GameService.require(blocked.isEmpty(), s.path("cash").asDouble() < fare(from, to, mode) ? 402 : 409, blocked);
+    ObjectNode ride = null;
+    for (JsonNode row : journeys(w))
+      if (
+        !row.path("finished").asBoolean() &&
+        row.path("departAt").asLong() > g.now() &&
+        row.path("from").asText().equals(from) &&
+        row.path("to").asText().equals(to) &&
+        row.path("mode").asText().equals(mode) &&
+        row.path("passengers").size() < 32
+      ) {
+        ride = (ObjectNode) row;
+        break;
+      }
+    if (ride == null) {
+      String id = g.id();
+      JsonNode timing = config.path("modes").path(mode);
+      long departure = g.now() + config.path("boardingSeconds").asLong() * 1000;
+      ride = journeys(w)
+        .putObject(id)
+        .put("id", id)
+        .put("from", from)
+        .put("to", to)
+        .put("mode", mode)
+        .put("departAt", departure)
+        .put("arriveAt", departure + timing.path("durationSeconds").asLong() * 1000)
+        .put("durationSeconds", timing.path("durationSeconds").asInt())
+        .put("gameMinutes", timing.path("gameMinutes").asInt())
+        .put("startMinutes", g.absoluteMinutes(w))
+        .put("finished", false);
+      ride.putArray("passengers");
+      ride.putArray("messages");
+      ArrayNode events = ride.putArray("events");
+      Random random = new Random(id.hashCode());
+      String[] texts = mode.equals("bus")
+        ? new String[] {
+            "A chatty seatmate shares a favourite neighbourhood tip.",
+            "The driver points out a landmark beyond the window.",
+            "A local travel programme shares a neighbourhood story.",
+          }
+        : new String[] {
+            "The clouds open to a clear view of the city below.",
+            "A fellow passenger recommends a place to visit.",
+          };
+      int count = 1 + random.nextInt(2);
+      for (int i = 0; i < count; i++) events
+        .addObject()
+        .put("id", id + "-" + i)
+        .put("text", texts[random.nextInt(texts.length)])
+        .put("at", departure + (timing.path("durationSeconds").asLong() * 1000 * (i + 1)) / (count + 1))
+        .put("social", mode.equals("bus") ? 3 : 0)
+        .put("fun", mode.equals("plane") ? 3 : 0);
+    }
+    int seat = ride.path("passengers").size(),
+      cost = fare(from, to, mode);
+    g.property.confirm(body, cost);
+    ride.withArray("passengers").add(s.path("userId").asText());
+    g.property.pay(s, cost, Content.title(mode) + " fare to " + g.content.city(to).path("name").asText());
+    s.putObject("trip")
+      .put("id", ride.path("id").asText())
+      .put("fare", cost)
+      .put("seat", seat)
+      .put("bookedAt", g.now())
+      .put("nap", false)
+      .putArray("seenEvents");
+    s.remove("_outside");
+    s.putNull("activitySlot");
+    s.put("loc", hub(from, mode))
+      .put("busyStartedAt", g.now())
+      .put("busyUntil", ride.path("arriveAt").asLong())
+      .put("busyLabel", status(s))
+      .put("busyKind", "travel");
+    s.putObject("position")
+      .put("x", ((seat % 4) - 1.5) * .9)
+      .put("z", Math.floor(seat / 4.0) * 1.2)
+      .put("face", 0)
+      .put("city", from)
+      .put("place", hub(from, mode))
+      .put("room", "transit:" + ride.path("id").asText());
+    g.store.save();
+    return g.simResponse(s, w);
+  }
+
+  String status(JsonNode s) {
+    ObjectNode ride = cohort(s);
+    return ride == null
+      ? null
+      : (ride.path("mode").asText().equals("bus") ? "On the bus to " : "Flying to ") +
+          cityName(ride.path("to").asText());
+  }
+
+  JsonNode trip(JsonNode s) {
+    ObjectNode ride = cohort(s);
+    if (!active(s) || ride == null || ride.path("finished").asBoolean()) return g.mapper.nullNode();
+    String mode = ride.path("mode").asText(),
+      from = ride.path("from").asText(),
+      to = ride.path("to").asText();
+    long departure = ride.path("departAt").asLong(),
+      arrival = ride.path("arriveAt").asLong();
+    ObjectNode out = g.object();
+    for (String key : List.of("id", "mode", "from", "to", "departAt", "arriveAt", "durationSeconds", "gameMinutes"))
+      out.set(key, ride.path(key).deepCopy());
+    for (String key : List.of("fare", "seat", "bookedAt", "nap")) out.set(key, s.path("trip").path(key).deepCopy());
+    out
+      .put("fromName", cityName(from))
+      .put("toName", cityName(to))
+      .put("fromHub", hub(from, mode))
+      .put("toHub", hub(to, mode))
+      .put("status", g.now() < departure ? "boarding" : "riding")
+      .put("progress", Math.clamp((g.now() - departure) / (double) Math.max(1, arrival - departure), 0, 1))
+      .put("napAvailable", mode.equals("bus") && !s.path("trip").path("nap").asBoolean())
+      .put("warning", warning(mode));
+    ArrayNode passengers = out.putArray("passengers");
+    for (JsonNode id : ride.path("passengers")) {
+      JsonNode actor = g.table("sims").path(id.asText() + ":" + s.path("worldId").asText());
+      if (!actor.path("trip").path("id").equals(ride.path("id"))) continue;
+      ObjectNode p = passengers
+        .addObject()
+        .put("id", id.asText())
+        .put("username", actor.path("username").asText())
+        .put("seat", actor.path("trip").path("seat").asInt())
+        .put("nap", actor.path("trip").path("nap").asBoolean())
+        .put("online", g.community.isOnline(s.path("worldId").asText(), id.asText()));
+      p.set("look", actor.path("look").deepCopy());
+    }
+    out.set("messages", ride.path("messages").deepCopy());
+    ArrayNode events = out.putArray("events");
+    for (JsonNode event : ride.path("events"))
+      if (event.path("at").asLong() <= g.now()) events
+        .addObject()
+        .put("id", event.path("id").asText())
+        .put("text", event.path("text").asText())
+        .put("at", event.path("at").asLong());
+    return out;
+  }
+
+  ObjectNode nap(String token) {
+    ObjectNode ses = g.session(token, true),
+      s = g.sim(ses),
+      w = g.world(ses);
+    g.decay(s, w);
+    GameService.require(
+      active(s) && cohort(s) != null && cohort(s).path("mode").asText().equals("bus"),
+      409,
+      "You can nap during a bus ride"
+    );
+    GameService.require(!s.path("trip").path("nap").asBoolean(), 409, "You have already chosen to nap on this ride");
+    s.withObject("trip").put("nap", true);
+    g.store.save();
+    return g.simResponse(s, w);
+  }
+
+  ArrayNode history(ObjectNode s) {
+    ObjectNode ride = cohort(s);
+    GameService.require(active(s) && ride != null, 409, "You are not on a shared departure");
+    return ride.withArray("messages");
+  }
+
+  ObjectNode say(String token, JsonNode body) {
+    ObjectNode ses = g.session(token, true),
+      s = g.sim(ses),
+      w = g.world(ses);
+    g.decay(s, w);
+    ArrayNode list = history(s);
+    String text = g.civic.text(body, "text", 1, 240);
+    GameService.require(
+      g.now() - s.path("_lastTripChat").asLong() >= 1500,
+      429,
+      "Give your fellow passengers a moment"
+    );
+    ObjectNode message = g
+      .object()
+      .put("id", g.id())
+      .put("tripId", s.path("trip").path("id").asText())
+      .put("city", s.path("city").asText())
+      .put("userId", s.path("userId").asText())
+      .put("username", s.path("username").asText())
+      .put("npc", false)
+      .put("text", text)
+      .put("at", g.now());
+    list.add(message);
+    while (list.size() > 50) list.remove(0);
+    s.put("_lastTripChat", g.now());
+    g.store.save();
+    ObjectNode out = g.object();
+    out.set("message", message.deepCopy());
+    out.set("trip", trip(s));
+    out.set("clock", g.clock(w));
+    return out;
+  }
+
+  void tick(ObjectNode w) {
+    if (ticking) return;
+    ticking = true;
+    boolean save = false;
+    try {
+      for (JsonNode node : journeys(w)) {
+        ObjectNode ride = (ObjectNode) node;
+        if (ride.path("finished").asBoolean()) continue;
+        for (JsonNode id : ride.path("passengers")) {
+          JsonNode value = g.table("sims").get(id.asText() + ":" + w.path("id").asText());
+          if (!(value instanceof ObjectNode s) || !s.path("trip").path("id").equals(ride.path("id"))) continue;
+          for (JsonNode event : ride.path("events")) {
+            if (event.path("at").asLong() > g.now()) continue;
+            boolean seen = false;
+            for (JsonNode existing : s.path("trip").path("seenEvents"))
+              if (existing.equals(event.path("id"))) seen = true;
+            if (!seen) {
+              s.withObject("trip").withArray("seenEvents").add(event.path("id"));
+              for (String need : List.of("social", "fun"))
+                s.withObject("needs").put(
+                  need,
+                  Math.min(100, s.path("needs").path(need).asDouble() + event.path(need).asInt())
+                );
+              save = true;
+            }
+          }
+        }
+        if (ride.path("arriveAt").asLong() > g.now()) continue;
+        ride.put("finished", true);
+        for (JsonNode id : ride.path("passengers")) {
+          JsonNode value = g.table("sims").get(id.asText() + ":" + w.path("id").asText());
+          if (!(value instanceof ObjectNode s) || !s.path("trip").path("id").equals(ride.path("id"))) continue;
+          boolean nap = s.path("trip").path("nap").asBoolean();
+          long travel = Math.max(
+            0,
+            ride.path("startMinutes").asLong() + ride.path("gameMinutes").asLong() - g.absoluteMinutes(w)
+          );
+          s.put("scheduleMinutes", s.path("scheduleMinutes").asLong() + travel)
+            .put("updatedAt", s.path("updatedAt").asLong() - (long) (travel * g.minuteMillis(w)))
+            .put("_transitMinutes", s.path("_transitMinutes").asLong() + travel);
+          s.remove("trip");
+          String to = ride.path("to").asText(),
+            loc = hub(to, ride.path("mode").asText());
+          s.put("city", to)
+            .put("loc", loc)
+            .putNull("busyUntil")
+            .putNull("busyStartedAt")
+            .putNull("busyLabel")
+            .putNull("busyKind")
+            .putNull("activitySlot");
+          s.remove("position");
+          g.navigation.position(s);
+          if (nap) s.put("_transitNap", 25);
+          g.firstDay.outside(s);
+          g.recordArrival(s);
+        }
+        save = true;
+      }
+      if (save) g.store.save();
+    } finally {
+      ticking = false;
+    }
+  }
 }

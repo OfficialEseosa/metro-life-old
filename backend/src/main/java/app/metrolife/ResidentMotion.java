@@ -1,4 +1,5 @@
 package app.metrolife;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
 import java.io.IOException;
@@ -6,37 +7,296 @@ import java.util.*;
 
 /** Server-owned, persisted journeys. Static routes were surveyed once against shared collision. */
 final class ResidentMotion {
- final GameService g;final JsonNode data;
- ResidentMotion(GameService g){this.g=g;try(var in=getClass().getResourceAsStream("/static-data/resident-routes.json")){data=g.mapper.readTree(in);}catch(IOException e){throw new IllegalStateException("Resident routes missing",e);}}
- JsonNode routes(String city){return data.path("cities").path(city).path("routes");}
- int choose(ObjectNode n,String from){JsonNode rows=routes(n.path("city").asText());List<Integer> choices=new ArrayList<>();for(int i=0;i<rows.size();i++)if(rows.get(i).path("from").asText().equals(from))choices.add(i);if(choices.isEmpty())return -1;return choices.get(Math.floorMod(n.path("userId").asText().hashCode()+n.path("_journeys").asInt()*7,choices.size()));}
- void start(ObjectNode n){n.putNull("activitySlot");n.remove("_roomStation");n.remove("_roomSlot");JsonNode rows=routes(n.path("city").asText());int index=choose(n,n.path("loc").asText());if(index<0)index=Math.floorMod(n.path("userId").asText().hashCode(),rows.size());JsonNode route=rows.get(index);int initial=n.has("position")?0:Math.floorMod(n.path("userId").asText().hashCode()*37,route.path("points").size()-1);JsonNode at=route.path("points").get(initial);n.put("_routeVersion",data.path("version").asInt()).put("_route",index).put("_point",initial+1).put("_motionAt",g.now()).put("_phase","walk").put("activity","walk").put("loc",route.path("from").asText());if(n.path("position").isObject()&&n.path("position").path("room").isNull())n.withObject("position").put("place",n.path("loc").asText());else n.set("position",g.navigation.arrival(n,n.path("loc").asText(),"",at.get(0).asDouble(),at.get(1).asDouble(),0));}
- boolean toward(ObjectNode n,double x,double z,double distance){ObjectNode p=n.withObject("position");double dx=x-p.path("x").asDouble(),dz=z-p.path("z").asDouble(),length=Math.hypot(dx,dz);if(length<.02)return true;double t=Math.min(1,distance/length);double nx=p.path("x").asDouble()+dx*t,nz=p.path("z").asDouble()+dz*t;int steps=Math.max(1,(int)Math.ceil(distance/.1));for(int i=1;i<=steps;i++)if(!g.navigation.stand(n.path("city").asText(),p.path("x").asDouble()+(nx-p.path("x").asDouble())*i/steps,p.path("z").asDouble()+(nz-p.path("z").asDouble())*i/steps,p.path("room").asText("")))return false;p.put("x",p.path("x").asDouble()+dx*t).put("z",p.path("z").asDouble()+dz*t).put("face",Math.atan2(dx,dz));return t==1;}
- void tick(){for(String wid:g.community.activeWorlds.keySet())for(JsonNode row:g.community.residents().path(wid)){ObjectNode n=(ObjectNode)row;if(!n.has("_route")||n.path("_routeVersion").asInt()!=data.path("version").asInt()){start(n);continue;}long last=n.path("_motionAt").asLong(g.now());n.put("_motionAt",g.now());double dt=Math.clamp((g.now()-last)/1000d,0,.5);if(dt==0||n.path("_socialHoldUntil").asLong()>g.now())continue;
-  String phase=n.path("_phase").asText(),city=n.path("city").asText(),loc=n.path("loc").asText(),type=g.navigation.type(city,loc);ObjectNode p=n.withObject("position");int seed=Math.floorMod(n.path("userId").asText().hashCode(),1000);if(!p.path("room").isNull()&&!p.path("room").asText().equals(g.navigation.roomId(n,loc))){JsonNode exit=g.navigation.layout(city,type).path("exit");p.setAll(g.navigation.arrival(n,loc,g.navigation.roomId(n,loc),exit.path("x").asDouble(),exit.path("z").asDouble(),Math.PI));n.put("_phase","approach").putNull("activitySlot");n.remove("_roomStation");n.remove("_roomSlot");phase="approach";}
-  if(phase.equals("walk")){JsonNode route=routes(city).get(n.path("_route").asInt()),points=route.path("points");int i=n.path("_point").asInt();JsonNode target=points.get(i);if(toward(n,target.get(0).asDouble(),target.get(1).asDouble(),dt*(1.5+seed%7*.1))){i++;n.put("_point",i);if(i>=points.size()){loc=route.path("to").asText();n.put("loc",loc);p.put("place",loc);type=g.navigation.type(city,loc);if(data.path("cities").path(city).path("parks").has(loc)){n.put("_parkSpot",seed/7%2).put("_parkPoint",0).put("_phase","parkApproach");}else if(!type.isEmpty()&&!type.equals("home")&&(type.equals("club")||g.civic.open((ObjectNode)g.table("worlds").get(wid),city,g.content.landmark(city,loc),g.clock((ObjectNode)g.table("worlds").get(wid)).path("hour").asInt()))){JsonNode exit=g.navigation.layout(city,type).path("exit");p.setAll(g.navigation.arrival(n,loc,g.navigation.roomId(n,loc),exit.path("x").asDouble(),exit.path("z").asDouble(),Math.PI));n.put("_phase","approach");}else{n.put("_phase","dwell").put("_until",g.now()+12000+seed*10);n.put("activity",loc.matches(".*(benz|arena|yankee|msg|chaseCenter|truist).*" )?"cheer":"jog");}}}}
-  else if(phase.startsWith("park")){JsonNode park=data.path("cities").path(city).path("parks").path(loc),path=park.path("paths").get(n.path("_parkSpot").asInt());
-   if(phase.equals("parkApproach")||phase.equals("parkLeave")){int i=n.path("_parkPoint").asInt();JsonNode at=path.get(i);if(toward(n,at.get(0).asDouble(),at.get(1).asDouble(),dt*1.8)){i+=phase.equals("parkLeave")?-1:1;n.put("_parkPoint",i);if(i<0)n.put("_phase","depart");else if(i>=path.size()){n.put("_phase","parkDwell").put("_until",g.now()+45000+seed%20*1000).put("activity",seed%4==0?"sit":"jog");p.put("face",0);int nearest=0;double best=Double.MAX_VALUE;JsonNode loop=park.path("loop");for(int j=0;j<loop.size();j++){double d=Math.hypot(loop.get(j).get(0).asDouble()-p.path("x").asDouble(),loop.get(j).get(1).asDouble()-p.path("z").asDouble());if(d<best){best=d;nearest=j;}}n.put("_loop",nearest);}}}
-   else if(phase.equals("parkDwell")){if(n.path("activity").asText().equals("jog")){JsonNode loop=park.path("loop");int i=n.path("_loop").asInt();JsonNode at=loop.get(i);if(toward(n,at.get(0).asDouble(),at.get(1).asDouble(),dt*2.7))n.put("_loop",(i+1)%loop.size());}if(g.now()>=n.path("_until").asLong()){n.put("_phase","parkReturn").put("activity","walk");}}
-   else {JsonNode bench=park.path("benches").get(n.path("_parkSpot").asInt());if(toward(n,bench.get(0).asDouble(),bench.get(1).asDouble(),dt*1.8))n.put("_phase","parkLeave").put("_parkPoint",path.size()-1);}
-  }
-  else if(phase.equals("approach")){
-   JsonNode layout=g.navigation.layout(city,type);
-   if(!n.has("_roomStation")){
-    JsonNode rules=layout.path("activities").path(type.equals("cafe")||type.equals("foodhall")?"food":"fun"),chosen=null;
-    for(JsonNode use:layout.path("slots"))if(use.path("station").equals(rules.path("station"))&&use.path("pose").equals(rules.path("pose"))&&!g.navigation.occupied(n,use,p.path("room").asText())){chosen=use;break;}
-    if(chosen==null){n.put("_phase","leave").put("_roomPoint",0);continue;}
-    n.put("_roomStation",rules.path("station").asText()).put("_roomPoint",0);n.set("_roomSlot",chosen.deepCopy());
-    // Reserve immediately while routing, so another resident cannot select the same chair.
-    n.putNull("activitySlot");n.put("activity","walk");
-   }
-   JsonNode path=layout.path("paths").path(n.path("_roomStation").asText());int i=n.path("_roomPoint").asInt();
-   if(i<path.size()){JsonNode target=path.get(i);if(toward(n,target.get(0).asDouble(),target.get(1).asDouble(),dt*1.7))n.put("_roomPoint",i+1);}
-   else {JsonNode use=n.path("_roomSlot");n.set("activitySlot",use.deepCopy());n.put("_phase","dwell").put("_until",g.now()+20000+seed*10).put("activity",use.path("pose").asText().toLowerCase(Locale.ROOT));p.put("face",use.path("face").asDouble());}
+
+  final GameService g;
+  final JsonNode data;
+
+  ResidentMotion(GameService g) {
+    this.g = g;
+    try (var in = getClass().getResourceAsStream("/static-data/resident-routes.json")) {
+      data = g.mapper.readTree(in);
+    } catch (IOException e) {
+      throw new IllegalStateException("Resident routes missing", e);
+    }
   }
 
-  else if(phase.equals("dwell")){if(p.path("room").isNull()&&n.path("activity").asText().equals("jog")){JsonNode d=g.navigation.door(n,loc);double angle=(g.now()%12000)/12000d*Math.PI*2+seed,x=d.path("x").asDouble()+Math.sin(angle)*2,z=d.path("z").asDouble()+Math.cos(angle)*2;if(g.navigation.stand(city,x,z,""))toward(n,x,z,dt*2.5);}if(g.now()>=n.path("_until").asLong()){n.put("_phase",p.path("room").isNull()?"depart":"leave").put("activity","walk");n.putNull("activitySlot");JsonNode returnPath=g.navigation.layout(city,type).path("paths").path(n.path("_roomStation").asText());n.put("_roomPoint",returnPath.size()-1);}}
-  else if(phase.equals("leave")){JsonNode path=g.navigation.layout(city,type).path("paths").path(n.path("_roomStation").asText());int i=n.path("_roomPoint").asInt(-1);if(i>=0&&i<path.size()){JsonNode target=path.get(i);if(toward(n,target.get(0).asDouble(),target.get(1).asDouble(),dt*1.8))n.put("_roomPoint",i-1);}else {JsonNode exit=g.navigation.layout(city,type).path("exit");if(toward(n,exit.path("x").asDouble(),exit.path("z").asDouble(),dt*1.8)){JsonNode d=g.navigation.door(n,loc);p.setAll(g.navigation.arrival(n,loc,"",d.path("x").asDouble(),d.path("z").asDouble(),0));n.put("_phase","depart");n.putNull("activitySlot");}}}
-  else {JsonNode d=g.navigation.door(n,loc);if(toward(n,d.path("x").asDouble(),d.path("z").asDouble(),dt*1.9)){n.put("_journeys",n.path("_journeys").asInt()+1);start(n);}}
- }}
+  JsonNode routes(String city) {
+    return data.path("cities").path(city).path("routes");
+  }
+
+  int choose(ObjectNode n, String from) {
+    JsonNode rows = routes(n.path("city").asText());
+    List<Integer> choices = new ArrayList<>();
+    for (int i = 0; i < rows.size(); i++) if (rows.get(i).path("from").asText().equals(from)) choices.add(i);
+    if (choices.isEmpty()) return -1;
+    return choices.get(
+      Math.floorMod(n.path("userId").asText().hashCode() + n.path("_journeys").asInt() * 7, choices.size())
+    );
+  }
+
+  void start(ObjectNode n) {
+    n.putNull("activitySlot");
+    n.remove("_roomStation");
+    n.remove("_roomSlot");
+    JsonNode rows = routes(n.path("city").asText());
+    int index = choose(n, n.path("loc").asText());
+    if (index < 0) index = Math.floorMod(n.path("userId").asText().hashCode(), rows.size());
+    JsonNode route = rows.get(index);
+    int initial = n.has("position")
+      ? 0
+      : Math.floorMod(n.path("userId").asText().hashCode() * 37, route.path("points").size() - 1);
+    JsonNode at = route.path("points").get(initial);
+    n.put("_routeVersion", data.path("version").asInt())
+      .put("_route", index)
+      .put("_point", initial + 1)
+      .put("_motionAt", g.now())
+      .put("_phase", "walk")
+      .put("activity", "walk")
+      .put("loc", route.path("from").asText());
+    if (n.path("position").isObject() && n.path("position").path("room").isNull()) n.withObject("position").put(
+      "place",
+      n.path("loc").asText()
+    );
+    else n.set(
+      "position",
+      g.navigation.arrival(n, n.path("loc").asText(), "", at.get(0).asDouble(), at.get(1).asDouble(), 0)
+    );
+  }
+
+  boolean toward(ObjectNode n, double x, double z, double distance) {
+    ObjectNode p = n.withObject("position");
+    double dx = x - p.path("x").asDouble(),
+      dz = z - p.path("z").asDouble(),
+      length = Math.hypot(dx, dz);
+    if (length < .02) return true;
+    double t = Math.min(1, distance / length);
+    double nx = p.path("x").asDouble() + dx * t,
+      nz = p.path("z").asDouble() + dz * t;
+    int steps = Math.max(1, (int) Math.ceil(distance / .1));
+    for (int i = 1; i <= steps; i++) if (
+      !g.navigation.stand(
+        n.path("city").asText(),
+        p.path("x").asDouble() + ((nx - p.path("x").asDouble()) * i) / steps,
+        p.path("z").asDouble() + ((nz - p.path("z").asDouble()) * i) / steps,
+        p.path("room").asText("")
+      )
+    ) return false;
+    p.put("x", p.path("x").asDouble() + dx * t)
+      .put("z", p.path("z").asDouble() + dz * t)
+      .put("face", Math.atan2(dx, dz));
+    return t == 1;
+  }
+
+  void tick() {
+    for (String wid : g.community.activeWorlds.keySet())
+      for (JsonNode row : g.community.residents().path(wid)) {
+        ObjectNode n = (ObjectNode) row;
+        if (!n.has("_route") || n.path("_routeVersion").asInt() != data.path("version").asInt()) {
+          start(n);
+          continue;
+        }
+        long last = n.path("_motionAt").asLong(g.now());
+        n.put("_motionAt", g.now());
+        double dt = Math.clamp((g.now() - last) / 1000d, 0, .5);
+        if (dt == 0 || n.path("_socialHoldUntil").asLong() > g.now()) continue;
+        String phase = n.path("_phase").asText(),
+          city = n.path("city").asText(),
+          loc = n.path("loc").asText(),
+          type = g.navigation.type(city, loc);
+        ObjectNode p = n.withObject("position");
+        int seed = Math.floorMod(n.path("userId").asText().hashCode(), 1000);
+        if (!p.path("room").isNull() && !p.path("room").asText().equals(g.navigation.roomId(n, loc))) {
+          JsonNode exit = g.navigation.layout(city, type).path("exit");
+          p.setAll(
+            g.navigation.arrival(
+              n,
+              loc,
+              g.navigation.roomId(n, loc),
+              exit.path("x").asDouble(),
+              exit.path("z").asDouble(),
+              Math.PI
+            )
+          );
+          n.put("_phase", "approach").putNull("activitySlot");
+          n.remove("_roomStation");
+          n.remove("_roomSlot");
+          phase = "approach";
+        }
+        if (phase.equals("walk")) {
+          JsonNode route = routes(city).get(n.path("_route").asInt()),
+            points = route.path("points");
+          int i = n.path("_point").asInt();
+          JsonNode target = points.get(i);
+          if (toward(n, target.get(0).asDouble(), target.get(1).asDouble(), dt * (1.5 + (seed % 7) * .1))) {
+            i++;
+            n.put("_point", i);
+            if (i >= points.size()) {
+              loc = route.path("to").asText();
+              n.put("loc", loc);
+              p.put("place", loc);
+              type = g.navigation.type(city, loc);
+              if (data.path("cities").path(city).path("parks").has(loc)) {
+                n.put("_parkSpot", (seed / 7) % 2)
+                  .put("_parkPoint", 0)
+                  .put("_phase", "parkApproach");
+              } else if (
+                !type.isEmpty() &&
+                !type.equals("home") &&
+                (type.equals("club") ||
+                  g.civic.open(
+                    (ObjectNode) g.table("worlds").get(wid),
+                    city,
+                    g.content.landmark(city, loc),
+                    g
+                      .clock((ObjectNode) g.table("worlds").get(wid))
+                      .path("hour")
+                      .asInt()
+                  ))
+              ) {
+                JsonNode exit = g.navigation.layout(city, type).path("exit");
+                p.setAll(
+                  g.navigation.arrival(
+                    n,
+                    loc,
+                    g.navigation.roomId(n, loc),
+                    exit.path("x").asDouble(),
+                    exit.path("z").asDouble(),
+                    Math.PI
+                  )
+                );
+                n.put("_phase", "approach");
+              } else {
+                n.put("_phase", "dwell").put("_until", g.now() + 12000 + seed * 10);
+                n.put("activity", loc.matches(".*(benz|arena|yankee|msg|chaseCenter|truist).*") ? "cheer" : "jog");
+              }
+            }
+          }
+        } else if (phase.startsWith("park")) {
+          JsonNode park = data.path("cities").path(city).path("parks").path(loc),
+            path = park.path("paths").get(n.path("_parkSpot").asInt());
+          if (phase.equals("parkApproach") || phase.equals("parkLeave")) {
+            int i = n.path("_parkPoint").asInt();
+            JsonNode at = path.get(i);
+            if (toward(n, at.get(0).asDouble(), at.get(1).asDouble(), dt * 1.8)) {
+              i += phase.equals("parkLeave") ? -1 : 1;
+              n.put("_parkPoint", i);
+              if (i < 0) n.put("_phase", "depart");
+              else if (i >= path.size()) {
+                n.put("_phase", "parkDwell")
+                  .put("_until", g.now() + 45000 + (seed % 20) * 1000)
+                  .put("activity", seed % 4 == 0 ? "sit" : "jog");
+                p.put("face", 0);
+                int nearest = 0;
+                double best = Double.MAX_VALUE;
+                JsonNode loop = park.path("loop");
+                for (int j = 0; j < loop.size(); j++) {
+                  double d = Math.hypot(
+                    loop.get(j).get(0).asDouble() - p.path("x").asDouble(),
+                    loop.get(j).get(1).asDouble() - p.path("z").asDouble()
+                  );
+                  if (d < best) {
+                    best = d;
+                    nearest = j;
+                  }
+                }
+                n.put("_loop", nearest);
+              }
+            }
+          } else if (phase.equals("parkDwell")) {
+            if (n.path("activity").asText().equals("jog")) {
+              JsonNode loop = park.path("loop");
+              int i = n.path("_loop").asInt();
+              JsonNode at = loop.get(i);
+              if (toward(n, at.get(0).asDouble(), at.get(1).asDouble(), dt * 2.7)) n.put(
+                "_loop",
+                (i + 1) % loop.size()
+              );
+            }
+            if (g.now() >= n.path("_until").asLong()) {
+              n.put("_phase", "parkReturn").put("activity", "walk");
+            }
+          } else {
+            JsonNode bench = park.path("benches").get(n.path("_parkSpot").asInt());
+            if (toward(n, bench.get(0).asDouble(), bench.get(1).asDouble(), dt * 1.8)) n.put("_phase", "parkLeave").put(
+              "_parkPoint",
+              path.size() - 1
+            );
+          }
+        } else if (phase.equals("approach")) {
+          JsonNode layout = g.navigation.layout(city, type);
+          if (!n.has("_roomStation")) {
+            JsonNode rules = layout
+                .path("activities")
+                .path(type.equals("cafe") || type.equals("foodhall") ? "food" : "fun"),
+              chosen = null;
+            for (JsonNode use : layout.path("slots"))
+              if (
+                use.path("station").equals(rules.path("station")) &&
+                use.path("pose").equals(rules.path("pose")) &&
+                !g.navigation.occupied(n, use, p.path("room").asText())
+              ) {
+                chosen = use;
+                break;
+              }
+            if (chosen == null) {
+              n.put("_phase", "leave").put("_roomPoint", 0);
+              continue;
+            }
+            n.put("_roomStation", rules.path("station").asText()).put("_roomPoint", 0);
+            n.set("_roomSlot", chosen.deepCopy());
+            // Reserve immediately while routing, so another resident cannot select the same chair.
+            n.putNull("activitySlot");
+            n.put("activity", "walk");
+          }
+          JsonNode path = layout.path("paths").path(n.path("_roomStation").asText());
+          int i = n.path("_roomPoint").asInt();
+          if (i < path.size()) {
+            JsonNode target = path.get(i);
+            if (toward(n, target.get(0).asDouble(), target.get(1).asDouble(), dt * 1.7)) n.put("_roomPoint", i + 1);
+          } else {
+            JsonNode use = n.path("_roomSlot");
+            n.set("activitySlot", use.deepCopy());
+            n.put("_phase", "dwell")
+              .put("_until", g.now() + 20000 + seed * 10)
+              .put("activity", use.path("pose").asText().toLowerCase(Locale.ROOT));
+            p.put("face", use.path("face").asDouble());
+          }
+        } else if (phase.equals("dwell")) {
+          if (p.path("room").isNull() && n.path("activity").asText().equals("jog")) {
+            JsonNode d = g.navigation.door(n, loc);
+            double angle = ((g.now() % 12000) / 12000d) * Math.PI * 2 + seed,
+              x = d.path("x").asDouble() + Math.sin(angle) * 2,
+              z = d.path("z").asDouble() + Math.cos(angle) * 2;
+            if (g.navigation.stand(city, x, z, "")) toward(n, x, z, dt * 2.5);
+          }
+          if (g.now() >= n.path("_until").asLong()) {
+            n.put("_phase", p.path("room").isNull() ? "depart" : "leave").put("activity", "walk");
+            n.putNull("activitySlot");
+            JsonNode returnPath = g.navigation.layout(city, type).path("paths").path(n.path("_roomStation").asText());
+            n.put("_roomPoint", returnPath.size() - 1);
+          }
+        } else if (phase.equals("leave")) {
+          JsonNode path = g.navigation.layout(city, type).path("paths").path(n.path("_roomStation").asText());
+          int i = n.path("_roomPoint").asInt(-1);
+          if (i >= 0 && i < path.size()) {
+            JsonNode target = path.get(i);
+            if (toward(n, target.get(0).asDouble(), target.get(1).asDouble(), dt * 1.8)) n.put("_roomPoint", i - 1);
+          } else {
+            JsonNode exit = g.navigation.layout(city, type).path("exit");
+            if (toward(n, exit.path("x").asDouble(), exit.path("z").asDouble(), dt * 1.8)) {
+              JsonNode d = g.navigation.door(n, loc);
+              p.setAll(g.navigation.arrival(n, loc, "", d.path("x").asDouble(), d.path("z").asDouble(), 0));
+              n.put("_phase", "depart");
+              n.putNull("activitySlot");
+            }
+          }
+        } else {
+          JsonNode d = g.navigation.door(n, loc);
+          if (toward(n, d.path("x").asDouble(), d.path("z").asDouble(), dt * 1.9)) {
+            n.put("_journeys", n.path("_journeys").asInt() + 1);
+            start(n);
+          }
+        }
+      }
+  }
 }

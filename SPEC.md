@@ -63,16 +63,20 @@ a visible saving/sending explanation. Homes display resident counts and missing 
   aspiration, goals. One sim per (user, world).
 - **NPC residents**: server-driven sims that vote, buy plots, visit landmarks, chat a little and can be interacted
   with. The shared world seeds 40 per city. Same data shape as players, flagged `npc: true`.
-- **Clock**: per world. 1 game hour = 60 real seconds (a day is 24 minutes). Landmark opening hours use it.
-  Days roll over at 00:00: rent is charged, daily goals reset.
+- **Clock**: per world. The shared world runs a seven-minute day (`Clock.msPerMinute` about 292, so one game
+  hour is about 17.5 real seconds). Landmark opening hours use it. Days roll over at 00:00: rent is charged,
+  daily goals reset.
 
 ## Gameplay rules (backend is authoritative)
 
 - **Needs** `energy, hunger, fun, social, hygiene` in 0..100, always present on `Sim.needs`. They decay per game
-  hour: energy 0.75, hunger 1, fun 0.7, social 0.6 (with personality modifiers) and hygiene 0.65; offline decay is
-  capped at six game hours so nobody returns to a dead sim. Hygiene is reported and drives the visible "dirty"
-  condition, but does not yet enter mood or action deltas. `mood` is derived from the other four: `great | good | okay | low | rough`. Low mood reduces pay and skill gain; a need at 0 blocks
-  work actions.
+  hour: energy 0.45, hunger 0.55, fun 0.42, social 0.36, hygiene 0.4 (with personality modifiers; the table is
+  `Content.NEED_RATES` and is published as `economy.ratesPerGameHour`). At the seven-minute day a full need lasts
+  well over half an hour of real play. Offline decay is capped at six game hours so nobody returns to a dead sim.
+  Hygiene is a full need: the home shower restores it (+65, more with a better shower or tub), shifts and gigs
+  cost a little (-6 to -8) and exercise costs more (-10); below 20 the sim shows the "dirty" condition.
+  `mood` is derived from all five needs: `great | good | okay | low | rough`. Low mood reduces pay and skill
+  gain; a need at 0 blocks work actions.
 - **Skills** (level 0..10 with xp): `fitness, cooking, music, tech, charisma, creativity, business`.
 - **Actions**: every landmark exposes structured actions. An action has `id, label, kind (work|fun|food|learn|social|civic|travel|rest),
   durationMin (game minutes), cost, pay, needs deltas, skill gains, requires {skill levels, job track, level, cash}`.
@@ -146,7 +150,8 @@ a visible saving/sending explanation. Homes display resident counts and missing 
   slot. A resident cannot book the same slot twice while a booking is active/queued. Response `ad.startsAt`
   discloses a future booking; reads expose current ad, queued count and the next available timestamp.
 - **Homes and rent**: moving requires being in the destination city and costs one day's rent, shown before
-  acceptance. Daily rent first falls due at the next midnight. Unpaid amounts persist as public `rentDebt`;
+  acceptance. Daily rent first falls due at the next midnight. A new life's starter studio is prepaid for its
+  first two game days (`home.rentPaidThrough`), so an idle new player loses nothing for about fourteen minutes. Unpaid amounts persist as public `rentDebt`;
   available funds repay them automatically without making cash negative. Accepted activity costs are reserved
   while rent settles. Purchases, move fees and actual rent payments update `moneyToday.spent`; aspiration
   rewards update income. All civic and property mutations require a sim and no pending activity/story.
@@ -196,8 +201,8 @@ Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl
 | GET | `/api/billboards/{id}/image` | PNG generated poster art (16:9) |
 
 Image fields (`Plots.atlas`, `PlotAd.image`, `BillboardAd.image`) are server-relative paths; the client loads them
-through `apiUrl()` so they work when the API is on another origin. Public ads do not carry `startsAt`; use
-`BillboardSlot.freeFrom`. `GET /api/sim` and every `{ sim }` response carry the private `socialReadyAt`.
+through `apiUrl()` so they work when the API is on another origin. Billboard ads carry `startsAt` (later than now when
+the booking is queued); `BillboardSlot.freeFrom` is the next free start. `GET /api/sim` and every `{ sim }` response carry the private `socialReadyAt`.
 | GET | `/api/homes?city` | `{ homes: Home[], total }` |
 
 **WebSocket** `GET /ws` (same cookie). Plain JSON text frames.
@@ -269,6 +274,44 @@ Sim `economy` includes a durable reasoned journal and next-rent/food/shift forec
 
 
 ## Shared life and venue contract
-Newly started browser lives opt their shared world into a seven-minute day (`Clock.msPerMinute`); the anchored clock preserves the current day. Explicit legacy clock settings remain valid. Work is one four-game-hour paid shift per day inside career hours; three paid gigs per day are available. Work timing awards a server-timed bonus, while sleep lasts according to missing energy and restores energy on completion.
+Newly started browser lives opt their shared world into a seven-minute day (`Clock.msPerMinute`); the anchored clock preserves the current day. Explicit legacy clock settings remain valid. Work is one four-game-hour paid shift per day inside career hours; three paid gigs per day are available. Work timing awards a server-timed bonus, while sleep lasts 6 to 20 real seconds according to missing energy and restores energy on completion.
 `POST /api/quick-start` accepts city, optional curated look and invite code. `/api/invite` returns a persistent code; `/api/invite/join` joins that resident at their current room or outside a private home. `/api/emote` publishes a timed nearby pose. `/api/social-life` supplies the city event and open homes; `/api/event/join` contributes to its shared goal. Open-house control, visit and one-per-visitor likes use `/api/open-house`, `/api/open-house/visit` and `/api/open-house/like`. Open homes permit nearby social actions and expose their furnished layout to visitors; editing remains owner-only.
 `GET/POST /api/venue-moment` exposes authoritative room show times, station reasons, timed mini-games, room scores and shared visual cues. Shared interior templates include zones, camera focus, staff, use slots and architectural identity. Public labels use fictional names while canonical world IDs remain stable. Walking and traffic use the authored shared street network. Buy mode previews furniture and paint directly in the room, retaining server placement and purchase review rules.
+
+## Pacing, first day and flows (2026-10-25)
+
+- **Money for a new life.** Starting cash is $150. Starter studios cost $15 (Atlanta), $22 (New York) and $25
+  (Bay Area) per game day and are prepaid for the first two game days; other neighbourhoods cost $40 to $110.
+  Plane fares are $120 (Atlanta and New York), $160 (Atlanta and Bay Area) and $170 (New York and Bay Area);
+  a bus costs a quarter. Starting cash covers a first flight, and about two entry shifts ($70 each in Atlanta)
+  pay for the next one.
+- **Opening hours.** Food venues never close, music and nightlife 12:00 to 05:00, workplaces and
+  transport all day, and other places at least 07:00 to 23:00. Someone already inside when a place closes may
+  still finish activities there (`Civic.openFor`). A closed place answers "<Name> is closed right now. It opens
+  at HH:00."
+- **First day.** `firstDay.complete` needs outside, job, shift, meal and neighbour (about ten minutes of play).
+  The rent step starts done because the first two days are prepaid. `firstDay.remaining` is the ready-made
+  disabled reason for plots, billboards and moving home, which unlock with `complete`.
+- **Stories.** Any ordinary activity at a story landmark (not a shift or the workplace visit) opens that story's
+  first beat when the activity finishes; there is no first-day gate. `Sim.storyLead` names the next story in the
+  current city so the HUD can point at it.
+- **Venues and civic life.** Music and nightlife venues always offer "Dance the night away" ($10, fun +28,
+  social +12) on the dance floor. Every election term opens with two residents on the ballot, so there is always
+  someone to vote for; running for mayor needs Charisma 1.
+- **City events.** A 90-second shared event runs every nine minutes per city. `/api/social-life` returns
+  `event: null` unless it starts within 90 seconds, is live, or finished and this player joined it; a finished
+  event's `result` speaks only to people who joined.
+- **Social reach.** A wave reaches 8 m; hang out and gift reach 3.3 m (3.8 m for walking residents). A greeted
+  resident stops for nine seconds so a hang out can follow. The client targets the
+  nearest person the player faces, real players before residents (`SocialTarget` in the store), and waits out the
+  3-second cooldown instead of failing.
+- **Movement.** `POST /api/move` may carry `via: [{x,z}]` (up to 16 corners walked since the last confirmed
+  position). The server checks every straight piece of that polyline for collisions and the whole length against
+  the speed budget (7.5 m/s, saved up to 12 m), so walking never pauses at a corner to wait for the server.
+- **Settlement.** The client learns that an activity finished from the socket `event: sim` (the server settles
+  due activities for connected players every second) or from any fresher sim; one fallback `GET /api/sim` runs
+  1.5 s after the deadline only if neither arrived. The accepted result is shown once.
+- **Guests and caching.** New guest lives are limited to 12 per address and 240 in total per ten minutes (429
+  with a friendly message). Expired sessions are removed, unused guests after a day, and lives nobody can sign
+  into after thirty quiet days. JSON responses over 1 KB are gzip-compressed; `/api/world` and `/api/version`
+  may be cached for five minutes, revisioned plot atlases for a day, and every other API response is `no-store`.

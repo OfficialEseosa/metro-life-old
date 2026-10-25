@@ -1,5 +1,5 @@
 import { installHomeDesign, useHomeDesign } from "./home-design";
-import { motion, useWalking } from "./walking";
+import { friendlyMessage, motion, useWalking } from "./walking";
 import { serverNow, syncServerTime } from "./server-time";
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
@@ -58,13 +58,19 @@ export type Connection =
   | "ended";
 
 export type CityData =
-  | "daily"
-  | "mayor"
-  | "plots"
-  | "billboards"
-  | "homes"
-  | "players"
-  | "chat";
+  "daily" | "mayor" | "plots" | "billboards" | "homes" | "players" | "chat";
+
+/**
+ * Who a Wave, Hang out or Gift would reach right now: the nearest resident the player faces, with
+ * real players preferred over city residents. `null` when nobody is within reach.
+ */
+export type SocialTarget = {
+  id: string;
+  name: string;
+  npc: boolean;
+  /** metres between the player and the target, from the latest positions frame */
+  distance: number;
+};
 
 type State = {
   sceneFailed: boolean;
@@ -80,6 +86,9 @@ type State = {
   clock: Clock | null;
   stats: Stats | null;
   socialNotice: string;
+  /** See SocialTarget. Updated by the walking loop a few times a second, only when it changes. */
+  socialTarget: SocialTarget | null;
+  setSocialTarget: (target: SocialTarget | null) => void;
   connected: boolean;
   connection: Connection;
   /** when the live socket last dropped (ms epoch), null while connected */
@@ -139,7 +148,8 @@ type State = {
   /** re-read session, world info, sim and clock (after login, world switch, etc.), then the city data */
   syncSession: (known?: Me) => Promise<void>;
   changeSession: (change: () => Promise<unknown>) => Promise<void>;
-  setCity: (city: CityId) => Promise<void>;
+  /** `arrive`: the player's own sim moved here (flight, bus): keep following them, no overview flight. */
+  setCity: (city: CityId, arrive?: boolean) => Promise<void>;
   refresh: (...what: CityData[]) => Promise<void>;
   setSim: (sim: Sim | null) => void;
   setUser: (user: User | null) => void;
@@ -174,7 +184,10 @@ function announceResult(result: ActResult) {
     detail: result.activity ? result.text : undefined,
     amount: result.deltas.cash,
     anchor,
-    data: { actionId: result.activity?.id ?? null, leveledUp: result.leveledUp },
+    data: {
+      actionId: result.activity?.id ?? null,
+      leveledUp: result.leveledUp,
+    },
   });
   for (const goal of result.goalsCompleted)
     emitFeedback({ kind: "goal", title: goal, anchor });
@@ -182,6 +195,19 @@ function announceResult(result: ActResult) {
 let socket: ReturnType<typeof connectSocket> | null = null;
 let loading: Promise<void> | null = null;
 let resultTimer: ReturnType<typeof setTimeout> | null = null;
+/**
+ * The accepted outcome of the running activity. It is shown once, when an authoritative sim (from
+ * the socket's `sim` event, any response, or the single fallback read) shows the activity finished.
+ */
+let pendingResult: {
+  result: ActResult;
+  worldId: string | undefined;
+  tries: number;
+} | null = null;
+/** First fallback read after the deadline, then a few slower retries, if no socket event arrived. */
+const SETTLE_GRACE_MS = 1500,
+  SETTLE_RETRY_MS = 2500,
+  SETTLE_TRIES = 5;
 let panelTrigger: HTMLElement | null = null;
 export const getPanelTrigger = () => panelTrigger;
 function rememberTrigger() {
@@ -199,10 +225,14 @@ let socketEpoch = 0,
   resourceRevision = 0,
   sessionChanging = false;
 let indoorTravelPending = false;
+/** Server time from which chat messages count as new (see the `chat` event). */
+let chatNewsSince = 0;
 let retryTimer: ReturnType<typeof setTimeout> | null = null,
   retryStep = 0,
   verifying: Promise<boolean> | null = null;
 const RETRY_DELAYS = [2000, 4000, 8000, 15000];
+/** The first load shows the game or a card with a button within this time, never an endless spinner. */
+const LOAD_DEADLINE_MS = 22000;
 export const mergeChat = (current: ChatMessage[], incoming: ChatMessage[]) =>
   [...new Map([...current, ...incoming].map((m) => [m.id, m])).values()]
     .sort((a, b) => a.at - b.at || a.id.localeCompare(b.id))
@@ -237,7 +267,8 @@ function notifyLive() {
 const low = (value: number | undefined) => (value ?? 100) < 20;
 /** Fields whose change is worth a React update; position and raw needs are excluded on purpose. */
 function visibleKey(p: Player) {
-  const action = p.lifeAction as { label?: string; pose?: string } | null | undefined;
+  const action = p.lifeAction as
+    { label?: string; pose?: string } | null | undefined;
   return [
     p.loc,
     p.position?.room ?? "",
@@ -257,7 +288,16 @@ const identityKeys = new WeakMap<Player, string>();
 function identityKey(p: Player) {
   let key = identityKeys.get(p);
   if (key === undefined) {
-    key = [p.id, p.username, p.city, p.online ? 1 : 0, p.npc ? 1 : 0, p.job ?? "", p.level, JSON.stringify(p.look)].join("|");
+    key = [
+      p.id,
+      p.username,
+      p.city,
+      p.online ? 1 : 0,
+      p.npc ? 1 : 0,
+      p.job ?? "",
+      p.level,
+      JSON.stringify(p.look),
+    ].join("|");
     identityKeys.set(p, key);
   }
   return key;
@@ -285,12 +325,18 @@ function applyPresence(list: Player[], current: Player[]): Player[] | null {
   livePlayers.byId = next;
   notifyLive();
   const key = computeRosterKey(roster);
-  const same = key === rosterKey && roster.length === current.length && roster.every((p, i) => p === current[i]);
+  const same =
+    key === rosterKey &&
+    roster.length === current.length &&
+    roster.every((p, i) => p === current[i]);
   rosterKey = key;
   return same ? null : roster;
 }
 /** Patch live fields in place; returns a new roster array only when visible state changed. */
-function applyPositions(patches: PlayerPatch[], current: Player[]): Player[] | null {
+function applyPositions(
+  patches: PlayerPatch[],
+  current: Player[],
+): Player[] | null {
   for (const patch of patches) {
     const existing = livePlayers.byId.get(patch.id);
     if (existing) Object.assign(existing, patch);
@@ -324,17 +370,48 @@ export const useStore = create<State>((set, get) => {
       .sim()
       .then((r) => {
         if (get().worldInfo?.id === wid) {
-          const travelled = r.sim.city !== get().sim?.city;
-          get().setSim(r.sim);
           set({ clock: r.clock });
-          if (travelled) {
-            void get().setCity(r.sim.city);
-            get().selectLocation(r.sim.loc);
-            get().setFocus(r.sim.loc);
-          }
+          get().setSim(r.sim);
         }
       })
       .catch(() => {});
+  };
+
+  /** Show the finished activity once its outcome is authoritative. */
+  const deliverSettled = (sim: Sim) => {
+    const pending = pendingResult;
+    if (!pending || pending.worldId !== sim.worldId) return;
+    const { result } = pending;
+    const finished =
+      (!sim.busyUntil || sim.busyUntil !== result.busyUntil) &&
+      serverNow() >= (result.busyUntil ?? 0) - 400;
+    if (!finished) return;
+    pendingResult = null;
+    if (resultTimer) clearTimeout(resultTimer);
+    resultTimer = null;
+    set({ lastResult: result, rewardAnchor: null });
+    announceResult(result);
+  };
+  /** The socket normally reports completion; read the sim ourselves only if it has not. */
+  const scheduleSettleCheck = (delay: number) => {
+    if (resultTimer) clearTimeout(resultTimer);
+    resultTimer = setTimeout(() => {
+      resultTimer = null;
+      const pending = pendingResult;
+      if (!pending || pending.worldId !== get().sim?.worldId) return;
+      pending.tries++;
+      void api
+        .sim()
+        .then((r) => {
+          set({ clock: r.clock });
+          get().setSim(r.sim);
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (pendingResult === pending && pending.tries < SETTLE_TRIES)
+            scheduleSettleCheck(SETTLE_RETRY_MS);
+        });
+    }, delay);
   };
 
   const onEvent = (e: ServerEvent) => {
@@ -364,7 +441,13 @@ export const useStore = create<State>((set, get) => {
         if (e.message.city === city) {
           const known = get().chat.some((m) => m.id === e.message.id);
           set((s) => ({ chat: mergeChat(s.chat, [e.message]) }));
-          if (!known && e.message.userId !== get().user?.id)
+          // Only messages written since this city came into view are news; the backlog that
+          // arrives on connect or after a flight is history, not a flood of toasts.
+          if (
+            !known &&
+            e.message.userId !== get().user?.id &&
+            e.message.at >= chatNewsSince
+          )
             emitFeedback({
               kind: "chat",
               title: e.message.username,
@@ -423,6 +506,7 @@ export const useStore = create<State>((set, get) => {
           disconnectedAt: connected ? null : (s.disconnectedAt ?? Date.now()),
         }));
         if (connected) {
+          chatNewsSince = serverNow() - 2000;
           socket?.send({ type: "view", city: get().city });
           void get().refresh(
             "players",
@@ -497,6 +581,19 @@ export const useStore = create<State>((set, get) => {
     disconnectedAt: null,
     retryAt: null,
     socialNotice: "",
+    socialTarget: null,
+    setSocialTarget: (socialTarget) => {
+      const current = get().socialTarget;
+      if (
+        current?.id === socialTarget?.id &&
+        current?.name === socialTarget?.name &&
+        (!current ||
+          !socialTarget ||
+          Math.abs(current.distance - socialTarget.distance) < 0.25)
+      )
+        return;
+      set({ socialTarget });
+    },
     city: "atl",
     sceneQuality: (() => {
       try {
@@ -553,6 +650,18 @@ export const useStore = create<State>((set, get) => {
         clearTimeout(retryTimer);
         retryTimer = null;
       }
+      // Whatever happens below, the first load ends in the game or in a card with a button
+      // within LOAD_DEADLINE_MS; a request stuck on a starved or flaky link cannot hold it.
+      const deadline = setTimeout(() => {
+        if (get().user && get().connection !== "connecting") return;
+        set({
+          connection: "unreachable",
+          ready: true,
+          loadError: "The city is slow to answer. Trying again.",
+        });
+        loading = null;
+        scheduleRetry();
+      }, LOAD_DEADLINE_MS);
       loading = (async () => {
         try {
           const [world, stats] = await Promise.all([api.world(), api.stats()]);
@@ -586,8 +695,15 @@ export const useStore = create<State>((set, get) => {
                   : "Could not reach the city. Try again.",
             });
         } finally {
+          clearTimeout(deadline);
           set({ ready: true });
           loading = null;
+          // A late success after the deadline card cancels the pending retry.
+          if (get().user && get().connection === "online" && retryTimer) {
+            clearTimeout(retryTimer);
+            retryTimer = null;
+            set({ retryAt: null, loadError: null });
+          }
         }
       })();
       return loading;
@@ -650,10 +766,33 @@ export const useStore = create<State>((set, get) => {
     },
 
     syncSession: async (known) => {
-      const me = known ?? (await safe(api.me()));
+      // Never leave the player on a loading card: a failed read is retried, and if the city still
+      // cannot be reached the unreachable card (with its countdown and Try now) takes over.
+      let me = known ?? (await safe(api.me()));
+      for (let attempt = 1; !me && attempt <= 2; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, 800 * attempt));
+        me = await safe(api.me());
+      }
+      if (!me) {
+        set({
+          connection: "unreachable",
+          loadError: "Could not reach the city. Trying again.",
+        });
+        scheduleRetry();
+        return;
+      }
+      // The server answered but knows no life for this browser: say so instead of loading forever.
+      if (!me.user && get().user) {
+        socketEpoch++;
+        socket?.close();
+        socket = null;
+        set({ connected: false, connection: "ended" });
+        return;
+      }
       const city = me?.sim?.city ?? get().city;
       if (resultTimer) clearTimeout(resultTimer);
       resultTimer = null;
+      pendingResult = null;
       presenceRevision++;
       installHomeDesign(me?.sim?.homeDesign, me?.sim?.homeLayout);
       useHomeDesign.getState().setOpen(false);
@@ -666,6 +805,7 @@ export const useStore = create<State>((set, get) => {
         players: resetPlayers(),
         chat: [],
         socialNotice: "",
+        socialTarget: null,
         mayor: null,
         plots: null,
         billboards: null,
@@ -687,8 +827,13 @@ export const useStore = create<State>((set, get) => {
       await get().refresh("daily", "mayor", "plots", "billboards");
     },
 
-    setCity: async (city) => {
+    setCity: async (city, arrive = false) => {
       if (city === get().city) return;
+      if (arrive) {
+        motion.follow = true;
+        motion.snapCamera = true;
+        motion.camera = null;
+      }
       set({
         city,
         daily: null,
@@ -702,8 +847,10 @@ export const useStore = create<State>((set, get) => {
         selectedSlot: null,
         plotSelection: null,
         panel: null,
-        focus: "overview",
+        socialTarget: null,
+        focus: arrive ? null : "overview",
       });
+      chatNewsSince = serverNow() - 2000;
       socket?.send({ type: "view", city });
       await get().refresh("daily", "mayor", "plots", "billboards");
     },
@@ -762,63 +909,49 @@ export const useStore = create<State>((set, get) => {
       if (sim && sim.worldId !== get().worldInfo?.id) return;
       installHomeDesign(sim?.homeDesign, sim?.homeLayout);
       const travelled = sim && get().sim && sim.city !== get().sim?.city;
+      const before = get().sim?.position;
+      // Snap only when the server itself moved the player (door, travel, a refused step): a
+      // snapshot that merely trails a walking player must not pull them back.
       if (
         sim?.position &&
         motion.position &&
         (sim.position.room !== motion.position.room ||
-          Math.hypot(
+          (Math.hypot(
             sim.position.x - motion.position.x,
             sim.position.z - motion.position.z,
-          ) > 4)
+          ) > 4 &&
+            (!before ||
+              (before.room ?? null) !== (sim.position.room ?? null) ||
+              Math.hypot(sim.position.x - before.x, sim.position.z - before.z) >
+                4)))
       ) {
         motion.revision++;
         motion.teleport++;
+        motion.trail = [];
         motion.position = { ...sim.position };
         useWalking.setState({ position: { ...sim.position } });
         motion.follow = true;
+        motion.snapCamera = true;
         motion.wake();
       }
       set({ sim });
-      if (travelled && sim) {
-        void get().setCity(sim.city);
-        get().selectLocation(sim.loc);
-        get().setFocus(sim.loc);
-      }
+      // Arriving in another city (a flight or bus): follow the player there, never the overview.
+      if (travelled && sim) void get().setCity(sim.city, true);
+      if (sim) deliverSettled(sim);
     },
     setUser: (user) => set({ user }),
     setMayor: (mayor) => set({ mayor }),
     setLastResult: (lastResult) => {
       if (resultTimer) clearTimeout(resultTimer);
       resultTimer = null;
-      const wait = (lastResult?.busyUntil ?? 0) - serverNow(),
-        worldId = get().sim?.worldId,
-        sourceCity = get().sim?.city;
+      pendingResult = null;
+      const wait = (lastResult?.busyUntil ?? 0) - serverNow();
       if (lastResult && wait > 0) {
+        // One settlement path: the socket's `sim` event (or any fresher sim) delivers it in
+        // deliverSettled; a single fallback read covers a quiet or missing socket.
+        pendingResult = { result: lastResult, worldId: get().sim?.worldId, tries: 0 };
         set({ lastResult: null, rewardAnchor: null });
-        const complete = async () => {
-          if (get().sim?.worldId !== worldId) return;
-          try {
-            const r = await api.sim();
-            if (get().sim?.worldId !== worldId) return;
-            if (r.sim.busyUntil && r.sim.busyUntil > serverNow()) {
-              resultTimer = setTimeout(() => void complete(), 150);
-              return;
-            }
-            get().setSim(r.sim);
-            set({ clock: r.clock, lastResult, rewardAnchor: null });
-            announceResult(lastResult);
-            if (r.sim.city !== sourceCity) {
-              await get().setCity(r.sim.city);
-              get().selectLocation(r.sim.loc);
-              get().setFocus(r.sim.loc);
-            }
-            resultTimer = null;
-          } catch {
-            if (get().sim?.worldId === worldId)
-              resultTimer = setTimeout(() => void complete(), 1000);
-          }
-        };
-        resultTimer = setTimeout(() => void complete(), wait + 40);
+        scheduleSettleCheck(wait + SETTLE_GRACE_MS);
       } else {
         set({ lastResult, rewardAnchor: null });
         if (lastResult) announceResult(lastResult);
@@ -865,7 +998,7 @@ export const useStore = create<State>((set, get) => {
       try {
         await motion.flush();
         motion.revision++;
-        const current = get().sim!;
+        const current = get().sim ?? sim;
         const alreadyThere =
           !current.position?.room && current.position?.place === destination;
         let result = alreadyThere
@@ -879,23 +1012,35 @@ export const useStore = create<State>((set, get) => {
           searchOpen: false,
           cameraMoving: false,
         });
-        const deadline = Date.now() + 15000;
+        const deadline = Date.now() + 30000;
         while (result.sim.busyUntil) {
           if (Date.now() > deadline)
             throw Error(
               "Your trip is taking longer than expected. Please try again.",
             );
-          await new Promise((resolve) => setTimeout(resolve, 150));
-          result = await api.sim();
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          // A refused or late read (another request in flight) is simply tried again.
+          result = await api.sim().catch((error: unknown) => {
+            if (error instanceof ApiError && error.status === 0) return result;
+            throw error;
+          });
           if (get().sim?.worldId !== world) return;
         }
+        const arrived = result.sim.position;
+        if (!arrived)
+          throw Error("Could not find your way there. Please try again.");
         motion.revision++;
         motion.teleport++;
-        motion.position = { ...result.sim.position! };
+        motion.trail = [];
+        motion.position = { ...arrived };
         motion.follow = true;
+        motion.camera = null;
+        motion.snapCamera = true;
+        // A map shortcut arrives behind a short fade, so the jump reads as travel, not a glitch.
         useWalking.setState({
-          position: { ...result.sim.position! },
+          position: { ...arrived },
           error: "",
+          ...(alreadyThere ? {} : { transition: true }),
         });
         installHomeDesign(result.sim.homeDesign, result.sim.homeLayout);
         set({
@@ -911,21 +1056,20 @@ export const useStore = create<State>((set, get) => {
           emitFeedback({
             kind: "arrival",
             title: placeName(result.sim.city, destination),
-            anchor: { x: result.sim.position!.x, z: result.sim.position!.z },
+            detail: "Map shortcut",
+            anchor: { x: arrived.x, z: arrived.z },
             data: { loc: destination, city: result.sim.city },
           });
         if (afterPanel === "mayor") await get().refresh("mayor");
       } catch (error) {
         useWalking.setState({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Could not travel. Try again.",
+          error: friendlyMessage(error, "Could not travel there. Try again."),
         });
         throw error;
       } finally {
         indoorTravelPending = false;
         set({ acting: false });
+        setTimeout(() => useWalking.setState({ transition: false }), 500);
       }
     },
     setFocus: (focus) => {
@@ -991,10 +1135,16 @@ useStore.subscribe((state, previous) => {
   if (next.job && (!before.job || next.job.id !== before.job.id))
     emitFeedback({
       kind: "promotion",
-      title: before.job && before.job.track === next.job.track ? `Promoted to ${next.job.title}` : `Hired as ${next.job.title}`,
+      title:
+        before.job && before.job.track === next.job.track
+          ? `Promoted to ${next.job.title}`
+          : `Hired as ${next.job.title}`,
       detail: `$${next.job.payPerHour} an hour`,
       anchor,
-      data: { hired: !before.job || before.job.track !== next.job.track, jobId: next.job.id },
+      data: {
+        hired: !before.job || before.job.track !== next.job.track,
+        jobId: next.job.id,
+      },
     });
   if (
     next.aspiration &&
@@ -1020,7 +1170,11 @@ useStore.subscribe((state, previous) => {
 
 // ---- narrow selectors ---------------------------------------------------------
 
-export type SimVitals = { needs: Sim["needs"]; cash: number; mood: Sim["mood"] };
+export type SimVitals = {
+  needs: Sim["needs"];
+  cash: number;
+  mood: Sim["mood"];
+};
 /** Needs, cash and mood of the player's sim; re-renders only when one of them changes. */
 export const useSimVitals = (): SimVitals | null =>
   useStore(

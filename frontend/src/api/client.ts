@@ -66,9 +66,12 @@ async function req<T>(
   body?: unknown,
 ): Promise<T> {
   const mutation = method !== "GET",
+    // Movement only changes the position, which the client owns while walking, so a sim snapshot
+    // read during a step is still current. Counting it would refuse every refresh while walking.
+    tracked = mutation && path !== "/api/move",
     revision = mutationRevision,
     started = performance.now();
-  if (mutation) {
+  if (tracked) {
     mutationRevision++;
     mutations++;
   }
@@ -80,7 +83,8 @@ async function req<T>(
     if (signIn && session.wanted) headers["X-Metro-Token-Fallback"] = "1";
     try {
       res = await fetch(apiUrl(path), {
-        signal: AbortSignal.timeout(15000),
+        // Reads give up sooner so an unreachable city is noticed; a slow action gets more time.
+        signal: AbortSignal.timeout(mutation ? 30000 : 15000),
         method,
         credentials: "include",
         headers,
@@ -94,6 +98,12 @@ async function req<T>(
     }
     const data = await res.json().catch(() => null);
     if (res.status === 401 && !signIn) unauthorized?.(path);
+    // A body cut off by a timeout or a dropped link must never reach callers as `null`.
+    if (res.ok && (data === null || typeof data !== "object"))
+      throw new ApiError(
+        0,
+        "The city took too long to answer. Please try again.",
+      );
     if (!res.ok) {
       const error = new ApiError(
         res.status,
@@ -122,11 +132,21 @@ async function req<T>(
       syncServerTime(data.now ?? data.clock.at, performance.now() - started);
     return data as T;
   } finally {
-    if (mutation) {
+    if (tracked) {
       mutations--;
       mutationRevision++;
     }
   }
+}
+
+/** One shared read of the sim at a time: several callers asking together share a single request. */
+let simRead: Promise<{ sim: Sim; clock: Clock }> | null = null;
+function readSim() {
+  if (!simRead)
+    simRead = req<{ sim: Sim; clock: Clock }>("GET", "/api/sim").finally(() => {
+      simRead = null;
+    });
+  return simRead;
 }
 
 async function approvePurchase(amount: number, reason: string) {
@@ -211,12 +231,18 @@ export const api = {
     req<{ sim: Sim }>("POST", "/api/door", { loc, enter }),
   posture: (bench: string | null) =>
     req<{ sim: Sim }>("POST", "/api/posture", { bench }),
-  move: (city: CityId, p: import("../navigation").Position) =>
+  /** `via`: corners walked since the last confirmed position (see `motion.trail`). */
+  move: (
+    city: CityId,
+    p: import("../navigation").Position,
+    via: { x: number; z: number }[] = [],
+  ) =>
     req<{ position: import("../navigation").Position }>("POST", "/api/move", {
       city,
       ...p,
+      ...(via.length ? { via } : {}),
     }),
-  sim: () => req<{ sim: Sim; clock: Clock }>("GET", "/api/sim"),
+  sim: readSim,
   setupSim: (setup: {
     traits?: string[];
     username: string;
