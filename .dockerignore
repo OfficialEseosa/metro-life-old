@@ -1,0 +1,14 @@
+# The backend image only needs backend/ and shared/.
+.git
+**/node_modules
+**/target
+frontend
+reference
+evidence
+audits
+game
+docs
+scripts
+tools
+backend/data
+*.log
