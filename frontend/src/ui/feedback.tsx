@@ -44,7 +44,11 @@ import {
   type SoundKind,
 } from "./sound";
 import { useAudioMix } from "./audio";
-import { projectFeedbackAnchor, type ScreenPoint } from "./feedback-anchor";
+import {
+  feedbackHold,
+  projectFeedbackAnchor,
+  type ScreenPoint,
+} from "./feedback-anchor";
 import "./feedback.css";
 
 export function SoundButton() {
@@ -394,7 +398,7 @@ function legacyShowing(kind: FeedbackKind) {
     return !!document.querySelector(
       ".result-toast:not(.inline-result):not(.social-notice)",
     );
-  if (kind === "socialReceived")
+  if (kind === "socialReceived" || kind === "social" || kind === "promotion")
     return !!document.querySelector(".social-notice");
   if (kind === "goal") return !!document.querySelector(".celebration-toast");
   return false;
@@ -404,6 +408,8 @@ const reducedMotion = () =>
   matchMedia("(prefers-reduced-motion: reduce)").matches;
 const signed = (amount: number) =>
   `${amount < 0 ? "−" : "+"}$${Math.abs(Math.round(amount)).toLocaleString("en-US")}`;
+const holdFor = (life: number) => feedbackHold() || life,
+  slowFor = (ms: number) => (feedbackHold() ? ms * 12 : ms);
 const COINS = 6,
   FLOATS = 4;
 let activeLayers = 0;
@@ -485,7 +491,7 @@ export function FeedbackLayer() {
         next.splice(drop >= 0 ? drop : 0, 1);
       }
       commit(next);
-      later(() => dismiss(created), look.life);
+      later(() => dismiss(created), holdFor(look.life));
     };
 
     const floatLabel = (
@@ -535,7 +541,7 @@ export function FeedbackLayer() {
               },
             ],
         {
-          duration: 1500,
+          duration: slowFor(1500),
           easing: "cubic-bezier(.2,.7,.2,1)",
           fill: "forwards",
         },
@@ -587,7 +593,7 @@ export function FeedbackLayer() {
             },
           ],
           {
-            duration: 760,
+            duration: slowFor(760),
             delay: 160 + i * 75,
             easing: "cubic-bezier(.45,.05,.35,1)",
             fill: "forwards",
@@ -613,10 +619,7 @@ export function FeedbackLayer() {
         if (performance.now() - lastChat.at < 2500) return;
         lastChat.at = performance.now();
       }
-      if (
-        ["actionDone", "socialReceived", "goal"].includes(e.kind) &&
-        legacyShowing(e.kind)
-      ) {
+      if (legacyShowing(e.kind)) {
         // The older HUD toast already shows it; still give the world response.
       } else showToast(e);
       const amount = e.amount ?? 0;
@@ -637,6 +640,9 @@ export function FeedbackLayer() {
       }
     };
 
+    if (import.meta.env.DEV)
+      (window as unknown as { __feedbackClear?: () => void }).__feedbackClear =
+        () => commit([]);
     const off = onFeedback((e) => {
       if (
         e.kind === "chat" &&

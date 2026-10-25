@@ -9,7 +9,7 @@ import {
   type FeedbackAnchor,
   type FeedbackEvent,
 } from "../feedback";
-import { setFeedbackProjector } from "../ui/feedback-anchor";
+import { feedbackHold, setFeedbackProjector } from "../ui/feedback-anchor";
 
 const CONFETTI = 80,
   RINGS = 12;
@@ -210,7 +210,7 @@ export function Celebration() {
       slot.y = at.y + 0.04;
       slot.z = at.z;
       slot.size = size;
-      slot.life = life;
+      slot.life = feedbackHold() ? life * 12 : life;
       rings.current?.setColorAt(index, tones[tone]);
       if (rings.current?.instanceColor)
         rings.current.instanceColor.needsUpdate = true;

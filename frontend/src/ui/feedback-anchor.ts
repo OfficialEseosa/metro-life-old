@@ -43,3 +43,12 @@ export function projectFeedbackAnchor(
   if (!at || !projector) return null;
   return projector(at, lift, out) && out.visible ? out : null;
 }
+
+/**
+ * Dev builds only: journey scripts on slow machines set `window.__feedbackHold` (ms) so toasts
+ * stay up and effects slow down long enough to be captured. Always 0 in production.
+ */
+export function feedbackHold(): number {
+  if (!import.meta.env.DEV) return 0;
+  return (window as unknown as { __feedbackHold?: number }).__feedbackHold ?? 0;
+}
