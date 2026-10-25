@@ -288,6 +288,23 @@ final class Civic {
     return start < end ? hour >= start && hour < end : hour >= start || hour < end;
   }
 
+  /** Open now, or the sim is already inside: whoever came in before closing may finish their visit. */
+  boolean openFor(ObjectNode w, String city, JsonNode landmark, ObjectNode s) {
+    if (open(w, city, landmark, g.clock(w).path("hour").asInt())) return true;
+    String room = s.path("position").path("room").asText("");
+    return !room.isEmpty() && room.endsWith(":" + landmark.path("id").asText());
+  }
+
+  /** A friendly closed message that says when to come back. */
+  String closedMessage(JsonNode landmark) {
+    return (
+      landmark.path("name").asText("This place") +
+      " is closed right now. It opens at " +
+      String.format("%02d:00", landmark.path("open").get(0).asInt() % 24) +
+      "."
+    );
+  }
+
   ObjectNode action(ObjectNode w, String city, JsonNode landmark, ObjectNode action) {
     ObjectNode a = action.deepCopy();
     String policy = policy(w, city),

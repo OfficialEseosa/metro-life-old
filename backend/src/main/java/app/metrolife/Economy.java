@@ -69,15 +69,17 @@ final class Economy {
   }
 
   void decayNeeds(ObjectNode s, double hours) {
-    double[] rates = { .75, 1, .7, .6 };
     for (int i = 0; i < Content.NEEDS.length; i++) {
       String need = Content.NEEDS[i];
       s.withObject("needs").put(
         need,
-        Math.max(0, s.path("needs").path(need).asDouble() - rates[i] * hours * Personality.needDecayMultiplier(s, need))
+        Math.max(
+          0,
+          s.path("needs").path(need).asDouble(85) -
+            Content.NEED_RATES[i] * hours * Personality.needDecayMultiplier(s, need)
+        )
       );
     }
-    s.withObject("needs").put("hygiene", Math.max(0, s.path("needs").path("hygiene").asDouble(85) - .65 * hours));
   }
 
   ObjectNode read(ObjectNode s, ObjectNode w) {
@@ -117,13 +119,8 @@ final class Economy {
       "payAssumption",
       job.isObject() ? "One healthy shift; actual pay depends on your job and mood" : "No job income assumed"
     );
-    out
-      .putObject("ratesPerGameHour")
-      .put("energy", .75)
-      .put("hunger", 1)
-      .put("fun", .7)
-      .put("social", .6)
-      .put("hygiene", .65);
+    ObjectNode rates = out.putObject("ratesPerGameHour");
+    for (int i = 0; i < Content.NEEDS.length; i++) rates.put(Content.NEEDS[i], Content.NEED_RATES[i]);
     return out;
   }
 }

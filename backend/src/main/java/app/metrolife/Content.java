@@ -13,7 +13,9 @@ public class Content {
   final ObjectNode world;
   final JsonNode transit;
   static final String[] SKILLS = { "fitness", "cooking", "music", "tech", "charisma", "creativity", "business" };
-  static final String[] NEEDS = { "energy", "hunger", "fun", "social" };
+  static final String[] NEEDS = { "energy", "hunger", "fun", "social", "hygiene" };
+  /** Need loss per game hour, in NEEDS order. A game day is seven real minutes, so these stay gentle. */
+  static final double[] NEED_RATES = { .45, .55, .42, .36, .4 };
   static final String[] TRACKS = { "tech", "music", "sports", "food", "finance", "arts", "civic", "health" };
   static final String[] ASPIRATIONS = {
     "founder",
@@ -53,7 +55,7 @@ public class Content {
         String id = city.path("id").asText();
         ((ObjectNode) nh).put(
           "rent",
-          n == 0 ? starterRent(id) : (id.equals("atl") ? 65 : id.equals("nyc") ? 110 : 125) + 15 * n
+          n == 0 ? starterRent(id) : (id.equals("atl") ? 30 : id.equals("nyc") ? 45 : 50) + 10 * n
         );
         n++;
       }
@@ -88,7 +90,7 @@ public class Content {
         )
       );
       home.add(
-        action("shower", "Take a shower", "rest", "droplets", 15, 0, 0, Map.of("energy", 18, "fun", 12), Map.of())
+        action("shower", "Take a shower", "rest", "droplets", 15, 0, 0, Map.of("hygiene", 65, "energy", 10, "fun", 6), Map.of())
       );
       home.add(
         action(
@@ -171,7 +173,7 @@ public class Content {
         240,
         0,
         120,
-        Map.of("energy", -10, "hunger", -7, "fun", -3),
+        Map.of("energy", -10, "hunger", -7, "fun", -3, "hygiene", -8),
         Map.of(careerSkills[t], 75)
       );
       shift.putObject("requires").put("job", TRACKS[t]);
@@ -346,7 +348,7 @@ public class Content {
       kind = "work";
       cost = 0;
       pay = 22;
-      needs = Map.of("energy", -10, "hunger", -7, "fun", -3);
+      needs = Map.of("energy", -10, "hunger", -7, "fun", -3, "hygiene", -6);
       skill =
         s.contains("kitchen") || s.contains("line")
           ? "cooking"
@@ -370,7 +372,7 @@ public class Content {
     } else if (s.matches(".*(run |jog |bike |tennis|swim|shoot around|cycle).*")) {
       kind = "learn";
       cost = 0;
-      needs = Map.of("fun", 15, "energy", -8, "hunger", -5);
+      needs = Map.of("fun", 15, "energy", -8, "hunger", -5, "hygiene", -10);
       skill = "fitness";
     } else if (s.matches(".*(friends|network|club|debate|co-founder|meet |share ).*")) {
       kind = "social";
@@ -445,7 +447,7 @@ public class Content {
   }
 
   static int starterRent(String city) {
-    return city.equals("atl") ? 35 : city.equals("nyc") ? 55 : 65;
+    return city.equals("atl") ? 15 : city.equals("nyc") ? 22 : 25;
   }
 
   static int entryPay(String city) {

@@ -256,6 +256,24 @@ final class Stories {
       }
   }
 
+  /** The next story waiting in the sim's current city, so the HUD can point at it. Null when none. */
+  JsonNode lead(ObjectNode s) {
+    String city = s.path("city").asText();
+    for (Story story : all)
+      if (story.city.equals(city) && !s.path("_stories").has(story.id)) {
+        ObjectNode out = game
+          .object()
+          .put("id", story.id)
+          .put("title", story.title)
+          .put("city", story.city)
+          .put("loc", story.loc)
+          .put("name", game.content.landmark(story.city, story.loc).path("name").asText());
+        out.put("hint", "A story is waiting at " + out.path("name").asText() + ". Do any activity there to begin.");
+        return out;
+      }
+    return game.mapper.nullNode();
+  }
+
   ArrayNode journal(ObjectNode s) {
     ArrayNode rows = game.mapper.createArrayNode();
     for (Story story : all)

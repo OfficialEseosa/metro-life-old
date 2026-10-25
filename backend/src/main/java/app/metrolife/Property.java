@@ -83,7 +83,8 @@ final class Property {
 
   ObjectNode publicAd(JsonNode row, String kind) {
     ObjectNode out = ((ObjectNode) row).deepCopy();
-    out.remove(List.of("userId", "slot", "startsAt"));
+    // startsAt stays: a queued billboard booking shows when it goes live.
+    out.remove(List.of("userId", "slot"));
     out.put("image", "/api/" + kind + "/" + row.path("id").asText() + "/image");
     return out;
   }
@@ -252,9 +253,7 @@ final class Property {
     g.finishProgress(s);
     g.store.save();
     ObjectNode out = g.object();
-    ObjectNode ad = publicAd(row, "billboards");
-    ad.put("startsAt", start);
-    out.set("ad", ad);
+    out.set("ad", publicAd(row, "billboards"));
     out.set("sim", g.publicSim(s));
     return out;
   }

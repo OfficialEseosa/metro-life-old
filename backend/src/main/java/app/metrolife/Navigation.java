@@ -538,7 +538,7 @@ final class Navigation {
       else if (!type.equals("club")) GameService.require(
         g.civic.open(w, city, g.content.landmark(city, loc), g.clock(w).path("hour").asInt()),
         409,
-        "This place is closed"
+        g.civic.closedMessage(g.content.landmark(city, loc))
       );
       atDoor(s, loc);
       JsonNode exit = layoutFor(s, type).path("exit");
@@ -700,29 +700,52 @@ final class Navigation {
       400,
       "Send a finite position"
     );
+    // The client walks a polyline: it reports the corners it turned since its last update, so each
+    // straight piece is checked on its own and walking never stops at a corner to wait for the server.
+    List<double[]> route = new ArrayList<>();
+    route.add(new double[] { p.path("x").asDouble(), p.path("z").asDouble() });
+    JsonNode via = b.path("via");
+    if (via.isArray()) {
+      GameService.require(via.size() <= 16, 400, "Send fewer route corners");
+      for (JsonNode corner : via) {
+        double cx = corner.path("x").asDouble(Double.NaN),
+          cz = corner.path("z").asDouble(Double.NaN);
+        GameService.require(Double.isFinite(cx) && Double.isFinite(cz), 400, "Send a finite position");
+        route.add(new double[] { cx, cz });
+      }
+    }
+    route.add(new double[] { x, z });
     String key = s.path("worldId").asText() + s.path("userId").asText();
     long at = g.now();
     double budget = Math.min(
-        3,
-        credits.getOrDefault(key, 1.5d) + Math.max(0, at - times.getOrDefault(key, at)) * .0075
+        5,
+        credits.getOrDefault(key, 2d) + Math.max(0, at - times.getOrDefault(key, at)) * .0075
       ),
-      distance = Math.hypot(x - p.path("x").asDouble(), z - p.path("z").asDouble());
+      distance = 0;
+    for (int i = 1; i < route.size(); i++) distance += Math.hypot(
+      route.get(i)[0] - route.get(i - 1)[0],
+      route.get(i)[1] - route.get(i - 1)[1]
+    );
     times.put(key, at);
     credits.put(key, budget);
     GameService.require(distance <= budget + 1e-6, 409, "That is faster than running");
-    int steps = Math.max(1, (int) Math.ceil(distance / .15));
-    for (int i = 1; i <= steps; i++) {
-      double t = (double) i / steps;
-      GameService.require(
-        stand(
-          s.path("city").asText(),
-          p.path("x").asDouble() + (x - p.path("x").asDouble()) * t,
-          p.path("z").asDouble() + (z - p.path("z").asDouble()) * t,
-          p.path("room").asText("")
-        ),
-        409,
-        "The path is blocked"
-      );
+    for (int leg = 1; leg < route.size(); leg++) {
+      double[] from = route.get(leg - 1),
+        to = route.get(leg);
+      int steps = Math.max(1, (int) Math.ceil(Math.hypot(to[0] - from[0], to[1] - from[1]) / .15));
+      for (int i = 1; i <= steps; i++) {
+        double t = (double) i / steps;
+        GameService.require(
+          stand(
+            s.path("city").asText(),
+            from[0] + (to[0] - from[0]) * t,
+            from[1] + (to[1] - from[1]) * t,
+            p.path("room").asText("")
+          ),
+          409,
+          "The path is blocked"
+        );
+      }
     }
     credits.put(key, budget - distance);
     s.putNull("activitySlot");

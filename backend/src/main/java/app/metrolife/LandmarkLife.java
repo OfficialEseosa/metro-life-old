@@ -195,14 +195,9 @@ final class LandmarkLife {
     String blocked = reason(s, loc, cfg, action, shared);
     GameService.require(blocked.isEmpty(), 409, blocked);
     GameService.require(
-      g.civic.open(
-        w,
-        s.path("city").asText(),
-        g.content.landmark(s.path("city").asText(), loc),
-        g.clock(w).path("hour").asInt()
-      ),
+      g.civic.openFor(w, s.path("city").asText(), g.content.landmark(s.path("city").asText(), loc), s),
       409,
-      "The venue is closed"
+      g.civic.closedMessage(g.content.landmark(s.path("city").asText(), loc))
     );
     String uid = s.path("userId").asText(),
       mode = action.path("kind").asText();

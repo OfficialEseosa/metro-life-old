@@ -234,6 +234,11 @@ final class Community {
   }
 
   boolean near(ObjectNode from, ObjectNode target) {
+    return near(from, target, 3);
+  }
+
+  /** Same room and within reach. Walking residents get a little more slack: they keep moving between frames. */
+  boolean near(ObjectNode from, ObjectNode target, double reach) {
     if (
       ((from.path("loc").asText().equals("home") || target.path("loc").asText().equals("home")) &&
         !g.socialLife.sharedHome(from, target)) ||
@@ -246,7 +251,8 @@ final class Community {
       y = g.navigation.effectivePosition(target);
     return (
       a.path("room").asText("").equals(b.path("room").asText("")) &&
-      Math.hypot(x.path("x").asDouble() - y.path("x").asDouble(), x.path("z").asDouble() - y.path("z").asDouble()) <= 3
+      Math.hypot(x.path("x").asDouble() - y.path("x").asDouble(), x.path("z").asDouble() - y.path("z").asDouble()) <=
+      reach
     );
   }
 
@@ -439,7 +445,11 @@ final class Community {
       "That neighbour is offline"
     );
     GameService.require(s.path("city").equals(t.path("city")), 409, "Meet at the same place first");
-    GameService.require(near(s, t), 409, "Walk up to your neighbour first");
+    GameService.require(
+      near(s, t, t.path("npc").asBoolean() ? 3.8 : 3.3),
+      409,
+      "Walk a little closer to " + t.path("username").asText() + " first"
+    );
     GameService.require(!socialBusy(s) && !socialBusy(t), 409, "Finish your activities or stories first");
     GameService.require(
       g.now() - s.path("_lastSocial").asLong() >= SOCIAL_COOLDOWN_MS,
@@ -537,11 +547,13 @@ final class Community {
               for (String need : Content.NEEDS)
                 n.withObject("needs").put(
                   need,
-                  Math.clamp(
-                    n.path("needs").path(need).asDouble() - 2 + action.path("needs").path(need).asDouble(),
-                    15,
-                    100
-                  )
+                  need.equals("hygiene")
+                    ? 80 + (i % 20)
+                    : Math.clamp(
+                        n.path("needs").path(need).asDouble(80) - 2 + action.path("needs").path(need).asDouble(),
+                        15,
+                        100
+                      )
                 );
               n.put("lastActivity", action.path("label").asText());
             }

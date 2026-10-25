@@ -39,7 +39,7 @@ final class SocialLife {
     }
     if (event == null || g.now() > event.path("endsAt").asLong() + 45000) {
       long start =
-        event == null ? g.now() + 45000 : Math.max(g.now() + 15000, event.path("startsAt").asLong() + 360000);
+        event == null ? g.now() + 45000 : Math.max(g.now() + 15000, event.path("startsAt").asLong() + 540000);
       String loc = city.equals("atl") ? "ponce" : city.equals("nyc") ? "timesSquare" : "dolores";
       event = events
         .putObject(city)
@@ -68,6 +68,14 @@ final class SocialLife {
         .put("progress", Math.min(event.path("target").asInt(), event.path("progress").asInt() + 1));
     }
     return event;
+  }
+
+  static final long ANNOUNCE_MS = 90000;
+
+  boolean visible(JsonNode event, boolean joined) {
+    if (active(event)) return true;
+    if (event.path("finished").asBoolean()) return joined;
+    return event.path("startsAt").asLong() - g.now() <= ANNOUNCE_MS;
   }
 
   boolean active(JsonNode event) {
@@ -104,11 +112,22 @@ final class SocialLife {
     if (s != null) claim(s, event);
     ObjectNode copy = event.deepCopy();
     copy.remove(List.of("contributors", "claims", "npcAt"));
+    boolean joined = s != null && event.path("contributors").has(s.path("userId").asText());
     copy
       .put("active", active(event))
-      .put("joined", s != null && event.path("contributors").has(s.path("userId").asText()))
+      .put("joined", joined)
       .put("rewardClaimed", s != null && event.path("claims").has(s.path("userId").asText()));
-    out.set("event", copy);
+    if (event.path("finished").asBoolean()) copy.put(
+      "result",
+      !joined
+        ? "This one has finished. The next moment starts soon."
+        : event.path("success").asBoolean()
+          ? "City goal complete! Thanks for being part of it."
+          : "Thanks for joining in!"
+    );
+    // Only announce what concerns this player: an event starting within ninety seconds, a live one, or
+    // the result of one they joined. Everything else stays off screen.
+    out.set("event", visible(event, joined) ? copy : g.mapper.nullNode());
     ArrayNode homes = out.putArray("openHouses");
     for (JsonNode row : g.table("sims"))
       if (

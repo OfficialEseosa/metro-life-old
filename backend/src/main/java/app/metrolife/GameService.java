@@ -188,9 +188,39 @@ public class GameService {
 
   public record AuthResult(String token, ObjectNode user) {}
 
+  /** New guest lives per address within GUEST_WINDOW_MS, and across all addresses. */
+  static final int GUESTS_PER_ADDRESS = 12,
+    GUESTS_TOTAL = 240;
+  static final long GUEST_WINDOW_MS = 10 * 60000L;
+  final Map<String, ArrayDeque<Long>> guestCreations = new HashMap<>();
+  final ArrayDeque<Long> allGuestCreations = new ArrayDeque<>();
+
+  /** Refuse a flood of new guest lives (each one is a saved user and session). */
+  void limitGuests(String address) {
+    long cutoff = now() - GUEST_WINDOW_MS;
+    while (!allGuestCreations.isEmpty() && allGuestCreations.peekFirst() < cutoff) allGuestCreations.pollFirst();
+    guestCreations.values().forEach(times -> {
+      while (!times.isEmpty() && times.peekFirst() < cutoff) times.pollFirst();
+    });
+    guestCreations.values().removeIf(ArrayDeque::isEmpty);
+    ArrayDeque<Long> mine = guestCreations.computeIfAbsent(address == null ? "" : address, k -> new ArrayDeque<>());
+    require(
+      mine.size() < GUESTS_PER_ADDRESS && allGuestCreations.size() < GUESTS_TOTAL,
+      429,
+      "Lots of new lives are starting right now. Please try again in a few minutes."
+    );
+    mine.addLast(now());
+    allGuestCreations.addLast(now());
+  }
+
   synchronized AuthResult guest(String token, JsonNode body) {
+    return guest(token, body, null);
+  }
+
+  synchronized AuthResult guest(String token, JsonNode body, String address) {
     ObjectNode old = session(token, false);
     if (old != null) return new AuthResult(token, publicUser(user(old)));
+    if (address != null) limitGuests(address);
     String name = body.path("username").asText("").trim();
     if (name.isEmpty()) name = friendlyName();
     if (body.path("username").asText().length() > 0) name = username(name);
@@ -290,7 +320,8 @@ public class GameService {
     int rent = s.path("home").path("rent").asInt();
     require(s.path("cash").asDouble() >= rent, 402, "You need $" + rent + " for rent");
     property.pay(s, rent, "First home rent");
-    s.withObject("home").put("rentPaidThrough", clock(w).path("day").asInt() + 1);
+    int day = clock(w).path("day").asInt();
+    s.withObject("home").put("rentPaidThrough", Math.max(day, s.path("home").path("rentPaidThrough").asInt(day)) + 1);
     firstDay.mark(s, "rent");
     store.save();
     return simResponse(s, w);
@@ -429,6 +460,14 @@ public class GameService {
     copy.set("homeLayout", homeDesign.layout(host, homeDesign.ensure(host)));
     if (copy.path("aspiration").isObject()) copy.withObject("aspiration").set("milestones", progression.milestones(s));
     copy.set("stories", stories.journal(s));
+    copy.set("storyLead", stories.lead(s));
+    if (s.path("firstDay").isObject()) {
+      firstDay.refresh(s);
+      ((ObjectNode) copy.path("firstDay")).put("complete", s.path("firstDay").path("complete").asBoolean()).put(
+        "remaining",
+        firstDay.remaining(s)
+      );
+    }
     copy.remove(
       List.of(
         "updatedAt",
@@ -466,8 +505,7 @@ public class GameService {
       )
     );
     for (String need : Content.NEEDS)
-      copy.withObject("needs").put(need, Math.round(s.path("needs").path(need).asDouble() * 10) / 10.0);
-    copy.withObject("needs").put("hygiene", Math.round(s.path("needs").path("hygiene").asDouble(85) * 10) / 10.0);
+      copy.withObject("needs").put(need, Math.round(s.path("needs").path(need).asDouble(85) * 10) / 10.0);
     copy.put("socialReadyAt", s.path("_lastSocial").asLong(0) + Community.SOCIAL_COOLDOWN_MS);
     DisplayNames.apply(copy);
     return copy;
@@ -567,6 +605,8 @@ public class GameService {
     Personality.setup(s, body.get("traits"));
     resetDaily(s);
     firstDay.init(s, world(session));
+    // A new life settles in rent-free for its first two game days (about fourteen real minutes).
+    s.withObject("home").put("rentPaidThrough", clock(world(session)).path("day").asInt() + 2);
     store.save();
     return simResponse(s, world(session));
   }
@@ -846,11 +886,12 @@ public class GameService {
     double min = 100,
       sum = 0;
     for (String n : Content.NEEDS) {
-      double v = s.path("needs").path(n).asDouble();
+      double v = s.path("needs").path(n).asDouble(85);
       min = Math.min(min, v);
       sum += v;
     }
-    s.put("mood", min <= 5 ? "rough" : min < 20 ? "low" : sum / 4 < 45 ? "okay" : sum / 4 < 75 ? "good" : "great");
+    double average = sum / Content.NEEDS.length;
+    s.put("mood", min <= 5 ? "rough" : min < 20 ? "low" : average < 45 ? "okay" : average < 75 ? "good" : "great");
   }
 
   void requirements(ObjectNode s, JsonNode requires) {
@@ -980,10 +1021,7 @@ public class GameService {
       actions = content.city(city).path("homeActions");
     } else {
       ObjectNode landmark = content.landmark(city, loc);
-      int hour = clock(w).path("hour").asInt(),
-        open = landmark.path("open").get(0).asInt(),
-        close = landmark.path("open").get(1).asInt();
-      require(civic.open(w, city, landmark, hour), 409, "This place is closed. Try home or an open place");
+      require(civic.openFor(w, city, landmark, live), 409, civic.closedMessage(landmark));
       actions = landmark.path("actions");
     }
     ObjectNode a = null;
@@ -1048,10 +1086,6 @@ public class GameService {
     ObjectNode homeBonus = loc.equals("home") ? homeDesign.recoveryBonus(recoveryActor, action) : object();
     ObjectNode needDeltas = object(),
       skillDeltas = object();
-    if (loc.equals("home") && action.equals("shower")) needDeltas.put(
-      "hygiene",
-      Math.min(70, 100 - s.path("needs").path("hygiene").asDouble(85))
-    );
     for (String need : Content.NEEDS) {
       ObjectNode needs = s.withObject("needs");
       double before = needs.path(need).asDouble(),
@@ -1102,11 +1136,8 @@ public class GameService {
     int dailyCount = completed.size();
     String promoted = progression.activity(s, a, loc);
     stories.depart(s, city, loc);
-    if (firstDay.complete(s) && !a.path("requires").has("job") && !action.equals("visit-workplace")) stories.trigger(
-      s,
-      city,
-      loc
-    );
+    // Stories open on the first ordinary activity at a story landmark; no checklist gate.
+    if (!a.path("requires").has("job") && !action.equals("visit-workplace")) stories.trigger(s, city, loc);
     progression.evaluate(s, completed);
     updateMood(s);
     updateLevel(s);
@@ -1301,6 +1332,40 @@ public class GameService {
   @jakarta.annotation.PreDestroy
   synchronized void checkpoint() {
     store.save();
+  }
+
+  /** Unused guests (no life set up) are forgotten after a day; lives nobody can sign into after a quiet month. */
+  static final long UNUSED_GUEST_MS = 86400000L,
+    ABANDONED_LIFE_MS = 30L * 86400000;
+
+  @org.springframework.scheduling.annotation.Scheduled(initialDelay = 30000, fixedDelay = 15 * 60000)
+  synchronized void purge() {
+    long at = now();
+    int removed = 0;
+    Set<String> signedIn = new HashSet<>();
+    var expired = new ArrayList<String>();
+    table("sessions")
+      .fields()
+      .forEachRemaining(e -> {
+        if (e.getValue().path("expiresAt").asLong() <= at) expired.add(e.getKey());
+        else signedIn.add(e.getValue().path("userId").asText());
+      });
+    expired.forEach(table("sessions")::remove);
+    var users = new ArrayList<String>();
+    table("users").fieldNames().forEachRemaining(users::add);
+    for (String uid : users) {
+      if (signedIn.contains(uid) || community.isOnline("public", uid)) continue;
+      JsonNode u = table("users").path(uid);
+      JsonNode s = table("sims").get(uid + ":public");
+      long created = u.path("createdAt").asLong(at);
+      boolean unused = s == null && at - created > UNUSED_GUEST_MS;
+      boolean abandoned = s != null && at - s.path("updatedAt").asLong(at) > ABANDONED_LIFE_MS;
+      if (!u.path("guest").asBoolean(true) || !(unused || abandoned)) continue;
+      table("users").remove(uid);
+      table("sims").remove(uid + ":public");
+      removed++;
+    }
+    if (removed > 0 || !expired.isEmpty()) store.save();
   }
 
   long createdAt(ObjectNode s) {

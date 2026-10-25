@@ -291,7 +291,7 @@ final class HomeDesign {
     }
     if (action.equals("sleep")) bonus.put("energy", comfort * 1.5);
     if (action.equals("cook")) bonus.put("hunger", fun);
-    if (action.equals("shower")) bonus.put("energy", hygiene * .5);
+    if (action.equals("shower")) bonus.put("hygiene", hygiene * 2).put("energy", hygiene * .5);
     if (action.equals("invite")) bonus.put("social", comfort).put("fun", fun);
     bonus.put("fun", bonus.path("fun").asDouble() + Math.min(8, environment * .2));
     return bonus;

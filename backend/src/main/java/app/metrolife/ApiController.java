@@ -190,7 +190,7 @@ public class ApiController {
     HttpServletRequest req,
     HttpServletResponse res
   ) {
-    return signedIn(req, res, game.guest(token, body));
+    return signedIn(req, res, game.guest(token, body, req.getRemoteAddr()));
   }
 
   @PostMapping("/life/new")
@@ -412,9 +412,7 @@ public class ApiController {
     @RequestParam(defaultValue = "") String city,
     @RequestParam(defaultValue = "") String world
   ) {
-    return ResponseEntity.ok()
-      .header("Cache-Control", "private, no-cache")
-      .body(game.atlas(token, game.defaultCity(token, city), world));
+    return ResponseEntity.ok().body(game.atlas(token, game.defaultCity(token, city), world));
   }
 
   @GetMapping(value = "/{kind:plots|billboards}/{id}/image", produces = "image/png")

@@ -4,7 +4,7 @@
     "plane": { "durationSeconds": 10, "gameMinutes": 120 },
     "bus": { "durationSeconds": 50, "gameMinutes": 480 }
   },
-  "fares": { "atl:nyc": 180, "atl:bay": 260, "nyc:bay": 280 },
+  "fares": { "atl:nyc": 120, "atl:bay": 160, "nyc:bay": 170 },
   "cities": {
     "atl": {
       "bus": { "id": "atlBus", "name": "Five Points Bus Station", "x": 0, "z": 34.2, "site": { "x": 0, "z": 31, "size": 10, "height": 3.8 } },
