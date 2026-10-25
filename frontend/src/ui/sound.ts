@@ -681,13 +681,13 @@ export function sound(kind: SoundKind) {
   if (legacyEventKinds.has(kind)) {
     // Older callers fire these alongside the feedback bus; let the bus cue win.
     window.setTimeout(() => {
-      if (performance.now() - lastCueAt < 700) {
+      if (performance.now() - lastCueAt < 900) {
         logSound(kind, "suppressed");
         return;
       }
       logSound(kind, "tone");
       playTones(kind);
-    }, 60);
+    }, 250);
     return;
   }
   logSound(kind, "tone");
