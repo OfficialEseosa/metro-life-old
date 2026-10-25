@@ -736,8 +736,11 @@ export function Walking({
       void api
         .move(city, requested, via)
         .then((r) => {
+          // A step confirmed after an activity began must not clear the activity's seat (the
+          // sleeper would lie down beside the bed instead of in it).
           if (
             !r?.position ||
+            useStore.getState().sim?.busyUntil ||
             useStore.getState().sim?.worldId !== world ||
             useStore.getState().sim?.userId !== user ||
             revision !== motion.revision
