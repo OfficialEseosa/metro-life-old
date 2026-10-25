@@ -804,7 +804,7 @@ const cues: Record<Cue, CueSpec> = {
   },
   ding: {
     file: "social-ding.mp3",
-    gain: 0.34,
+    gain: 0.55,
     bus: "sfx",
     fallback: "wave",
     duck: 0.6,
@@ -819,7 +819,7 @@ const cues: Record<Cue, CueSpec> = {
   whoosh: { file: "whoosh.mp3", gain: 0.09, bus: "sfx", fallback: "arrival" },
   coinGain: {
     file: "coins-gain.mp3",
-    gain: 0.5,
+    gain: 0.8,
     bus: "sfx",
     fallback: "coin",
     duck: 0.6,
