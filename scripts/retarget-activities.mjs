@@ -1,4 +1,5 @@
-// CC0 Quaternius clips retargeted onto the shipped character skeleton; original GLBs stay untouched.
+// CC0 mesh2motion clips retargeted onto the shipped Quaternius character skeleton; original GLBs stay untouched.
+// Usage: node scripts/retarget-activities.mjs [--only=Sit,Sleep]   (run from the repository root)
 import fs from "node:fs";
 import path from "node:path";
 import * as THREE from "../frontend/node_modules/three/build/three.module.js";
@@ -118,13 +119,10 @@ if (process.argv.includes("--inspect")) {
   process.exit(0);
 }
 
+// mesh2motion human animation libraries (CC0), fetched into .runtime/mesh2motion (see docs/credits.md).
 const sources = await Promise.all([
-  load(
-    ".runtime/quaternius-ual/Animation Library[Standard]/Godot/AnimationLibrary_Godot_Standard.glb",
-  ),
-  load(
-    ".runtime/quaternius-ual/Universal Animation Library 2 [Standard]/Unreal-Godot/UAL2_Standard.glb",
-  ),
+  load(".runtime/mesh2motion/human-base-animations.glb"),
+  load(".runtime/mesh2motion/human-addon-animations.glb"),
 ]);
 const canon = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 function skeleton(gltf) {
@@ -206,29 +204,73 @@ for (const side of ["L", "R"]) {
       maps[1][dst + i + side] = src2 + "_0" + i + "_" + side.toLowerCase();
     }
 }
+// Both mesh2motion libraries share the Unreal-style rig, so one name map serves both.
+maps[0] = maps[1];
+function clipOf(library, name) {
+  const clip = sources[library].animations.find((a) => a.name === name);
+  if (!clip) throw Error(`Missing source clip ${name} in library ${library}`);
+  return clip;
+}
 function sourcePose(library, clip, time) {
   const mixer = sourceMixers[library];
   mixer.stopAllAction();
-  mixer
-    .clipAction(sources[library].animations.find((a) => a.name === clip))
-    .play();
+  mixer.clipAction(clipOf(library, clip)).play();
   mixer.setTime(time);
   sources[library].scene.updateMatrixWorld(true);
   return sourceBones[library];
 }
+const BASE = 0,
+  ADDON = 1;
+// once: plays a single time and holds its last frame (LoopOnce + clampWhenFinished at runtime).
+// seated: the lower body comes from Sitting_Idle so hips stay on the seat.
+// freeze: a held pose sampled at `at` seconds.
 const specs = [
-  { name: "Sit", lib: 0, clip: "Sitting_Idle_Loop", seconds: 2 },
-  { name: "Talk", lib: 0, clip: "Idle_Talking_Loop", seconds: 2.9 },
-  { name: "Jog", lib: 0, clip: "Jog_Fwd_Loop", seconds: 0.933333 },
-  { name: "Dance", lib: 0, clip: "Dance_Loop", seconds: 1 },
-  { name: "Type", lib: 0, clip: "Driving_Loop", seconds: 2, seated: true },
-  { name: "Eat", lib: 1, clip: "Consume", seconds: 1.333333, seated: true },
-  { name: "Lie", lib: 1, clip: "LayToIdle", seconds: 2, freeze: true },
-  { name: "Sleep", lib: 1, clip: "LayToIdle", seconds: 3, freeze: true },
-  { name: "Cheer", lib: 0, clip: "Dance_Loop", seconds: 2, cheer: true },
+  { name: "Sit", lib: BASE, clip: "Sitting_Idle" },
+  { name: "SitDown", lib: BASE, clip: "Sitting_Enter", once: true },
+  { name: "StandUp", lib: BASE, clip: "Sitting_Exit", once: true },
+  { name: "SitTalk", lib: BASE, clip: "Sitting_Talking" },
+  { name: "Talk", lib: BASE, clip: "Idle_Talking" },
+  { name: "Phone", lib: BASE, clip: "Idle_TalkingPhone" },
+  { name: "Listen", lib: ADDON, clip: "Idle Listening" },
+  { name: "Nod", lib: ADDON, clip: "Head Nod", once: true },
+  { name: "Yes", lib: BASE, clip: "Yes" },
+  { name: "Greet", lib: ADDON, clip: "Greeting" },
+  { name: "IdleSubtle", lib: ADDON, clip: "Idle_Subtle" },
+  { name: "FoldArms", lib: BASE, clip: "Idle_FoldArms" },
+  { name: "Jog", lib: BASE, clip: "Jog" },
+  { name: "WalkF", lib: ADDON, clip: "Walk_Female" },
+  { name: "RunF", lib: ADDON, clip: "Run_Female" },
+  { name: "WalkFormal", lib: BASE, clip: "Walk_Formal" },
+  { name: "Carry", lib: BASE, clip: "Walk_Carry" },
+  { name: "Dance", lib: BASE, clip: "Dance_Simple" },
+  { name: "Dance2", lib: ADDON, clip: "Dance Charleston" },
+  { name: "Dance3", lib: ADDON, clip: "Dance Body Roll" },
+  { name: "Dance4", lib: ADDON, clip: "Dance Reach Hip" },
+  { name: "Cheer", lib: ADDON, clip: "Victory Fist Pump" },
+  { name: "Celebrate", lib: ADDON, clip: "Victory" },
+  { name: "Type", lib: BASE, clip: "Driving", seated: true, typing: true },
+  { name: "Eat", lib: BASE, clip: "Consume", seated: true },
+  { name: "Lie", lib: BASE, clip: "LayToIdle", freeze: true, at: 0 },
+  { name: "Sleep", lib: ADDON, clip: "Sleeping" },
+  { name: "PickUp", lib: BASE, clip: "PickUp_Table", once: true },
+  { name: "Push", lib: BASE, clip: "Push" },
+  { name: "Water", lib: BASE, clip: "Farm_Watering" },
+  { name: "Fix", lib: BASE, clip: "Fixing_Kneeling" },
+  { name: "Exercise", lib: ADDON, clip: "Jumping Jacks" },
+  { name: "Yoga", lib: ADDON, clip: "Meditate" },
+  { name: "Tired", lib: ADDON, clip: "Tired Hunched" },
+  { name: "Cold", lib: ADDON, clip: "Shivering" },
+  { name: "Confused", lib: ADDON, clip: "Confused" },
+  { name: "Angry", lib: ADDON, clip: "Angry" },
+  { name: "Bow", lib: ADDON, clip: "Bow", once: true },
+  { name: "ShakeOff", lib: BASE, clip: "Idle_ShakeOff" },
+  { name: "Interact2", lib: BASE, clip: "Interact" },
 ];
+const only = process.argv.find((a) => a.startsWith("--only="))?.slice(7);
+const SITTING = clipOf(BASE, "Sitting_Idle").duration;
 const output = path.resolve("frontend/public/models/chars");
 fs.mkdirSync(output, { recursive: true });
+const RATE = 24;
 for (const body of ["f", "m"]) {
   const g =
       body === "f"
@@ -255,8 +297,12 @@ for (const body of ["f", "m"]) {
     }
   };
   for (const spec of specs) {
-    const frameCount = Math.round(spec.seconds * 24),
-      times = Array.from({ length: frameCount + 1 }, (_, i) => i / 24),
+    if (only && !only.split(",").includes(spec.name)) continue;
+    const seconds = spec.freeze ? 1 : clipOf(spec.lib, spec.clip).duration,
+      frameCount = Math.max(1, Math.round(seconds * RATE)),
+      times = Array.from({ length: frameCount + 1 }, (_, i) =>
+        Math.min(seconds, i / RATE),
+      ),
       values = new Map(skel.bones.map((b) => [b.name, { q: [], p: [] }]));
     const ratio =
       (position(base.get("Body")).y - position(base.get("FootL")).y) /
@@ -272,52 +318,48 @@ for (const body of ["f", "m"]) {
         ).y);
     for (const time of times) {
       restore();
-      const src = sourcePose(
-        spec.lib,
-        spec.clip,
-        spec.freeze ? 0 : time % spec.seconds,
-      );
-      let sit = null;
-      if (spec.seated)
-        sit = sourcePose(0, "Sitting_Idle_Loop", time % 1.666667);
-      // Consume uses library2, so the seated lower body can be sampled independently.
-      // Driving already has seated legs; no second source0 sample is needed for typing.
-      if (spec.name === "Type") sourcePose(0, "Driving_Loop", time % 1.666667);
+      // Seated lower bodies are sampled first and kept, because both samples share one mixer per library.
+      const sampleAt = spec.freeze
+        ? (spec.at ?? 0)
+        : spec.once
+          ? Math.min(time, seconds - 1e-4)
+          : time % seconds;
+      let sit = null,
+        sitWorld = null;
+      if (spec.seated) {
+        sit = sourcePose(BASE, "Sitting_Idle", time % SITTING);
+        sitWorld = new Map();
+        for (const [key, bone] of sit)
+          sitWorld.set(key, {
+            q: bone.getWorldQuaternion(new THREE.Quaternion()),
+            p: bone.getWorldPosition(new THREE.Vector3()),
+            name: bone.name,
+          });
+      }
+      const src = sourcePose(spec.lib, spec.clip, sampleAt);
       for (const bone of skel.bones) {
         if (bone.name === "Root" || bone.name.startsWith("PT")) continue;
         const lower = /^(Body|Hips|UpperLeg|LowerLeg|Foot)/.test(bone.name),
-          lib = spec.seated && lower ? 0 : spec.lib,
-          source = spec.seated && lower ? sit : src,
+          useSit = spec.seated && lower,
+          lib = useSit ? BASE : spec.lib,
           mapped = maps[lib][bone.name],
-          sb = mapped ? source.get(canon(mapped)) : null;
+          key = mapped ? canon(mapped) : null,
+          sb = key ? src.get(key) : null,
+          sat = key && useSit ? sitWorld.get(key) : null;
         const restWorld = base.get(bone.name),
           qRest = rotation(restWorld);
         let q = qRest.clone(),
           at;
-        if (sb) {
-          const sr = sourceRests[lib].get(sb.name),
-            delta = sb
-              .getWorldQuaternion(new THREE.Quaternion())
-              .multiply(rotation(sr).invert());
+        if (sat || sb) {
+          const sr = sourceRests[lib].get(sat ? sat.name : sb.name),
+            world = sat
+              ? sat.q.clone()
+              : sb.getWorldQuaternion(new THREE.Quaternion()),
+            delta = world.multiply(rotation(sr).invert());
           q = delta.multiply(qRest);
         }
         if (
-          spec.cheer &&
-          /^(UpperArm|LowerArm|Wrist|Index|Middle|Ring|Pinky|Thumb)/.test(
-            bone.name,
-          )
-        ) {
-          const sign = bone.name.endsWith("L") ? 1 : -1,
-            angle = bone.name.startsWith("UpperArm") ? 1.2 : 1.5;
-          q = new THREE.Quaternion()
-            .setFromAxisAngle(
-              new THREE.Vector3(0, 0, 1),
-              sign * (angle + Math.sin(time * Math.PI * 4) * 0.1),
-            )
-            .multiply(qRest);
-        }
-        if (
-          spec.name === "Type" &&
+          spec.typing &&
           /^(UpperArm|LowerArm|Wrist|Index|Middle|Ring|Pinky|Thumb)/.test(
             bone.name,
           )
@@ -328,7 +370,7 @@ for (const body of ["f", "m"]) {
               0.45,
             ),
           );
-        if (spec.name === "Type" && /^Wrist[LR]$/.test(bone.name))
+        if (spec.typing && /^Wrist[LR]$/.test(bone.name))
           q.multiply(
             new THREE.Quaternion().setFromAxisAngle(
               new THREE.Vector3(1, 0, 0),
@@ -336,20 +378,19 @@ for (const body of ["f", "m"]) {
                 0.12,
             ),
           );
-        if (spec.name === "Sleep" && bone.name === "Abdomen")
+        if (spec.freeze && bone.name === "Abdomen")
           q.multiply(
             new THREE.Quaternion().setFromAxisAngle(
               new THREE.Vector3(1, 0, 0),
-              Math.sin((time * Math.PI * 2) / 3) * 0.012,
+              Math.sin((time * Math.PI * 2) / seconds) * 0.012,
             ),
           );
         if (bone.name === "Body") {
-          const sr = sourceRests[lib].get(sb.name),
-            delta = sb
-              .getWorldPosition(new THREE.Vector3())
+          const sr = sourceRests[lib].get(sat ? sat.name : sb.name),
+            delta = (sat ? sat.p.clone() : sb.getWorldPosition(new THREE.Vector3()))
               .sub(position(sr))
               .multiplyScalar(ratio);
-          if (!spec.freeze) {
+          if (!spec.freeze && !spec.loose) {
             delta.x = THREE.MathUtils.clamp(delta.x, -0.12, 0.12);
             delta.z = THREE.MathUtils.clamp(delta.z, -0.12, 0.12);
           }
@@ -383,44 +424,83 @@ for (const body of ["f", "m"]) {
         const hip = boneMap.get("Body").getWorldPosition(new THREE.Vector3()),
           head = boneMap.get("Head").getWorldPosition(new THREE.Vector3());
         metadata[spec.name] = {
-          hip: hip.toArray(),
-          head: head.toArray(),
-          duration: times.at(-1),
+          hip: hip.toArray().map((v) => +v.toFixed(5)),
+          head: head.toArray().map((v) => +v.toFixed(5)),
+          duration: +times.at(-1).toFixed(5),
+          once: !!spec.once,
           source: spec.clip,
-          library: spec.lib + 1,
         };
       }
     }
-    const tracks = [];
-    for (const [name, v] of values) {
-      tracks.push(
-        new THREE.QuaternionKeyframeTrack(name + ".quaternion", times, v.q),
-      );
-      tracks.push(
-        new THREE.VectorKeyframeTrack(name + ".position", times, v.p),
-      );
-    }
-    clips.push(
-      THREE.AnimationClip.toJSON(
-        new THREE.AnimationClip(spec.name, times.at(-1), tracks),
-      ),
-    );
+    clips.push({ name: spec.name, times, values });
   }
-  const data = {
+  writeBinary(body, clips, metadata);
+}
+
+/**
+ * activities-<body>.bin: "MLA1", uint32 header length, JSON header, padding to 4 bytes,
+ * then Int16 samples. Constant tracks are stored in the header only. Quaternions are
+ * stored as value*32767; positions as value/scale with a per-track scale.
+ */
+function writeBinary(body, clips, metadata) {
+  const samples = [],
+    header = {
       licence: "CC0-1.0",
-      source: "Quaternius Universal Animation Libraries 1 and 2",
-      sampleRate: 24,
+      source: "mesh2motion human base and addon animation libraries",
+      sampleRate: RATE,
       metadata,
-      clips,
-    },
-    file = path.join(output, `activities-${body}.json`),
+      clips: [],
+    };
+  for (const clip of clips) {
+    const frames = clip.times.length,
+      entry = {
+        name: clip.name,
+        duration: +clip.times.at(-1).toFixed(5),
+        frames,
+        tracks: [],
+      };
+    for (const [bone, v] of clip.values)
+      for (const [kind, data, width] of [
+        ["q", v.q, 4],
+        ["p", v.p, 3],
+      ]) {
+        let varies = false;
+        for (let f = 1; f < frames && !varies; f++)
+          for (let c = 0; c < width; c++)
+            if (Math.abs(data[f * width + c] - data[c]) > 2e-4) varies = true;
+        if (!varies) {
+          entry.tracks.push({
+            bone,
+            kind,
+            constant: data.slice(0, width).map((x) => +x.toFixed(5)),
+          });
+          continue;
+        }
+        let scale = 1 / 32767;
+        if (kind === "p")
+          scale = Math.max(1e-6, ...data.map((x) => Math.abs(x))) / 32767;
+        entry.tracks.push({
+          bone,
+          kind,
+          offset: samples.length,
+          scale: kind === "p" ? scale : undefined,
+        });
+        for (const x of data) samples.push(Math.round(x / scale));
+      }
+    header.clips.push(entry);
+  }
+  const json = Buffer.from(JSON.stringify(header)),
+    pad = (4 - ((8 + json.length) % 4)) % 4,
+    prefix = Buffer.alloc(8);
+  prefix.write("MLA1", 0, "ascii");
+  prefix.writeUInt32LE(json.length + pad, 4);
+  const data = Buffer.from(new Int16Array(samples).buffer),
+    file = path.join(output, `activities-${body}.bin`),
     temporary = file + ".tmp";
   fs.writeFileSync(
     temporary,
-    JSON.stringify(data, (_, v) =>
-      typeof v === "number" ? Math.round(v * 1e7) / 1e7 : v,
-    ),
+    Buffer.concat([prefix, json, Buffer.alloc(pad, 32), data]),
   );
   fs.renameSync(temporary, file);
-  console.log("RETARGET", body, fs.statSync(file).size, metadata);
+  console.log("RETARGET", body, fs.statSync(file).size, Object.keys(metadata).length, "clips");
 }
