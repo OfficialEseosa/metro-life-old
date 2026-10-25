@@ -723,42 +723,48 @@ type CueSpec = {
   /** Music dips under jingles. */
   duck?: number;
 };
+/*
+ * Gains are set against each sample's measured RMS level so the mix has three steps:
+ * big-moment jingles around -29 dB, outcomes (done, arrival, social) around -33 dB,
+ * and interface clicks around -35 dB with taps softer still; coin layers sit under
+ * whichever main cue they accompany.
+ */
 const cues: Record<Cue, CueSpec> = {
-  tap: { file: "ui-tap.mp3", gain: 0.07, bus: "ui", fallback: "tap" },
-  confirm: { file: "ui-confirm.mp3", gain: 0.15, bus: "ui", fallback: "open" },
+  tap: { file: "ui-tap.mp3", gain: 0.06, bus: "ui", fallback: "tap" },
+  confirm: { file: "ui-confirm.mp3", gain: 0.07, bus: "ui", fallback: "open" },
   done: {
     file: "ui-done.mp3",
-    gain: 0.16,
+    gain: 0.17,
     bus: "sfx",
     fallback: "notification",
   },
-  cancel: { file: "ui-cancel.mp3", gain: 0.14, bus: "ui", fallback: "close" },
-  error: { file: "ui-error.mp3", gain: 0.15, bus: "ui", fallback: "error" },
-  pop: { file: "ui-pop.mp3", gain: 0.12, bus: "ui", fallback: "notification" },
+  cancel: { file: "ui-cancel.mp3", gain: 0.12, bus: "ui", fallback: "close" },
+  error: { file: "ui-error.mp3", gain: 0.11, bus: "ui", fallback: "error" },
+  pop: { file: "ui-pop.mp3", gain: 0.08, bus: "ui", fallback: "notification" },
   chat: {
     file: "chat-pop.mp3",
-    gain: 0.13,
+    gain: 0.14,
     bus: "sfx",
     fallback: "notification",
   },
-  ding: { file: "social-ding.mp3", gain: 0.17, bus: "sfx", fallback: "wave" },
-  pluck: { file: "social-pluck.mp3", gain: 0.15, bus: "sfx", fallback: "wave" },
+  ding: { file: "social-ding.mp3", gain: 0.22, bus: "sfx", fallback: "wave" },
+  pluck: { file: "social-pluck.mp3", gain: 0.2, bus: "sfx", fallback: "wave" },
   arrive: {
     file: "chime-arrive.mp3",
-    gain: 0.14,
+    gain: 0.18,
     bus: "sfx",
     fallback: "arrival",
   },
-  whoosh: { file: "whoosh.mp3", gain: 0.11, bus: "sfx", fallback: "arrival" },
+  whoosh: { file: "whoosh.mp3", gain: 0.09, bus: "sfx", fallback: "arrival" },
   coinGain: {
     file: "coins-gain.mp3",
-    gain: 0.24,
+    gain: 0.36,
     bus: "sfx",
     fallback: "coin",
   },
   coinSpend: {
     file: "coins-spend.mp3",
-    gain: 0.17,
+    gain: 0.2,
     bus: "sfx",
     fallback: "purchase",
   },
@@ -771,7 +777,7 @@ const cues: Record<Cue, CueSpec> = {
   },
   level: {
     file: "jingle-level.mp3",
-    gain: 0.2,
+    gain: 0.14,
     bus: "sfx",
     fallback: "level",
     duck: 1.6,

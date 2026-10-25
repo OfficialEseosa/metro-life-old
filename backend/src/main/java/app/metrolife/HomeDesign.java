@@ -283,7 +283,7 @@ final class HomeDesign {
         stats = p.path("stats");
       environment += stats.path("environment").asDouble();
       if (
-        item.path("id").asText().equals(selected) || (selected.isEmpty() && p.path("action").asText().equals(action))
+        item.path("id").asText().equals(selected) || (selected.isEmpty() && Navigation.homeStationSupports(p.path("action").asText(), action))
       ) {
         comfort = Math.max(comfort, stats.path("comfort").asDouble());
         fun = Math.max(fun, stats.path("fun").asDouble());
@@ -294,6 +294,7 @@ final class HomeDesign {
     if (action.equals("cook")) bonus.put("hunger", fun);
     if (action.equals("shower")) bonus.put("hygiene", hygiene * 2).put("energy", hygiene * .5);
     if (action.equals("invite")) bonus.put("social", comfort).put("fun", fun);
+    if (action.equals("relax")) bonus.put("energy", comfort * .6).put("fun", fun);
     bonus.put("fun", bonus.path("fun").asDouble() + Math.min(8, environment * .2));
     return bonus;
   }

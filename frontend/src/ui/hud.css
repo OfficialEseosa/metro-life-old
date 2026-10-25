@@ -1020,11 +1020,14 @@
     --hud-gap: var(--s-2);
     --hud-top: 76px;
     --hud-bottom: 72px;
-    --feedback-top: calc(max(var(--s-2), env(safe-area-inset-top)) + 64px);
+    /* Toasts rise from just above the dock, between the joystick and the action button,
+       where neither the cue column, the queue pill nor the event chip can reach them. */
+    --feedback-top: auto;
+    --feedback-bottom: calc(var(--hud-bottom) + var(--s-2));
     --feedback-max-width: min(380px, calc(100vw - 32px));
   }
-  .metro-hud:has(.world-event-banner) {
-    --feedback-top: calc(max(var(--s-2), env(safe-area-inset-top)) + 116px);
+  .metro-hud:has(.walk-help) {
+    --feedback-bottom: calc(var(--hud-bottom) + var(--s-2) + 68px);
   }
 
   /* vitals: one 60px strip */

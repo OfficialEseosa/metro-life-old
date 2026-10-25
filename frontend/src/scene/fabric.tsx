@@ -258,15 +258,15 @@ export function kitFabric() {
   );
 }
 export function Fabric() {
-  const groups = useMemo(() => kitFabric(), []),
-    quality = useEffectiveQuality(),
-    trees = useMemo(
-      () =>
-        Object.entries(groups)
-          .filter(([url]) => url.includes("tree-"))
-          .flatMap(([, list]) => list),
-      [groups],
-    );
+  const groups = useMemo(() => kitFabric(), []);
+  const quality = useEffectiveQuality();
+  const trees = useMemo(
+    () =>
+      Object.entries(groups)
+        .filter(([url]) => url.includes("tree-"))
+        .flatMap(([, list]) => list),
+    [groups],
+  );
   // Start every kit request together; one slow file cannot hold back the whole city.
   useLayoutEffect(() => {
     Object.keys(groups)

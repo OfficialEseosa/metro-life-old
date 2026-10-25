@@ -233,6 +233,17 @@ let retryTimer: ReturnType<typeof setTimeout> | null = null,
 const RETRY_DELAYS = [2000, 4000, 8000, 15000];
 /** The first load shows the game or a card with a button within this time, never an endless spinner. */
 const LOAD_DEADLINE_MS = 22000;
+/** What the unreachable card says for a failed first load; never a raw status code. */
+function loadFailureText(error: unknown) {
+  if (error instanceof ApiError) {
+    if (error.status === 0) return error.message;
+    if (error.status === 404 || error.status >= 500)
+      return "The city's server is not answering yet. Trying again.";
+    if (error.message && !/^Request failed/.test(error.message))
+      return error.message;
+  }
+  return "Could not reach the city. Trying again.";
+}
 export const mergeChat = (current: ChatMessage[], incoming: ChatMessage[]) =>
   [...new Map([...current, ...incoming].map((m) => [m.id, m])).values()]
     .sort((a, b) => a.at - b.at || a.id.localeCompare(b.id))
@@ -682,18 +693,14 @@ export const useStore = create<State>((set, get) => {
           set({ connection: "online", retryAt: null });
           await get().syncSession(me);
         } catch (error) {
-          if (error instanceof ApiError && error.status === 0) {
-            set({ connection: "unreachable", loadError: error.message });
-            scheduleRetry();
-          } else
-            set({
-              connection: "unreachable",
-              retryAt: null,
-              loadError:
-                error instanceof Error
-                  ? error.message
-                  : "Could not reach the city. Try again.",
-            });
+          // Nothing the first load can hit is final: a dropped link, a static host answering
+          // 404 because no API is behind it yet, or a 5xx from an API still waking up all
+          // read as "the city is not answering", with the retry countdown running.
+          set({
+            connection: "unreachable",
+            loadError: loadFailureText(error),
+          });
+          scheduleRetry();
         } finally {
           clearTimeout(deadline);
           set({ ready: true });

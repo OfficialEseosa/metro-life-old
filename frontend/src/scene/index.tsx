@@ -86,6 +86,12 @@ declare global {
       shadowMode: (mode: "follow" | "overview" | null) => void;
       sunShadow: (on: boolean) => void;
       dump: (name: string) => unknown;
+      people: () => {
+        name: string;
+        distance: number;
+        casts: boolean;
+        culled: boolean;
+      }[];
       metrics: () => {
         calls: number;
         triangles: number;
@@ -1019,6 +1025,24 @@ function City({
       focus: (id) => view(id, true),
       theme: (value) => useStore.getState().setSceneTheme(value),
       time: (minutes) => setTimeOverride(minutes),
+      people: () => {
+        // Every rigged person: distance from the player and whether they cast a sun shadow.
+        const player = scene.getObjectByName("controlled-player"),
+          at = new THREE.Vector3(),
+          list: { name: string; distance: number; casts: boolean; culled: boolean }[] = [];
+        scene.traverse((o) => {
+          if (o.name !== "rigged-character") return;
+          o.getWorldPosition(at);
+          const skin = o.getObjectByName("character-skin") as THREE.SkinnedMesh | undefined;
+          list.push({
+            name: o.parent?.name ?? "",
+            distance: player ? +at.distanceTo(player.getWorldPosition(new THREE.Vector3())).toFixed(1) : -1,
+            casts: !!skin?.castShadow,
+            culled: !!skin?.frustumCulled,
+          });
+        });
+        return list.sort((a, b) => a.distance - b.distance);
+      },
       dump: (name) => {
         // Children of a named object with their world bounds, for layout checks.
         const root = scene.getObjectByName(name);

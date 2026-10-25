@@ -517,6 +517,9 @@ export class CharacterActor {
 
   private clothColours: THREE.BufferAttribute;
   private clothGeometry: THREE.BufferGeometry;
+  /** Skin, cloth and hair: the meshes whose sun shadow is switched off at a distance. */
+  private casters: THREE.SkinnedMesh[] = [];
+  private castsShadow = true;
   private face?: { material: THREE.MeshStandardMaterial; release: () => void };
   private blob: THREE.Mesh;
   private props: Partial<Record<PropName, THREE.Object3D>> = {};
@@ -599,17 +602,27 @@ export class CharacterActor {
       forward: "+Z",
       source: "Quaternius Modular + mesh2motion",
     };
+    // One generous sphere (in the donor's units) covers every pose, lying and cheering
+    // included, so the camera and the shadow camera can cull a person without
+    // re-measuring skinned vertices each frame.
+    const bounds = new THREE.Sphere(
+      new THREE.Vector3(0, body.height * 0.5, 0),
+      body.height * 0.8,
+    );
     const bind = (geometry: THREE.BufferGeometry, material: THREE.Material, name: string) => {
       const mesh = new THREE.SkinnedMesh(geometry, material);
       mesh.name = name;
       mesh.bind(skeleton, new THREE.Matrix4());
-      mesh.frustumCulled = false;
+      mesh.boundingSphere = bounds.clone();
+      mesh.frustumCulled = true;
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       this.scaled.add(mesh);
       return mesh;
     };
-    bind(skinGeometry(head, body, legs, feet), skinMaterial(look.skin), "character-skin");
+    this.casters.push(
+      bind(skinGeometry(head, body, legs, feet), skinMaterial(look.skin), "character-skin"),
+    );
     const cloth = clothGeometry(head, body, legs, feet, !!options.accessories?.glasses);
     this.clothGeometry = new THREE.BufferGeometry();
     for (const name of ["position", "normal", "skinIndex", "skinWeight", "slot"])
@@ -620,9 +633,9 @@ export class CharacterActor {
       3,
     );
     this.clothGeometry.setAttribute("color", this.clothColours);
-    bind(this.clothGeometry, clothMaterial(), "character-cloth");
+    this.casters.push(bind(this.clothGeometry, clothMaterial(), "character-cloth"));
     const hair = hairWithFacial(look.hair, options.accessories?.facial, head, donors);
-    if (hair) bind(hair, hairMaterial(look.hairColor), "character-hair");
+    if (hair) this.casters.push(bind(hair, hairMaterial(look.hairColor), "character-hair"));
     // Painted face on the front of the head skin.
     const faceTexture = acquireFaceTexture(
         {
@@ -1111,6 +1124,7 @@ export class CharacterActor {
       }
       object.name = "character-" + name;
       object.raycast = () => {};
+      if (!this.castsShadow && object instanceof THREE.Mesh) object.castShadow = false;
       this.root.add(object);
       this.props[name] = object;
     }
@@ -1221,6 +1235,19 @@ export class CharacterActor {
     this.nextBlink = this.time + 10;
     this.blinkUntil = 0;
     if (this.face) (this.face.material.userData.blink as { value: number }).value = 0;
+  }
+
+  /**
+   * Whether this person is drawn into the sun's shadow map. Far people keep their
+   * contact blob and still receive shadows; only their own cast is dropped, which
+   * is the largest single cost of a shadow refresh in a busy street.
+   */
+  setCastShadow(on: boolean) {
+    if (on === this.castsShadow) return;
+    this.castsShadow = on;
+    for (const mesh of this.casters) mesh.castShadow = on;
+    for (const object of Object.values(this.props))
+      if (object instanceof THREE.Mesh) object.castShadow = on;
   }
 
   /** Top of the head in the actor's own frame (for markers and labels). */

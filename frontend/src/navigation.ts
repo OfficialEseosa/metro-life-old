@@ -80,6 +80,35 @@ export function activityUse(
   const rules = roomLayout(city, type).activities;
   return rules?.[action.requires?.job ? "job" : action.kind] ?? rules?.fun;
 }
+/**
+ * The piece of home furniture an action is done at (mirrors the server). Seats serve
+ * both a quiet sit and inviting a friend, so one station can offer several actions.
+ */
+export function homeStation(actionId: string | undefined) {
+  switch (actionId) {
+    case "sleep":
+      return "bed";
+    case "cook":
+      return "stove";
+    case "shower":
+      return "shower";
+    case "invite":
+    case "relax":
+      return "chair";
+    default:
+      return "";
+  }
+}
+/** Whether a home station (built for `station.action`) supports `actionId`. */
+export function homeStationSupports(
+  station: { action: string } | undefined,
+  actionId: string,
+) {
+  if (!station) return false;
+  if (station.action === actionId) return true;
+  const kind = homeStation(actionId);
+  return !!kind && homeStation(station.action) === kind;
+}
 export function stationActionFor(
   room: string | null,
   city: CityId,
@@ -92,7 +121,10 @@ export function stationActionFor(
   if (!type) return;
   const place = content?.landmarks.find((l) => l.id === room?.split(":")[1]);
   if (type === "home")
-    return content?.homeActions.find((a) => a.id === station.action);
+    return (
+      content?.homeActions.find((a) => homeStationSupports(station, a.id)) ??
+      content?.homeActions.find((a) => a.id === station.action)
+    );
   return place?.actions.find(
     (a) =>
       (!a.requires?.job || a.requires.job === jobTrack) &&

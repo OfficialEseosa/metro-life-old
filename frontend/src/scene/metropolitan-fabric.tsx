@@ -453,15 +453,15 @@ export function MetropolitanFabric({ city }: { city: "nyc" | "bay" }) {
     },
     [data],
   );
-  const groups = useMemo(() => metropolitanGroups(data, city), [data, city]),
-    quality = useEffectiveQuality(),
-    trees = useMemo(
-      () =>
-        Object.entries(groups)
-          .filter(([url]) => url.includes("tree-"))
-          .flatMap(([, list]) => list),
-      [groups],
-    );
+  const groups = useMemo(() => metropolitanGroups(data, city), [data, city]);
+  const quality = useEffectiveQuality();
+  const trees = useMemo(
+    () =>
+      Object.entries(groups)
+        .filter(([url]) => url.includes("tree-"))
+        .flatMap(([, list]) => list),
+    [groups],
+  );
   useLayoutEffect(() => {
     Object.keys(groups)
       .filter((url) => !url.includes("tree-"))

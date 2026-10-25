@@ -1280,6 +1280,7 @@ public class GameService {
           case "cook" -> "Dinner is on the table.";
           case "shower" -> "Freshened up and ready to go.";
           case "invite" -> "Good company makes home feel brighter.";
+          case "relax" -> "A quiet sit at home, and the day feels lighter.";
           default -> a.path("label").asText() + ".";
         }
       : a.path("label").asText() + ".";

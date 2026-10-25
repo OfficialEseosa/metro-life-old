@@ -10,7 +10,9 @@
 
 .feedback-toasts {
   position: absolute;
+  /* The HUD anchors the stack to the top edge on laptops and above the dock on phones. */
   top: var(--feedback-top, max(10px, env(safe-area-inset-top)));
+  bottom: var(--feedback-bottom, auto);
   left: 50%;
   width: var(--feedback-max-width, 440px);
   max-width: calc(100vw - 32px);

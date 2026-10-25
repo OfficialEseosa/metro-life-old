@@ -110,19 +110,21 @@ export function ObjectActions() {
       Math.min(360, viewport.width - 24, viewport.height - 132),
     ),
     margin = 12;
+  // A menu opened without a tap point (keyboard, scripted) sits at the screen centre.
+  const anchor = menu?.target.screen ?? {
+    x: viewport.width / 2,
+    y: viewport.height / 2,
+  };
   const left = menu
     ? Math.max(
         margin,
-        Math.min(
-          viewport.width - size - margin,
-          menu.target.screen.x - size / 2,
-        ),
+        Math.min(viewport.width - size - margin, anchor.x - size / 2),
       )
     : margin;
   const top = menu
     ? Math.max(
         margin,
-        Math.min(viewport.height - size - 108, menu.target.screen.y - size / 2),
+        Math.min(viewport.height - size - 108, anchor.y - size / 2),
       )
     : margin;
   const list =

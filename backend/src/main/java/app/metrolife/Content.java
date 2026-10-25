@@ -108,6 +108,19 @@ public class Content {
       );
       home.add(
         action(
+          "relax",
+          "Put your feet up",
+          "rest",
+          "seating",
+          20,
+          0,
+          0,
+          Map.of("fun", 18, "energy", 14),
+          Map.of()
+        )
+      );
+      home.add(
+        action(
           "invite",
           "Invite a friend over",
           "social",

@@ -26,7 +26,7 @@ test("a. first start: create a character, arrive home, use the bed", async ({ br
         const p = m.position, layout = n.roomLayout(s.sim.city, n.roomType(p.room));
         const station = layout.stations.find(x => x.action === 'sleep');
         const furniture = layout.furniture.find(f => f.slots.some(sl => sl.station === station.id)) ?? layout.furniture.find(f => f.kind === station.id);
-        i.openObjectMenu({ kind: 'furniture', id: furniture?.id, stationId: station.id, city: s.sim.city, room: p.room, point: { x: station.x, z: station.z } });
+        i.openObjectMenu({ kind: 'furniture', id: furniture?.id, stationId: station.id, city: s.sim.city, room: p.room, point: { x: station.x, z: station.z }, screen: { x: innerWidth / 2, y: innerHeight / 2 } });
       });
     }`,
   );

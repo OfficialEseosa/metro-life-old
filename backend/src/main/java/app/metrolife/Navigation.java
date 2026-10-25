@@ -283,6 +283,24 @@ final class Navigation {
     return true;
   }
 
+  /** The piece of home furniture an action is done at; seats serve both a quiet sit and company. */
+  static String homeStation(String actionId) {
+    return switch (actionId) {
+      case "sleep" -> "bed";
+      case "cook" -> "stove";
+      case "shower" -> "shower";
+      case "invite", "relax" -> "chair";
+      default -> "";
+    };
+  }
+
+  /** Whether a home station built for {@code stationAction} supports {@code actionId}. */
+  static boolean homeStationSupports(String stationAction, String actionId) {
+    if (stationAction.equals(actionId)) return true;
+    String kind = homeStation(actionId);
+    return !kind.isEmpty() && homeStation(stationAction).equals(kind);
+  }
+
   String type(String city, String loc) {
     if (loc.equals("home")) return "home";
     var types = interiors.fields();
@@ -329,15 +347,7 @@ final class Navigation {
       s.putNull("activitySlot");
       return;
     }
-    String chosen = type.equals("home")
-      ? switch (id) {
-          case "sleep" -> "bed";
-          case "cook" -> "stove";
-          case "shower" -> "shower";
-          case "invite" -> "chair";
-          default -> "";
-        }
-      : "";
+    String chosen = type.equals("home") ? homeStation(id) : "";
     JsonNode use = activityUse(city, type, action);
     String pose = use.path("pose").asText(),
       station = use.path("station").asText();
@@ -348,7 +358,9 @@ final class Navigation {
       if (!slotId.isEmpty() && !slot.path("id").asText().equals(slotId)) continue;
       if (
         type.equals("home")
-          ? !slot.path("action").asText(id).equals(id)
+          ? chosen.isEmpty()
+            ? !slot.path("action").asText(id).equals(id)
+            : !homeStation(slot.path("action").asText()).equals(chosen)
           : !slot.path("pose").asText().equals(pose) || !slot.path("station").asText().equals(station)
       ) continue;
       boolean occupied = occupied(s, slot, at.path("room").asText());
@@ -368,20 +380,14 @@ final class Navigation {
   JsonNode requestedSlot(ObjectNode s, String loc, JsonNode action, String slotId) {
     String city = s.path("city").asText(),
       type = type(city, loc),
-      home = type.equals("home")
-        ? switch (action.path("id").asText()) {
-            case "sleep" -> "bed";
-            case "cook" -> "stove";
-            case "shower" -> "shower";
-            case "invite" -> "chair";
-            default -> "";
-          }
-        : "";
+      home = type.equals("home") ? homeStation(action.path("id").asText()) : "";
     JsonNode use = activityUse(city, type, action);
     for (JsonNode slot : layoutFor(s, type).path("slots"))
       if (slot.path("id").asText().equals(slotId)) {
         boolean compatible = type.equals("home")
-          ? slot.path("action").asText().equals(action.path("id").asText()) || slotId.equals(home)
+          ? slot.path("action").asText().equals(action.path("id").asText()) ||
+            slotId.equals(home) ||
+            (!home.isEmpty() && homeStation(slot.path("action").asText()).equals(home))
           : slot.path("station").equals(use.path("station")) && slot.path("pose").equals(use.path("pose"));
         GameService.require(compatible, 400, "Choose furniture that supports this activity");
         return slot;
@@ -592,7 +598,7 @@ final class Navigation {
       double distance = Double.MAX_VALUE;
       ObjectNode at = position(s);
       for (JsonNode row : layoutFor(s, type).path("stations"))
-        if (row.path("action").asText().equals(action)) {
+        if (homeStationSupports(row.path("action").asText(), action)) {
           double gap = Math.hypot(
             at.path("x").asDouble() - row.path("x").asDouble(),
             at.path("z").asDouble() - row.path("z").asDouble()

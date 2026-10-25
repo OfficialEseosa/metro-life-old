@@ -1,82 +1,20 @@
 import type { Look } from "../api/types";
+import {
+  BOTTOMS,
+  HAIR_COLOURS,
+  PASTELS,
+  SHOES,
+  SKIN_TONES,
+  TOPS,
+} from "../scene/characters/palettes";
 
 /**
- * Character palettes offered by the creator and the quick start. They match the
- * art direction palettes the character renderer uses for residents, so a player
- * can look like anyone they meet in the city.
+ * Character palettes offered by the creator and the quick start. They are the
+ * same palettes the character renderer uses for residents (and that the server
+ * mirrors for portraits), so a player can look like anyone they meet in the city.
  */
-export const SKIN_TONES = [
-  "#f6d7c3",
-  "#f0c8a8",
-  "#e8b991",
-  "#dda67c",
-  "#cf9469",
-  "#c08058",
-  "#ad6f4a",
-  "#9a5e3d",
-  "#844e33",
-  "#6e3f29",
-  "#5a3322",
-  "#46281b",
-];
-export const HAIR_COLOURS = [
-  "#1f1a17",
-  "#3b2a20",
-  "#5c3d27",
-  "#8a5a32",
-  "#b07c45",
-  "#d9b27a",
-  "#ead39a",
-  "#a33b24",
-  "#c9c3bb",
-  "#6b4fa0",
-];
-export const TOPS = [
-  "#e46f5a",
-  "#f2a65a",
-  "#f6d06f",
-  "#8fbf7a",
-  "#4e9f8a",
-  "#5b8fd1",
-  "#8a79c9",
-  "#d97aa6",
-  "#f4efe6",
-  "#2f4858",
-  "#9b4d5a",
-  "#c9a36b",
-  "#6f8f3d",
-  "#3e7cb1",
-  "#ffffff",
-  "#3a3a3a",
-];
-export const BOTTOMS = [
-  "#2f3e57",
-  "#3d5a80",
-  "#56483f",
-  "#4b4f54",
-  "#6c6f4b",
-  "#c2b59b",
-  "#1f2326",
-  "#7a5c4a",
-  "#8c9aa8",
-  "#5e3b4f",
-];
-export const SHOES = [
-  "#2b2421",
-  "#6b4a35",
-  "#e9e4da",
-  "#3b4a5a",
-  "#9a3b32",
-  "#c8b08a",
-];
-export const PASTELS = [
-  "#c9d8ef",
-  "#e8c9d6",
-  "#d5e6c8",
-  "#efe0bd",
-  "#d9d0ee",
-  "#c6e2e0",
-];
+export { BOTTOMS, HAIR_COLOURS, PASTELS, SHOES, SKIN_TONES, TOPS };
+
 /** Friendly names so colour is never the only cue. */
 export const COLOUR_NAMES: Record<string, string> = {
   "#f6d7c3": "Porcelain",

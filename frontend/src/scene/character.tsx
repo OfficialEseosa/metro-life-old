@@ -1,6 +1,6 @@
 /* oxlint-disable react/immutability -- The actor, mixer and marker are owned Three resources. */
 import { use, useEffect, useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Look } from "../api/types";
 import type { BodyCondition } from "./character-life";
@@ -21,27 +21,12 @@ export type { CharacterPose } from "./characters/actor";
 // Bodies and clips are shared by everyone in the city; start loading with the scene code.
 if (typeof window !== "undefined") void preloadAllBodies().catch(() => {});
 
-const animationCanvases = new Map<() => void, number>();
-let animationTimer: ReturnType<typeof setInterval> | undefined;
-function animateCanvas(invalidate: () => void) {
-  animationCanvases.set(
-    invalidate,
-    (animationCanvases.get(invalidate) ?? 0) + 1,
-  );
-  if (!animationTimer)
-    animationTimer = setInterval(() => {
-      if (!document.hidden) for (const draw of animationCanvases.keys()) draw();
-    }, 1000 / 60);
-  return () => {
-    const users = (animationCanvases.get(invalidate) ?? 1) - 1;
-    if (users) animationCanvases.set(invalidate, users);
-    else animationCanvases.delete(invalidate);
-    if (!animationCanvases.size && animationTimer) {
-      clearInterval(animationTimer);
-      animationTimer = undefined;
-    }
-  };
-}
+/**
+ * People further than this from the player no longer cast a sun shadow. The follow
+ * shadow box is 26 m wide; beyond this range a person's shadow is a few pixels, while
+ * each caster still costs a full skinned draw on every shadow refresh.
+ */
+const SHADOW_RANGE = 18;
 
 /** Same renderer for the controlled person, residents, staff and the pose studio. */
 export function RiggedCharacter({
@@ -71,7 +56,6 @@ export function RiggedCharacter({
     optionsKey = JSON.stringify(options ?? null);
   // Suspend only while the look's parts are still loading.
   if (!lookReady(look, options)) use(loadLook(look, options));
-  const invalidate = useThree((s) => s.invalidate);
   const actor = useMemo(
     () => new CharacterActor(look, options),
     // The key strings capture every field the actor reads.
@@ -85,15 +69,13 @@ export function RiggedCharacter({
   useEffect(() => {
     // StrictMode mounts twice; dispose only when nobody re-acquired the actor.
     actor.owners++;
-    const stop = animateCanvas(invalidate);
     return () => {
-      stop();
       actor.owners--;
       queueMicrotask(() => {
         if (!actor.owners) actor.dispose();
       });
     };
-  }, [actor, invalidate]);
+  }, [actor]);
   useEffect(() => {
     let own = selected;
     if (own === undefined) {
@@ -114,9 +96,13 @@ export function RiggedCharacter({
     };
   }, [selected, actor]);
   useFrame((state, dt) => {
+    // Play renders every frame; the title screen and pose studio render on demand,
+    // where a person keeps their clip moving by asking for the next frame.
+    if (state.frameloop === "demand") state.invalidate();
     pending.current += Math.min(dt, 0.1);
     const distance = readDistance?.() ?? 0,
       every = distance > 28 ? 3 : distance > 16 ? 2 : 1;
+    actor.setCastShadow(distance <= SHADOW_RANGE);
     if (++frame.current % every) return;
     const step = pending.current;
     pending.current = 0;

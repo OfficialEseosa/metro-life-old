@@ -5,6 +5,7 @@ import {
   activityUse,
   canStand,
   doorsFor,
+  homeStationSupports,
   roomLayout,
   roomType,
   interiorType,
@@ -250,7 +251,8 @@ export function queueLocationAction(city: CityId, loc: string, action: Action) {
   const station =
     layout &&
     (type === "home"
-      ? layout.stations.find((st) => st.action === action.id)
+      ? (layout.stations.find((st) => st.action === action.id) ??
+        layout.stations.find((st) => homeStationSupports(st, action.id)))
       : layout.stations.find((st) => st.id === use?.station));
   const room = type ? `${type}:${loc === "home" ? sim.userId : loc}` : null,
     door = doorsFor(sim)[loc];
@@ -339,7 +341,7 @@ export function openObjectMenu(target: PickTarget) {
         !use ||
         action.id === "visit-workplace" ||
         !supported.has(use.station) ||
-        (type === "home" && station?.action !== action.id)
+        (type === "home" && !homeStationSupports(station, action.id))
       )
         continue;
       if (action.to) {
