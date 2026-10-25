@@ -10,7 +10,7 @@ import { Trees, type TreeSpot } from "./trees";
 
 const noPick = () => {};
 const lawnShade = new THREE.Color("#6f8f5e"),
-  paving = new THREE.Color("#cfc6b4"),
+  paving = new THREE.Color("#b4ad9d"),
   pavingNight = new THREE.Color("#7b7a8c");
 
 /**
@@ -95,18 +95,20 @@ export function RoomPlinth({ room }: { room: string }) {
     else ground.color.lerpColors(paving, pavingNight, dark ? 1 : timeOfDay.nightFactor * 0.7);
   });
   const trees = useMemo<TreeSpot[]>(() => {
-    if (!home) return [];
+    if (dark) return [];
+    // A loose ring of trees behind and beside the building; the camera side stays open.
     const spots: TreeSpot[] = [],
-      r = Math.hypot(w, d) / 2 + 2.5;
-    for (let i = 0; i < 9; i++) {
-      const a = (i / 9) * Math.PI * 2 + 0.35,
-        rr = r + (i % 3) * 2.2;
-      // Leave the front (camera side, +z) open so trees never hide the room.
+      count = home ? 9 : 14;
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2 + 0.35,
+        out = 2.5 + (i % 3) * 2.2,
+        x = Math.sin(a) * (w / 2 + out),
+        z = -Math.abs(Math.cos(a)) * (d / 2 + out) - 1;
       if (Math.cos(a) > 0.25 && Math.abs(Math.sin(a)) < 0.9) continue;
-      spots.push({ x: Math.sin(a) * rr, y: -0.55, z: -Math.abs(Math.cos(a)) * rr * 0.9 - 1 });
+      spots.push({ x, y: -0.55, z });
     }
     return spots;
-  }, [home, w, d]);
+  }, [home, dark, w, d]);
   return (
     <group name="room-surroundings">
       <mesh name="room-stage-plinth" geometry={geometry} receiveShadow raycast={noPick}>

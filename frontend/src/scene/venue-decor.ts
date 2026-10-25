@@ -89,7 +89,11 @@ export function venueDecor(type: string, layout: RoomLayout): Prop[] {
     for (const z of [5.4, 7.2, 9.0]) {
       seatRow(-7.2, z, 5, Math.PI);
       seatRow(15.5, z, 6, Math.PI);
+      seatRow(4.6, z + 1.2, 4, Math.PI);
     }
+    // Waiting benches along the platform glass and a row facing the departures board.
+    for (const z of [-10.5, -7.5, -4.5]) seatRow(8.6, z, 3, Math.PI / 2);
+    seatRow(-15, 3.4, 6, Math.PI);
     for (const [x, z] of [
       [-hw + 1.2, -hd + 1.2],
       [-hw + 1.2, hd - 1.2],
