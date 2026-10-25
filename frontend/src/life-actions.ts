@@ -34,13 +34,22 @@ export function lifePose(person: VisibleLife): string {
     person.busyKind === "food"
   )
     return "Eat";
-  if (/type|work|code|study|learn/.test(action)) return "Type";
-  if (/cheer|perform|sing|show/.test(action)) return "Cheer";
   if (/dance/.test(action)) return "Dance";
-  if (/wave/.test(action)) return "Wave";
-  if (/talk|hang|chat|social/.test(action)) return "Talk";
-  if (/sit/.test(action)) return "Sit";
-  if (/jog|run/.test(action)) return "Jog";
+  if (/read|book|library/.test(action)) return "Read";
+  if (/study|class|lecture|sketch/.test(action)) return "Read";
+  if (/type|work|code|co-work|hackathon/.test(action)) return "Type";
+  if (/see a band|concert|listen|watch|catch a game|show/.test(action)) return "Listen";
+  if (/cheer|perform|sing/.test(action)) return "Cheer";
+  if (/photo|tour|people-watch|sightsee/.test(action)) return "Photo";
+  if (/phone|call/.test(action)) return "Phone";
+  if (/shop|browse|market|dig for|records/.test(action)) return "Browse";
+  if (/play|game|arcade|skee|golf|shoot around/.test(action)) return "Play";
+  if (/yoga|stretch/.test(action)) return "Yoga";
+  if (/train|gym|exercise|workout/.test(action)) return "Exercise";
+  if (/wave|greet/.test(action)) return "Wave";
+  if (/talk|hang|chat|social|network|meet/.test(action)) return "Talk";
+  if (/sit|picnic|reflect/.test(action)) return "Sit";
+  if (/jog|run|bike|cycle/.test(action)) return "Jog";
   if (/walk/.test(action)) return "Walk";
   return person.busyUntil ? "Interact" : "Idle";
 }

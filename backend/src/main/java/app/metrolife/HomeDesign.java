@@ -167,9 +167,10 @@ final class HomeDesign {
         if (action.equals("sleep")) slot.put("face", a - Math.PI / 2);
         if (action.equals("shower")) slot
           .put("pose", "Shower")
-          .put("x", x + .08 * Math.sin(a))
-          .put("z", z + .08 * Math.cos(a))
-          .put("face", a + Math.PI)
+          // Stand in the middle of the tray, facing out into the room so the wash reads on camera.
+          .put("x", x)
+          .put("z", z)
+          .put("face", a)
           .put("y", .16);
         if (action.equals("cook")) {
           slot

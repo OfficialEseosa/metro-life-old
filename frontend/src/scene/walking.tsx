@@ -152,6 +152,9 @@ export function Walking({
             if (e?.status) throw e;
             return api.move(state.sim!.city, { ...p }, via);
           });
+        // The request layer never hands back an empty answer, but stay safe if one slips through.
+        if (!r?.position)
+          throw Error("Could not confirm where you are standing. Try again.");
         const live = useStore.getState().sim;
         if (
           live?.userId !== user ||
@@ -399,7 +402,7 @@ export function Walking({
       motion.follow = true;
       const condition = bodyCondition(s.sim ?? sim),
         speed =
-          (manual && motion.run ? 7.2 : 4.2) *
+          (manual && motion.run ? 6 : 3.1) *
           (condition.tired ? 0.68 : condition.hungry ? 0.86 : 1);
       // Walk the frame's distance in short pieces: collisions stay exact and a route turns its
       // corners within the same frame instead of losing the rest of the step.
@@ -734,6 +737,7 @@ export function Walking({
         .move(city, requested, via)
         .then((r) => {
           if (
+            !r?.position ||
             useStore.getState().sim?.worldId !== world ||
             useStore.getState().sim?.userId !== user ||
             revision !== motion.revision
