@@ -68,9 +68,10 @@ a visible saving/sending explanation. Homes display resident counts and missing 
 
 ## Gameplay rules (backend is authoritative)
 
-- **Needs** `energy, hunger, fun, social` in 0..100. They decay with game time (roughly: energy -3/h awake,
-  hunger -4/h, fun -3/h, social -2/h; while offline decay is capped so nobody returns to a dead sim).
-  `mood` is derived: `great | good | okay | low | rough`. Low mood reduces pay and skill gain; a need at 0 blocks
+- **Needs** `energy, hunger, fun, social, hygiene` in 0..100, always present on `Sim.needs`. They decay per game
+  hour: energy 0.75, hunger 1, fun 0.7, social 0.6 (with personality modifiers) and hygiene 0.65; offline decay is
+  capped at six game hours so nobody returns to a dead sim. Hygiene is reported and drives the visible "dirty"
+  condition, but does not yet enter mood or action deltas. `mood` is derived from the other four: `great | good | okay | low | rough`. Low mood reduces pay and skill gain; a need at 0 blocks
   work actions.
 - **Skills** (level 0..10 with xp): `fitness, cooking, music, tech, charisma, creativity, business`.
 - **Actions**: every landmark exposes structured actions. An action has `id, label, kind (work|fun|food|learn|social|civic|travel|rest),
@@ -120,12 +121,17 @@ a visible saving/sending explanation. Homes display resident counts and missing 
 - **Social**: both residents must be at the same public location (private homes are separate) in the same city/world and free of activities or
   story choices. Human targets must be online. Wave gives both +3 Social; hang out gives both +15, capped
   at 100. Gifts transfer an integer $1–$500 with matching income/spending ledger entries. A sender waits
-  three seconds between social actions. Private cooldown and notification fields never enter the public sim.
+  three seconds between social actions; the private sim exposes `socialReadyAt` (server epoch ms) so the client can
+  disable the buttons until then. The receiving human gets a `socialReceived` socket frame. Other private cooldown
+  and notification fields never enter the public sim.
 - **Presence and chat**: browser-session sockets are bound to the shared public world. Online seats expire after 12 seconds without a live socket; multiple tabs count once.
   Viewed-city presence includes offline human residents and NPCs; the HUD shows the online human count and a separate resident count.
   City chat retains the last 50 messages per world/city across restart. Sending requires physically being
   in that city, 1–240 plain-text characters, and a 1.5-second send cooldown. Reconnect refetches resources
-  and deduplicates chat IDs. Socket writes run outside the simulation lock with bounded per-client queues.
+  and deduplicates chat IDs. Socket writes run outside the simulation lock with bounded per-client queues:
+  `positions` frames are coalesced (only the newest unsent one is delivered), and a client whose queue
+  fills is never dropped silently; its backlog is discarded, it receives `resync`, and the next tick resends a full
+  snapshot (presence, positions, clock, sim, resources, recent chat).
 - **City residents**: the shared world lazily seeds 40 residents per city. Synthetic residents have one authoritative location and persistent cash/home/needs.
   Active worlds simulate movement every 45–96 seconds after staggered initial departures. Residents use
   a limited activity routine, rather than the full human career/story loop. Up to three residents per city
@@ -188,14 +194,30 @@ Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl
 | GET | `/api/billboards?city` | `{ days, price, slots: [{ slot, ad: BillboardAd|null, queue: number, freeFrom }] }` |
 | POST | `/api/billboards` | `{ city, slot, title, link }` → `{ ad, sim }` |
 | GET | `/api/billboards/{id}/image` | PNG generated poster art (16:9) |
+
+Image fields (`Plots.atlas`, `PlotAd.image`, `BillboardAd.image`) are server-relative paths; the client loads them
+through `apiUrl()` so they work when the API is on another origin. Public ads do not carry `startsAt`; use
+`BillboardSlot.freeFrom`. `GET /api/sim` and every `{ sim }` response carry the private `socialReadyAt`.
 | GET | `/api/homes?city` | `{ homes: Home[], total }` |
 
 **WebSocket** `GET /ws` (same cookie). Plain JSON text frames.
-Server → client: `{ type: "hello", worldId, clock }`, `{ type: "presence", players: Player[] , city }` (on change, throttled),
-`{ type: "chat", message }`, `{ type: "event", kind: "mayor"|"plots"|"billboards"|"homes"|"story", city, text? }`
-(clients refetch that resource), `{ type: "clock", clock }` (every game hour).
+Server → client:
+- `{ type: "hello", worldId, clock }` on connect.
+- `{ type: "presence", city, players: Player[] }`: the viewed city's full list, on change (checked every second)
+  and in full after every connect, `view` change or resync.
+- `{ type: "positions", city, at, players: PlayerPatch[] }`: live fields (`id, position, activity, loc, activitySlot,
+  socialBusy, tripId, travelStatus, lifeAction, needs, busyLabel`) at up to 5 per second; coalesced per client.
+- `{ type: "chat", message }`.
+- `{ type: "event", kind: "mayor"|"plots"|"billboards"|"homes", city }`: refetch that resource.
+- `{ type: "event", kind: "sim", city }`: your own sim changed; re-read `/api/sim`. (Older clients called it `story`.)
+- `{ type: "socialReceived", kind: "wave"|"hangout"|"gift", fromId, fromName, text, amount?, at }`: only to the
+  target's sockets.
+- `{ type: "clock", clock }`: every game hour and at least every 5 seconds (heartbeat; a client that hears nothing
+  for 15 seconds treats the socket as dead and reconnects).
+- `{ type: "resync" }`: frames were skipped; refetch players and chat over HTTP.
+
 Client → server: `{ type: "view", city }` (which city map the client is looking at — presence/chat are filtered by it),
-`{ type: "ping" }`.
+`{ type: "ping" }` (accepted, ignored).
 
 The exact TypeScript shapes are in `frontend/src/api/types.ts` — that file is the contract; backend JSON must match it.
 
@@ -243,7 +265,7 @@ Setup includes optional `traits` (three of twelve) and Look `face` plus `outfits
 After creation a city card shows that city’s starting neighborhood, rent and entry pay. Visiting preserves the lease; moving charges a reviewed deposit. `/api/transit` lists both fares and durations. Booking at the matching hub uses `/api/transit/book` with `to`, `mode` and bus `confirmTimeAdvance`; a departure cohort shares seats and private chat. Plane rides take 10 real seconds / 2 game hours, buses 50 seconds / 8 game hours. The shared clock advances once per cohort and applies midnight costs. `/api/transit/nap` restores bus energy at arrival. `Sim.trip` supplies cabin state; public presence supplies travel status.
 
 Homes use GET/POST `/api/home/design`, saved per life. The response includes `catalog`, `design`, `layout`, `sim`, and `clock`. Placement uses quarter-metre coordinates and four rotations; the server checks overlaps, doors and reachable use points. Sim `homeDesign` and `homeLayout` install the same geometry in client navigation. Home actions reserve the selected item and apply its comfort/recovery bonuses.
-Sim `economy` includes a durable reasoned journal and next-rent/food/shift forecast. Purchases over $50 require `confirm: true` after the UI review. Current hourly need drains are energy 1.5, hunger 2, fun 1.4, social 1.2 and hygiene 1.3, with personality modifiers. Public presence exposes needs, busyLabel and temporary lifeAction gestures. Sim `relationships` is a private per-person value/label map; nearby chat, waves and hanging out build reciprocal bonds. Public venue bounds, floor polygons, slots and signature architecture share `shared/interiors.json`.
+Sim `economy` includes a durable reasoned journal and next-rent/food/shift forecast. Purchases over $50 require `confirm: true` after the UI review. Hourly need drains are listed under Needs above. Public presence exposes needs, busyLabel and temporary lifeAction gestures. Sim `relationships` is a private per-person value/label map; nearby chat, waves and hanging out build reciprocal bonds. Public venue bounds, floor polygons, slots and signature architecture share `shared/interiors.json`.
 
 
 ## Shared life and venue contract
