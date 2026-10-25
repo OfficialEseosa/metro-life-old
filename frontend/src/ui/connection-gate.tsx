@@ -27,9 +27,9 @@ function Card({ icon, title, children, busy }: { icon: ReactNode; title: string;
   </div>
 }
 
-function StartFresh({ label = 'Start fresh' }: { label?: string }) {
+function StartFresh({ label = 'Start fresh', primary = false }: { label?: string; primary?: boolean }) {
   const [working, setWorking] = useState(false)
-  return <button className="secondary full" disabled={working} onClick={() => { setWorking(true); void useStore.getState().startFresh().finally(() => setWorking(false)) }}>
+  return <button className={primary ? 'primary full' : 'secondary full'} disabled={working} onClick={() => { setWorking(true); void useStore.getState().startFresh().finally(() => setWorking(false)) }}>
     <UserSwitch size={20} weight="bold" aria-hidden="true" />{working ? 'Starting fresh…' : label}
   </button>
 }
@@ -46,7 +46,7 @@ export function ConnectionGate() {
 
   if (connection === 'ended') return <Card icon={<UserSwitch size={34} weight="duotone" />} title="This life is no longer here">
     <p>Your session ended, perhaps because a new life was started in another tab or on another device. Start fresh to create a new character here.</p>
-    <div className="connection-actions"><StartFresh /><button className="text-button" onClick={() => location.reload()}>Reload the page</button></div>
+    <div className="connection-actions"><StartFresh primary /><button className="secondary full" onClick={() => location.reload()}><ArrowClockwise size={20} weight="bold" aria-hidden="true" />Reload the page</button></div>
   </Card>
 
   if (connection === 'blocked') return <Card icon={<Cookie size={34} weight="duotone" />} title="Your browser is not keeping your life">
