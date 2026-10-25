@@ -150,7 +150,7 @@ function Single({ pose, body }: { pose: CharacterPose; body: string }) {
         </group>
       )}
       {pose === "Cook" && (
-        <mesh position={[0, 0.45, 0.62]}>
+        <mesh position={[0, 0.45, 0.95]}>
           <boxGeometry args={[0.7, 0.9, 0.6]} />
           <meshStandardMaterial color="#f0ece4" />
         </mesh>

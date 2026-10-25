@@ -34,6 +34,8 @@ import {
   clearLabelHover,
 } from "./speech-bubbles";
 import { roomFloorHeight } from "./venue-zones";
+import { useNightLighting } from "../lighting";
+import { setCharacterRim } from "./characters/materials";
 
 type ResidentMotion = {
   position: THREE.Vector3;
@@ -326,6 +328,9 @@ export function Residents() {
   }, [crowd, model, invalidate]);
   const animated = crowd.some((p) => p.activity !== "idle");
   useEffect(() => livePlayers.subscribe(invalidate), [invalidate]);
+  // One place sets the characters' rim light for the time of day.
+  const night = useNightLighting();
+  useEffect(() => setCharacterRim(night), [night]);
   useEffect(() => {
     if (!animated) return;
     const timer = setInterval(() => {

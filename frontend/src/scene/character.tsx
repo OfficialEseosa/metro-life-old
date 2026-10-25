@@ -120,12 +120,18 @@ export function RiggedCharacter({
     if (++frame.current % every) return;
     const step = pending.current;
     pending.current = 0;
-    const pose = readPose(),
+    // Development only: the lab can hold the player in a pose to inspect it in a real room.
+    const forced =
+      import.meta.env.DEV && marker.current
+        ? (window as { __metroForcePose?: { pose: CharacterPose; hip?: number } })
+            .__metroForcePose
+        : undefined;
+    const pose = forced?.pose ?? readPose(),
       condition = readCondition?.();
     actor.update(step, {
       pose,
-      speed: readSpeed?.() ?? 0,
-      hip: readHipHeight?.(),
+      speed: forced ? 0 : (readSpeed?.() ?? 0),
+      hip: forced ? forced.hip : readHipHeight?.(),
       tired: condition?.tired,
       hungry: condition?.hungry,
       startedAt: readStartedAt?.(),

@@ -381,7 +381,14 @@ function footShadowTexture() {
   return blobTexture;
 }
 /** Where a cooking pot sits on the hob, in the cook's own frame. */
-const POT = new THREE.Vector3(0.02, 0.96, 0.44);
+/** Exported for effects (steam): the pot centre in the cook's own frame, top at y + 0.06. */
+export const COOK_POT = new THREE.Vector3(0.02, 0.94, 0.84);
+const POT = COOK_POT;
+/**
+ * Furniture approach points sit 0.65 m in front of the furniture, so a cook steps this far
+ * toward the hob while cooking (the body moves, the server position does not).
+ */
+const COOK_STEP = 0.36;
 let blob: THREE.MeshBasicMaterial | undefined;
 function blobMaterial() {
   blob ??= new THREE.MeshBasicMaterial({
@@ -1054,7 +1061,7 @@ export class CharacterActor {
     if (input.hip !== undefined && meta && (SEATED_POSES.has(pose) || LYING.has(pose) || this.mode === "act")) {
       const s = this.scale;
       target.set(-meta.hip[0] * s, input.hip - meta.hip[1] * s, -meta.hip[2] * s);
-    }
+    } else if (pose === "Cook" && this.mode === "act") target.z = COOK_STEP;
     this.anchor.position.lerp(
       target,
       1 - Math.exp(-dt * (this.mode === "enter" ? 2.5 : 10)),
