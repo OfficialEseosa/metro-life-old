@@ -99,12 +99,18 @@ export function FurnishedHome() {
     [textures],
   );
   const furniture = layout.furniture as Piece[];
+  const cooking = useCooking();
   const modelled = useMemo(
     () =>
       furniture
         .filter((f) => MODELLED_KINDS.has(f.kind))
-        .map((f) => ({ f, props: furnitureProps(f) })),
-    [furniture],
+        .map((f) => ({
+          f,
+          props: furnitureProps(f).filter(
+            (p) => !(cooking && p.name === "pot_A_stew"),
+          ),
+        })),
+    [furniture, cooking],
   );
   const pieces = useMemo(
     () =>
@@ -150,7 +156,6 @@ export function FurnishedHome() {
         <boxGeometry args={[1.4, 0.035, 0.3]} />
         <meshStandardMaterial color="#d4ad67" />
       </mesh>
-      <HomeActivityEffects furniture={furniture} />
       {open && (
         <gridHelper
           args={[
@@ -228,97 +233,8 @@ function DeskScreen({ piece }: { piece: Piece }) {
   );
 }
 
-const STEAM = 14,
-  DROPS = 40;
-/** Steam above the pot while cooking and falling water while showering. */
-function HomeActivityEffects({ furniture }: { furniture: Piece[] }) {
-  const steam = useRef<THREE.InstancedMesh>(null),
-    water = useRef<THREE.InstancedMesh>(null),
-    dummy = useMemo(() => new THREE.Object3D(), []),
-    stove = furniture.find((f) => f.kind === "stove"),
-    shower = furniture.find((f) => f.kind === "shower" || f.kind === "tub");
-  const puff = useMemo(() => {
-    const c = document.createElement("canvas");
-    c.width = c.height = 64;
-    const x = c.getContext("2d")!,
-      g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
-    g.addColorStop(0, "rgba(255,255,255,.75)");
-    g.addColorStop(1, "rgba(255,255,255,0)");
-    x.fillStyle = g;
-    x.fillRect(0, 0, 64, 64);
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }, []);
-  useEffect(() => () => puff.dispose(), [puff]);
-  useFrame(({ clock, camera }) => {
-    const label = (useStore.getState().sim?.busyLabel ?? "").toLowerCase(),
-      cooking = !!stove && /cook|meal|kitchen/.test(label),
-      showering = !!shower && /shower|bath|wash/.test(label),
-      t = clock.elapsedTime;
-    if (steam.current) {
-      steam.current.visible = cooking;
-      if (cooking && stove) {
-        const c = Math.cos(stove.angle),
-          s = Math.sin(stove.angle),
-          lx = -stove.w * 0.2,
-          lz = -stove.d * 0.18,
-          px = stove.x + lx * c + lz * s,
-          pz = stove.z - lx * s + lz * c;
-        for (let i = 0; i < STEAM; i++) {
-          const life = (t * 0.45 + i / STEAM) % 1;
-          dummy.position.set(
-            px + Math.sin(i * 2.1 + t * 0.8) * 0.08 * (1 + life),
-            1.0 + life * 0.9,
-            pz + Math.cos(i * 1.7 + t * 0.6) * 0.08 * (1 + life),
-          );
-          dummy.quaternion.copy(camera.quaternion);
-          dummy.scale.setScalar(0.12 + life * 0.32);
-          dummy.updateMatrix();
-          steam.current.setMatrixAt(i, dummy.matrix);
-        }
-        steam.current.instanceMatrix.needsUpdate = true;
-        (steam.current.material as THREE.MeshBasicMaterial).opacity = 0.55;
-      }
-    }
-    if (water.current) {
-      water.current.visible = showering;
-      if (showering && shower) {
-        const head = shower.kind === "shower" ? -shower.d * 0.08 : -shower.d * 0.32,
-          c = Math.cos(shower.angle),
-          s = Math.sin(shower.angle),
-          hx = shower.kind === "shower" ? 0 : shower.w * 0.36,
-          top = shower.kind === "shower" ? 2.18 : 0.9;
-        for (let i = 0; i < DROPS; i++) {
-          const life = (t * 1.6 + (i * 0.618) % 1) % 1,
-            a = i * 2.39996,
-            r = 0.05 + ((i * 0.37) % 1) * 0.22 * life,
-            lx = hx + Math.cos(a) * r,
-            lz = head + Math.sin(a) * r;
-          dummy.position.set(
-            shower.x + lx * c + lz * s,
-            top - life * (top - 0.15),
-            shower.z - lx * s + lz * c,
-          );
-          dummy.quaternion.identity();
-          dummy.scale.set(0.012, 0.16, 0.012);
-          dummy.updateMatrix();
-          water.current.setMatrixAt(i, dummy.matrix);
-        }
-        water.current.instanceMatrix.needsUpdate = true;
-      }
-    }
-  });
-  return (
-    <>
-      <instancedMesh ref={steam} args={[undefined, undefined, STEAM]} visible={false} frustumCulled={false} raycast={() => {}}>
-        <planeGeometry />
-        <meshBasicMaterial map={puff} transparent depthWrite={false} color="#f4f1ea" />
-      </instancedMesh>
-      <instancedMesh ref={water} args={[undefined, undefined, DROPS]} visible={false} frustumCulled={false} raycast={() => {}}>
-        <cylinderGeometry args={[1, 1, 1, 4]} />
-        <meshBasicMaterial color="#cfeef5" transparent opacity={0.6} depthWrite={false} />
-      </instancedMesh>
-    </>
-  );
+/** The decorative pot on the hob steps aside while the cook's own pot is in use. */
+function useCooking() {
+  const label = useStore((s) => s.sim?.busyLabel ?? "");
+  return /cook|meal|kitchen/i.test(label);
 }
