@@ -1,28 +1,481 @@
-import { useEffect,useRef,useState } from 'react'
-import { useStore } from '../store'
-import { homeRequest,placementReason,useHomeDesign,type FurnitureProduct,type Furnishing } from '../home-design'
-import { useBuyPreview } from '../buy-preview-state'
-import { Icon,ReasonButton } from './primitives'
-import { confirmPurchase } from './purchase-confirmation'
-import { sound } from './sound'
-import './buy-mode.css'
-export function BuyModeButton(){const sim=useStore(s=>s.sim),open=useHomeDesign(s=>s.open);return sim&&sim.position?.room===`home:${sim.userId}`&&!open?<button className="buy-mode-trigger" onClick={()=>useHomeDesign.getState().setOpen(true)}><Icon name="house" size={17}/>Buy mode</button>:null}
-export function BuyMode(){
- const {open,design,catalog}=useHomeDesign(),{product,moving,point,rotation,inside,busy,wallPreview,floorPreview}=useBuyPreview(),[category,setCategory]=useState('seating'),[error,setError]=useState(''),[notice,setNotice]=useState(''),setSim=useStore(s=>s.setSim),placeRef=useRef<()=>void>(()=>{}),mutation=useRef(false)
- useEffect(()=>()=>{useHomeDesign.getState().setOpen(false);useBuyPreview.getState().clear()},[])
- useEffect(()=>{if(!open)return;const frame=requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('.buy-mode--3d header button')?.focus());return()=>{cancelAnimationFrame(frame);requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('.buy-mode-trigger')?.focus())}},[open])
- useEffect(()=>{if(!open)return;let active=true;homeRequest().then(data=>{if(active)setSim(data.sim)}).catch(e=>{if(active)setError(String(e.message))});return()=>{active=false}},[open,setSim])
- useEffect(()=>{if(!open)return;const listener=(e:KeyboardEvent)=>{if(document.querySelector('.purchase-confirmation')||(e.target as HTMLElement)?.closest('input,textarea,select')||useBuyPreview.getState().busy)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();if(useBuyPreview.getState().product)useBuyPreview.getState().clear();else useHomeDesign.getState().setOpen(false)}if(e.key.toLowerCase()==='r'&&!e.repeat){e.preventDefault();useBuyPreview.setState(s=>({rotation:(s.rotation+1)%4}))}};const place=()=>placeRef.current();window.addEventListener('keydown',listener,true);window.addEventListener('metro-buy-place',place);return()=>{window.removeEventListener('keydown',listener,true);window.removeEventListener('metro-buy-place',place)}},[open])
- useEffect(()=>{if(!open){useBuyPreview.getState().clear();setError('');setNotice('')}},[open])
- const choose=(p:FurnitureProduct,item?:Furnishing)=>{useBuyPreview.getState().choose(p,item);setError('');setNotice('')}
- const reason=product&&design&&catalog?placementReason(design,catalog,product,point.x,point.z,rotation,moving?.id):''
- const mutate=async(body:Record<string,unknown>)=>{if(mutation.current)return;mutation.current=true;useBuyPreview.setState({busy:true});setError('');try{
-  const current=useBuyPreview.getState(),sim=useStore.getState().sim
-  if(body.op==='buy'&&current.product&&!await confirmPurchase(current.product.price,`Buy ${current.product.name} for your home`,sim))return
-  const data=await homeRequest(body);setSim(data.sim);setNotice(data.message??(body.op==='sell'?'Sold. A little room for something new.':body.op==='paint'?'A fresh finish, made yours.':'Just right. Your home is saved.'));useBuyPreview.getState().clear();sound(body.op==='sell'?'coin':'purchase')
- }catch(e){setError(e instanceof Error?e.message:'Could not update your home');sound('error')}finally{mutation.current=false;useBuyPreview.setState({busy:false})}}
- placeRef.current=()=>{const current=useBuyPreview.getState(),home=useHomeDesign.getState();if(!current.product||!home.design||!home.catalog||current.busy)return;const blocked=!current.inside?'Point inside your home':placementReason(home.design,home.catalog,current.product,current.point.x,current.point.z,current.rotation,current.moving?.id);if(blocked){setError(blocked);sound('error');return}void mutate({op:current.moving?'move':'buy',id:current.moving?.id,catalogId:current.product.id,...current.point,rotation:current.rotation,confirm:true})}
- if(!open)return null
- return <section className="buy-mode buy-mode--3d" role="dialog" aria-modal="false" aria-label="Furnish your room"><header><div><span className="eyebrow">YOUR ROOM, YOUR WAY</span><b>Make yourself at home</b><small>{design?`${design.width} × ${design.depth} m · $${useStore.getState().sim?.cash.toFixed(0)}`:'Opening your home'}</small></div><button disabled={busy} onClick={()=>useHomeDesign.getState().setOpen(false)} aria-label="Close Buy mode">Done</button></header><p className="buy-room-help"><Icon name="seating" size={17}/>Choose a piece, then click your room. <kbd>R</kbd> rotates. Tap an existing piece to move it.</p>{error&&<p role="alert" className="buy-error">{error}</p>}{notice&&<p role="status" className="buy-saved">{notice}</p>}{design&&catalog&&<><div className="buy-body"><div className="buy-catalog"><nav aria-label="Furniture categories">{catalog.categories.map(c=><button key={c} aria-pressed={category===c} onClick={()=>{setCategory(c);useBuyPreview.getState().clear()}}>{c}</button>)}<button aria-pressed={category==='owned'} onClick={()=>{setCategory('owned');useBuyPreview.getState().clear()}}>Owned</button><button aria-pressed={category==='paint'} onClick={()=>{setCategory('paint');useBuyPreview.getState().clear()}}>Paint</button></nav><div className="buy-products">{category==='paint'?<><h3>Walls · preview a finish</h3><div className="buy-swatches">{catalog.wallColors.map(color=><button key={color} style={{background:color}} aria-label={`Preview wall finish ${color}`} aria-pressed={wallPreview===color} disabled={busy} onClick={()=>useBuyPreview.setState({wallPreview:color})}/>)}</div>{wallPreview&&<button className="primary" disabled={busy} onClick={()=>void mutate({op:'paint',wallColor:wallPreview})}>Apply wall finish · $20</button>}<h3>Floors · preview a finish</h3><div className="buy-swatches">{catalog.floorColors.map(color=><button key={color} style={{background:color}} aria-label={`Preview floor finish ${color}`} aria-pressed={floorPreview===color} disabled={busy} onClick={()=>useBuyPreview.setState({floorPreview:color})}/>)}</div>{floorPreview&&<button className="primary" disabled={busy} onClick={()=>void mutate({op:'paint',floorColor:floorPreview})}>Apply floor finish · $20</button>}<small>Try as many colours as you like. You only pay when you apply a finish.</small></>:category==='owned'?design.items.map(item=>{const p=catalog.items.find(p=>p.id===item.catalogId);return p&&<button key={item.id} className={moving?.id===item.id?'selected':''} onClick={()=>choose(p,item)}><b>{p.name}<span>Owned</span></b><small>Move, rotate or sell for ${item.resale??Math.floor(item.paid*.6)}</small></button>}):catalog.items.filter(p=>p.category===category).map(p=><button key={p.id} onClick={()=>choose(p)} className={product?.id===p.id&&!moving?'selected':''}><b>{p.name}<span>${p.price}</span></b><small>{Object.entries(p.stats).filter(([,v])=>v>0).map(([k,v])=>`${k} +${v}`).join(' · ')}</small><small>{p.w} × {p.d} m</small></button>)}</div></div></div>{product&&<footer className="buy-placement"><div><strong>{moving?'Move':'Place'} {product.name}</strong><span className={reason||!inside?'invalid':'valid'}>{!inside?'Point inside your room':reason||'Clear spot · click your room to place'}</span></div><div className="buy-placement-buttons"><button disabled={busy} onClick={()=>useBuyPreview.setState({rotation:(rotation+1)%4})}>Rotate <kbd>R</kbd></button><ReasonButton className="primary" reason={busy?'Saving...':!inside?'Point inside':reason} onClick={()=>placeRef.current()}>{moving?'Move here':`Buy · $${product.price}`}</ReasonButton><button disabled={busy} onClick={()=>useBuyPreview.getState().clear()}>Cancel</button>{moving&&<button disabled={busy||moving.resale===0} title={moving.resale===0?'Starter furniture stays with your home':undefined} onClick={()=>void mutate({op:'sell',id:moving.id})}>Sell · ${moving.resale??Math.floor(moving.paid*.6)}</button>}</div><details className="buy-coordinate-controls"><summary>Precise placement</summary><label>X<input disabled={busy} type="number" step=".25" value={point.x} onChange={e=>useBuyPreview.setState(s=>({point:{...s.point,x:Number(e.target.value)},inside:true}))}/></label><label>Z<input disabled={busy} type="number" step=".25" value={point.z} onChange={e=>useBuyPreview.setState(s=>({point:{...s.point,z:Number(e.target.value)},inside:true}))}/></label></details></footer>}</>}
- </section>
+import { useEffect, useRef, useState } from "react";
+import { useStore } from "../store";
+import {
+  homeRequest,
+  placementReason,
+  useHomeDesign,
+  type FurnitureProduct,
+  type Furnishing,
+} from "../home-design";
+import { useBuyPreview } from "../buy-preview-state";
+import { Icon, ReasonButton } from "./primitives";
+import { confirmPurchase } from "./purchase-confirmation";
+import { sound } from "./sound";
+import "./buy-mode.css";
+export function BuyModeButton() {
+  const sim = useStore((s) => s.sim),
+    open = useHomeDesign((s) => s.open);
+  return sim && sim.position?.room === `home:${sim.userId}` && !open ? (
+    <button
+      className="buy-mode-trigger"
+      onClick={() => useHomeDesign.getState().setOpen(true)}
+    >
+      <Icon name="house" size={17} />
+      Buy mode
+    </button>
+  ) : null;
+}
+export function BuyMode() {
+  const { open, design, catalog } = useHomeDesign(),
+    {
+      product,
+      moving,
+      point,
+      rotation,
+      inside,
+      busy,
+      wallPreview,
+      floorPreview,
+    } = useBuyPreview(),
+    [category, setCategory] = useState("seating"),
+    [error, setError] = useState(""),
+    [notice, setNotice] = useState(""),
+    setSim = useStore((s) => s.setSim),
+    placeRef = useRef<() => void>(() => {}),
+    mutation = useRef(false);
+  useEffect(
+    () => () => {
+      useHomeDesign.getState().setOpen(false);
+      useBuyPreview.getState().clear();
+    },
+    [],
+  );
+  useEffect(() => {
+    if (!open) return;
+    const frame = requestAnimationFrame(() =>
+      document
+        .querySelector<HTMLButtonElement>(".buy-mode--3d header button")
+        ?.focus(),
+    );
+    return () => {
+      cancelAnimationFrame(frame);
+      requestAnimationFrame(() =>
+        document.querySelector<HTMLButtonElement>(".buy-mode-trigger")?.focus(),
+      );
+    };
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+    homeRequest()
+      .then((data) => {
+        if (active) setSim(data.sim);
+      })
+      .catch((e) => {
+        if (active) setError(String(e.message));
+      });
+    return () => {
+      active = false;
+    };
+  }, [open, setSim]);
+  useEffect(() => {
+    if (!open) return;
+    const listener = (e: KeyboardEvent) => {
+      if (
+        document.querySelector(".purchase-confirmation") ||
+        (e.target as HTMLElement)?.closest("input,textarea,select") ||
+        useBuyPreview.getState().busy
+      )
+        return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (useBuyPreview.getState().product) useBuyPreview.getState().clear();
+        else useHomeDesign.getState().setOpen(false);
+      }
+      if (e.key.toLowerCase() === "r" && !e.repeat) {
+        e.preventDefault();
+        useBuyPreview.setState((s) => ({ rotation: (s.rotation + 1) % 4 }));
+      }
+    };
+    const place = () => placeRef.current();
+    window.addEventListener("keydown", listener, true);
+    window.addEventListener("metro-buy-place", place);
+    return () => {
+      window.removeEventListener("keydown", listener, true);
+      window.removeEventListener("metro-buy-place", place);
+    };
+  }, [open]);
+  useEffect(() => {
+    if (!open) {
+      useBuyPreview.getState().clear();
+      setError("");
+      setNotice("");
+    }
+  }, [open]);
+  const choose = (p: FurnitureProduct, item?: Furnishing) => {
+    useBuyPreview.getState().choose(p, item);
+    setError("");
+    setNotice("");
+  };
+  const reason =
+    product && design && catalog
+      ? placementReason(
+          design,
+          catalog,
+          product,
+          point.x,
+          point.z,
+          rotation,
+          moving?.id,
+        )
+      : "";
+  const mutate = async (body: Record<string, unknown>) => {
+    if (mutation.current) return;
+    mutation.current = true;
+    useBuyPreview.setState({ busy: true });
+    setError("");
+    try {
+      const current = useBuyPreview.getState(),
+        sim = useStore.getState().sim;
+      if (
+        body.op === "buy" &&
+        current.product &&
+        !(await confirmPurchase(
+          current.product.price,
+          `Buy ${current.product.name} for your home`,
+          sim,
+        ))
+      )
+        return;
+      const data = await homeRequest(body);
+      setSim(data.sim);
+      setNotice(
+        data.message ??
+          (body.op === "sell"
+            ? "Sold. A little room for something new."
+            : body.op === "paint"
+              ? "A fresh finish, made yours."
+              : "Just right. Your home is saved."),
+      );
+      useBuyPreview.getState().clear();
+      sound(body.op === "sell" ? "coin" : "purchase");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not update your home");
+      sound("error");
+    } finally {
+      mutation.current = false;
+      useBuyPreview.setState({ busy: false });
+    }
+  };
+  placeRef.current = () => {
+    const current = useBuyPreview.getState(),
+      home = useHomeDesign.getState();
+    if (!current.product || !home.design || !home.catalog || current.busy)
+      return;
+    const blocked = !current.inside
+      ? "Point inside your home"
+      : placementReason(
+          home.design,
+          home.catalog,
+          current.product,
+          current.point.x,
+          current.point.z,
+          current.rotation,
+          current.moving?.id,
+        );
+    if (blocked) {
+      setError(blocked);
+      sound("error");
+      return;
+    }
+    void mutate({
+      op: current.moving ? "move" : "buy",
+      id: current.moving?.id,
+      catalogId: current.product.id,
+      ...current.point,
+      rotation: current.rotation,
+      confirm: true,
+    });
+  };
+  if (!open) return null;
+  return (
+    <section
+      className="buy-mode buy-mode--3d"
+      role="dialog"
+      aria-modal="false"
+      aria-label="Furnish your room"
+    >
+      <header>
+        <div>
+          <span className="eyebrow">YOUR ROOM, YOUR WAY</span>
+          <b>Make yourself at home</b>
+          <small>
+            {design
+              ? `${design.width} × ${design.depth} m · $${useStore.getState().sim?.cash.toFixed(0)}`
+              : "Opening your home"}
+          </small>
+        </div>
+        <button
+          disabled={busy}
+          onClick={() => useHomeDesign.getState().setOpen(false)}
+          aria-label="Close Buy mode"
+        >
+          Done
+        </button>
+      </header>
+      <p className="buy-room-help">
+        <Icon name="seating" size={17} />
+        Choose a piece, then click your room. <kbd>R</kbd> rotates. Tap an
+        existing piece to move it.
+      </p>
+      {error && (
+        <p role="alert" className="buy-error">
+          {error}
+        </p>
+      )}
+      {notice && (
+        <p role="status" className="buy-saved">
+          {notice}
+        </p>
+      )}
+      {design && catalog && (
+        <>
+          <div className="buy-body">
+            <div className="buy-catalog">
+              <nav aria-label="Furniture categories">
+                {catalog.categories.map((c) => (
+                  <button
+                    key={c}
+                    aria-pressed={category === c}
+                    onClick={() => {
+                      setCategory(c);
+                      useBuyPreview.getState().clear();
+                    }}
+                  >
+                    {c}
+                  </button>
+                ))}
+                <button
+                  aria-pressed={category === "owned"}
+                  onClick={() => {
+                    setCategory("owned");
+                    useBuyPreview.getState().clear();
+                  }}
+                >
+                  Owned
+                </button>
+                <button
+                  aria-pressed={category === "paint"}
+                  onClick={() => {
+                    setCategory("paint");
+                    useBuyPreview.getState().clear();
+                  }}
+                >
+                  Paint
+                </button>
+              </nav>
+              <div className="buy-products">
+                {category === "paint" ? (
+                  <>
+                    <h3>Walls · preview a finish</h3>
+                    <div className="buy-swatches">
+                      {catalog.wallColors.map((color) => (
+                        <button
+                          key={color}
+                          style={{ background: color }}
+                          aria-label={`Preview wall finish ${color}`}
+                          aria-pressed={wallPreview === color}
+                          disabled={busy}
+                          onClick={() =>
+                            useBuyPreview.setState({ wallPreview: color })
+                          }
+                        />
+                      ))}
+                    </div>
+                    {wallPreview && (
+                      <button
+                        className="primary"
+                        disabled={busy}
+                        onClick={() =>
+                          void mutate({ op: "paint", wallColor: wallPreview })
+                        }
+                      >
+                        Apply wall finish · $20
+                      </button>
+                    )}
+                    <h3>Floors · preview a finish</h3>
+                    <div className="buy-swatches">
+                      {catalog.floorColors.map((color) => (
+                        <button
+                          key={color}
+                          style={{ background: color }}
+                          aria-label={`Preview floor finish ${color}`}
+                          aria-pressed={floorPreview === color}
+                          disabled={busy}
+                          onClick={() =>
+                            useBuyPreview.setState({ floorPreview: color })
+                          }
+                        />
+                      ))}
+                    </div>
+                    {floorPreview && (
+                      <button
+                        className="primary"
+                        disabled={busy}
+                        onClick={() =>
+                          void mutate({ op: "paint", floorColor: floorPreview })
+                        }
+                      >
+                        Apply floor finish · $20
+                      </button>
+                    )}
+                    <small>
+                      Try as many colours as you like. You only pay when you
+                      apply a finish.
+                    </small>
+                  </>
+                ) : category === "owned" ? (
+                  design.items.map((item) => {
+                    const p = catalog.items.find(
+                      (p) => p.id === item.catalogId,
+                    );
+                    return (
+                      p && (
+                        <button
+                          key={item.id}
+                          className={moving?.id === item.id ? "selected" : ""}
+                          onClick={() => choose(p, item)}
+                        >
+                          <b>
+                            {p.name}
+                            <span>Owned</span>
+                          </b>
+                          <small>
+                            Move, rotate or sell for $
+                            {item.resale ?? Math.floor(item.paid * 0.6)}
+                          </small>
+                        </button>
+                      )
+                    );
+                  })
+                ) : (
+                  catalog.items
+                    .filter((p) => p.category === category)
+                    .map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => choose(p)}
+                        className={
+                          product?.id === p.id && !moving ? "selected" : ""
+                        }
+                      >
+                        <b>
+                          {p.name}
+                          <span>${p.price}</span>
+                        </b>
+                        <small>
+                          {Object.entries(p.stats)
+                            .filter(([, v]) => v > 0)
+                            .map(([k, v]) => `${k} +${v}`)
+                            .join(" · ")}
+                        </small>
+                        <small>
+                          {p.w} × {p.d} m
+                        </small>
+                      </button>
+                    ))
+                )}
+              </div>
+            </div>
+          </div>
+          {product && (
+            <footer className="buy-placement">
+              <div>
+                <strong>
+                  {moving ? "Move" : "Place"} {product.name}
+                </strong>
+                <span className={reason || !inside ? "invalid" : "valid"}>
+                  {!inside
+                    ? "Point inside your room"
+                    : reason || "Clear spot · click your room to place"}
+                </span>
+              </div>
+              <div className="buy-placement-buttons">
+                <button
+                  disabled={busy}
+                  onClick={() =>
+                    useBuyPreview.setState({ rotation: (rotation + 1) % 4 })
+                  }
+                >
+                  Rotate <kbd>R</kbd>
+                </button>
+                <ReasonButton
+                  className="primary"
+                  reason={
+                    busy ? "Saving..." : !inside ? "Point inside" : reason
+                  }
+                  onClick={() => placeRef.current()}
+                >
+                  {moving ? "Move here" : `Buy · $${product.price}`}
+                </ReasonButton>
+                <button
+                  disabled={busy}
+                  onClick={() => useBuyPreview.getState().clear()}
+                >
+                  Cancel
+                </button>
+                {moving && (
+                  <button
+                    disabled={busy || moving.resale === 0}
+                    title={
+                      moving.resale === 0
+                        ? "Starter furniture stays with your home"
+                        : undefined
+                    }
+                    onClick={() => void mutate({ op: "sell", id: moving.id })}
+                  >
+                    Sell · ${moving.resale ?? Math.floor(moving.paid * 0.6)}
+                  </button>
+                )}
+              </div>
+              <details className="buy-coordinate-controls">
+                <summary>Precise placement</summary>
+                <label>
+                  X
+                  <input
+                    disabled={busy}
+                    type="number"
+                    step=".25"
+                    value={point.x}
+                    onChange={(e) =>
+                      useBuyPreview.setState((s) => ({
+                        point: { ...s.point, x: Number(e.target.value) },
+                        inside: true,
+                      }))
+                    }
+                  />
+                </label>
+                <label>
+                  Z
+                  <input
+                    disabled={busy}
+                    type="number"
+                    step=".25"
+                    value={point.z}
+                    onChange={(e) =>
+                      useBuyPreview.setState((s) => ({
+                        point: { ...s.point, z: Number(e.target.value) },
+                        inside: true,
+                      }))
+                    }
+                  />
+                </label>
+              </details>
+            </footer>
+          )}
+        </>
+      )}
+    </section>
+  );
 }

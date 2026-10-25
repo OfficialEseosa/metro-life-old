@@ -1,21 +1,300 @@
-import { useEffect, useRef, useState } from 'react'
-import { api } from '../api/client'
-import { mergeChat, useStore } from '../store'
-import { ReasonButton, Avatar, ErrorMessage, Icon, SectionTitle } from './primitives'
-import { useNow, useTask } from './helpers'
-import { sound } from './sound'
-import { useWalking } from '../walking'
-import { FriendshipMeter } from './friendships'
-const state=()=>useStore.getState()
-export function CommunityLinks(){return <div className="community-links"><button className="secondary" onClick={()=>state().openPanel('people')}><Icon name="users"/>Neighbours</button><button className="secondary" onClick={()=>state().openPanel('chat')}><Icon name="messages-square"/>City chat</button></div>}
-export function PeoplePanel(){
- const now=useNow(),city=useStore(s=>s.city),players=useStore(s=>s.players),sim=useStore(s=>s.sim),world=useStore(s=>s.world),connected=useStore(s=>s.connected),position=useWalking(s=>s.position),{working,error,run}=useTask(),[notice,setNotice]=useState(''),[cooldown,setCooldown]=useState(0)
- useEffect(()=>{void state().refresh('players')},[city])
- const neighbours=players.filter(p=>p.id!==sim?.userId&&(p.online||p.npc)),at=position??sim?.position
- const sameRoom=(p:typeof players[number])=>!p.tripId&&!sim?.trip&&!!at&&at.place!=='home'&&p.loc!=='home'&&p.city===sim?.city&&!!p.position&&!at.room?.startsWith('home:')&&(p.position.room??null)===(at.room??null)&&Math.hypot((p.activitySlot?.x??p.position.x)-(sim?.activitySlot?.x??at.x),(p.activitySlot?.z??p.position.z)-(sim?.activitySlot?.z??at.z))<=3
- const here=neighbours.filter(sameRoom),elsewhere=neighbours.filter(p=>!sameRoom(p))
- const social=(targetId:string,kind:'wave'|'hangout'|'gift')=>run(async()=>{const r=await api.social(targetId,kind,kind==='gift'?25:undefined);state().setSim(r.sim);useStore.setState({socialNotice:r.text});setNotice(r.text);setCooldown(Date.now()+3100);sound('tap');void state().refresh('players')})
- return <><p className="small-copy" role="status">{connected?`${players.filter(p=>p.online&&!p.npc).length} people online · ${players.filter(p=>p.npc).length} city residents`:'Reconnecting… You can keep exploring.'}</p><p>Neighbours within three metres in this room or on this street can wave, hang out or exchange a gift.</p><ErrorMessage text={error}/>{notice&&<p role="status" className="notice">{notice}</p>}<SectionTitle icon="users">Here with you</SectionTitle>{!here.length&&<p>It is quiet here. Find a neighbour around the city.</p>}{[...here,...elsewhere].slice(0,80).map((p,i)=>{const nearby=here.includes(p),unavailable=working?'Sending…':now<cooldown?'Give them a moment':p.socialBusy?'They are finishing an activity or story':sim?.busyUntil?'Finish your activity first':sim?.pendingBeat?'Choose your story first':'',place=world?.cities.find(c=>c.id===city)?.landmarks.find(l=>l.id===p.loc);return <div key={p.id}>{i===here.length&&elsewhere.length>0&&<SectionTitle icon="map-pin">Around the city</SectionTitle>}<article className="neighbour-row" data-player-id={p.id} data-nearby={nearby}><Avatar look={p.look} size={44}/><div><h3>{p.username}</h3><p>{p.npc?'City resident':'Player'} · Level {p.level}{p.job?` · ${p.job}`:''} · {p.travelStatus??place?.name??'At their private home'}</p><FriendshipMeter targetId={p.id}/>{nearby?<div className="social-actions"><ReasonButton className="secondary" reason={unavailable} onClick={()=>social(p.id,'wave')}>Wave</ReasonButton><ReasonButton className="secondary" reason={unavailable} onClick={()=>social(p.id,'hangout')}>Hang out</ReasonButton><ReasonButton className="secondary" reason={unavailable||(now-(sim?.createdAt??now)<1440000?'Live here for one game day before gifting':(sim?.cash??0)<25?'Save $25 for a gift':'')} title={now-(sim?.createdAt??now)<1440000?'Live here for one game day before gifting':undefined} onClick={()=>social(p.id,'gift')}>Gift $25</ReasonButton></div>:p.tripId?<small>{p.travelStatus}</small>:p.loc==='home'?<small>Meet at a city landmark to say hello.</small>:<button className="text-button" onClick={()=>{state().selectLocation(p.loc??'home');state().setFocus(p.loc??'home')}}>See this place <Icon name="arrow-up-right"/></button>}</div></article></div>})}</>
+import { useEffect, useRef, useState } from "react";
+import { api } from "../api/client";
+import { mergeChat, useStore } from "../store";
+import {
+  ReasonButton,
+  Avatar,
+  ErrorMessage,
+  Icon,
+  SectionTitle,
+} from "./primitives";
+import { useNow, useTask } from "./helpers";
+import { sound } from "./sound";
+import { useWalking } from "../walking";
+import { FriendshipMeter } from "./friendships";
+const state = () => useStore.getState();
+export function CommunityLinks() {
+  return (
+    <div className="community-links">
+      <button className="secondary" onClick={() => state().openPanel("people")}>
+        <Icon name="users" />
+        Neighbours
+      </button>
+      <button className="secondary" onClick={() => state().openPanel("chat")}>
+        <Icon name="messages-square" />
+        City chat
+      </button>
+    </div>
+  );
 }
-export function ChatPrimary(){const sim=useStore(s=>s.sim),city=useStore(s=>s.city),{working,error,run}=useTask(),[text,setText]=useState('');return <form id="city-chat" className="chat-composer" onSubmit={e=>{e.preventDefault();if(working)return;void run(async()=>{const wid=state().worldInfo?.id,r=await api.say(city,text);if(state().worldInfo?.id!==wid||state().city!==city)return;useStore.setState(s=>({chat:mergeChat(s.chat,[r.message])}));setText('');sound('tap')})}}><div className="chat-compose-row"><input aria-label="Your message" placeholder="Say hello…" value={text} minLength={1} maxLength={240} required autoComplete="off" disabled={!sim||sim.city!==city} onChange={e=>setText(e.target.value)}/><ReasonButton className="primary" aria-label="Send to city chat" reason={working?'Sending…':!sim?'Start your life first':sim.city!==city?'Travel here before sending a message':''}><Icon name="messages-square"/>Send</ReasonButton></div><ErrorMessage text={error}/>{working&&<small role="status">Sending…</small>}</form>}
-export function ChatPanel(){const city=useStore(s=>s.city),sim=useStore(s=>s.sim),messages=useStore(s=>s.chat),connected=useStore(s=>s.connected),history=useRef<HTMLDivElement>(null);useEffect(()=>{void state().refresh('chat')},[city]);useEffect(()=>{const body=history.current?.closest('.sheet-body');if(body)body.scrollTop=body.scrollHeight},[messages]);return <><p className="small-copy" role="status">{connected?'Live with this world’s neighbours':'Reconnecting… Messages are saved.'}</p>{sim?.city!==city&&<p className="notice">Travel here before sending a message.</p>}<div ref={history} className="chat-history" role="log" aria-label="City messages" aria-live="polite">{messages.length?messages.slice(-50).map(m=><article key={m.id} className={m.userId===sim?.userId?'chat-message mine':'chat-message'}><strong>{m.username}<small>{m.npc?'City resident':'Player'}</small></strong><p>{m.text}</p></article>):<p>A quiet city chat. Say hello.</p>}</div></>}
+export function PeoplePanel() {
+  const now = useNow(),
+    city = useStore((s) => s.city),
+    players = useStore((s) => s.players),
+    sim = useStore((s) => s.sim),
+    world = useStore((s) => s.world),
+    connected = useStore((s) => s.connected),
+    position = useWalking((s) => s.position),
+    { working, error, run } = useTask(),
+    [notice, setNotice] = useState(""),
+    [cooldown, setCooldown] = useState(0);
+  useEffect(() => {
+    void state().refresh("players");
+  }, [city]);
+  const neighbours = players.filter(
+      (p) => p.id !== sim?.userId && (p.online || p.npc),
+    ),
+    at = position ?? sim?.position;
+  const sameRoom = (p: (typeof players)[number]) =>
+    !p.tripId &&
+    !sim?.trip &&
+    !!at &&
+    at.place !== "home" &&
+    p.loc !== "home" &&
+    p.city === sim?.city &&
+    !!p.position &&
+    !at.room?.startsWith("home:") &&
+    (p.position.room ?? null) === (at.room ?? null) &&
+    Math.hypot(
+      (p.activitySlot?.x ?? p.position.x) - (sim?.activitySlot?.x ?? at.x),
+      (p.activitySlot?.z ?? p.position.z) - (sim?.activitySlot?.z ?? at.z),
+    ) <= 3;
+  const here = neighbours.filter(sameRoom),
+    elsewhere = neighbours.filter((p) => !sameRoom(p));
+  const social = (targetId: string, kind: "wave" | "hangout" | "gift") =>
+    run(async () => {
+      const r = await api.social(
+        targetId,
+        kind,
+        kind === "gift" ? 25 : undefined,
+      );
+      state().setSim(r.sim);
+      useStore.setState({ socialNotice: r.text });
+      setNotice(r.text);
+      setCooldown(Date.now() + 3100);
+      sound("tap");
+      void state().refresh("players");
+    });
+  return (
+    <>
+      <p className="small-copy" role="status">
+        {connected
+          ? `${players.filter((p) => p.online && !p.npc).length} people online · ${players.filter((p) => p.npc).length} city residents`
+          : "Reconnecting… You can keep exploring."}
+      </p>
+      <p>
+        Neighbours within three metres in this room or on this street can wave,
+        hang out or exchange a gift.
+      </p>
+      <ErrorMessage text={error} />
+      {notice && (
+        <p role="status" className="notice">
+          {notice}
+        </p>
+      )}
+      <SectionTitle icon="users">Here with you</SectionTitle>
+      {!here.length && (
+        <p>It is quiet here. Find a neighbour around the city.</p>
+      )}
+      {[...here, ...elsewhere].slice(0, 80).map((p, i) => {
+        const nearby = here.includes(p),
+          unavailable = working
+            ? "Sending…"
+            : now < cooldown
+              ? "Give them a moment"
+              : p.socialBusy
+                ? "They are finishing an activity or story"
+                : sim?.busyUntil
+                  ? "Finish your activity first"
+                  : sim?.pendingBeat
+                    ? "Choose your story first"
+                    : "",
+          place = world?.cities
+            .find((c) => c.id === city)
+            ?.landmarks.find((l) => l.id === p.loc);
+        return (
+          <div key={p.id}>
+            {i === here.length && elsewhere.length > 0 && (
+              <SectionTitle icon="map-pin">Around the city</SectionTitle>
+            )}
+            <article
+              className="neighbour-row"
+              data-player-id={p.id}
+              data-nearby={nearby}
+            >
+              <Avatar look={p.look} size={44} />
+              <div>
+                <h3>{p.username}</h3>
+                <p>
+                  {p.npc ? "City resident" : "Player"} · Level {p.level}
+                  {p.job ? ` · ${p.job}` : ""} ·{" "}
+                  {p.travelStatus ?? place?.name ?? "At their private home"}
+                </p>
+                <FriendshipMeter targetId={p.id} />
+                {nearby ? (
+                  <div className="social-actions">
+                    <ReasonButton
+                      className="secondary"
+                      reason={unavailable}
+                      onClick={() => social(p.id, "wave")}
+                    >
+                      Wave
+                    </ReasonButton>
+                    <ReasonButton
+                      className="secondary"
+                      reason={unavailable}
+                      onClick={() => social(p.id, "hangout")}
+                    >
+                      Hang out
+                    </ReasonButton>
+                    <ReasonButton
+                      className="secondary"
+                      reason={
+                        unavailable ||
+                        (now - (sim?.createdAt ?? now) < 1440000
+                          ? "Live here for one game day before gifting"
+                          : (sim?.cash ?? 0) < 25
+                            ? "Save $25 for a gift"
+                            : "")
+                      }
+                      title={
+                        now - (sim?.createdAt ?? now) < 1440000
+                          ? "Live here for one game day before gifting"
+                          : undefined
+                      }
+                      onClick={() => social(p.id, "gift")}
+                    >
+                      Gift $25
+                    </ReasonButton>
+                  </div>
+                ) : p.tripId ? (
+                  <small>{p.travelStatus}</small>
+                ) : p.loc === "home" ? (
+                  <small>Meet at a city landmark to say hello.</small>
+                ) : (
+                  <button
+                    className="text-button"
+                    onClick={() => {
+                      state().selectLocation(p.loc ?? "home");
+                      state().setFocus(p.loc ?? "home");
+                    }}
+                  >
+                    See this place <Icon name="arrow-up-right" />
+                  </button>
+                )}
+              </div>
+            </article>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+export function ChatPrimary() {
+  const sim = useStore((s) => s.sim),
+    city = useStore((s) => s.city),
+    { working, error, run } = useTask(),
+    [text, setText] = useState("");
+  return (
+    <form
+      id="city-chat"
+      className="chat-composer"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (working) return;
+        void run(async () => {
+          const wid = state().worldInfo?.id,
+            r = await api.say(city, text);
+          if (state().worldInfo?.id !== wid || state().city !== city) return;
+          useStore.setState((s) => ({ chat: mergeChat(s.chat, [r.message]) }));
+          setText("");
+          sound("tap");
+        });
+      }}
+    >
+      <div className="chat-compose-row">
+        <input
+          aria-label="Your message"
+          placeholder="Say hello…"
+          value={text}
+          minLength={1}
+          maxLength={240}
+          required
+          autoComplete="off"
+          disabled={!sim || sim.city !== city}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <ReasonButton
+          className="primary"
+          aria-label="Send to city chat"
+          reason={
+            working
+              ? "Sending…"
+              : !sim
+                ? "Start your life first"
+                : sim.city !== city
+                  ? "Travel here before sending a message"
+                  : ""
+          }
+        >
+          <Icon name="messages-square" />
+          Send
+        </ReasonButton>
+      </div>
+      <ErrorMessage text={error} />
+      {working && <small role="status">Sending…</small>}
+    </form>
+  );
+}
+export function ChatPanel() {
+  const city = useStore((s) => s.city),
+    sim = useStore((s) => s.sim),
+    messages = useStore((s) => s.chat),
+    connected = useStore((s) => s.connected),
+    history = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    void state().refresh("chat");
+  }, [city]);
+  useEffect(() => {
+    const body = history.current?.closest(".sheet-body");
+    if (body) body.scrollTop = body.scrollHeight;
+  }, [messages]);
+  return (
+    <>
+      <p className="small-copy" role="status">
+        {connected
+          ? "Live with this world’s neighbours"
+          : "Reconnecting… Messages are saved."}
+      </p>
+      {sim?.city !== city && (
+        <p className="notice">Travel here before sending a message.</p>
+      )}
+      <div
+        ref={history}
+        className="chat-history"
+        role="log"
+        aria-label="City messages"
+        aria-live="polite"
+      >
+        {messages.length ? (
+          messages.slice(-50).map((m) => (
+            <article
+              key={m.id}
+              className={
+                m.userId === sim?.userId ? "chat-message mine" : "chat-message"
+              }
+            >
+              <strong>
+                {m.username}
+                <small>{m.npc ? "City resident" : "Player"}</small>
+              </strong>
+              <p>{m.text}</p>
+            </article>
+          ))
+        ) : (
+          <p>A quiet city chat. Say hello.</p>
+        )}
+      </div>
+    </>
+  );
+}

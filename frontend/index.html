@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#eef2f0" />
     <meta name="color-scheme" content="light" />
     <title>Metro Life — a city of possibilities</title>
@@ -21,27 +24,104 @@
   </head>
   <body>
     <div id="startup" role="status" aria-live="polite">
-      <div class="startup-card"><span class="startup-spinner" aria-hidden="true"></span><h1>Metro Life</h1><p id="startup-message">Opening your city…</p><button id="startup-reload" hidden onclick="location.reload()">Reload</button></div>
+      <div class="startup-card">
+        <span class="startup-spinner" aria-hidden="true"></span>
+        <h1>Metro Life</h1>
+        <p id="startup-message">Opening your city…</p>
+        <button id="startup-reload" hidden onclick="location.reload()">
+          Reload
+        </button>
+      </div>
     </div>
     <style>
-      #startup{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:#fbf5e9;color:#253e35;font-family:system-ui,sans-serif;text-align:center}#startup .startup-card{max-width:380px}#startup h1{font-size:40px;margin:20px 0 10px;letter-spacing:-1px}#startup p{line-height:1.6}#startup button{border:0;border-radius:999px;background:#2fa36b;color:#fff;font:600 16px system-ui;padding:14px 24px;cursor:pointer}#startup button:focus-visible{outline:3px solid #253e35;outline-offset:4px}.startup-spinner{display:inline-block;width:36px;height:36px;border:4px solid #d6e8d9;border-top-color:#2fa36b;border-radius:50%;animation:startup-spin 1s linear infinite}@keyframes startup-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.startup-spinner{animation:none}}
+      #startup {
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        box-sizing: border-box;
+        background: #fbf5e9;
+        color: #253e35;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+      }
+      #startup .startup-card {
+        max-width: 380px;
+      }
+      #startup h1 {
+        font-size: 40px;
+        margin: 20px 0 10px;
+        letter-spacing: -1px;
+      }
+      #startup p {
+        line-height: 1.6;
+      }
+      #startup button {
+        border: 0;
+        border-radius: 999px;
+        background: #2fa36b;
+        color: #fff;
+        font: 600 16px system-ui;
+        padding: 14px 24px;
+        cursor: pointer;
+      }
+      #startup button:focus-visible {
+        outline: 3px solid #253e35;
+        outline-offset: 4px;
+      }
+      .startup-spinner {
+        display: inline-block;
+        width: 36px;
+        height: 36px;
+        border: 4px solid #d6e8d9;
+        border-top-color: #2fa36b;
+        border-radius: 50%;
+        animation: startup-spin 1s linear infinite;
+      }
+      @keyframes startup-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .startup-spinner {
+          animation: none;
+        }
+      }
     </style>
     <script>
       (() => {
-        const overlay = document.getElementById('startup');
-        const message = document.getElementById('startup-message');
+        const overlay = document.getElementById("startup");
+        const message = document.getElementById("startup-message");
         const fail = () => {
           if (!overlay.isConnected) return;
-          overlay.setAttribute('role', 'alert');
-          message.textContent = 'Metro Life could not start. Check your connection and reload.';
-          document.getElementById('startup-reload').hidden = false;
-          overlay.querySelector('.startup-spinner').style.display = 'none';
+          overlay.setAttribute("role", "alert");
+          message.textContent =
+            "Metro Life could not start. Check your connection and reload.";
+          document.getElementById("startup-reload").hidden = false;
+          overlay.querySelector(".startup-spinner").style.display = "none";
         };
-        const slow = setTimeout(() => { if (overlay.isConnected) message.textContent = 'Still loading the city…'; }, 8000);
+        const slow = setTimeout(() => {
+          if (overlay.isConnected)
+            message.textContent = "Still loading the city…";
+        }, 8000);
         const timeout = setTimeout(fail, 25000);
-        const scriptError = (event) => { if (event.target && event.target.tagName === 'SCRIPT') fail(); };
-        window.addEventListener('error', scriptError, true);
-        window.addEventListener('metro-mounted', () => { clearTimeout(slow); clearTimeout(timeout); window.removeEventListener('error', scriptError, true); overlay.remove(); }, { once: true });
+        const scriptError = (event) => {
+          if (event.target && event.target.tagName === "SCRIPT") fail();
+        };
+        window.addEventListener("error", scriptError, true);
+        window.addEventListener(
+          "metro-mounted",
+          () => {
+            clearTimeout(slow);
+            clearTimeout(timeout);
+            window.removeEventListener("error", scriptError, true);
+            overlay.remove();
+          },
+          { once: true },
+        );
       })();
     </script>
     <div id="root"></div>

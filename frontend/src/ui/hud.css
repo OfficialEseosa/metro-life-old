@@ -1,16 +1,69 @@
-@import './game-hud.css';
+@import "./game-hud.css";
 /* Gate explanations remain readable on disabled controls, including touch screens. */
-button.has-gate-reason { flex-wrap: wrap; height: auto; }
-button .gate-reason { display: block; flex: 0 0 100%; width: 100%; white-space: normal; line-height: 1.4; font-size: .75rem; font-weight: 500; text-align: left; }
-button.has-gate-reason:disabled { opacity: 1; color: #59665e; background-color: #e8ece5; }
-button.has-gate-reason .gate-reason { color: #49584e; }
-.home-money-hint { display: block; margin-top: 4px; }
-button.has-gate-reason:disabled { color: #49584e !important; }
-.candidate-row, .home-option { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: start; }
-.candidate-row > button, .home-option > button { grid-column: 2; width: 100%; }
-.chat-compose-row:has(.gate-reason) { flex-wrap: wrap; }
-.chat-compose-row:has(.gate-reason) > button { width: 100%; }
-.metro-hud .walk-interact .gate-reason { display: block; flex: 0 0 auto; color: #49584e; opacity: 1; border: 0; padding: 0; font-size: 12px; }
-.walk-social { max-width: min(440px, calc(100vw - 28px)); align-items: flex-end; }
-.walk-social button { max-width: 180px; }
-@media (max-width: 700px) { .walk-social:has(.gate-reason) { bottom: calc(260px + env(safe-area-inset-bottom)); } }
+button.has-gate-reason {
+  flex-wrap: wrap;
+  height: auto;
+}
+button .gate-reason {
+  display: block;
+  flex: 0 0 100%;
+  width: 100%;
+  white-space: normal;
+  line-height: 1.4;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: left;
+}
+button.has-gate-reason:disabled {
+  opacity: 1;
+  color: #59665e;
+  background-color: #e8ece5;
+}
+button.has-gate-reason .gate-reason {
+  color: #49584e;
+}
+.home-money-hint {
+  display: block;
+  margin-top: 4px;
+}
+button.has-gate-reason:disabled {
+  color: #49584e !important;
+}
+.candidate-row,
+.home-option {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: start;
+}
+.candidate-row > button,
+.home-option > button {
+  grid-column: 2;
+  width: 100%;
+}
+.chat-compose-row:has(.gate-reason) {
+  flex-wrap: wrap;
+}
+.chat-compose-row:has(.gate-reason) > button {
+  width: 100%;
+}
+.metro-hud .walk-interact .gate-reason {
+  display: block;
+  flex: 0 0 auto;
+  color: #49584e;
+  opacity: 1;
+  border: 0;
+  padding: 0;
+  font-size: 12px;
+}
+.walk-social {
+  max-width: min(440px, calc(100vw - 28px));
+  align-items: flex-end;
+}
+.walk-social button {
+  max-width: 180px;
+}
+@media (max-width: 700px) {
+  .walk-social:has(.gate-reason) {
+    bottom: calc(260px + env(safe-area-inset-bottom));
+  }
+}

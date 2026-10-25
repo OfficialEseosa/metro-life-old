@@ -4,8 +4,14 @@
   z-index: 60;
   display: grid;
   place-items: center;
-  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  background: radial-gradient(120% 90% at 50% 20%, rgba(255, 248, 238, 0.55), rgba(229, 234, 223, 0.92));
+  padding: max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  background: radial-gradient(
+    120% 90% at 50% 20%,
+    rgba(255, 248, 238, 0.55),
+    rgba(229, 234, 223, 0.92)
+  );
   overflow-y: auto;
   pointer-events: auto;
 }
@@ -72,7 +78,9 @@ body:has(.connection-gate) .scene-loading {
 }
 
 @keyframes connection-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .reconnect-banner {
@@ -104,15 +112,35 @@ body:has(.connection-gate) .scene-loading {
 }
 
 @media (max-height: 420px) {
-  .connection-card { padding: 18px 20px 16px; }
-  .connection-card h1 { font-size: 22px; margin: 8px 0 6px; }
-  .connection-card p { margin-bottom: 10px; line-height: 1.45; }
-  .connection-icon { width: 48px; height: 48px; }
-  .connection-actions { grid-template-columns: 1fr 1fr; }
-  .connection-actions:has(> :only-child) { grid-template-columns: 1fr; }
-  .reconnect-banner { top: auto; bottom: max(10px, env(safe-area-inset-bottom)); }
+  .connection-card {
+    padding: 18px 20px 16px;
+  }
+  .connection-card h1 {
+    font-size: 22px;
+    margin: 8px 0 6px;
+  }
+  .connection-card p {
+    margin-bottom: 10px;
+    line-height: 1.45;
+  }
+  .connection-icon {
+    width: 48px;
+    height: 48px;
+  }
+  .connection-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+  .connection-actions:has(> :only-child) {
+    grid-template-columns: 1fr;
+  }
+  .reconnect-banner {
+    top: auto;
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .connection-spinner { animation: none; }
+  .connection-spinner {
+    animation: none;
+  }
 }
