@@ -1,30 +1,31 @@
-# Metro Life (working title) — shared spec v2
+# Metro Life — game specification
 
-A life-sim in the spirit of The Sims, inspired by the owner's site lagoslife.app but set in the USA:
+A life-sim in the spirit of The Sims, set in the USA:
 **Atlanta, New York and the Bay Area**. Everyone plays in one shared public world, with NPC residents
 and other players who open this server address. You build a life: keep your needs up,
 learn skills, get a job, earn money, pursue an aspiration, run for mayor, buy plots and billboards.
 
-Design pillars (from the owner): no emojis anywhere (SVG icons only), strong typography, better 3D models
+Design pillars: no emojis anywhere (SVG icons only), strong typography, better 3D models
 than the original, and smooth rendering.
 
 Stack: **Spring Boot 3 / Java 21 backend on :8080**, **React 19 + Vite + react-three-fiber frontend on :5173**
-(Vite proxies `/api` and `/ws` to :8080).
+(in development Vite proxies `/api` and `/ws` to :8080; in production the frontend calls the API origin set by `VITE_API_URL`).
 
-## Layout and ownership
+## Layout
 
 ```
-lagos-life-remake/               (folder name is historical)
-  SPEC.md                        this file (read-only for agents)
+  SPEC.md                        this file
   shared/world.json              canonical static content: categories, policies, 3 cities with landmarks,
-                                 neighborhoods, plots grid size, billboard slot count (read-only for agents)
-  reference/                     captured from lagoslife.app — inspiration only now (mechanics, API shapes)
-  backend/                       OWNER: backend agent
+                                 neighborhoods, plots grid size, billboard slot count
+  shared/*.json                  navigation, interiors, venues, transit, furniture and naming data read by
+                                 both the backend and the frontend
+  reference/                     captured reference material — inspiration only (mechanics, API shapes)
+  backend/                       Spring Boot API and WebSocket server
   frontend/
     public/models/kaykit/*.gltf  KayKit City Builder Bits (CC0)   public/models/world/**  Kenney kit pieces
-    src/api/**, src/store.ts, src/App.tsx, src/main.tsx           shared contract, written by the lead — do not edit
-    src/scene/**                 OWNER: scene agent  (default export CityScene from src/scene/index.tsx)
-    src/ui/**, src/index.css, index.html                          OWNER: ui agent (default export Hud from src/ui/index.tsx)
+    src/api/**, src/store.ts      API contract, client and store
+    src/scene/**                 3D city (default export CityScene from src/scene/index.tsx)
+    src/ui/**, src/index.css     HUD (default export Hud from src/ui/index.tsx)
 ```
 
 Spatial layout (where each landmark, road, river, bridge, plots grid, billboard and neighborhood sits on each
@@ -33,7 +34,7 @@ actions, rules, economy) is owned by the **backend** and served by `/api/world`.
 `shared/world.json` (city ids `atl`, `nyc`, `bay`; landmark ids; neighborhood ids; billboard slots `1..N`;
 plots grid `cols x rows` cells with origin top-left, x right, y down).
 
-## Browser life and action feedback (Round 1 owner override)
+## Browser life and action feedback
 
 The game has no account, registration, password or sign-in interface. Opening the game automatically
 resumes the opaque browser session, or creates a guest session if one does not exist. The creator asks
@@ -79,7 +80,7 @@ a visible saving/sending explanation. Homes display resident counts and missing 
   shifts, goals, story triggers and travel settle once at completion, before the next sim response. The
   pending activity survives a server restart and is never exposed to the client. Its `ActResult` describes
   the promised outcome; the returned `sim` still has the pre-completion balance and needs. A completion
-  read returns the authoritative payoff. This timing follows the owner's HUD direction of October 11.
+  read returns the authoritative payoff.
   The labels in `shared/world.json`
   are the starting point; the backend expands each into a structured action and may add more.
   A pseudo-landmark `home` exists in every city (sleep, cook, shower, invite a friend).
@@ -203,7 +204,7 @@ The exact TypeScript shapes are in `frontend/src/api/types.ts` — that file is 
 No emoji in UI, scene, seeded data, generated images, NPC chat or story text. Icons are lucide names
 (kebab-case) carried in data (`icon` fields) and rendered as SVG.
 
-## Final review rule clarifications
+## Rule clarifications
 - Explore daily goals count distinct city/place pairs completed on that game day, independently of lifetime exploration.
 - Offline need decay and rent catch-up cover the first six game hours since the last update (six real minutes at the canonical clock rate). Only midnights in that capped interval charge rent. Recorded housing-policy changes and term boundaries determine the rate at each midnight. Policy dates before this migration cannot be reconstructed; legacy saves begin with their known current policy as the baseline.
 - A life must be at least one game day old (24 real minutes) to send cash gifts or cast a ballot. Waves, chat and activities remain immediate. New sims expose authoritative createdAt; legacy sims fall back to browser-guest creation time.
@@ -211,18 +212,18 @@ No emoji in UI, scene, seeded data, generated images, NPC chat or story text. Ic
 - A campaign consumes its accepted game day even if it settles after midnight. Election wins are credited only when that term's winner is actually seated.
 - Read endpoints apply due simulation state in memory without fsync. Explicit mutations persist immediately; active worlds checkpoint every five seconds and at orderly shutdown. Accepted activity outcomes are durable before a response and replay once after a crash. Visit statistics are process-memory counters; online stats count current authenticated human users. Story chapter/total counts are separate from titles (optional on legacy saved beats).
 
-## Walking contract (P1 owner extension)
+## Walking contract
 `Sim.position` and visible `Player.position` carry `{x,z,face,place,room}` in scene units. `POST /api/move` accepts `{city,x,z,face}` only in the actual city, while idle and outside a story. Swept segments must remain on land/bridges and outside footprint boxes and lakes. A server-time credit budget caps movement at7.5 units/second (client walk4.2,run7.2); burst credit is capped at3units. Rejected movement leaves coordinates unchanged. Updates at most5/second are checkpointed by the existing world saver; no per-step fsync. The room field is null in P1. `shared/navigation.json` is generated by `node scripts/build-navigation.cjs` from the rendered kit placements and scene anchors; canonical world.json remains unchanged.
 Keyboard WASD/arrows, Shift, E/Enter and Escape; pointer joystick on narrow screens. Wheel/pinch/overview temporarily releases follow; walking restores it. Server coordinates initialise at the home door, including migrated saves; legacy map actions retain their existing behaviour until P2 adds authoritative room/station checks.
 
-## Home interior contract (P2)
+## Home interior contract
 `POST /api/door {loc:"home",enter:true}` requires the actual home city, proximity to the home door, and an idle sim without a story. It changes `position.room` to `home:<userId>` and starts at the room exit. `{enter:false}` requires proximity to the room exit and restores the recorded outside position. `shared/interiors.json` supplies the same room bounds, furniture blockers and interaction stations to Java and TypeScript. Home `/api/act` requests now require that private room and the matching furniture station within1.45units; they retain the existing completion-only rewards, costs and busy rules. The client serializes its final movement before interacting. Home panels explain walking to furniture; their action lists are removed. General landmark map actions retain their prior rules until the P3 movement/travel integration.
 
-- Playable P3: workplace entry requires an open door within3units; application and shifts require the shared desk station. Every other activity requires a real doorway arrival. POST `/api/travel` accepts same-city locations only and settles after2seconds; city changes remain airport activities. Result `activity` separates actual cost/pay/daily rewards/milestone rewards from the net cash delta.
+- Workplace entry requires an open door within3units; application and shifts require the shared desk station. Every other activity requires a real doorway arrival. POST `/api/travel` accepts same-city locations only and settles after2seconds; city changes remain airport activities. Result `activity` separates actual cost/pay/daily rewards/milestone rewards from the net cash delta.
 
-## Round 1 landmark rooms
+## Landmark rooms
 Every landmark is assigned in shared/interiors.json to a theatre, food hall, stadium, arena, museum, office, cafe, club, hospital, airport or pavilion. Java and TypeScript use the same assignments, action-kind rules, collision boxes, approach stations, surveyed aisle paths and use slots. Public ActivitySlot may include station (the authored approach id); poses remain strings and use y as seated hip height or standing platform elevation. Food activities reserve Eat slots at dining tables; career shifts use the venue service counter except office typing desks. Room staff occupy authored positions behind counters. Same-city map travel validates its target before exiting a room, then arrives outside the destination after two seconds. Older generic workplace room ids migrate to the assigned room doorway.
-## Round 2 item 4 authority and arrival contract
+## Authority and arrival contract
 Actual public landmark arrivals (door entry, walking into a doorway area, or completed map/flight travel) update distinct daily visits and lifetime exploration immediately. Home, street, previews and rejected operations do not count. Dream progress/rewards do not wait for first-day completion; each claim still pays once. A completed paid food-hall meal counts as a first-day meal.
 
 Player presence and position patches include optional `socialBusy:boolean`, true for an active activity or pending story. Human trips/actions settle before presence snapshots. Nearby social controls require an online player or NPC within three metres, the same exact public room (or both outdoors), and no pending activity/story. Private home locations are not shared social places. The endpoint checks the same effective use-slot position. New arrivals and reconnects use a valid free spot near the authored door, including current actors, staff and reservations.
@@ -230,22 +231,22 @@ Player presence and position patches include optional `socialBusy:boolean`, true
 The client serializes map travel, waits for its authoritative settlement, then snaps motion/visual position before restoring follow or opening the requested panel. Movement request revisions discard pre-travel replies. City election travels to that city's civic destination and opens the working ballot after arrival. Find a home opens its list without travel. `POST /api/travel` returns `{sim,clock}`. HUD gestures prevent text selection while text inputs remain editable.
 
 
-### Round 2 mouse interaction contract
+### Mouse interaction contract
 - Ground clicks follow collision-checked walking paths. Usable furniture, doors, park benches and rendered residents open an action menu at the pointer. Accepted object actions walk to their valid approach before requesting the action; manual keyboard or joystick movement interrupts the current walking leg.
 - The local queue holds one current action and up to three waiting actions, with individual cancellation. It is cleared when the browser life changes; pending responses from the previous life cannot restore it. Server activity cancellation is serialized, settles already-due rewards once, and otherwise discards pending effects/travel without paying unearned rewards. It clears the use slot. Waiting actions are local intentions, revalidated against server state when they start.
 - Optional `slotId` targets an exact compatible furniture use slot. Public slots must match the action station and pose, be free, and have a valid approach within 1.45m. There is no fallback to another table or chair if the selected piece is occupied. Home activities retain their authored canonical approaches. Omission preserves existing keyboard and panel behavior.
 - Mouse wheel zooms and right drag orbits. The chosen camera offset persists while walking until the room/city changes. Phone room framing includes the whole studio; keyboard, touch joystick and touch camera rotation remain available.
 
-## Round 2 travel and creator contract
+## Travel and creator contract
 
 Setup includes optional `traits` (three of twelve) and Look `face` plus `outfits.everyday/work/sleep`. Older lives receive compatible defaults. Traits affect practice/recovery/drain and aspiration daily wants are exposed as `wants`.
 After creation a city card shows that city’s starting neighborhood, rent and entry pay. Visiting preserves the lease; moving charges a reviewed deposit. `/api/transit` lists both fares and durations. Booking at the matching hub uses `/api/transit/book` with `to`, `mode` and bus `confirmTimeAdvance`; a departure cohort shares seats and private chat. Plane rides take 10 real seconds / 2 game hours, buses 50 seconds / 8 game hours. The shared clock advances once per cohort and applies midnight costs. `/api/transit/nap` restores bus energy at arrival. `Sim.trip` supplies cabin state; public presence supplies travel status.
 
-Round 2 homes use GET/POST `/api/home/design`, saved per life. The response includes `catalog`, `design`, `layout`, `sim`, and `clock`. Placement uses quarter-metre coordinates and four rotations; the server checks overlaps, doors and reachable use points. Sim `homeDesign` and `homeLayout` install the same geometry in client navigation. Home actions reserve the selected item and apply its comfort/recovery bonuses.
+Homes use GET/POST `/api/home/design`, saved per life. The response includes `catalog`, `design`, `layout`, `sim`, and `clock`. Placement uses quarter-metre coordinates and four rotations; the server checks overlaps, doors and reachable use points. Sim `homeDesign` and `homeLayout` install the same geometry in client navigation. Home actions reserve the selected item and apply its comfort/recovery bonuses.
 Sim `economy` includes a durable reasoned journal and next-rent/food/shift forecast. Purchases over $50 require `confirm: true` after the UI review. Current hourly need drains are energy 1.5, hunger 2, fun 1.4, social 1.2 and hygiene 1.3, with personality modifiers. Public presence exposes needs, busyLabel and temporary lifeAction gestures. Sim `relationships` is a private per-person value/label map; nearby chat, waves and hanging out build reciprocal bonds. Public venue bounds, floor polygons, slots and signature architecture share `shared/interiors.json`.
 
 
-## Round 3 shared life and venue contract
+## Shared life and venue contract
 Newly started browser lives opt their shared world into a seven-minute day (`Clock.msPerMinute`); the anchored clock preserves the current day. Explicit legacy clock settings remain valid. Work is one four-game-hour paid shift per day inside career hours; three paid gigs per day are available. Work timing awards a server-timed bonus, while sleep lasts according to missing energy and restores energy on completion.
 `POST /api/quick-start` accepts city, optional curated look and invite code. `/api/invite` returns a persistent code; `/api/invite/join` joins that resident at their current room or outside a private home. `/api/emote` publishes a timed nearby pose. `/api/social-life` supplies the city event and open homes; `/api/event/join` contributes to its shared goal. Open-house control, visit and one-per-visitor likes use `/api/open-house`, `/api/open-house/visit` and `/api/open-house/like`. Open homes permit nearby social actions and expose their furnished layout to visitors; editing remains owner-only.
 `GET/POST /api/venue-moment` exposes authoritative room show times, station reasons, timed mini-games, room scores and shared visual cues. Shared interior templates include zones, camera focus, staff, use slots and architectural identity. Public labels use fictional names while canonical world IDs remain stable. Walking and traffic use the authored shared street network. Buy mode previews furniture and paint directly in the room, retaining server placement and purchase review rules.

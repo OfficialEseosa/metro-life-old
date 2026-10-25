@@ -21,8 +21,6 @@ The server owns six durable flags: leave home, accept an entry job at its workpl
 
 Settings explains and confirms Start a new life. Cancelling preserves everything; confirming removes that character and its bookings/candidacy/votes, revokes its old sessions/socket, and creates a fresh guest identity. The shared city and other lives remain intact.
 
-## Save migration and review
+## Save migration
 
-Schema 1 is copied byte for byte to a sibling backup before migration to schema 2. The public world and its clock/civic/property/chat state are retained; other room worlds and their sim rows are archived in the full backup and removed from the active store. Existing user cookies remain valid, password hashes are removed, and identities without a main-world sim enter the creator. This checkout’s additional consistent backup is recorded in PLAN.md. Backups stay local and are ignored by Git.
-
-Reviewers run run.cmd or sh run.sh with Java 21 JDK. The launcher downloads pinned Maven with a SHA-512 check, expands the included frontend, copies local public assets, compiles Java once and reuses an unchanged fingerprint. No Node or preinstalled Maven is required. Maintainers refresh tools/frontend.zip after frontend builds using java tools/PackFrontend.java. Physical macOS/Linux execution and physical phones are separate from the Windows/GitBash/browser checks recorded in evidence/visual/v2 and PLAN.md.
+Schema 1 is copied byte for byte to a sibling backup before migration to schema 2. The public world and its clock/civic/property/chat state are retained; other room worlds and their sim rows are archived in the full backup and removed from the active store. Existing user cookies remain valid, password hashes are removed, and identities without a main-world sim enter the creator. Backups stay local and are ignored by Git.

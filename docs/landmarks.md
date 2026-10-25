@@ -1,6 +1,6 @@
-# Landmark architecture and visual review
+# Landmark architecture
 
-Maps compress distances and enlarge landmarks for legibility. Ratios below describe the intended massing, not survey measurements. All geometry is built locally; no external artwork or logos. Recognition verdicts are recorded only after screenshots are inspected.
+Maps compress distances and enlarge landmarks for legibility. Ratios below describe the intended massing, not survey measurements. All geometry is built locally; no external artwork or logos.
 
 ## Atlanta sheets — written before modelling
 
@@ -29,18 +29,14 @@ Six heroes: benz, capitol, fox, ponce, high, aquarium. Architecture reference: [
 | grady / Grady Memorial Hospital | Tall rectangular medical tower over lower wings | Long horizontal window bands; stepped lower clinical block; rooftop medical cross; projecting entry | Sand concrete, blue-grey windows, red cross |
 | atlAirport / Hartsfield-Jackson Airport | Parallel long concourses attached to central terminal | Repeated parallel concourses; control tower with wide glazed cab; two long runways; small aircraft silhouettes | White/grey terminal, dark asphalt, blue glazing |
 
-## Atlanta recognition review
+## Atlanta recognition status
 
-Round 1 captured all 20 close-ups and skyline by day/night at both sizes (84 scene images plus a UI shot). Viewed all four contact sheets and full-size Fox, Piedmont and Aquarium. Found: focus crop cut off some roof features; Piedmont shoreline covered its lake and random trees intersected the boathouse; aquarium and High needed more facade articulation. Reworked those before round 2. Round 1 performance after warm-up: 59.99–60.06 FPS, 31 calls without pins (32 with), 161,574 triangles, P95 frame 17.2–18.1ms on Intel Arc integrated D3D11. Dropdown and actual pin click passed; zero browser errors.
-
-Round 2 widened framing, exposed Piedmont water, removed intersecting trees, and added Aquarium fins and High skylights. Phone Fox was still obscured by a filler tower. Round 3 added camera approaches scored against nearby towers. All four contact sheets in each round were viewed, plus the final four full skyline images. Three rounds complete; the verdicts below are my visual judgment, not a public recognition study. Evidence is in evidence/m2/round1 through round3.
-
-Final measurements: 31 calls without pins / 32 with pins, 158,694 triangles; 59.99–60.00 FPS, P95 18.0–18.3ms across both sizes/day/night on Intel Arc integrated graphics via ANGLE D3D11. All geometry budgets pass. Phone skyline crops some peripheral sites and distant north fog is heavy; close-ups cover those sites.
+"Yes" means the place can be named within a second in Atlanta context.
 
 | Landmark | Name within a second? | Final reason |
 |---|---|---|
 | benz | Yes | Eight silver roof petals and central oculus identify the stadium in Atlanta context. |
-| arena | No | Low oval and columns read as an arena; adjacent stadium competes and exact arena identity remains weak after three rounds. |
+| arena | No | Low oval and columns read as an arena; adjacent stadium competes and exact arena identity remains weak (superseded by the Blender rebuild below). |
 | aquarium | Yes | Blue hall, white wave roof and pointed entrance form the distinctive ensemble. |
 | centennial | Yes | Five linked fountain rings and formal plaza distinguish this park. |
 | piedmont | No | Lake, bridge and boathouse read clearly but could belong to another park; exact shoreline geography is compressed. |
@@ -60,13 +56,7 @@ Final measurements: 31 calls without pins / 32 with pins, 158,694 triangles; 59.
 | grady | No | Medical tower, horizontal bands and cross convey hospital; exact Grady facade is simplified. |
 | atlAirport | Yes | Parallel concourses, long runways and control tower identify Hartsfield-Jackson in Atlanta context. |
 
-Every initial weak model was reworked through the allowed three rounds. Remaining "no" entries are explicit exceptions to the recognition target, not claims of completion at commercial art quality. Further architecture work would most benefit Grady, GSU, Lenox and the arena.
-
-### M3 focused audit correction
-
-Independent M2 findings prompted targeted fixes after the three full rounds: taller Ponce sign tower (4,800 triangles), vertical FOX sign (4,060), TECH letters, white High panel grid and rectangular skylights, fan-shaped Truist tiers with diamond/base paths/outfield wall, continuous city-wide BeltLine, and three distinct downtown skyline silhouettes. Targeted images are in evidence/m3/m2-audit. Fox now remains fully visible between nearby towers. High verdict revised to No above: the independent finding was fair, and the corrected facade still does not earn a confident Yes. Truist reads as baseball but remains No for exact stadium; Piedmont remains No despite skyline framing. Ponce, Fox and Tech retain Yes in the Atlanta map context. These judgments are visual self-review, not a recognition study.
-
-Scene audit measurements supersede the older M2 performance figures: 34–35 normal calls, 118,125 day / 128,877 night triangles; sampled static shadow refresh peak 61 calls / 217,272 triangles. Phone overview now contains all sites with decluttered pins; far fog reduced, night is blue with lit windows and street glows. Final night-phone and Fox captures were inspected after fixing sky background ordering and skyline occlusion.
+Remaining "No" entries are known exceptions to the recognition target. Further architecture work would most benefit Grady, GSU, Lenox and Truist Park.
 
 ## New York sheets — written before modelling
 
@@ -126,32 +116,32 @@ Heroes: goldenGate, ferryBuilding, salesforce, alcatraz, paintedLadies, sfCityHa
 | techCampus | Large circular low ring | Open green courtyard, continuous glass ribbons, roof solar strips, tree border | Silver, blue glass, green |
 | ucsf | Synthetic medical complex on hill | Terraced clinical blocks, long glazing strips, emergency cross, tall core | White, cool glass, red |
 | bayAirport | Terminal beside long water-edge runways | Oval central roof, parallel runways, tall control tower, concourse fingers, planes | White, grey, teal water |
-# Owner-directed Blender rebuild — reference sheets before modelling (2026-10-11)
+# Blender rebuild reference sheets
 
-The owner rejected the previous procedural scene. Earlier self-review verdicts are superseded for the three places below. Reference photos are study evidence only, never game textures. Blender exports are authored locally. The map is compressed geographically; shape ratios within each landmark take priority over the old site squares.
+Reference photos are study material only, never game textures. Blender exports are authored locally. The map is compressed geographically; shape ratios within each landmark take priority over the old site squares.
 
 ## Mercedes-Benz Stadium — revised sheet
-- Reference: [HOK architecture and street exterior](https://www.hok.com/projects/view/mercedes-benz-stadium/), its images Mercedes-Benz-1.jpg (street west glazing), -2.jpg (interior halo), -4.jpg (day exterior); [roof aerial](https://www.cladglobal.com/architecture_design_news?codeid=338506). Retrieved photos in evidence/art-rebuild. HOK identifies eight 220-foot petals and a 16-story window; dimensions in this sheet are artistic ratios, not surveyed construction plans.
+- Reference: [HOK architecture and street exterior](https://www.hok.com/projects/view/mercedes-benz-stadium/), its images Mercedes-Benz-1.jpg (street west glazing), -2.jpg (interior halo), -4.jpg (day exterior); [roof aerial](https://www.cladglobal.com/architecture_design_news?codeid=338506). HOK identifies eight 220-foot petals and a 16-story window; dimensions in this sheet are artistic ratios, not surveyed construction plans.
 - Footprint roughly 1.2:1, broad angular mass; main facade height about one fifth of width, roof tips rise another tenth. Eight folded triangular roof wings slope inward/up, eight distinct ribbed ETFE moving petals rotate visually around an open central octagon. Do not make a level roof rim or vertical octagonal drum.
 - Signature features: aperture opening; alternating dark standing-seam metal / pale translucent ETFE triangles; diagonal folds carried down facade; very large triangular west glass wall with dense mullions; red seating bowl, green pitch and luminous interior halo visible through opening. No corporate logo.
 - Palette: silver white ETFE, charcoal slate metal, cool blue glass, white structural ribs, muted crimson seats, bright field green. Target below 12k triangles / at most four material batches.
-- Matching views: aerial from south-west with aperture fully visible; low west street view against HOK exterior. Compare roof blade overlap, uneven upper silhouette and full-height triangular glazing before acceptance.
+- Matching views: aerial from south-west with aperture fully visible; low west street view. Compare roof blade overlap, uneven upper silhouette and full-height triangular glazing.
 
 ## Centennial Olympic Park — revised sheet
-- References: [landscape architect aerial](https://dtjdesign.com/project/centennial-olympic-park/), [landscape contractor plaza photo](https://gibsonlandscape.com/works/centennial-olympic-park/), [official site map](https://www.gwcc.com/docs/GWCC-Floor-Plan-Booklet-10.22.25.pdf), [official fountain description](https://www.gwcca.org/fountain-of-rings/), [Hermes towers](https://www.gwcca.org/landmarks-and-features/). Photos saved in evidence/art-rebuild; OpenStreetMap ways/nodes retrieved for actual park, neighbouring buildings and roads.
+- References: [landscape architect aerial](https://dtjdesign.com/project/centennial-olympic-park/), [landscape contractor plaza photo](https://gibsonlandscape.com/works/centennial-olympic-park/), [official site map](https://www.gwcc.com/docs/GWCC-Floor-Plan-Booklet-10.22.25.pdf), [official fountain description](https://www.gwcca.org/fountain-of-rings/), [Hermes towers](https://www.gwcca.org/landmarks-and-features/). OpenStreetMap ways/nodes give the park, neighbouring buildings and roads.
 - Long north-south urban park, about twice as long as broad. North Great Lawn; south brick-paved Centennial Plaza. Fountain is a zero-depth splash area: five overlapping circular nozzle tracks flat in plaza, water jets vertical. Eight tall slender Hermes towers surround plaza. Flag rows, pale square paving bands and regular tree avenues.
 - SkyView is across the south edge street, a white upright wheel with enclosed gondolas, no wheel in the lawn. Aquarium northwest, World of Coca-Cola northeast, GWCC west and State Farm Arena southwest form close skyline context. Existing canonical neighbours remain individually selectable; supplementary context carries no extra destination.
 - Palette: vivid green lawn, red/buff brick, white paving stripes and wheel, silver towers, pale blue water jets. Target <12k triangles including trees and wheel. Matching aerial from southern plaza toward lawn; reference shows wheel left and plaza foreground.
 
 ## Piedmont Park — revised sheet
-- References: [official park map](https://piedmontpark.org/wp-content/uploads/2021/06/Map-2021-3.pdf), [official Lake Clara Meer plan](https://piedmont-park.b-cdn.net/Piedmont%20file%20optimized/Featured%20Area_Lake%20Clara%20Meer.pdf), aerial photos at [Sentral](https://sentral.com/sentral-stories/what-its-like-living-in-atlanta) and [Expedia Georgia](https://www.expedia.com/Georgia.d212.Destination-Travel-Guides). Retrieved aerial/lake images saved in evidence/art-rebuild. Need a ground-level lake view in addition before final acceptance.
+- References: [official park map](https://piedmontpark.org/wp-content/uploads/2021/06/Map-2021-3.pdf), [official Lake Clara Meer plan](https://piedmont-park.b-cdn.net/Piedmont%20file%20optimized/Featured%20Area_Lake%20Clara%20Meer.pdf), aerial photos at [Sentral](https://sentral.com/sentral-stories/what-its-like-living-in-atlanta) and [Expedia Georgia](https://www.expedia.com/Georgia.d212.Destination-Travel-Guides).
 - Irregular wooded park broader in north, with Lake Clara Meer south/east of the Active Oval. Lake has a broad south basin, narrow north arm, indented east bank, wooded small island, a natural shoreline rather than a circular border. Meadow northeast/east; oval sports grounds west/northwest. Paths bend with contours and shore; bridge/boathouse at southwest lake edge.
 - Signature features: large empty meadow, kidney/finger-shaped reflective lake, winding light paths, Active Oval with two baseball diamonds, perimeter canopy with open field centre, Midtown towers directly west as skyline backdrop. Use kit tree geometry in baked park mesh and actual kit towers in the adjacent fabric; no generic round pond.
-- Palette: fresh lawn green, deep green foliage, turquoise-blue lake, tan paths, cream/stone pavilion. Matching aerial looking west over lake toward Midtown; include low lake-side view. Target <12k triangles. Formal stranger recognition remains untested; no automatic Yes.
+- Palette: fresh lawn green, deep green foliage, turquoise-blue lake, tan paths, cream/stone pavilion. Matching aerial looking west over lake toward Midtown; include low lake-side view. Target <12k triangles.
 
 ## Remaining Atlanta heroes — Blender revision sheets before modelling
 
-Photographs retrieved and inspected in evidence/art-rebuild/references-atl; source manifest records each URL and HTTP failure. Additional Jamestown street and Meier street views supplement the contact sheet. Inferences below come from visible architecture, with artistic compressed dimensions.
+Inferences below come from visible architecture, with artistic compressed dimensions.
 
 | Hero | Proportions and signature geometry | Materials and matching views |
 |---|---|---|
@@ -163,9 +153,7 @@ Photographs retrieved and inspected in evidence/art-rebuild/references-atl; sour
 
 - Target each <12,000 triangles / <=4 material batches. Other heroes keep their earlier specification IDs and gameplay; these exports replace geometry only.
 
-## Atlanta Blender checkpoint — visual self-review
-
-Final integrated day/night evidence: evidence/art-rebuild/atl-final (1280x800, 667x375 and 375x812). Before/after comparisons are named benz-comparison.png, centennial-comparison.png and piedmont-comparison.png. Export/reference comparisons are in photo-comparisons. Camera directions correspond approximately; these are artistic, compressed models, not photogrammetric camera calibration. Ground views supplement aerial study. No independent stranger recognition test has run.
+## Atlanta Blender heroes — recognition status
 
 | Place | One-second naming judgment in the Atlanta map | Export triangles / batches | Remaining visible simplification |
 |---|---|---|---|
@@ -178,13 +166,11 @@ Final integrated day/night evidence: evidence/art-rebuild/atl-final (1280x800, 6
 | High Museum | Yes for a viewer familiar with its architecture: white Meier curved atrium/ramp, panel grid and Piano roof scoops. | 4,198 / 1 | The campus piazza and gallery wings are compressed; no signage used to force recognition. |
 | Georgia Aquarium | Yes: broad white hall, angular blue sail and curved blue arrival pavilion. | 1,553 / 1 | Roof equipment and entry landscape are abbreviated. |
 
-These judgments replace previous procedural hero verdicts, not owner acceptance. Existing nonhero weaknesses such as exact Truist identity remain recorded above. City layout still has sparse areas and abrupt road terminations; the new kits improve detail but do not establish a finished city street network.
-
-Palette evidence: palette-comparison.png uses the reference landing view and Metro Centennial at comparable local building scale. A simple HSV green-pixel diagnostic (palette.json) measured reference median saturation .283 / value .718, old Metro .207 / .710, revised Metro .289 / .761. The revised scene is slightly brighter, with saturation close to the reference and no olive light tint. Different framing/UI prevent a precise whole-image colour equivalence claim.
+City layout still has sparse areas and abrupt road terminations.
 
 ## New York Blender photo sheets — before authoring
 
-Retrieved photographs and manifests are in evidence/art-rebuild/references-cities. Reviewed Empire aerial plus Fifth Avenue entrance, current One WTC SOM waterfront and overhead views, Brooklyn Bridge helicopter/shore/pedestrian-tower views. oneWtc-1.jpg depicts an earlier tower and is excluded as a current architectural reference; oneWtc-2.jpg is construction archaeology, also excluded. Use oneWtc-0.jpg and the SOM supplements.
+Use current One World Trade Center references only; photographs of the earlier tower or of construction are excluded.
 
 | Hero | Photo-derived proportions and features to author | Palette / comparison direction |
 |---|---|---|
@@ -192,19 +178,17 @@ Retrieved photographs and manifests are in evidence/art-rebuild/references-citie
 | oneWtc | Square cubic base; chamfered shaft with eight triangular planes; square roof rotated 45 degrees from base, octagonal middle section. Architectural roof about 3/4 overall height, long stepped communication mast above. Glass fins at podium, pale horizontal floor lines, silver facet edges, two recessed square memorial pools beside tower. Do not use a generic tapered box or a twisted prism. | Cool blue reflective glass, pale silver edges, dark pools. SOM overhead/downward and waterfront three-quarter. [Architect source](https://www.som.com/projects/one-world-trade-center/). |
 | brooklynBridge | Two massive sandstone towers, each with two genuinely open pointed Gothic portals. Wide deck through towers, narrow raised central pedestrian walk, four sagging main cables with many vertical suspenders plus diagonal fan stays. Tower above deck ~1/4 central span; outer approaches about half central span each. Buttressed stone piers, horizontal masonry courses and top cornice; dark open deck trusses. | Warm grey sandstone, charcoal cables/truss, pale timber walk. Helicopter three-quarter plus pedestrian view straight through paired arches. [NYC landmark description](https://s-media.nyc.gov/agencies/lpc/lp/0098.pdf). |
 
-Other NYC and Bay sheets above remain preliminary; missing true aerial/street views are being supplemented before their Blender authoring begins.
-
-Additional pre-authoring views inspected: NPS Liberty full figure and torch detail plus island aerial; Grand Central contractor roof aerial and two street facades; Met owner aerial, south-wing plaza and central three-arch front. References downloaded only for study. Grand Central's paired columns, roof cornice and sculptural clock crown differ from the Met's wider, lower museum wings and monumental central stairs.
+Grand Central's paired columns, roof cornice and sculptural clock crown differ from the Met's wider, lower museum wings and monumental central stairs.
 
 | Hero | Revised proportions/features | Colours / matching views |
 |---|---|---|
 | liberty | Statue and pedestal approximately equal height. Eleven-point Fort Wood below a tapered square pedestal with balcony/arched openings. Figure in long asymmetric draped robe, bent left arm holding tablet, raised right arm and gilded flame; oval face/visible nose, seven straight crown rays, hair bun. Preserve natural human shoulders, elbows and hand pose; do not substitute an extruded icon. | Verdigris with darker folds, pale buff pedestal, grey star fort, gold flame. Aerial three-quarter and low front. NPS facts linked above, aerial supplement manifest. |
-| grandCentral | Broad low granite hall, about twice as wide as facade height. Three enormous semicircular arched windows divided by paired tall columns; deep cornice, green hipped/vaulted roof. Central circular clock above cornice within sculptural crown, central standing Mercury form with flanking seated forms. Raised viaduct approach implied at front. | Pale warm granite, dark glass, oxidized green roof, gold clock rim. Front street and contractor aerial; terminal website denied 403, contractor photographs supplied roof evidence. |
+| grandCentral | Broad low granite hall, about twice as wide as facade height. Three enormous semicircular arched windows divided by paired tall columns; deep cornice, green hipped/vaulted roof. Central circular clock above cornice within sculptural crown, central standing Mercury form with flanking seated forms. Raised viaduct approach implied at front. | Pale warm granite, dark glass, oxidized green roof, gold clock rim. Front street and contractor aerial. |
 | met | Long Beaux-Arts museum campus: central three-arch pavilion projects in front of lower connecting wings and larger end pavilions. Broad shallow stairs, paired Corinthian-style columns, deep entablature with unfinished square plinths, arched gallery windows, long roof skylights and rear courts. Width strongly exceeds height. | Pale limestone, bronze/dark glazing, silver rooflights. Owner aerial and exact front photo. [Met history](https://www.metmuseum.org/about-the-met/history), [owner front photo/audio guide](https://www.metmuseum.org/audio-guide). |
 
 ## Bay Blender photo sheets — before authoring
 
-Reviewed Golden Gate owner Art Deco tower underside plus full-span/aerial photographs; Salesforce architect sunrise aerial and street facade; Ferry modern front, Chronicle waterside aerial and owner historical front (food photograph ferryBuilding-front.jpg excluded); Alcatraz overhead and NPS ground/island views; Painted Ladies street skyline and Alamo Square aerial; City Hall dome overhead and municipal front photo. Source manifests in references-cities preserve URLs. Interpretive ratios below are visually derived, not survey measurements. OSM extracts for Ferry and Alcatraz also succeeded; NYC park request was rate-limited.
+Interpretive ratios below are visually derived, not survey measurements.
 
 | Hero | Proportions and features for the Blender mesh | Materials / comparison direction |
 |---|---|---|
@@ -215,22 +199,19 @@ Reviewed Golden Gate owner Art Deco tower underside plus full-span/aerial photog
 | paintedLadies | Six narrow Victorian houses stepping down a sloping street, each about twice as tall as wide. Steep front gables, two-storey polygonal projecting window bays, ornate white cornices and gingerbread gable trim, raised porches with thin posts and long stairs, different pastel walls and dark roof colours. Alamo Square lawn in front; modern skyline behind in scene context. | Cream, pale blue, pastel pink/green/lilac, white trim, slate roofs. Street row and park aerial; no photographic textures. |
 | sfCityHall | Broad symmetric Beaux-Arts stone wings around two roof courts; huge central dome/drum nearly twice base-wing height. Tall front colonnade and pediment over steps; columned drum, dark grey ribbed dome with elaborate gold ribs/crown and small finial. Repeated paired pilasters and arched windows along wings. | Pale limestone, slate/copper-grey roof, gold highlights. Municipal front and direct overhead dome/roof. [City source](https://www.sf.gov/location/san-francisco-city-hall). |
 
-## State Farm Arena — audit correction sheet, before Blender authoring
+## State Farm Arena — revised sheet
 
-Reviewed official Hawks/arena parking aerial, renovation contractor roof aerial, official arena night exterior and 2019 street photograph (arena-sources.json/contact.png). The downloaded Metro Atlanta map and old interior photographs are excluded as exterior references. [HOK renovation](https://www.hok.com/projects/view/state-farm-arena/), [venue facts](https://www.statefarmarena.com/about-the-arena/quick-facts), [contractor exterior](https://www.constructioncleanupspecialist.com/projects/state-farm-arena-formerly-philips-arena/).
+References: [HOK renovation](https://www.hok.com/projects/view/state-farm-arena/), [venue facts](https://www.statefarmarena.com/about-the-arena/quick-facts), [contractor exterior](https://www.constructioncleanupspecialist.com/projects/state-farm-arena-formerly-philips-arena/).
 - Broad approximately rectangular hall, width/depth about 1.2:1; eaves roughly one fifth width, centre roof another tenth higher. Shallow barrel-curved silver standing-seam roof spans the main hall, with lower side roof strips and a deep projecting curved front cornice. It is not circular.
 - Tall blue-green glazed front beneath the arch, dense rectangular mullions; seven giant pale angular structural letter frames spell ATLANTA across the front. Low buff/grey service block attaches on one side. Stone arrival plaza and shallow steps; the stadium remains its close southern neighbour.
 - Silver-white roof/steel, cool teal glazing, buff stone, pale concrete. No sponsor logo. Actual OSM outline provides a boundary proportion check; the playable site is compressed and rotates toward the map camera.
-- Compare south/front three-quarter aerial and low front street direction. Target under 3,000 triangles, one material batch. Stranger recognition unproven until export and integrated review.
+- Compare south/front three-quarter aerial and low front street direction. Target under 3,000 triangles, one material batch.
 
+State Farm Arena: Yes in the Atlanta map — the shallow barrel roof, tall gridded glass front and giant ATLANTA structural letters distinguish it from the stadium. 1,248 triangles / one batch. Placed west/north to keep its frontage clear of the stadium during focus. Roof equipment and adjoining development remain simplified.
 
-State Farm Arena revised self-review: Yes in the Atlanta map — the shallow barrel roof, tall gridded glass front and giant ATLANTA structural letters distinguish it from the stadium. 1,248 triangles / one batch. Integrated day/night captures at 1280×800, 375×812 and 667×375 are in evidence/art-rebuild/cities-integrated. Moved west/north to keep its frontage clear of the stadium during focus. Roof equipment and adjoining development remain simplified; independent recognition has not been tested.
+## New York and Bay Area recognition status
 
-## M4 integrated city recognition review
-
-Reviewed every close view and skyline in evidence/m4/{nyc,bay}/round3, by day/night at1280x800 and375x812. These are candid self-judgments, not an independent stranger test or owner acceptance. The earlier procedural rounds and failed/HMR captures do not establish recognition. Blender hero photo/render comparisons remain in evidence/art-rebuild/photo-comparisons.
-
-All twelve new-city heroes are recognizable in context and under12k/one material batch. Nonheroes are under3k. The final bounded city round includes focused rework to Times Square, NYC City Hall, DUMBO, Chase Center, filler clearance and camera approaches. The No rows below remain explicit exceptions: no fourth full city art round is claimed. Generic district/synthetic destinations cannot imply an exact real facade. Remaining architecture and night window-light polish stay visible in the weakness list; map completion does not mean every real place has passed recognition.
+All twelve new-city heroes are recognizable in context and under 12k triangles / one material batch. Nonheroes are under 3k. "No" rows below are known exceptions; generic district destinations cannot imply an exact real facade.
 
 ### New York
 
@@ -289,5 +270,5 @@ All twelve new-city heroes are recognizable in context and under12k/one material
 
 The compact layouts deliberately enlarge heroes and compress distance. Brooklyn and East Bay still have overly uniform street spacing and empty lots. Real OSM bearings are used near successful extracts, not a complete surveyed street reconstruction. Night terrain and architecture are readable, but warm window/light detail is weaker than Atlanta and remains a polish item.
 
-### Centennial playable follow-up (P6)
-The owner identified white jets on grid paving as a running track. Rebuilt only this centrepiece as a flush wet-stone plaza inside broad brick edges; five interlocking dark ring grates, low splash discs and tapered aqua jets replace upright white rods. Exported model5927triangles/2materialbatches, same-angle Blender comparisons and fresh1280x800/375x812 game captures in evidence/playable/p6. Existing OSM boundary, lawn, paths, flags, lighting towers and SkyView retained. Other generic landmarks remain the documented weakness; no new hero work in this playable round.
+### Centennial fountain plaza
+A flush wet-stone plaza inside broad brick edges; five interlocking dark ring grates, low splash discs and tapered aqua jets. Exported model 5,927 triangles / 2 material batches. Existing OSM boundary, lawn, paths, flags, lighting towers and SkyView retained.
