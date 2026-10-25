@@ -403,7 +403,10 @@ const reducedMotion = () =>
 const signed = (amount: number) =>
   `${amount < 0 ? "−" : "+"}$${Math.abs(Math.round(amount)).toLocaleString("en-US")}`;
 const holdFor = (life: number) => feedbackHold() || life,
-  slowFor = (ms: number) => (feedbackHold() ? ms * 12 : ms);
+  slowFor = (ms: number) => (feedbackHold() ? ms * 12 : ms),
+  // The same breakpoints as the compact HUD in hud.css.
+  compactLayout = () =>
+    matchMedia("(max-width: 760px), (max-height: 520px)").matches;
 const COINS = 6,
   FLOATS = 4;
 let activeLayers = 0;
@@ -613,7 +616,9 @@ export function FeedbackLayer() {
         if (performance.now() - lastChat.at < 2500) return;
         lastChat.at = performance.now();
       }
-      showToast(e);
+      // On a phone the action queue pill already says what just started; a card as well
+      // would only cover the player while they do it.
+      if (e.kind !== "actionStart" || !compactLayout()) showToast(e);
       const amount = e.amount ?? 0;
       if (moneyKinds.has(e.kind) && amount !== 0 && Math.abs(amount) >= 1) {
         const at = projectFeedbackAnchor(
