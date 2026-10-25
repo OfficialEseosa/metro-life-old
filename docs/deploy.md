@@ -5,6 +5,14 @@ Metro Life is two pieces:
 - **Frontend**: a static Vite build (`frontend/`), suited to Vercel or any static host.
 - **API**: the Spring Boot server (`backend/`), which owns the whole simulation, the save file and the live WebSocket. It runs as one long-lived container.
 
+## What is still manual
+
+Nothing is hosted yet. These steps need a dashboard login and are not scripted:
+
+1. Create the Vercel project `metro-life` with the settings under [Frontend on Vercel](#frontend-on-vercel). Nobody has created it yet.
+2. Run one API container with a volume at `/data` on one of the [free API hosts](#free-api-hosts), and set its `METRO_ORIGINS` to the Vercel URL.
+3. Set `VITE_API_URL` on the Vercel project to the API origin and redeploy.
+
 ## API container
 
 Build from the repository root (the build packages `shared/*.json`):

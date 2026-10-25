@@ -63,7 +63,7 @@ Step by step in [docs/deploy.md](docs/deploy.md).
 
 ## End-to-end journeys
 
-`e2e/` holds Playwright journeys that play the real game: first start, resuming after a reload, two players meeting online, and a server outage with recovery, at 1366x768 and at 667x375 with touch. They start the API on :8090 and the Vite dev server on :5190 by themselves (or reuse running ones).
+`e2e/` holds seven Playwright journeys that play the real game: first start, resuming after a reload, two players meeting online, a server outage with recovery, a work shift with pay, a two-way social visit (wave, hang out, gift), and a flight to another city, at 1366x768 and at 667x375 with touch. They start the API on :8090 and the Vite dev server on :5190 by themselves (or reuse running ones). On a machine without a GPU the whole run takes about ten minutes per viewport.
 
 ```sh
 (cd backend && mvn -q package) && (cd frontend && npm ci)
