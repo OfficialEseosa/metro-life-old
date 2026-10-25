@@ -5,7 +5,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/((?!assets/|models/).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/|ws|assets/|audio/|models/)[^.]*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
@@ -18,13 +21,30 @@
       ]
     },
     {
+      "source": "/audio/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
       "source": "/models/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=86400, stale-while-revalidate=604800"
+          "value": "public, max-age=86400, stale-while-revalidate=2592000"
         }
       ]
+    },
+    {
+      "source": "/",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    },
+    {
+      "source": "/index.html",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     }
   ]
 }
