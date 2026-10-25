@@ -24,6 +24,7 @@ type SocialTarget = { id: string; name: string; npc?: boolean } | null;
 const readSocialTarget = (s: object): SocialTarget | undefined =>
   (s as { socialTarget?: SocialTarget }).socialTarget;
 
+const NO_PLAYERS: never[] = [];
 /** "Your home" reads as "your home" in the middle of a sentence. */
 const placeName = (name: string) => name.replace(/^Your /, "your ");
 
@@ -200,7 +201,9 @@ export function ActionButton() {
     position = useWalking((s) => s.position),
     transition = useWalking((s) => s.transition),
     result = useStore((s) => s.lastResult),
-    players = useStore((s) => s.players),
+    players = useStore((s) =>
+      readSocialTarget(s) === undefined ? s.players : NO_PLAYERS,
+    ),
     target = useStore(readSocialTarget),
     clock = useStore((s) => s.clock),
     policy = useStore((s) => s.mayor?.mayor?.policy),

@@ -65,6 +65,7 @@ import {
   ChatPrimary,
 } from "./community-panels";
 import type { CityId } from "../api/types";
+type Panel = ReturnType<typeof useStore.getState>["panel"];
 
 const state = () => useStore.getState();
 
@@ -571,9 +572,13 @@ function CityMapPicker() {
   );
 }
 
+/** Mounts the open sheet only; nothing ticks while no panel is open. */
 function ActivePanel() {
-  const panel = useStore((s) => s.panel),
-    selected = useStore((s) => s.selectedLoc),
+  const panel = useStore((s) => s.panel);
+  return panel ? <OpenPanel panel={panel} /> : null;
+}
+function OpenPanel({ panel }: { panel: NonNullable<Panel> }) {
+  const selected = useStore((s) => s.selectedLoc),
     world = useStore((s) => s.world),
     city = useStore((s) => s.city),
     hasSim = useStore((s) => !!s.sim),
@@ -586,7 +591,6 @@ function ActivePanel() {
     state().openPanel(null);
     sound("close");
   }, []);
-  if (!panel) return null;
   const place = world?.cities
     .find((c) => c.id === city)
     ?.landmarks.find((l) => l.id === selected);
