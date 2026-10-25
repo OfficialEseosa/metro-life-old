@@ -297,7 +297,7 @@ Newly started browser lives opt their shared world into a seven-minute day (`Clo
   current city so the HUD can point at it.
 - **Venues and civic life.** Music and nightlife venues always offer "Dance the night away" ($10, fun +28,
   social +12) on the dance floor. Every election term opens with two residents on the ballot, so there is always
-  someone to vote for; running for mayor needs Charisma 1. Ponce Works Market has customer order slots at its
+  someone to vote for; running for mayor needs Charisma 1. Ponce City Market has customer order slots at its
   burger, noodle, gelato, coffee and grocery stalls. Groceries cost $9 and add three pantry meals (maximum six);
   each home cook consumes one meal for an additional 15 hunger and 5 fun, with the result reporting the pantry.
 - **City events.** A 90-second shared event runs every nine minutes per city. `/api/social-life` returns
