@@ -4,7 +4,7 @@ The city is the screen. Playing mode is an experience, not a dashboard. The memo
 
 Palette: plate #FFF7EA; inset #EFE3CF; edge #CBB79A; ink #243E3A; secondary ink #53685F; green primary #216546 / edge #124631. Semantic tiles: money amber #C18121 / tint #FFF0CC / edge #855112; energy blue #477CB7 / #E0EDFC / #31577E; hunger coral #C46649 / #FFE5D8 / #873E2A; fun violet #8767B1 / #EFE3FA / #5C427C; social teal #378879 / #DDF3EC / #235C52. All have text/icon redundancy.
 
-Typography: existing self-hosted Bricolage Grotesque 750 for headings/cash/rewards; Geist 500 body and 650 controls. Body and labels 16px, supporting copy at least 15px, cash 30px, panel titles 24–28px. Tabular numbers. Sentence case.
+Typography: self-hosted Fredoka 600 for headings/cash/rewards; Nunito 700 body and 800 controls. Body and labels 16px, supporting copy at least 15px, cash 30px, panel titles 24–28px. Tabular numbers. Sentence case.
 
 Material: opaque cream plates, 2px warm edges, 20px outer / 12px inner radii. Green primary buttons have a 4px bottom lip. Filled 38px semantic icon tiles; Phosphor icons at 20px. One tinted shadow direction; no blur.
 
