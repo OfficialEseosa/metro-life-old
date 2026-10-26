@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "scripts": {
     "sync-shared": "node scripts/sync-shared.mjs",
     "predev": "node scripts/sync-shared.mjs",
