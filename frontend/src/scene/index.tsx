@@ -591,6 +591,7 @@ function City({
           )
             owner = owner.parent;
           if (owner?.name === id) return;
+          if (owner?.userData.cameraCutOnly) return;
           if (!(object instanceof THREE.InstancedMesh) && !owner) return;
           if (!object.geometry.boundingBox)
             object.geometry.computeBoundingBox();

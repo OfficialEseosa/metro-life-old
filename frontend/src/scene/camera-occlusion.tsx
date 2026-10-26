@@ -29,6 +29,9 @@ export function CameraOcclusion() {
       worldBox = new THREE.Box3(),
       boxHit = new THREE.Vector3(),
       probe = new THREE.Vector3(),
+      back = new THREE.Ray(),
+      exit = new THREE.Vector3(),
+      reverse = new THREE.Vector3(),
       hits: THREE.Intersection[] = [];
     const lastCamera = new THREE.Matrix4(),
       lastTarget = new THREE.Vector4();
@@ -130,12 +133,12 @@ export function CameraOcclusion() {
          float metroLength=max(length(metroAxis),.001);
          vec3 metroRelative=vMetroWorld-cameraPosition;
          float metroAlong=dot(metroRelative,metroAxis/metroLength);
-         if(vMetroWorld.y>metroFadeTarget.y-.85&&metroAlong<metroLength-1.2&&length(metroRelative-metroAxis*(metroAlong/metroLength))<2.6)discard;
+         if(vMetroWorld.y>max(metroFadeTarget.y-.85,.35)&&metroAlong<metroLength-1.2&&length(metroRelative-metroAxis*(metroAlong/metroLength))<2.6)discard;
         }
        }`,
             );
           };
-          material.customProgramCacheKey = () => key + "-metro-camera-fade-v6";
+          material.customProgramCacheKey = () => key + "-metro-camera-fade-v7";
           material.needsUpdate = true;
           return material;
         });
@@ -233,9 +236,41 @@ export function CameraOcclusion() {
           confirmed += entry.surface.value;
           continue;
         }
+        // A building the sight line crosses for metres hides the player even where
+        // a thin wall seen edge-on slips between probe rays. Courtyards still need
+        // their real triangles, because there the player stands inside the bounds.
+        if (!worldBox.containsPoint(end)) {
+          const inside = worldBox.containsPoint(origin) ? origin : boxHit;
+          back.set(end, reverse.copy(direction).negate());
+          if (back.intersectBox(worldBox, exit) && inside.distanceTo(exit) > 3) {
+            entry.surface.value = 1;
+            confirmed++;
+            continue;
+          }
+        }
         // Scenery deliberately disables interaction picking; this internal check
         // calls Three's geometry raycast directly without changing input behavior.
         THREE.Mesh.prototype.raycast.call(object, raycaster, hits);
+        // Keep the venue sign above the door readable too.
+        for (const [side, lift] of [
+          [0, 2.3],
+          [-1.6, 2.3],
+          [1.6, 2.3],
+        ]) {
+          if (hits.length) break;
+          probe
+            .set(-direction.z, 0, direction.x)
+            .normalize()
+            .multiplyScalar(side)
+            .add(end);
+          probe.y += lift;
+          const reach = probe.distanceTo(origin);
+          raycaster.set(origin, probe.sub(origin).divideScalar(reach));
+          raycaster.far = Math.max(0, reach - 1.2);
+          THREE.Mesh.prototype.raycast.call(object, raycaster, hits);
+        }
+        raycaster.set(origin, direction);
+        raycaster.far = Math.max(0, distance - 1.2);
         entry.surface.value = hits.length ? 1 : 0;
         confirmed += entry.surface.value;
       }

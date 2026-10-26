@@ -1,11 +1,12 @@
 /* oxlint-disable react/immutability -- Owned sign positions follow loaded terrain. */
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { groundHeight } from "./ground";
 import { useStore } from "../store";
 import { inBox, navigation } from "../navigation";
 import { WorldText } from "./world-text";
+import { plateObstacles } from "./speech-bubbles";
 import type { CityId } from "../api/types";
 function HiringSign({
   door,
@@ -16,6 +17,7 @@ function HiringSign({
 }) {
   const ref = useRef<THREE.Group>(null),
     placed = useRef(false),
+    board = useRef<THREE.Mesh>(null),
     scene = useThree((s) => s.scene),
     // Stand beside the sign posts on whichever side has open pavement.
     x = useMemo(() => {
@@ -23,6 +25,14 @@ function HiringSign({
         navigation[city].boxes.every((b) => !inBox(x, door.z + 0.25, b, 0.8));
       return door.x + (free(door.x - 4.1) || !free(door.x + 4.1) ? -4.1 : 4.1);
     }, [city, door.x, door.z]);
+  useEffect(() => {
+    const mesh = board.current;
+    if (!mesh) return;
+    plateObstacles.add(mesh);
+    return () => {
+      plateObstacles.delete(mesh);
+    };
+  }, []);
   useFrame(() => {
     if (!ref.current || placed.current || !scene.getObjectByName("terrain"))
       return;
@@ -39,6 +49,7 @@ function HiringSign({
         <meshStandardMaterial color="#674c3e" />
       </mesh>
       <mesh
+        ref={board}
         position={[0, 1.45, 0]}
         userData={{ cameraOccluder: true, cameraOccluderPad: 0.7 }}
       >

@@ -545,6 +545,9 @@ function LegacyBlenderLandmark({
     root.traverse((o) => {
       if (o instanceof THREE.Mesh) {
         const water = /lake|jets/.test(o.name);
+        // The park's pavilions can stand between the camera and the aquarium door.
+        if (o.name === "centennial-landscape")
+          Object.assign(o.userData, { cameraOccluder: true, cameraCutOnly: true });
         if (id === "centennial" && /jets/.test(o.name)) {
           const material = (o.material as THREE.MeshStandardMaterial).clone();
           material.transparent = true;

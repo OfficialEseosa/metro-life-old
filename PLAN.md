@@ -4,6 +4,11 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 6:
+  - Madison Square Garden (Midtown Garden Arena) was drawn 0.7 m past its own door, so the player stood inside the wall and the wall cut through the sign. The arena is smaller now and both show.
+  - At the Georgia Aquarium door a pavilion in Olympic Rings Park stood between the camera and the player. The park now gets the same clean cut-out as buildings. The paths stay solid.
+  - At Peachtree Institute (Georgia Tech) an edge of the aquarium wall stood in front of the sign. Any building the sight line crosses for more than 3 m now cuts away, and so does anything blocking the sign above a door.
+  - Resident name plates keep clear of hiring boards as well as venue signs.
 - Fixed in loop round 5:
   - Pier 39's door is surveyed out over the water, so the server found nowhere to stand and every trip there failed with "This entrance is busy". A booked trip then kept failing on the server and the player stayed on "Heading to Sealion Pier". People now arrive at a door that has no surveyed ground nearby and can walk the few metres back to shore. The door moved onto the pier deck in front of its sign. Crowded doors on land still say the entrance is busy.
   - Signs, boards and buildings that hide the player no longer fade in a dotted pattern, which showed as dotted lines at the Ferry Building and the Bay airport. Thin signs drop out whole while they are in the way, and anything bigger gets a clean cut-out around the player.

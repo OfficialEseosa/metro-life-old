@@ -535,14 +535,14 @@ export function nycGeometry(id: string) {
       b.box(4, 0.35, 3, 7, 0.2, 1, stone);
       break;
     case "msg":
-      b.cylinder(0, 2.5, 0, 6, 5, "#bdc6c7", 40);
-      for (const y of [1, 2.5, 4]) b.cylinder(0, y, 0, 6.1, 0.2, glass, 40);
-      b.cylinder(0, 5.1, 0, 6.2, 0.25, white, 40);
+      b.cylinder(0, 2.5, 0, 4.8, 5, "#bdc6c7", 40);
+      for (const y of [1, 2.5, 4]) b.cylinder(0, y, 0, 4.9, 0.2, glass, 40);
+      b.cylinder(0, 5.1, 0, 5, 0.25, white, 40);
       for (let i = 0; i < 16; i++) {
         const a = (i * Math.PI) / 8;
         b.line(
           [0, 5.25, 0],
-          [Math.sin(a) * 6, 5.25, Math.cos(a) * 6],
+          [Math.sin(a) * 4.8, 5.25, Math.cos(a) * 4.8],
           0.04,
           "#a7b1ae",
         );
