@@ -4,6 +4,11 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 8:
+  - At Chase Center (Baylight Arena) the camera only had a side-on view. The Bay airport's collision box stood 10 m tall over the whole apron, though the terminal is low. It is now split into the terminal hall and a low apron strip, so the camera looks at the arena from the front.
+  - At Oracle Park (Waterfront Ballpark) the ballpark's rear wall was drawn past its collision box and over the door. A parked plane and a filler building with no collision also filled the edge of the view. The ballpark now stays inside its box. The Bay airport has no east piers or planes facing the two arenas, and no filler building stands in any door's camera view.
+  - At Dolores Park (Mission Meadow) and the Painted Ladies (Pastel Row), trees stood between the camera and the sign. No filler tree is placed in a door's camera view. The park's own west row of trees stands east of the path.
+  - At Wall Street (Exchange Row) the bull stood on the door, so the player stood inside it. It now stands beside the sign post.
 - Fixed in loop round 6:
   - Madison Square Garden (Midtown Garden Arena) was drawn 0.7 m past its own door, so the player stood inside the wall and the wall cut through the sign. The arena is smaller now and both show.
   - At the Georgia Aquarium door a pavilion in Olympic Rings Park stood between the camera and the player. The park now gets the same clean cut-out as buildings. The paths stay solid.

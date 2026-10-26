@@ -17,6 +17,7 @@ import { metricPlacement } from "./world-scale";
 import { fitMetricGroups } from "./metric-layout";
 import { outsidePlots, outsideBoards } from "./economy-sites";
 import { Trees } from "./trees";
+import { navigation } from "../navigation";
 import { useEffectiveQuality } from "./render-quality";
 const noPick = () => {};
 function inside(x: number, z: number, poly: number[][]) {
@@ -108,6 +109,22 @@ export function dataFor(city: "nyc" | "bay") {
         [w, d] = footprints[id] ?? [s.size * 0.9, s.size * 0.9];
       return Math.abs(lx) > w * 0.5 + pad || Math.abs(lz) > d * 0.5 + pad;
     });
+  // The street camera sits behind the player at a door, so nothing stands in that view.
+  const doors = Object.values(navigation[city].doors),
+    inDoorView = (
+      x: number,
+      z: number,
+      side: number,
+      depth: number,
+      hx = 0,
+      hz = 0,
+    ) =>
+      doors.some(
+        (d) =>
+          Math.abs(x - d.x) < side + hx &&
+          z - d.z + hz > -1 &&
+          z - d.z - hz < depth,
+      );
   const baseHill = (x: number, z: number) => {
     if (city !== "bay" || x > -30 || z < -43 || z > 70) return 0;
     let height =
@@ -303,6 +320,12 @@ export function dataFor(city: "nyc" | "bay") {
           ),
         );
     }
+  for (const group of [homes, blocks, towers]) {
+    const kept = group.filter(
+      (b) => !inDoorView(b.x, b.z, 3.5, 14, b.sx / 2, b.sz / 2),
+    );
+    group.splice(0, group.length, ...kept);
+  }
   const rowCount = brownstones.length / 3,
     selectedBrownstones = brownstones.filter((_, i) => {
       const row = Math.floor(i / 3);
@@ -317,18 +340,10 @@ export function dataFor(city: "nyc" | "bay") {
     if (!isLand(x, z) || !clearSite(x, z, 0.8)) continue;
     const inPark = city === "nyc" && x > -33 && x < -7 && z > -65 && z < -27;
     if (city === "nyc" && !inPark && rand() > 0.22) continue;
-    const s = 0.6 + rand() * 0.6;
-    trees.push(
-      p(
-        x,
-        hill(x, z),
-        z,
-        s,
-        s,
-        s,
-        ["#76946b", "#879d76", "#64866c"][Math.floor(rand() * 3)],
-      ),
-    );
+    const s = 0.6 + rand() * 0.6,
+      tint = ["#76946b", "#879d76", "#64866c"][Math.floor(rand() * 3)];
+    if (inDoorView(x, z, 5.5, 17)) continue;
+    trees.push(p(x, hill(x, z), z, s, s, s, tint));
   }
   // Retain surveyed bearings around the successful OSM extracts. Larger landmark
   // footprints require local clearance in this deliberately compressed city map.
@@ -443,7 +458,11 @@ export function MetropolitanFabric({ city }: { city: "nyc" | "bay" }) {
   useFrame(() => {
     landMaterial.color
       .copy(timeOfDay.ground)
-      .multiply({ r: 1 / dayGround.r, g: 1 / dayGround.g, b: 1 / dayGround.b } as THREE.Color);
+      .multiply({
+        r: 1 / dayGround.r,
+        g: 1 / dayGround.g,
+        b: 1 / dayGround.b,
+      } as THREE.Color);
   });
   const data = useMemo(() => dataFor(city), [city]);
   useEffect(

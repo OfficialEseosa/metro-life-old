@@ -187,7 +187,7 @@ export function terminalFront(
   return b;
 }
 
-function airport(b: Builder, curved = false) {
+function airport(b: Builder, curved = false, piers = true) {
   const hall = "#ebe7dc",
     trim = "#d5cbb5",
     pane = "#6a9bb0";
@@ -207,7 +207,7 @@ function airport(b: Builder, curved = false) {
     for (let x = -8; x <= 8; x += 4) b.box(x, 3.75, 1, 2.2, 0.25, 6, "#cfd9d6");
   }
   // Piers with glazed sides and jet bridges.
-  for (const x of [-10, 0, 10]) {
+  for (const x of piers ? [-10, 0, 10] : []) {
     b.box(x, 0.9, -8, 2.6, 1.8, 11, hall);
     for (const side of [-1, 1]) b.box(x + side * 1.31, 1.05, -8, 0.06, 0.8, 10.4, pane);
     b.box(x, 1.9, -8, 2.9, 0.16, 11.3, trim);
@@ -219,9 +219,11 @@ function airport(b: Builder, curved = false) {
     }
   }
   plane(b, -5, -6.3, Math.PI / 2, "#3f7fb3");
-  plane(b, 5, -11.2, -Math.PI / 2, "#d4774f");
-  plane(b, 15, -6.3, -Math.PI / 2, "#5aa587");
   plane(b, -15, -11.2, Math.PI / 2, "#c95f6f");
+  if (piers) {
+    plane(b, 5, -11.2, -Math.PI / 2, "#d4774f");
+    plane(b, 15, -6.3, -Math.PI / 2, "#5aa587");
+  }
   b.box(0, 0.08, -19, 37, 0.15, 2.6, "#5b6670");
   for (let x = -16; x < 17; x += 3)
     b.box(x, 0.18, -19, 1, 0.04, 0.12, "#f4f2ea");
@@ -590,22 +592,25 @@ export function nycGeometry(id: string) {
       for (let z = -9; z < 10; z += 3)
         for (const x of [-1.1, 1.1]) b.box(x, 1, z, 0.15, 2, 0.2, "#52615e");
       break;
-    case "wallStreet":
-      for (const x of [-0.4, 0.4])
+    case "wallStreet": {
+      // The bull stands beside the sign post, clear of the doorway.
+      const bull = 3.9;
+      for (const x of [bull - 0.4, bull + 0.4])
         for (const z of [4.7, 5.3])
           b.line([x, 0, z], [x, 0.6, z], 0.09, "#8b7961");
-      b.sphere(0.65, 0.65, 5, 0.3, "#8b7961")
-        .line([0.8, 0.8, 4.8], [1, 0.95, 4.6], 0.05, "#8b7961")
-        .line([0.8, 0.8, 5.2], [1, 0.95, 5.4], 0.05, "#8b7961");
+      b.sphere(bull + 0.65, 0.65, 5, 0.3, "#8b7961")
+        .line([bull + 0.8, 0.8, 4.8], [bull + 1, 0.95, 4.6], 0.05, "#8b7961")
+        .line([bull + 0.8, 0.8, 5.2], [bull + 1, 0.95, 5.4], 0.05, "#8b7961");
       classic(b, 11, 5, 6);
       for (const x of [-5, 5]) b.box(x, 8, -3, 3, 16, 4, "#b5bbbd");
-      b.sphere(0, 0.6, 5, 0.6, "#8b7961", 1.3, 0.6, 0.7).line(
-        [-0.5, 0.5, 5],
-        [0.4, 0.8, 5],
+      b.sphere(bull, 0.6, 5, 0.6, "#8b7961", 1.3, 0.6, 0.7).line(
+        [bull - 0.5, 0.5, 5],
+        [bull + 0.4, 0.8, 5],
         0.2,
         "#8b7961",
       );
       break;
+    }
     case "dumbo":
       for (const x of [-4, 4])
         b.box(x, 4, 0, 5, 8, 10, brick).windows(x, 4, 0, 4, 6, 10, 3, 4);
@@ -884,7 +889,8 @@ export function bayGeometry(id: string) {
       break;
     case "dolores":
       park(b, 17, 13).box(-4, 0.3, 0, 5, 0.1, 8, "#5e8b7c");
-      for (const x of [-6, 6])
+      // The west row stands east of the path, clear of the Painted Ladies camera.
+      for (const x of [-1, 6])
         for (let z = -5; z < 6; z += 2.5) {
           b.cylinder(x, 2, z, 0.1, 4, "#8b8063", 6);
           for (let i = 0; i < 5; i++) {
@@ -952,10 +958,11 @@ export function bayGeometry(id: string) {
       break;
     }
     case "oraclePark":
-      ballpark(b, 17);
-      b.box(0, 2, 8.5, 17, 4, 0.8, brick);
-      for (let x = -7.5; x < 8.5; x += 1.5)
-        arch(b, x, 0, 9, 1.2, 3, 0.4, stone);
+      // Kept inside the collision box so the gate stands behind the door, not over it.
+      ballpark(b, 15);
+      b.box(0, 2, 7.1, 15, 4, 0.6, brick);
+      for (let x = -6.75; x < 7.5; x += 1.5)
+        arch(b, x, 0, 7.5, 1.2, 3, 0.4, stone);
       break;
     case "sfChinatown":
       return nycGeometry("sfChinatown");
@@ -1074,7 +1081,8 @@ export function bayGeometry(id: string) {
       );
       break;
     case "bayAirport":
-      airport(b);
+      // Chase Center and Oracle Park face this apron, so their cameras look over it.
+      airport(b, false, false);
       b.sphere(0, 2.6, 0, 1, white, 8, 0.7, 4);
       break;
     default:
