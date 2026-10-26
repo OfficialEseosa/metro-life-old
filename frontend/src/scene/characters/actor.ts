@@ -320,6 +320,27 @@ function clothGeometry(
   let g = clothCache.get(key);
   if (!g) {
     const parts: { geometry: THREE.BufferGeometry; tag: number }[] = [];
+    const withClothBand = (
+      source: THREE.BufferGeometry,
+      part: "Body" | "Legs" | "Feet" | "Other",
+    ) => {
+      const geometry = source.clone(),
+        position = geometry.getAttribute("position");
+      let minY = Infinity,
+        maxY = -Infinity;
+      for (let i = 0; i < position.count; i++) {
+        minY = Math.min(minY, position.getY(i));
+        maxY = Math.max(maxY, position.getY(i));
+      }
+      const band = new Float32Array(position.count * 2);
+      for (let i = 0; i < position.count; i++) {
+        const y = position.getY(i);
+        band[i * 2] = part === "Body" || part === "Legs" ? y - minY : 9;
+        band[i * 2 + 1] = part === "Body" ? maxY - y : 9;
+      }
+      geometry.setAttribute("clothBand", new THREE.BufferAttribute(band, 2));
+      return geometry;
+    };
     for (const [kit, part] of [
       [body, "Body"],
       [legs, "Legs"],
@@ -329,11 +350,21 @@ function clothGeometry(
         if (piece.part === part) {
           const slot = slotFor(kit.name, piece.part, piece.material);
           if (slot && slot !== "skin" && slot !== "skinDark")
-            parts.push({ geometry: piece.geometry, tag: SLOTS.indexOf(slot) });
+            parts.push({
+              geometry: withClothBand(piece.geometry, part),
+              tag: SLOTS.indexOf(slot),
+            });
         }
-    if (glasses)
-      parts.push({ geometry: glassesGeometry(head), tag: SLOTS.indexOf("glasses") });
+    if (glasses) {
+      const geometry = glassesGeometry(head);
+      parts.push({
+        geometry: withClothBand(geometry, "Other"),
+        tag: SLOTS.indexOf("glasses"),
+      });
+      geometry.dispose();
+    }
     g = weldNormals(mergePieces(parts, "slot"));
+    for (const part of parts) part.geometry.dispose();
     clothCache.set(key, g);
   }
   return g;
@@ -637,7 +668,14 @@ export class CharacterActor {
     );
     const cloth = clothGeometry(head, body, legs, feet, !!options.accessories?.glasses);
     this.clothGeometry = new THREE.BufferGeometry();
-    for (const name of ["position", "normal", "skinIndex", "skinWeight", "slot"])
+    for (const name of [
+      "position",
+      "normal",
+      "skinIndex",
+      "skinWeight",
+      "slot",
+      "clothBand",
+    ])
       this.clothGeometry.setAttribute(name, cloth.getAttribute(name));
     this.clothGeometry.setIndex(cloth.index);
     this.clothColours = new THREE.BufferAttribute(

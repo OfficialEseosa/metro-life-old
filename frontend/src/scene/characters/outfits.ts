@@ -1,6 +1,6 @@
 /** Wardrobe rules: which modular parts make each outfit cut, and how each original material is tinted. */
 import type { Donor, PartName, Sex } from "./kit";
-import { luminance } from "./palettes";
+import { deltaE, luminance } from "./palettes";
 
 export type Cut = "casual" | "street" | "smart" | "party" | "work";
 export type PartSet = Record<Exclude<PartName, "Head">, Donor>;
@@ -140,7 +140,13 @@ export function outfitColours(
           .padStart(2, "0");
     return "#" + c(16) + c(8) + c(0);
   };
-  const light = luminance(top) > 0.45;
+  const light = luminance(top) > 0.45,
+    shoeColour =
+      deltaE(shoe, bottom) < 15
+        ? luminance(bottom) > 0.45
+          ? "#2b2421"
+          : "#e9e4da"
+        : shoe;
   return {
     top,
     topDark: dark(top, cut === "work" ? 0.82 : 0.45),
@@ -153,7 +159,7 @@ export function outfitColours(
           : "#c9a36b",
     bottom,
     bottomDark: dark(bottom, 0.78),
-    shoe,
+    shoe: shoeColour,
     sole: "#ece6da",
     accent: "#d9b45a",
     glasses: "#2b2421",

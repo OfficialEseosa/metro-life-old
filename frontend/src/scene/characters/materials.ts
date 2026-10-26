@@ -28,7 +28,9 @@ float weave=sin(weaveAt.x+weaveAt.z)*sin(weaveAt.y*1.1)*.5+sin((weaveAt.x-weaveA
 float drape=sin(vRest.y*38.+sin(vRest.x*21.)*1.6)*.5+sin(vRest.x*27.+vRest.z*31.)*.3;
 characterBump(normal,weave*.0016+drape*.004,clamp(1.-length(fwidth(weaveAt))*.35,0.,1.));
 roughnessFactor=clamp(roughnessFactor+drape*.07-weave*.04,.45,1.);
-diffuseColor.rgb*=.97+drape*.035;`,
+diffuseColor.rgb*=.97+drape*.035;
+if(vClothBand.x<.035)diffuseColor.rgb*=.68;
+if(vClothBand.y<.04)diffuseColor.rgb=min(diffuseColor.rgb*1.3,vec3(1.));`,
   hair: `vec3 strandAt=vRest*vec3(520.,60.,520.);
 float strand=sin(strandAt.x+sin(strandAt.y)*1.8)*.5+sin(strandAt.z*1.3+strandAt.y*.7)*.5;
 characterBump(normal,strand*.0012,clamp(1.-length(fwidth(strandAt))*.3,0.,1.));
@@ -56,17 +58,25 @@ function withRim(
   material.onBeforeCompile = (shader) => {
     shader.uniforms.rimStrength = characterRim.strength;
     shader.uniforms.rimColour = characterRim.colour;
+    const clothAttribute = kind === "cloth" ? "attribute vec2 clothBand;\n" : "",
+      clothVarying = kind === "cloth" ? "varying vec2 vClothBand;\n" : "";
     shader.vertexShader = shader.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying vec3 vRest;")
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying vec3 vRest;\n" + clothAttribute + clothVarying,
+      )
       .replace(
         "#include <begin_vertex>",
-        "#include <begin_vertex>\nvRest=position*length(modelMatrix[0].xyz);",
+        "#include <begin_vertex>\nvRest=position*length(modelMatrix[0].xyz);" +
+          (kind === "cloth" ? "\nvClothBand=clothBand;" : ""),
       );
     const detail = surface[kind];
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
-        "#include <common>\n" + (kind === "skin" ? bump.split("void")[0] : bump),
+        "#include <common>\n" +
+          clothVarying +
+          (kind === "skin" ? bump.split("void")[0] : bump),
       )
       .replace(
         kind === "skin" ? "#include <lights_fragment_end>" : "#include <normal_fragment_maps>",
@@ -121,7 +131,7 @@ export function clothMaterial() {
       sheenRoughness: 0.5,
       sheenColor: new THREE.Color(0.35, 0.35, 0.35),
     }),
-    "metro-character-cloth-v3",
+    "metro-character-cloth-v4",
     "cloth",
   );
   return cloth;
