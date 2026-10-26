@@ -115,10 +115,21 @@ export function ObjectActions() {
     x: viewport.width / 2,
     y: viewport.height / 2,
   };
+  // A short screen has no room for the ring, whose choices would spill past the edge.
+  const list =
+    !!menu &&
+    (viewport.height < 520 ||
+      menu.options.length > 6 ||
+      menu.options.some((option) => option.reason.length > 65));
+  // On a short screen the list runs wide so every choice shows without scrolling.
+  const width =
+    list && viewport.height < 520
+      ? Math.min(viewport.width - 2 * margin, 480)
+      : size;
   const left = menu
     ? Math.max(
         margin,
-        Math.min(viewport.width - size - margin, anchor.x - size / 2),
+        Math.min(viewport.width - width - margin, anchor.x - width / 2),
       )
     : margin;
   const top = menu
@@ -127,10 +138,6 @@ export function ObjectActions() {
         Math.min(viewport.height - size - 108, anchor.y - size / 2),
       )
     : margin;
-  const list =
-    !!menu &&
-    (menu.options.length > 6 ||
-      menu.options.some((option) => option.reason.length > 65));
   const queueStyle = {
     "--action-count": Math.max(1, items.length),
   } as CSSProperties;
@@ -207,7 +214,7 @@ export function ObjectActions() {
             className={`object-pie${list ? " is-list" : ""}`}
             role="menu"
             aria-label={`${menu.title} actions`}
-            style={{ left, top, width: size, height: size }}
+            style={{ left, top, width, height: size }}
             onPointerDownCapture={(event) => event.stopPropagation()}
             onClick={(event) => event.stopPropagation()}
             onKeyDown={moveMenuFocus}

@@ -163,6 +163,11 @@
   width: 100%;
   min-height: 76px;
 }
+@media (max-height: 520px) {
+  .object-pie.is-list .object-pie-options {
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  }
+}
 .object-pie.is-list .object-pie-choice:active:not(:disabled) {
   transform: scale(0.97);
 }
@@ -265,4 +270,9 @@
   .object-action-queue li:nth-child(n + 3) {
     display: none;
   }
+}
+
+/* The event banner sits in a higher layer; step it aside while a menu is open. */
+:root:has(.object-pie) .world-event-banner {
+  visibility: hidden;
 }
