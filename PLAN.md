@@ -4,6 +4,11 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 14:
+  - At Heritage Reflection Park (MLK) the reflecting pool ran past the gate, so arrivals stood on the monument's plinth. The pool now sits behind the gate.
+  - Peachtree General (Grady) stood in Heritage Reflection Park's camera view, so the camera looked side-on and the hospital wall covered the start of the sign. Grady moved 2 m west, and its walkway and resident routes moved with it. Both now show from the front.
+  - Kit buildings are no longer placed in a door's camera view, the way filler buildings already were. One stood straight behind the Midtown Art Museum door, so the camera looked down at it from the side. Three buildings and their collision boxes in Atlanta are gone.
+  - Still angled: Downtown University (Georgia State). The Capitol stands where the camera would be, 13 m behind the door. The sign and the player both show.
 - Fixed in loop round 13:
   - At Northside Ballpark a pale kerb ran diagonally across the plaza and in front of the player. The ballpark stood on the Manhattan shoreline with most of its stands over the river, so the shore kerb crossed its gate. The shoreline now runs round the ballpark.
   - Where two land shapes overlap, no shore kerb is drawn across dry ground.

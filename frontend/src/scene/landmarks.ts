@@ -483,9 +483,10 @@ export function landmarkGeometry(id: string) {
       b.roof(4, 3.4, 0, 4.5, 1.2, 4.5, dark);
       b.box(4, 1.65, 2.7, 4.6, 0.15, 1.4, white);
       pillars(4, 0.85, 3.2, 4, 1.3, 1.7);
-      b.box(0, 0.12, 5.5, 5, 0.2, 3, "#57908f")
-        .box(0, 0.35, 5.5, 2, 0.45, 1.4, white)
-        .box(0, 0.62, 5.5, 1.7, 0.15, 1.1, white);
+      // Kept behind the gate, so arrivals stand in front of the pool, not on it.
+      b.box(0, 0.12, 4, 5, 0.2, 2.4, "#57908f")
+        .box(0, 0.35, 4, 2, 0.45, 1.2, white)
+        .box(0, 0.62, 4, 1.7, 0.15, 0.9, white);
       break;
     }
     case "l5p": {
@@ -671,8 +672,15 @@ export function landmarkGeometry(id: string) {
       for (let x = -18; x < 19; x += 3)
         b.box(x, 0.34, -9, 1.4, 0.02, 0.08, white);
       b.box(0, 1, 0, 35, 2, 2.5, "#e0ded2");
-      b.box(0, 1.5, 3.1, 10, 3, 4.5, "#e0ded2")
-        .box(0, 1.7, 7, 30, 3.4, 4, "#e0ded2");
+      b.box(0, 1.5, 3.1, 10, 3, 4.5, "#e0ded2").box(
+        0,
+        1.7,
+        7,
+        30,
+        3.4,
+        4,
+        "#e0ded2",
+      );
       terminalFront(b, { z: 9, width: 30, height: 3.4 });
       for (let x = -15; x <= 15; x += 5) {
         b.box(x, 0.85, 0, 2, 1.7, 14, white);

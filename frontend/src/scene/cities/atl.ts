@@ -25,7 +25,7 @@ export const atlSites: Record<string, Site> = {
   mlk: { x: 26, z: 33, size: 15, height: 5 },
   l5p: { x: 53, z: 8, size: 12, height: 4 },
   truist: { x: -48, z: -53, size: 21, height: 6 },
-  grady: { x: 21, z: 47, size: 12, height: 13 },
+  grady: { x: 19, z: 47, size: 12, height: 13 },
   atlBus: transit.cities.atl.bus.site,
   atlAirport: { x: -16, z: 76, size: 42, height: 8 },
 };

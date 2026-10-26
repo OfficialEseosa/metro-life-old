@@ -53,6 +53,15 @@ export function fitMetricGroups(
       homes.some((b) => contains(x, z, b, pad)) ||
       !outsidePlots(city, x, z, pad) ||
       !outsideBoards(city, x, z, pad),
+    doorList = Object.values(n.doors),
+    // The street camera stands up to 14 m behind a door and looks over it.
+    inDoorView = (x: number, z: number, half: number) =>
+      doorList.some(
+        (d) =>
+          Math.abs(x - d.x) < 3.5 + half &&
+          z - d.z + half > -1 &&
+          z - d.z - half < 14,
+      ),
     result: Record<string, Placement[]> = {},
     roads: Placement[] = [],
     taken: Placement[] = [];
@@ -97,9 +106,11 @@ export function fitMetricGroups(
     if (/road_|streetlight|car_/.test(url)) continue;
     if (/building|painted-row/.test(url))
       for (const p of ps) {
-        const radius = Math.hypot(p.sx, p.sz) / 2;
+        const radius = Math.hypot(p.sx, p.sz) / 2,
+          half = Math.max(p.sx, p.sz) / 2;
         if (
           reserved(p.x, p.z, radius) ||
+          inDoorView(p.x, p.z, half) ||
           ![-1, 1].every((a) =>
             [-1, 1].every((b) =>
               land(p.x + (a * p.sx) / 2, p.z + (b * p.sz) / 2),
