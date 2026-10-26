@@ -4,6 +4,9 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 16:
+  - Passing cars took the walking paths through Centennial Olympic Park, Piedmont Park, Golden Gate Park, Dolores Park and the High Line, so at Mission Meadow a car drove across the lawn beside the player. Cars now stay out of those parks.
+  - Mission Meadow's two rows of lawn trees ran up to the gate, so a crown hung over arrivals. Both rows now stop short of it.
 - Fixed in loop round 15:
   - At Riverside Ballpark (Truist Park) the stands ran out past the gate, so their railings crossed the player and the sign. The stands now open behind home plate, where the gate is.
   - Parked cars are no longer placed in a door's camera view, in Atlanta's street kit as well as the other cities. Passing cars stay on the through roads: they never turn into the street that leads to a door's forecourt, and avoid the road within 7 m of a door where they can. One car used to shuttle up and down the Riverside Ballpark forecourt, right in front of the camera.

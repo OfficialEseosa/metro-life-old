@@ -8,6 +8,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import type { CityId } from "../api/types";
 import { streets } from "../street-network";
 import { navigation } from "../navigation";
+import { sitesFor } from "./cities";
 
 export function Traffic({ city }: { city: CityId }) {
   return (
@@ -82,8 +83,29 @@ function StreetCars({ city }: { city: CityId }) {
         cur = next;
       }
     }
+    // Paths through parks and the High Line are for walkers.
+    for (const id of [
+      "centennial",
+      "piedmont",
+      "ggPark",
+      "dolores",
+      "highLine",
+    ]) {
+      const site = sitesFor(city)[id];
+      if (!site) continue;
+      const a = site.angle ?? 0;
+      graph.nodes.forEach((n, i) => {
+        const dx = n[0] - site.x,
+          dz = n[2] - site.z;
+        if (
+          Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < site.size * 0.45 &&
+          Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < site.size * 0.45
+        )
+          keep[i] = false;
+      });
+    }
     return keep;
-  }, [graph]);
+  }, [city, graph]);
   const cars = useMemo(() => {
     const candidates = graph.links.flatMap((_, i) =>
       road[i] && !nearDoor[i] ? [i] : [],

@@ -891,8 +891,9 @@ export function bayGeometry(id: string) {
     case "dolores":
       park(b, 17, 13).box(-4, 0.3, 0, 5, 0.1, 8, "#5e8b7c");
       // The west row stands east of the path, clear of the Painted Ladies camera.
+      // Both rows stop short of the gate, so no crown hangs over arrivals.
       for (const x of [-1, 6])
-        for (let z = -5; z < 6; z += 2.5) {
+        for (let z = -5; z < 4; z += 2.5) {
           b.cylinder(x, 2, z, 0.1, 4, "#8b8063", 6);
           for (let i = 0; i < 5; i++) {
             const a = (i * Math.PI) / 2.5;
