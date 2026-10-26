@@ -186,8 +186,8 @@ export function ConnectionGate() {
       title="This is taking longer than usual"
     >
       <p>
-        The city is slow to answer. Your life is saved on the server; trying
-        again usually helps.
+        The city is slow to answer. Trying again usually helps, and nothing is
+        lost while you wait.
       </p>
       <div className="connection-actions">
         <button className="primary full" onClick={() => location.reload()}>
