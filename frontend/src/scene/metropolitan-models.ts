@@ -109,15 +109,91 @@ function restoreColours(b: Builder, g: THREE.BufferGeometry) {
   added.setAttribute("color", g.getAttribute("color").clone());
   return b;
 }
+
+export function terminalFront(
+  b: Builder,
+  { z, width, height }: { z: number; width: number; height: number },
+) {
+  const trim = "#d5cbb5",
+    pane = "#6a9bb0",
+    darkGlass = "#345966",
+    canopyFront = Math.min(z + 3, 9.7),
+    canopyBack = canopyFront - 3,
+    canopyCenter = (canopyBack + canopyFront) / 2,
+    curbZ = Math.min(canopyFront + 0.3, 9.65),
+    bollardZ = Math.min(curbZ + 0.19, 9.84),
+    taxiZ = Math.min(curbZ + 0.2, 9.84),
+    taxiX = width / 2 + 1.2,
+    glassHeight = height - 0.3;
+  b.box(0, glassHeight / 2 + 0.15, z + 0.055, width, glassHeight, 0.08, pane);
+  for (let x = -width / 2 + 1.2; x < width / 2; x += 1.2)
+    b.box(x, height / 2, z + 0.12, 0.08, glassHeight, 0.1, trim);
+  for (const y of [height * 0.38, height * 0.72])
+    b.box(0, y, z + 0.12, width, 0.08, 0.1, trim);
+  b.box(0, height - 0.13, z + 0.15, width + 0.3, 0.26, 0.24, trim);
+  const doorHeight = Math.min(2.15, height - 0.55);
+  for (const pair of [-0.29, 0, 0.29])
+    for (const side of [-1, 1])
+      b.box(
+        pair * width + side * 0.4,
+        doorHeight / 2 + 0.08,
+        z + 0.18,
+        0.72,
+        doorHeight,
+        0.07,
+        darkGlass,
+      );
+  b.box(
+    0,
+    3.15,
+    canopyCenter,
+    width + 1.2,
+    0.18,
+    3,
+    "#d9e3e1",
+  ).box(
+    0,
+    3.2,
+    canopyFront - 0.06,
+    width + 1.2,
+    0.48,
+    0.12,
+    "#435f62",
+  );
+  for (let x = -width / 2 + 0.6; x < width / 2; x += Math.max(4.2, width / 5))
+    b.cylinder(x, 1.6, canopyFront - 0.08, 0.075, 3.2, "#9aa7a6", 6);
+  b.box(0, 0.075, curbZ, width + 1.8, 0.15, 0.32, "#7d8784");
+  for (let x = -width / 2 + 0.8; x < width / 2; x += 1.8)
+    b.cylinder(x, 0.33, bollardZ, 0.08, 0.66, "#66736f", 6);
+  for (const x of [-0.42, -0.35, 0.35, 0.42].map((offset) => offset * width)) {
+    const planterZ = canopyFront - 0.45;
+    b.box(x, 0.23, planterZ, 0.9, 0.46, 0.62, "#b49b79").sphere(
+      x,
+      0.78,
+      planterZ,
+      0.42,
+      "#66845c",
+      1.1,
+      0.72,
+      0.9,
+    );
+  }
+  const bayX = taxiX - 3.8;
+  for (const x of [bayX - 2.4, bayX + 2.4])
+    b.box(x, 0.025, taxiZ - 0.02, 0.06, 0.03, 0.22, "#e2b937");
+  b.box(bayX, 0.025, taxiZ + 0.09, 4.86, 0.03, 0.06, "#e2b937")
+    .cylinder(taxiX, 0.9, taxiZ, 0.07, 1.8, "#435f62", 6)
+    .box(taxiX, 1.8, taxiZ, 1.4, 0.7, 0.08, "#e2b937");
+  return b;
+}
+
 function airport(b: Builder, curved = false) {
   const hall = "#ebe7dc",
     trim = "#d5cbb5",
     pane = "#6a9bb0";
   b.box(0, 0.06, -4, 37, 0.12, 31, "#a7aea9");
-  // Terminal hall with a glass curtain wall facing the city.
-  b.box(0, 1.6, 1, 17, 3.2, 7, hall).box(0, 1.55, 4.53, 16.4, 2.5, 0.08, pane);
-  for (let x = -7.8; x <= 7.8; x += 1.3) b.box(x, 1.55, 4.6, 0.09, 2.5, 0.08, trim);
-  b.box(0, 3.25, 4.6, 17.4, 0.18, 0.4, trim);
+  b.box(0, 1.6, 1, 17, 3.2, 7, hall);
+  terminalFront(b, { z: 4.53, width: 17, height: 3.2 });
   if (curved) {
     // Two vaulted shells, the classic winged terminal roof.
     for (const x of [-4.2, 4.2]) {
@@ -130,10 +206,6 @@ function airport(b: Builder, curved = false) {
     b.box(0, 3.5, 1, 18.4, 0.35, 8.4, "#f2eee4");
     for (let x = -8; x <= 8; x += 4) b.box(x, 3.75, 1, 2.2, 0.25, 6, "#cfd9d6");
   }
-  // Landside canopy over the drop-off kerb.
-  b.box(0, 2.6, 6.6, 15, 0.16, 2.6, "#d9e3e1");
-  for (const x of [-6.5, -2, 2, 6.5]) b.cylinder(x, 1.3, 7.6, 0.08, 2.6, "#9aa7a6", 8);
-  b.box(0, 0.08, 7.4, 17, 0.06, 3, "#7d8784");
   // Piers with glazed sides and jet bridges.
   for (const x of [-10, 0, 10]) {
     b.box(x, 0.9, -8, 2.6, 1.8, 11, hall);
@@ -150,10 +222,9 @@ function airport(b: Builder, curved = false) {
   plane(b, 5, -11.2, -Math.PI / 2, "#d4774f");
   plane(b, 15, -6.3, -Math.PI / 2, "#5aa587");
   plane(b, -15, -11.2, Math.PI / 2, "#c95f6f");
-  for (const z of [-19, 15]) {
-    b.box(0, 0.08, z, 37, 0.15, 2.6, "#5b6670");
-    for (let x = -16; x < 17; x += 3) b.box(x, 0.18, z, 1, 0.04, 0.12, "#f4f2ea");
-  }
+  b.box(0, 0.08, -19, 37, 0.15, 2.6, "#5b6670");
+  for (let x = -16; x < 17; x += 3)
+    b.box(x, 0.18, -19, 1, 0.04, 0.12, "#f4f2ea");
   b.cylinder(-15, 4, 3, 0.5, 8, "#d8d3c4", 10)
     .cylinder(-15, 8.3, 3, 1.4, 1.1, "#4f7b8f", 10, 1.6)
     .cylinder(-15, 8.95, 3, 1.75, 0.2, "#f0ece2", 10);

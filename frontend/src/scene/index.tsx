@@ -44,7 +44,13 @@ import {
   timeOfDay,
   setTimeOverride,
 } from "../lighting";
-import { SkyDome, SkyEnvironment, WorldLights, RangeFog } from "./world-lighting";
+import {
+  SkyDome,
+  SkyEnvironment,
+  WorldLights,
+  RangeFog,
+  shadowFocus,
+} from "./world-lighting";
 import { useGrassMaterial } from "./ground-material";
 import { useEffectiveQuality } from "./render-quality";
 import { CameraOcclusion } from "./camera-occlusion";
@@ -102,6 +108,7 @@ declare global {
         dpr: number;
       };
       hidePins: (hidden: boolean) => void;
+      drawBreakdown: () => Record<string, number>;
       screenPoint: (
         x: number,
         y: number,
@@ -269,6 +276,8 @@ function useFarAssets() {
   return ready;
 }
 function Architecture({ city }: { city: CityId }) {
+  const ref = useRef<THREE.Group>(null),
+    shadowScan = useRef({ version: -1, objectCount: -1 });
   const buildings = useMemo(
     () =>
       Object.entries(sitesFor(city))
@@ -290,8 +299,67 @@ function Architecture({ city }: { city: CityId }) {
     [buildings],
   );
   const far = useFarAssets();
+  useFrame(({ gl }) => {
+    const root = ref.current;
+    if (!root) return;
+    let objectCount = 0;
+    root.traverse(() => objectCount++);
+    if (
+      shadowScan.current.version === shadowFocus.version &&
+      shadowScan.current.objectCount === objectCount
+    )
+      return;
+    shadowScan.current.version = shadowFocus.version;
+    shadowScan.current.objectCount = objectCount;
+    root.updateMatrixWorld(true);
+    let changed = false;
+    for (const child of root.children) {
+      let childCount = 0;
+      child.traverse(() => childCount++);
+      const bounds =
+        (child.userData.shadowFocusBounds as THREE.Box3 | undefined) ??
+        (child.userData.shadowFocusBounds = new THREE.Box3());
+      if (
+        bounds.isEmpty() ||
+        child.userData.shadowFocusObjectCount !== childCount
+      ) {
+        bounds.setFromObject(child);
+        child.userData.shadowFocusObjectCount = childCount;
+      }
+      child.traverse((object) => {
+        if (!(object instanceof THREE.Mesh)) return;
+        if (object.userData.shadowFocusOriginalCastShadow === undefined)
+          object.userData.shadowFocusOriginalCastShadow = object.castShadow;
+        const meshBounds =
+          (object.userData.shadowFocusBounds as THREE.Box3 | undefined) ??
+          (object.userData.shadowFocusBounds = new THREE.Box3());
+        if (meshBounds.isEmpty()) meshBounds.setFromObject(object);
+        const dx = Math.max(
+            meshBounds.min.x - shadowFocus.x,
+            0,
+            shadowFocus.x - meshBounds.max.x,
+          ),
+          dz = Math.max(
+            meshBounds.min.z - shadowFocus.z,
+            0,
+            shadowFocus.z - meshBounds.max.z,
+          ),
+          near =
+            Math.hypot(dx, dz) <
+            shadowFocus.radius + (meshBounds.max.y - meshBounds.min.y) * 3,
+          castShadow =
+            object.userData.shadowFocusOriginalCastShadow &&
+            (!shadowFocus.follow || near);
+        if (object.castShadow !== castShadow) {
+          object.castShadow = castShadow;
+          changed = true;
+        }
+      });
+    }
+    if (changed) gl.shadowMap.needsUpdate = true;
+  });
   return (
-    <group>
+    <group ref={ref}>
       {city === "atl" && far && (
         <Suspense fallback={null}>
           <AtlantaSkyline />
@@ -1115,6 +1183,27 @@ function City({
         scene.userData.shadowMode = mode ?? undefined;
       },
       hidePins: setPinsHidden,
+      drawBreakdown: () => {
+        // Draw calls per top-level group for one frame, with the shadow pass forced on.
+        const counts: Record<string, number> = {},
+          direct = gl.renderBufferDirect;
+        const label = (o: THREE.Object3D) => {
+          const path: string[] = [];
+          for (let p: THREE.Object3D | null = o; p && p !== scene; p = p.parent)
+            if (p.name) path.unshift(p.name);
+          return path.slice(0, 2).join("/") || o.type;
+        };
+        gl.renderBufferDirect = (cam, sc, geometry, material, object, group) => {
+          const key = `${cam === camera ? "" : "shadow:"}${label(object)}`;
+          counts[key] = (counts[key] ?? 0) + 1;
+          direct.call(gl, cam, sc, geometry, material, object, group);
+        };
+        gl.shadowMap.needsUpdate = true;
+        gl.render(scene, camera);
+        gl.renderBufferDirect = direct;
+        counts.total = gl.info.render.calls;
+        return counts;
+      },
       screenPoint: (x, y, z) => {
         const v = new THREE.Vector3(x, y, z).project(camera);
         return {

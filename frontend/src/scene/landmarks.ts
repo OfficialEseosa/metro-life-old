@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Builder } from "./geometry";
 import { busStationGeometry } from "./bus-station";
+import { terminalFront } from "./metropolitan-models";
 
 const stone = "#e5d9bd",
   brick = "#a65c43",
@@ -666,12 +667,13 @@ export function landmarkGeometry(id: string) {
     }
     case "atlAirport": {
       b.box(0, 0.14, 0, 40, 0.2, 22, "#a3aca1");
-      for (const z of [-9, 9]) {
-        b.box(0, 0.28, z, 40, 0.08, 2, "#65726e");
-        for (let x = -18; x < 19; x += 3)
-          b.box(x, 0.34, z, 1.4, 0.02, 0.08, white);
-      }
+      b.box(0, 0.28, -9, 40, 0.08, 2, "#65726e");
+      for (let x = -18; x < 19; x += 3)
+        b.box(x, 0.34, -9, 1.4, 0.02, 0.08, white);
       b.box(0, 1, 0, 35, 2, 2.5, "#e0ded2");
+      b.box(0, 1.5, 3.1, 10, 3, 4.5, "#e0ded2")
+        .box(0, 1.7, 7, 30, 3.4, 4, "#e0ded2");
+      terminalFront(b, { z: 9, width: 30, height: 3.4 });
       for (let x = -15; x <= 15; x += 5) {
         b.box(x, 0.85, 0, 2, 1.7, 14, white);
         for (let z = -5; z <= 5; z += 2)
