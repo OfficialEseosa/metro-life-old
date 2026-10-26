@@ -89,8 +89,10 @@ export function CameraOcclusion() {
             shader.uniforms.metroFadeMin = { value: box.min.clone() };
             shader.uniforms.metroFadeMax = { value: box.max.clone() };
             shader.uniforms.metroFadeSurface = surface;
+            // Thin signage drops out whole; anything bigger opens a clean hole around the player.
+            shader.uniforms.metroFadeWhole = { value: pad > 0 ? 1 : 0 };
             shader.vertexShader =
-              "uniform vec4 metroFadeTarget;varying vec3 vMetroLocalCamera;varying vec3 vMetroLocalTarget;\n" +
+              "uniform vec4 metroFadeTarget;varying vec3 vMetroLocalCamera;varying vec3 vMetroLocalTarget;varying vec3 vMetroWorld;\n" +
               shader.vertexShader;
             shader.vertexShader = shader.vertexShader.replace(
               "#include <project_vertex>",
@@ -99,6 +101,7 @@ export function CameraOcclusion() {
        #ifdef USE_INSTANCING
        metroModel=modelMatrix*instanceMatrix;
        #endif
+       vMetroWorld=(metroModel*vec4(transformed,1.)).xyz;
        vec3 metroCameraDelta=cameraPosition-metroModel[3].xyz;
        vec3 metroTargetDelta=metroFadeTarget.xyz-metroModel[3].xyz;
        vec3 metroScaleSquared=vec3(dot(metroModel[0].xyz,metroModel[0].xyz),dot(metroModel[1].xyz,metroModel[1].xyz),dot(metroModel[2].xyz,metroModel[2].xyz));
@@ -106,7 +109,7 @@ export function CameraOcclusion() {
        vMetroLocalTarget=vec3(dot(metroTargetDelta,metroModel[0].xyz),dot(metroTargetDelta,metroModel[1].xyz),dot(metroTargetDelta,metroModel[2].xyz))/metroScaleSquared;`,
             );
             shader.fragmentShader =
-              "uniform vec4 metroFadeTarget;uniform float metroFadeSurface;uniform vec3 metroFadeMin;uniform vec3 metroFadeMax;varying vec3 vMetroLocalCamera;varying vec3 vMetroLocalTarget;\n" +
+              "uniform vec4 metroFadeTarget;uniform float metroFadeSurface;uniform float metroFadeWhole;uniform vec3 metroFadeMin;uniform vec3 metroFadeMax;varying vec3 vMetroLocalCamera;varying vec3 vMetroLocalTarget;varying vec3 vMetroWorld;\n" +
               shader.fragmentShader;
             shader.fragmentShader = shader.fragmentShader.replace(
               "#include <dithering_fragment>",
@@ -121,12 +124,18 @@ export function CameraOcclusion() {
         float metroFar=min(metroHigh.x,min(metroHigh.y,metroHigh.z));
         float metroEnd=1.-1.2/max(length(metroFadeTarget.xyz-cameraPosition),.001);
         float metroFade=step(max(metroNear,0.),metroFar)*step(metroNear,metroEnd);
-        float metroPattern=fract(dot(floor(gl_FragCoord.xy),vec2(.754877666,.569840296)));
-        if(metroPattern<metroFade*.82)discard;
+        if(metroFade>.5){
+         if(metroFadeWhole>.5)discard;
+         vec3 metroAxis=metroFadeTarget.xyz-cameraPosition;
+         float metroLength=max(length(metroAxis),.001);
+         vec3 metroRelative=vMetroWorld-cameraPosition;
+         float metroAlong=dot(metroRelative,metroAxis/metroLength);
+         if(vMetroWorld.y>metroFadeTarget.y-.85&&metroAlong<metroLength-1.2&&length(metroRelative-metroAxis*(metroAlong/metroLength))<2.6)discard;
+        }
        }`,
             );
           };
-          material.customProgramCacheKey = () => key + "-metro-camera-fade-v4";
+          material.customProgramCacheKey = () => key + "-metro-camera-fade-v6";
           material.needsUpdate = true;
           return material;
         });
@@ -145,8 +154,8 @@ export function CameraOcclusion() {
       scene.userData.cameraOcclusion = {
         ...scene.userData.cameraOcclusion,
         meshes: owned.size,
-        method: "dither",
-        remainingOpacity: 0.18,
+        method: "cutout",
+        remainingOpacity: 0,
       };
       invalidate();
     };

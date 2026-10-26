@@ -952,10 +952,10 @@ export function bayGeometry(id: string) {
       break;
     }
     case "oraclePark":
-      ballpark(b, 20);
-      b.box(0, 2, 10, 20, 4, 0.8, brick);
-      for (let x = -9; x < 10; x += 1.5)
-        arch(b, x, 0, 10.5, 1.2, 3, 0.4, stone);
+      ballpark(b, 17);
+      b.box(0, 2, 8.5, 17, 4, 0.8, brick);
+      for (let x = -7.5; x < 8.5; x += 1.5)
+        arch(b, x, 0, 9, 1.2, 3, 0.4, stone);
       break;
     case "sfChinatown":
       return nycGeometry("sfChinatown");

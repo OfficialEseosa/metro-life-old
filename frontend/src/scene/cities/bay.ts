@@ -12,7 +12,7 @@ export const baySites: Record<string, Site> = {
   missionEats: { x: -22, z: 32, size: 13, height: 4 },
   paintedLadies: { x: -48, z: 10, size: 20, height: 7 },
   chaseCenter: { x: -5, z: 39, size: 16, height: 7 },
-  oraclePark: { x: 9, z: 25, size: 22, height: 7 },
+  oraclePark: { x: 12, z: 25, size: 19, height: 7 },
   sfChinatown: { x: -25, z: -13, size: 11, height: 7 },
   sfCityHall: { x: -24, z: 9, size: 30, height: 19 },
   fillmore: { x: -48, z: -13, size: 11, height: 6 },

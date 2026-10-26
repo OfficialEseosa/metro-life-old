@@ -80,6 +80,24 @@ final class Navigation {
     return data.path("cities").path(city);
   }
 
+  /** A pier door stands out over the water: the few metres back to shore stay walkable. */
+  boolean offshore(String city, double x, double z) {
+    for (JsonNode d : city(city).path("doors")) {
+      double dx = d.path("x").asDouble(),
+        dz = d.path("z").asDouble();
+      if (Math.hypot(x - dx, z - dz) < 7 && afloat(city, dx, dz)) return true;
+    }
+    return false;
+  }
+
+  boolean afloat(String city, double x, double z) {
+    JsonNode n = city(city);
+    for (JsonNode p : n.path("water")) if (polygon(x, z, p)) return true;
+    for (JsonNode p : n.path("land")) if (polygon(x, z, p)) return false;
+    for (JsonNode b : n.path("bridges")) if (box(x, z, b, -.35)) return false;
+    return true;
+  }
+
   JsonNode door(ObjectNode s, String place) {
     if (place.equals("home") && s.has("_visitingHome")) {
       ObjectNode host = g.homeDesign.owner("home:" + s.path("_visitingHome").asText());
@@ -166,6 +184,8 @@ final class Navigation {
       arrivals.put(arrivalKey(actor), g.now() + 12000);
       return desired;
     }
+    String city = actor.path("city").asText();
+    boolean standable = stand(city, x, z, room);
     for (int ring = 1; ring <= (room.isEmpty() ? 3 : 6); ring++) {
       double radius = ring;
       int count = 8 * ring;
@@ -177,11 +197,17 @@ final class Navigation {
       for (double angle : angles) {
         double px = x + Math.sin(angle) * radius,
           pz = z + Math.cos(angle) * radius;
+        if (stand(city, px, pz, room)) standable = true;
         if (freeSpot(actor, px, pz, room)) {
           arrivals.put(arrivalKey(actor), g.now() + 12000);
           return desired.put("x", px).put("z", pz);
         }
       }
+    }
+    // A door drawn out over the water (a pier) has no surveyed ground nearby: people still arrive at it.
+    if (!standable) {
+      arrivals.put(arrivalKey(actor), g.now() + 12000);
+      return desired;
     }
     throw new ApiException(409, "This entrance is busy. Wait for someone to move.");
   }
@@ -790,13 +816,12 @@ final class Navigation {
       int steps = Math.max(1, (int) Math.ceil(Math.hypot(to[0] - from[0], to[1] - from[1]) / .15));
       for (int i = 1; i <= steps; i++) {
         double t = (double) i / steps;
+        String city = s.path("city").asText(),
+          room = p.path("room").asText("");
+        double px = from[0] + (to[0] - from[0]) * t,
+          pz = from[1] + (to[1] - from[1]) * t;
         GameService.require(
-          stand(
-            s.path("city").asText(),
-            from[0] + (to[0] - from[0]) * t,
-            from[1] + (to[1] - from[1]) * t,
-            p.path("room").asText("")
-          ),
+          stand(city, px, pz, room) || (room.isEmpty() && offshore(city, px, pz)),
           409,
           "The path is blocked"
         );
