@@ -14,7 +14,7 @@ npx playwright test b-resume          # one journey
 ```
 
 - The API runs on `127.0.0.1:8090` with a fresh save in `e2e/output/metro-e2e.json`. If something already answers on 8090 it is reused, and journey d simulates the outage in the browser instead of stopping the server.
-- The Vite dev server runs on `127.0.0.1:5190` with `VITE_API_URL=http://127.0.0.1:8090` (reused if already running; set `E2E_EXTERNAL_FRONT=1` to never start it).
+- The Vite dev server runs on `127.0.0.1:5190` with `VITE_API_URL=http://127.0.0.1:8090` (reused if already running; set `E2E_EXTERNAL_FRONT=1` to never start it). Global setup then loads the title once and waits, so a cold dependency cache reloads the page before journey a rather than during it.
 - To run beside another copy, move both ports and the save: `E2E_API=http://127.0.0.1:8093 E2E_FRONT=http://127.0.0.1:5193/ E2E_DATA=/tmp/metro-e2e-2.json npx playwright test`. The API and Vite are started on the ports in those URLs.
 - Use the Playwright browsers already installed on the machine; the package pins `@playwright/test` to the same version.
 - Screenshots go to `e2e/output/shots` (`E2E_SHOTS` to change), the HTML report to `e2e/output/report`. Both are ignored by git.
