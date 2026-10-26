@@ -15,7 +15,7 @@
       "airport": "nycAirport"
     },
     "bay": {
-      "bus": { "id": "bayBus", "name": "Transbay Bus Station", "x": -53, "z": 25.2, "site": { "x": -53, "z": 22, "size": 10, "height": 3.8 } },
+      "bus": { "id": "bayBus", "name": "Transbay Bus Station", "x": -60, "z": -28.8, "site": { "x": -60, "z": -32, "size": 10, "height": 3.8 } },
       "airport": "bayAirport"
     }
   }

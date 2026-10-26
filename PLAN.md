@@ -4,6 +4,12 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 12:
+  - Six invisible walls were left where filler buildings had been cleared from door views, so the camera still swung side-on at Eastbay University, Hudson University, Waterfront Foundry and Mission Kitchen Row. They are gone, and those doors show from the front.
+  - Where the view straight behind the player is blocked, the camera now tries a slight angle before a wide one, so fewer signs are read edge-on.
+  - Bay Civic House's collision box ran 4.5 m past the back of City Hall. It now matches the building.
+  - Beside UCSF, the Transbay bus station stood in Pastel Row's camera view, and its sign filled the corner of the screen. The station now stands on open ground near the Golden Gate approach, and its walkway, plaza and resident routes moved with it.
+  - Street lamps no longer stand in a door's camera view or on a landmark's footprint. One lamp stood in the middle of the bus station's forecourt and cut through its sign.
 - Fixed in loop round 11:
   - At Hudson General (Presbyterian) the Met's collision box ran 6 m past the museum's back wall and stopped 3 m from the hospital door, so the camera looked down from above. The Met and Grand Central boxes now match their buildings. The hospital moved 1.5 m west, out of Northside Ballpark's camera view. Hudson General, Fifth Promenade and the Met now show from the front.
   - Northside Ballpark's stands reached past its own gate, so the player stood inside the wall and the sign was edge-on. The ballpark is now sized to its collision box, and the sign reads on laptop and phone.

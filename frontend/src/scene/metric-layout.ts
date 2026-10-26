@@ -130,6 +130,7 @@ export function fitMetricGroups(
           ),
       );
   }
+  const doors = Object.values(n.doors);
   result["kaykit/streetlight.gltf"] = roads
     .filter((_, i) => i % 5 === 0)
     .map((p) =>
@@ -141,6 +142,14 @@ export function fitMetricGroups(
         angle: p.angle + Math.PI / 2,
         pitch: 0,
       }),
+    )
+    // A lamp post in the street camera's view at a door cuts through its sign.
+    .filter(
+      (p) =>
+        !reserved(p.x, p.z, 0.5) &&
+        !doors.some(
+          (d) => Math.abs(p.x - d.x) < 3.5 && p.z - d.z > -1 && p.z - d.z < 15,
+        ),
     );
   // Street dressing between the lamps: a bench, a planter or bush and a hydrant
   // per stretch of sidewalk, on the kerb side so the walking lane stays clear.

@@ -631,6 +631,8 @@ export function Walking({
         // Prefer looking down over the player's shoulder from closer in to swinging side-on.
         for (const [angle, pull] of [
           [0, 1],
+          [0.35, 1],
+          [-0.35, 1],
           [0.7, 1],
           [-0.7, 1],
           [0, 0.65],
