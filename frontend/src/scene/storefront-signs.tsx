@@ -110,29 +110,35 @@ function AirportWayfinding({
     curbZ = Math.min(canopyFront + 0.3, 9.65),
     taxiZ = Math.min(curbZ + 0.2, 9.84),
     taxiX = width / 2 + 1.2,
-    canopySignZ = canopyFront + 0.04;
+    canopySignZ = canopyFront + 0.03;
   return (
     <group name={`airport-wayfinding:${id}`} position={[x, 0, z]}>
       <WorldText
         position={[-width * 0.25, 3.2, canopySignZ]}
-        fontSize={0.42}
+        fontSize={0.34}
         maxWidth={4.5}
+        outlineColor="#435f62"
+        anchorY="middle"
       >
         Departures
       </WorldText>
       <WorldText
         position={[width * 0.25, 3.2, canopySignZ]}
-        fontSize={0.42}
+        fontSize={0.34}
         maxWidth={4.5}
+        outlineColor="#435f62"
+        anchorY="middle"
       >
         Arrivals
       </WorldText>
       <WorldText
-        position={[taxiX, 1.8, taxiZ + 0.06]}
-        fontSize={0.36}
+        position={[taxiX, 1.8, taxiZ + 0.07]}
+        rotation={[0, 0, 0]}
+        fontSize={0.3}
         maxWidth={1.2}
         color="#2c3f3b"
         outlineColor="#fff7ea"
+        anchorY="middle"
       >
         Taxi
       </WorldText>

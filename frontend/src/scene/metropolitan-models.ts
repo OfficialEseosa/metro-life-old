@@ -156,7 +156,7 @@ export function terminalFront(
     3.2,
     canopyFront - 0.06,
     width + 1.2,
-    0.48,
+    0.6,
     0.12,
     "#435f62",
   );
