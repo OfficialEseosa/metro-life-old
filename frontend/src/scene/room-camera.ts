@@ -82,7 +82,7 @@ export function roomView(
  */
 export function streetView(width: number) {
   return width < 700
-    ? { distance: 14.5, height: 8, targetY: 1.1, lookAhead: 1.5 }
+    ? { distance: 14.5, height: 8, targetY: 2.3, lookAhead: 1.5 }
     : { distance: 13, height: 7.4, targetY: 1, lookAhead: 1.4 };
 }
 

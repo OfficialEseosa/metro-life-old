@@ -4,6 +4,8 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 4:
+  - On phones the event chip covered the venue sign whenever the player stood at a door (Uptown Green, Concord Terminal, East River Bridge, Harbor International). The phone street camera now looks a little higher, so the sign sits below the chip and the player stays clear of the bottom bar.
 - Fixed in loop round 3:
   - Once a tall building swung the street camera side-on, it stayed there. It now returns behind the player when that view is clear. Where a building blocks it, the camera first moves closer and higher from the front, and only swings to the side if that is blocked too. High Museum now gets a front view. The Ferry Building, Georgia Tech and a few New York and Bay doors still have no clear front view, so the camera there stays side-on.
   - Resident name plates keep clear of venue signs, so they no longer cover the name of the place.
