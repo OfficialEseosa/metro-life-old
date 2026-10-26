@@ -34,6 +34,7 @@ Rules that matter on every host:
 
 - **Exactly one instance.** The save file has a single writer and sessions and sockets live in memory. Disable autoscaling and zero-downtime overlap if the host offers them.
 - **A persistent volume at `/data`.** Without it every redeploy starts a new city.
+- **Volume ownership.** A mounted volume usually arrives owned by root. The image starts as root only to `chown` the `/data` directory (the folder of `METRO_DATA`) to its unprivileged `metro` user, then drops to that user before starting Java (`backend/docker-entrypoint.sh`). Nothing to configure on Fly, Render or Koyeb; if you override the entrypoint, make the data directory writable yourself.
 - **HTTPS in front.** Hosts terminate TLS and forward `X-Forwarded-*`; the server trusts those headers, so cookies are marked `Secure` and cross-site cookies work.
 - Health check path: `GET /api/version`.
 - The server stops gracefully (up to 10 s) and saves on shutdown.

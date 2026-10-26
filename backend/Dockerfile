@@ -21,12 +21,15 @@ RUN apt-get update \
  && useradd --system --uid 10001 metro \
  && mkdir -p /data \
  && chown metro /data
-USER metro
 WORKDIR /app
 COPY --from=build /app.jar /app/app.jar
+COPY backend/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 ENV METRO_DATA=/data/metro-life.json \
     JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -Djava.awt.headless=true"
 VOLUME ["/data"]
 # The server listens on $PORT when the host sets it, otherwise 8080. Health check: GET /api/version.
 EXPOSE 8080
+# The entrypoint runs as root only long enough to chown the mounted /data, then drops to the `metro` user.
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["java", "-jar", "/app/app.jar"]
