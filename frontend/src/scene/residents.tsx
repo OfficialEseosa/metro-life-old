@@ -88,16 +88,16 @@ function crowdFigure() {
   hair.rotateX(-0.42);
   add(hair, 1, 0, [0, 1.64, -0.012], [0.96, 1.08, 1.04]);
   add(new THREE.SphereGeometry(1, 6, 3), 1, 0, [0, 1.704, 0.085], [0.058, 0.018, 0.022]);
-  add(new THREE.SphereGeometry(1, 6, 3), 6, 0, [-0.04, 1.625, 0.091], [0.026, 0.022, 0.009]);
-  add(new THREE.SphereGeometry(1, 6, 3), 6, 0, [0.04, 1.625, 0.091], [0.026, 0.022, 0.009]);
-  add(new THREE.SphereGeometry(1, 6, 3), 5, 0, [-0.04, 1.625, 0.108], [0.014, 0.016, 0.012]);
-  add(new THREE.SphereGeometry(1, 6, 3), 5, 0, [0.04, 1.625, 0.108], [0.014, 0.016, 0.012]);
+  add(new THREE.SphereGeometry(1, 6, 3), 6, 0, [-0.04, 1.625, 0.106], [0.026, 0.022, 0.009]);
+  add(new THREE.SphereGeometry(1, 6, 3), 6, 0, [0.04, 1.625, 0.106], [0.026, 0.022, 0.009]);
+  add(new THREE.SphereGeometry(1, 6, 3), 5, 0, [-0.04, 1.625, 0.114], [0.014, 0.016, 0.012]);
+  add(new THREE.SphereGeometry(1, 6, 3), 5, 0, [0.04, 1.625, 0.114], [0.014, 0.016, 0.012]);
   for (const side of [-1, 1])
     add(
-      new THREE.BoxGeometry(0.05, 0.008, 0.009),
+      new THREE.BoxGeometry(0.05, 0.008, 0.012),
       5,
       0,
-      [side * 0.04, 1.663, 0.09],
+      [side * 0.04, 1.663, 0.101],
       [1, 1, 1],
       side * 0.08,
     );
@@ -110,10 +110,11 @@ function crowdFigure() {
   add(collar, 7, 0, [0, 1.45, 0]);
   add(new THREE.CapsuleGeometry(0.145, 0.26, 2, 8), 2, 0, [0, 1.21, 0], [1, 1, 0.68]);
   add(
-    new THREE.CylinderGeometry(0.145, 0.145, 0.015, 6, 1, true),
+    new THREE.CylinderGeometry(0.15, 0.15, 0.015, 6, 1, true),
     7,
     0,
     [0, 1.02, 0],
+    [1, 1, 0.72],
   );
   add(new THREE.CapsuleGeometry(0.135, 0.06, 1, 8), 3, 0, [0, 0.96, 0], [1, 1, 0.72]);
   for (const side of [-1, 1]) {
