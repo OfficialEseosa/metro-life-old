@@ -56,6 +56,7 @@ function Fascia({
   const ref = useRef<THREE.Group>(null),
     placed = useRef(false),
     scene = useThree((s) => s.scene),
+    size = useThree((s) => s.size),
     signPoint = useMemo(() => new THREE.Vector3(), []),
     title = name.trim();
   useFrame(({ camera }) => {
@@ -65,7 +66,9 @@ function Fascia({
       placed.current = true;
     }
     signPoint.set(door.x, ref.current.position.y + 3.15, door.z + 0.4);
-    ref.current.visible = !!title && camera.position.distanceTo(signPoint) < 62;
+    ref.current.visible =
+      !!title &&
+      camera.position.distanceTo(signPoint) < (size.width < 700 ? 40 : 62);
   });
   if (!title) return null;
   return (
@@ -104,28 +107,33 @@ function AirportWayfinding({
   x: number;
   z: number;
 }) {
+  const size = useThree((s) => s.size),
+    distance = size.width < 700 ? 40 : 62;
   const width = city === "atl" ? 30 : 17,
     faceZ = city === "atl" ? 9 : 4.53,
     canopyFront = Math.min(faceZ + 3, 9.7),
     curbZ = Math.min(canopyFront + 0.3, 9.65),
     taxiZ = Math.min(curbZ + 0.2, 9.84),
     taxiX = width / 2 + 1.2,
-    canopySignZ = canopyFront + 0.03;
+    canopySignZ = canopyFront + 0.03,
+    signOffset = 1.4;
   return (
     <group name={`airport-wayfinding:${id}`} position={[x, 0, z]}>
       <WorldText
-        position={[-width * 0.25, 3.2, canopySignZ]}
-        fontSize={0.34}
+        position={[-signOffset, 3.2, canopySignZ]}
+        fontSize={0.3}
         maxWidth={4.5}
+        distance={distance}
         outlineColor="#435f62"
         anchorY="middle"
       >
         Departures
       </WorldText>
       <WorldText
-        position={[width * 0.25, 3.2, canopySignZ]}
-        fontSize={0.34}
+        position={[signOffset, 3.2, canopySignZ]}
+        fontSize={0.3}
         maxWidth={4.5}
+        distance={distance}
         outlineColor="#435f62"
         anchorY="middle"
       >
@@ -136,6 +144,7 @@ function AirportWayfinding({
         rotation={[0, 0, 0]}
         fontSize={0.3}
         maxWidth={1.2}
+        distance={distance}
         color="#2c3f3b"
         outlineColor="#fff7ea"
         anchorY="middle"
