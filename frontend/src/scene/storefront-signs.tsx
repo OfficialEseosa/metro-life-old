@@ -81,6 +81,7 @@ function Fascia({
         position={[0, 3.15, 0]}
         geometry={fasciaGeometry}
         raycast={() => {}}
+        userData={{ cameraOccluder: true, cameraOccluderPad: 0.7 }}
       >
         <meshStandardMaterial vertexColors roughness={0.7} />
       </mesh>

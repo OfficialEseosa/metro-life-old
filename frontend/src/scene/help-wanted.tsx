@@ -23,18 +23,18 @@ function HiringSign({
     ref.current.position.y = groundHeight(
       scene,
       city,
-      door.x + 1.3,
+      door.x + 4.1,
       door.z + 0.25,
     );
     placed.current = true;
   });
   return (
-    <group ref={ref} position={[door.x + 1.3, 0, door.z + 0.25]}>
-      <mesh position={[0, 0.65, -0.04]}>
+    <group ref={ref} position={[door.x + 4.1, 0, door.z + 0.25]}>
+      <mesh position={[0, 0.65, -0.04]} userData={{ cameraOccluder: true, cameraOccluderPad: 0.7 }}>
         <boxGeometry args={[0.07, 1.3, 0.07]} />
         <meshStandardMaterial color="#674c3e" />
       </mesh>
-      <mesh position={[0, 1.45, 0]}>
+      <mesh position={[0, 1.45, 0]} userData={{ cameraOccluder: true, cameraOccluderPad: 0.7 }}>
         <boxGeometry args={[2.2, 0.85, 0.1]} />
         <meshStandardMaterial color="#f5e6ca" />
       </mesh>

@@ -19,6 +19,7 @@ export function CameraOcclusion() {
         materials: THREE.Material[];
         surface: { value: number };
         box: THREE.Box3;
+        loose: boolean;
       }
     >();
     const raycaster = new THREE.Raycaster(),
@@ -27,6 +28,7 @@ export function CameraOcclusion() {
       direction = new THREE.Vector3(),
       worldBox = new THREE.Box3(),
       boxHit = new THREE.Vector3(),
+      probe = new THREE.Vector3(),
       hits: THREE.Intersection[] = [];
     const lastCamera = new THREE.Matrix4(),
       lastTarget = new THREE.Vector4();
@@ -44,14 +46,17 @@ export function CameraOcclusion() {
       scene.traverse((object) => {
         if (!(object instanceof THREE.Mesh) || owned.has(object)) return;
         let parent: THREE.Object3D | null = object,
-          scenery = false;
+          scenery = false,
+          pad = 0;
         while (parent) {
           if (
             (parent.name.startsWith("kit:") &&
               /building|tree-|painted-row/.test(parent.name)) ||
             parent.userData.cameraOccluder
-          )
+          ) {
             scenery = true;
+            pad = Math.max(pad, parent.userData.cameraOccluderPad ?? 0);
+          }
           if (
             parent.name === "controlled-player" ||
             parent.name.startsWith("room-")
@@ -63,7 +68,8 @@ export function CameraOcclusion() {
         const geometry = object.geometry;
         geometry.computeBoundingSphere();
         geometry.computeBoundingBox();
-        const box = geometry.boundingBox!;
+        // Thin signage fades whenever the view passes near it, not only through it.
+        const box = geometry.boundingBox!.clone().expandByScalar(pad);
         // A merged landmark can contain an open courtyard/entrance inside its
         // bounds. Its real triangles must block the player before we fade it.
         // Repeated kit instances retain the inexpensive per-instance slab test.
@@ -129,6 +135,7 @@ export function CameraOcclusion() {
           materials,
           surface,
           box: box.clone(),
+          loose: pad > 0,
         });
         object.material = Array.isArray(object.material)
           ? materials
@@ -195,6 +202,28 @@ export function CameraOcclusion() {
           continue;
         hits.length = 0;
         tests++;
+        if (entry.loose) {
+          // Thin posts and boards hide a figure without crossing its centre line,
+          // so probe the head, chest and feet on both shoulders.
+          for (const lift of [-0.6, 0, 0.7])
+            for (const side of [-0.3, 0, 0.3]) {
+              if (hits.length) break;
+              probe
+                .set(-direction.z, 0, direction.x)
+                .multiplyScalar(side)
+                .add(end);
+              probe.y += lift;
+              const reach = probe.distanceTo(origin);
+              raycaster.set(origin, probe.sub(origin).divideScalar(reach));
+              raycaster.far = Math.max(0, reach - 0.3);
+              THREE.Mesh.prototype.raycast.call(object, raycaster, hits);
+            }
+          raycaster.set(origin, direction);
+          raycaster.far = Math.max(0, distance - 1.2);
+          entry.surface.value = hits.length ? 1 : 0;
+          confirmed += entry.surface.value;
+          continue;
+        }
         // Scenery deliberately disables interaction picking; this internal check
         // calls Three's geometry raycast directly without changing input behavior.
         THREE.Mesh.prototype.raycast.call(object, raycaster, hits);
