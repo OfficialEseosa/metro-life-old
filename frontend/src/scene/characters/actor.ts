@@ -1380,8 +1380,8 @@ export class CharacterActor {
         flex = Math.sin(Math.PI * progress);
       lag = this.stepFrom * (1 - smooth);
       this.footYaw = heading + lag;
-      this.bend("UpperLeg" + this.stepSide, 0.45 * flex);
-      this.bend("LowerLeg" + this.stepSide, -0.8 * flex);
+      this.bend("UpperLeg" + this.stepSide, -0.45 * flex);
+      this.bend("LowerLeg" + this.stepSide, 0.8 * flex);
     }
     this.anchor.rotation.y = lag;
     if (lag) {
