@@ -92,6 +92,8 @@ type State = {
   acting: boolean;
   ready: boolean;
   loadError: string | null;
+  /** The first load was refused because too many new lives are starting. */
+  loadLimited: boolean;
   // static content
   world: World | null;
   // session
@@ -609,6 +611,7 @@ export const useStore = create<State>((set, get) => {
     acting: false,
     ready: false,
     loadError: null,
+    loadLimited: false,
     world: null,
     user: null,
     worldInfo: null,
@@ -710,7 +713,7 @@ export const useStore = create<State>((set, get) => {
       loading = (async () => {
         try {
           const [world, stats] = await Promise.all([api.world(), api.stats()]);
-          set({ world, stats, loadError: null });
+          set({ world, stats, loadError: null, loadLimited: false });
           await api.guest();
           let me = await api.me();
           // The cookie did not stick (third-party cookies blocked): switch to the header session once.
@@ -733,6 +736,7 @@ export const useStore = create<State>((set, get) => {
           set({
             connection: "unreachable",
             loadError: loadFailureText(error),
+            loadLimited: error instanceof ApiError && error.status === 429,
           });
           scheduleRetry();
         } finally {

@@ -84,7 +84,8 @@ function StartFresh({
 export function ConnectionGate() {
   const connection = useStore((s) => s.connection),
     retryAt = useStore((s) => s.retryAt),
-    loadError = useStore((s) => s.loadError);
+    loadError = useStore((s) => s.loadError),
+    loadLimited = useStore((s) => s.loadLimited);
   const [startedAt] = useState(() => Date.now());
   const now = useTick(
     connection === "connecting" || connection === "unreachable",
@@ -139,17 +140,21 @@ export function ConnectionGate() {
     return (
       <Card
         icon={<CloudSlash size={34} weight="duotone" />}
-        title="The city is taking a breather"
+        title={loadLimited ? "The city is full of new arrivals" : "The city is taking a breather"}
       >
-        <p>
-          We cannot reach the Metro Life server right now. Your life is saved
-          {retryAt ? " and we will keep trying to reconnect" : ""}.
-        </p>
+        {loadLimited ? (
+          <p>{loadError}</p>
+        ) : (
+          <p>
+            We cannot reach the Metro Life server right now. Your life is saved
+            {retryAt ? " and we will keep trying to reconnect" : ""}.
+          </p>
+        )}
         {retryAt ? (
           <p className="connection-countdown" aria-live="off">
             {seconds > 0 ? `Trying again in ${seconds} s` : "Trying again…"}
           </p>
-        ) : loadError ? (
+        ) : loadError && !loadLimited ? (
           <p className="connection-countdown">{loadError}</p>
         ) : null}
         <div className="connection-actions">

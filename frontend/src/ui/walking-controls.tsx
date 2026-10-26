@@ -14,8 +14,8 @@ import {
   interact,
   type InteractionIntent,
 } from "../walking";
-import { nearbyBench, nearbyDoor, interiorType, roomType } from "../navigation";
-import { clearQueuedInteractions, useInteractions } from "../interactions";
+import { nearbyBench, nearbyDoor, interiorType, roomLayout, roomType } from "../navigation";
+import { clearQueuedInteractions, enqueueAction, useInteractions } from "../interactions";
 import { policyHours, actionReason, workCareNote } from "./action-rules";
 import { serverNow } from "../server-time";
 
@@ -323,6 +323,27 @@ export function ActionButton() {
     const act = async (event: Event) => {
       const s = useStore.getState(),
         p = motion.position;
+      // Back during an activity queues the walk out, as a door tap does.
+      if (
+        event.type === "metro-back" &&
+        s.sim?.busyUntil &&
+        !s.panel &&
+        !s.searchOpen &&
+        p?.room &&
+        !useInteractions.getState().waiting.some((task) => task.kind === "door" && !task.enter)
+      ) {
+        enqueueAction({
+          kind: "door",
+          label: "Leave building",
+          icon: "house",
+          city: s.sim.city,
+          room: p.room,
+          loc: p.place,
+          point: roomLayout(s.sim.city, roomType(p.room)!).exit,
+          enter: false,
+        });
+        return;
+      }
       if (
         s.panel ||
         s.searchOpen ||
