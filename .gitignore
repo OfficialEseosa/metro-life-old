@@ -14,10 +14,9 @@ frontend/.env.local
 frontend/.env.*.local
 .vercel/
 
-# Verification output stays outside git
+# Generated output and local tool downloads stay outside git
 /evidence/
-/audits/
-/verification/
+/.runtime/
 /screenshots/
 /shots/
 /e2e/output/
@@ -25,3 +24,8 @@ frontend/.env.*.local
 playwright-report/
 test-results/
 /game/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
