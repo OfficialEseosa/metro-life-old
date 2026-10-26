@@ -568,6 +568,11 @@ export class CharacterActor {
   /** World heading the feet are planted at while standing; the body lags the parent to it. */
   private footYaw = NaN;
   private stepUntil = 0;
+  private stepStart = 0;
+  private stepFrom = 0;
+  private stepSide: "L" | "R" = "L";
+  private nextStepSide: "L" | "R" = "L";
+  private stepsRemaining = 0;
   private lookYaw = 0;
   private lookPitch = 0;
   private lookWeight = 0;
@@ -723,6 +728,10 @@ export class CharacterActor {
       "UpperArmR",
       "LowerArmR",
       "WristR",
+      "UpperLegL",
+      "LowerLegL",
+      "UpperLegR",
+      "LowerLegR",
     ]) {
       const b = byName.get(bone);
       if (b) {
@@ -956,7 +965,13 @@ export class CharacterActor {
         .filter(([, l]) => l.weight > 0)
         .map(([n, l]) => n + ":" + l.weight.toFixed(2) + "@" + l.action.time.toFixed(2)),
     };
-    this.plantFeet(heading, pose === "Idle" && !moving && this.mode === "move", dt);
+    this.plantFeet(
+      heading,
+      !moving &&
+        !SEATED_POSES.has(pose) &&
+        !LYING.has(pose) &&
+        (this.mode === "move" || this.mode === "act"),
+    );
     this.lookToward(input.lookAt, pose, moving, dt);
     this.anchorHip(pose, input, dt);
     this.updateProps(pose);
@@ -975,13 +990,6 @@ export class CharacterActor {
         if (pool.length) p.idle = pool[Math.floor(this.random() * pool.length)];
       }
       targets[p.idle] = 1;
-      // Turning on the spot: one short step while the planted feet catch up with the body.
-      if (this.time < this.stepUntil) {
-        targets[p.idle] = 0.45;
-        targets[p.walk] = 0.55;
-        const layer = this.layer(p.walk);
-        if (layer) layer.action.timeScale = 1;
-      }
       this.setTargets(targets);
       return;
     }
@@ -1009,7 +1017,7 @@ export class CharacterActor {
       const layer = this.layer(name);
       if (layer) layer.action.timeScale = THREE.MathUtils.clamp(speed / natural, lo, hi);
     };
-    scale(p.walk, walk, 0.55, 1.45);
+    scale(p.walk, walk, 0.25, 1.45);
     scale("Jog", jog, 0.6, 1.5);
     scale(runClip, run, 0.6, 1.7);
     this.setTargets(targets);
@@ -1340,18 +1348,40 @@ export class CharacterActor {
    * Standing still, the feet stay where they are while the parent turns: the body lags behind,
    * the upper body twists toward the new heading, and one short step catches the feet up.
    */
-  private plantFeet(heading: number, standing: boolean, dt: number) {
-    if (!standing || Number.isNaN(this.footYaw)) this.footYaw = heading;
+  private plantFeet(heading: number, standing: boolean) {
+    if (!standing) {
+      this.footYaw = heading;
+      this.stepUntil = this.time;
+      this.stepsRemaining = 0;
+      this.anchor.rotation.y = 0;
+      return;
+    }
+    if (Number.isNaN(this.footYaw)) this.footYaw = heading;
     let lag = Math.atan2(Math.sin(this.footYaw - heading), Math.cos(this.footYaw - heading));
-    // A big turn steps at once; a small leftover settles once the parent has stopped turning.
-    if (
-      this.time >= this.stepUntil &&
-      (Math.abs(lag) > 0.55 || (Math.abs(lag) > 0.3 && this.turnRate < 0.2))
-    )
-      this.stepUntil = this.time + 0.45;
+    const wantsStep =
+      Math.abs(lag) > 0.55 || (Math.abs(lag) > 0.3 && this.turnRate < 0.2);
+    if (this.time >= this.stepUntil) {
+      if (!this.stepsRemaining && wantsStep) {
+        this.stepsRemaining = Math.abs(lag) > 1.3 ? 2 : 1;
+        this.nextStepSide = lag < 0 ? "L" : "R";
+      }
+      if (this.stepsRemaining) {
+        this.stepSide = this.nextStepSide;
+        this.nextStepSide = this.nextStepSide === "L" ? "R" : "L";
+        this.stepFrom = lag;
+        this.stepStart = this.time;
+        this.stepUntil = this.time + 0.4;
+        this.stepsRemaining--;
+      }
+    }
     if (this.time < this.stepUntil) {
-      lag *= Math.exp(-dt * 9);
+      const progress = THREE.MathUtils.clamp((this.time - this.stepStart) / 0.4, 0, 1),
+        smooth = progress * progress * (3 - 2 * progress),
+        flex = Math.sin(Math.PI * progress);
+      lag = this.stepFrom * (1 - smooth);
       this.footYaw = heading + lag;
+      this.bend("UpperLeg" + this.stepSide, 0.45 * flex);
+      this.bend("LowerLeg" + this.stepSide, -0.8 * flex);
     }
     this.anchor.rotation.y = lag;
     if (lag) {
