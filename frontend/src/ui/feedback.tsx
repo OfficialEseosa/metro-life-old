@@ -212,8 +212,9 @@ function describe(e: FeedbackEvent): Omit<Toast, "id" | "count" | "leaving"> {
         tone: "social",
         icon:
           kind === "gift" ? Gift : kind === "hangout" ? Handshake : HandWaving,
-        kicker:
-          kind === "gift"
+        kicker: !e.data?.social
+          ? "New friend"
+          : kind === "gift"
             ? "Gift sent"
             : kind === "hangout"
               ? "Hanging out"
