@@ -4,6 +4,10 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 13:
+  - At Northside Ballpark a pale kerb ran diagonally across the plaza and in front of the player. The ballpark stood on the Manhattan shoreline with most of its stands over the river, so the shore kerb crossed its gate. The shoreline now runs round the ballpark.
+  - Where two land shapes overlap, no shore kerb is drawn across dry ground.
+  - Once the camera has moved off its usual view, it keeps checking for a straighter one and glides there as soon as the way is clear. It only jumps when it is inside a wall. Fifth Promenade shows from the front again.
 - Fixed in loop round 12:
   - Six invisible walls were left where filler buildings had been cleared from door views, so the camera still swung side-on at Eastbay University, Hudson University, Waterfront Foundry and Mission Kitchen Row. They are gone, and those doors show from the front.
   - Where the view straight behind the player is blocked, the camera now tries a slight angle before a wide one, so fewer signs are read edge-on.

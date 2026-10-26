@@ -616,26 +616,22 @@ export function Walking({
           }
           return true;
         });
-      // Swing back behind the street once the obstruction that turned the camera is gone.
-      if (!motion.camera && (cameraAngle.current !== 0 || near !== 1)) {
-        const home = target
-          .clone()
-          .add(new THREE.Vector3(0, frame.height, frame.distance));
-        if (clear(home)) {
-          cameraAngle.current = 0;
-          cameraNear.current = 1;
-          eye = home;
-        }
-      }
-      if (!motion.camera && !clear(eye)) {
-        // Prefer looking down over the player's shoulder from closer in to swinging side-on.
+      // Re-pick the camera while it is off its home view, so it swings back behind the
+      // player, or to a straighter angle, as soon as the obstruction is gone.
+      const blocked = !motion.camera && !clear(eye);
+      if (
+        !motion.camera &&
+        (blocked || cameraAngle.current !== 0 || near !== 1)
+      ) {
+        // Prefer a slight angle, then looking down over the player's shoulder from closer in,
+        // to swinging side-on.
         for (const [angle, pull] of [
           [0, 1],
           [0.35, 1],
           [-0.35, 1],
+          [0, 0.65],
           [0.7, 1],
           [-0.7, 1],
-          [0, 0.65],
           [0.35, 0.65],
           [-0.35, 0.65],
           [0.7, 0.65],
@@ -660,7 +656,8 @@ export function Walking({
             cameraAngle.current = angle;
             cameraNear.current = pull;
             eye = next;
-            camera.position.copy(eye);
+            // Jump out of a wall at once; otherwise glide to the better view.
+            if (blocked) camera.position.copy(eye);
             break;
           }
         }

@@ -29,6 +29,10 @@ export const nycSites: Record<string, Site> = {
 export const nycLand = [
   [-48, -88],
   [-8, -91],
+  // Out round the ballpark, so its stands are not over the river.
+  [0, -95],
+  [19, -95],
+  [19, -74],
   [15, -72],
   [15, -27],
   [10, 9],

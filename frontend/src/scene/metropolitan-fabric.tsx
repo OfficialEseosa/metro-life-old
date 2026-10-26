@@ -200,7 +200,28 @@ export function dataFor(city: "nyc" | "bay") {
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i],
         c = poly[(i + 1) % poly.length];
-      shore.line([a[0], 0.2, a[1]], [c[0], 0.2, c[1]], 0.75, "#d7d9cd");
+      const length = Math.hypot(c[0] - a[0], c[1] - a[1]),
+        steps = Math.max(1, Math.ceil(length / 2)),
+        nx = (a[1] - c[1]) / length,
+        nz = (c[0] - a[0]) / length;
+      // Where land polygons overlap, an edge runs across dry ground: no kerb there.
+      for (let k = 0; k < steps; k++) {
+        const t0 = k / steps,
+          t1 = (k + 1) / steps,
+          mx = a[0] + ((c[0] - a[0]) * (t0 + t1)) / 2,
+          mz = a[1] + ((c[1] - a[1]) * (t0 + t1)) / 2;
+        if (
+          isLand(mx + nx * 1.2, mz + nz * 1.2) &&
+          isLand(mx - nx * 1.2, mz - nz * 1.2)
+        )
+          continue;
+        shore.line(
+          [a[0] + (c[0] - a[0]) * t0, 0.2, a[1] + (c[1] - a[1]) * t0],
+          [a[0] + (c[0] - a[0]) * t1, 0.2, a[1] + (c[1] - a[1]) * t1],
+          0.75,
+          "#d7d9cd",
+        );
+      }
     }
   }
   // Separate island and hills: geometry, not a flat square edge.
@@ -456,13 +477,11 @@ export function MetropolitanFabric({ city }: { city: "nyc" | "bay" }) {
   useEffect(() => () => landMaterial.dispose(), [landMaterial]);
   // The authored land colours stay; the clock scales them like the flat grass.
   useFrame(() => {
-    landMaterial.color
-      .copy(timeOfDay.ground)
-      .multiply({
-        r: 1 / dayGround.r,
-        g: 1 / dayGround.g,
-        b: 1 / dayGround.b,
-      } as THREE.Color);
+    landMaterial.color.copy(timeOfDay.ground).multiply({
+      r: 1 / dayGround.r,
+      g: 1 / dayGround.g,
+      b: 1 / dayGround.b,
+    } as THREE.Color);
   });
   const data = useMemo(() => dataFor(city), [city]);
   useEffect(
