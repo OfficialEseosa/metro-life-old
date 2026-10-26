@@ -20,6 +20,7 @@ export function CameraOcclusion() {
         surface: { value: number };
         box: THREE.Box3;
         loose: boolean;
+        always: boolean;
       }
     >();
     const raycaster = new THREE.Raycaster(),
@@ -50,6 +51,7 @@ export function CameraOcclusion() {
         if (!(object instanceof THREE.Mesh) || owned.has(object)) return;
         let parent: THREE.Object3D | null = object,
           scenery = false,
+          always = false,
           pad = 0;
         while (parent) {
           if (
@@ -59,6 +61,7 @@ export function CameraOcclusion() {
           ) {
             scenery = true;
             pad = Math.max(pad, parent.userData.cameraOccluderPad ?? 0);
+            always ||= !!parent.userData.cameraCutAlways;
           }
           if (
             parent.name === "controlled-player" ||
@@ -94,6 +97,7 @@ export function CameraOcclusion() {
             shader.uniforms.metroFadeSurface = surface;
             // Thin signage drops out whole; anything bigger opens a clean hole around the player.
             shader.uniforms.metroFadeWhole = { value: pad > 0 ? 1 : 0 };
+            shader.uniforms.metroFadeWide = { value: always ? 1 : 0 };
             shader.vertexShader =
               "uniform vec4 metroFadeTarget;varying vec3 vMetroLocalCamera;varying vec3 vMetroLocalTarget;varying vec3 vMetroWorld;\n" +
               shader.vertexShader;
@@ -112,7 +116,7 @@ export function CameraOcclusion() {
        vMetroLocalTarget=vec3(dot(metroTargetDelta,metroModel[0].xyz),dot(metroTargetDelta,metroModel[1].xyz),dot(metroTargetDelta,metroModel[2].xyz))/metroScaleSquared;`,
             );
             shader.fragmentShader =
-              "uniform vec4 metroFadeTarget;uniform float metroFadeSurface;uniform float metroFadeWhole;uniform vec3 metroFadeMin;uniform vec3 metroFadeMax;varying vec3 vMetroLocalCamera;varying vec3 vMetroLocalTarget;varying vec3 vMetroWorld;\n" +
+              "uniform vec4 metroFadeTarget;uniform float metroFadeSurface;uniform float metroFadeWhole;uniform float metroFadeWide;uniform vec3 metroFadeMin;uniform vec3 metroFadeMax;varying vec3 vMetroLocalCamera;varying vec3 vMetroLocalTarget;varying vec3 vMetroWorld;\n" +
               shader.fragmentShader;
             shader.fragmentShader = shader.fragmentShader.replace(
               "#include <dithering_fragment>",
@@ -133,12 +137,17 @@ export function CameraOcclusion() {
          float metroLength=max(length(metroAxis),.001);
          vec3 metroRelative=vMetroWorld-cameraPosition;
          float metroAlong=dot(metroRelative,metroAxis/metroLength);
-         if(vMetroWorld.y>max(metroFadeTarget.y-.85,.35)&&metroAlong<metroLength-1.2&&length(metroRelative-metroAxis*(metroAlong/metroLength))<2.6)discard;
+         vec3 metroOffset=metroRelative-metroAxis*(metroAlong/metroLength);
+         if(vMetroWorld.y>max(metroFadeTarget.y-.85,.35)&&metroAlong<metroLength-1.2&&length(metroOffset)<2.6)discard;
+         // Cables sweep across a whole venue sign, so bridges open a sign-wide window.
+         float metroDepth=clamp(metroAlong/metroLength,0.,1.);
+         vec3 metroSide=normalize(vec3(-metroAxis.z,0.,metroAxis.x)+.0001);
+         if(metroFadeWide>.5&&vMetroWorld.y>metroFadeTarget.y-.85&&metroAlong<metroLength-.6&&abs(dot(metroOffset,metroSide))<max(1.4,4.2*metroDepth)&&metroOffset.y<max(1.4,3.*metroDepth))discard;
         }
        }`,
             );
           };
-          material.customProgramCacheKey = () => key + "-metro-camera-fade-v7";
+          material.customProgramCacheKey = () => key + "-metro-camera-fade-v8";
           material.needsUpdate = true;
           return material;
         });
@@ -148,6 +157,7 @@ export function CameraOcclusion() {
           surface,
           box: box.clone(),
           loose: pad > 0,
+          always,
         });
         object.material = Array.isArray(object.material)
           ? materials
@@ -214,6 +224,12 @@ export function CameraOcclusion() {
           continue;
         hits.length = 0;
         tests++;
+        // Bridge cables are too fine for probe rays; the deck itself stays below the cut.
+        if (entry.always) {
+          entry.surface.value = 1;
+          confirmed++;
+          continue;
+        }
         if (entry.loose) {
           // Thin posts and boards hide a figure without crossing its centre line,
           // so probe the head, chest and feet on both shoulders.

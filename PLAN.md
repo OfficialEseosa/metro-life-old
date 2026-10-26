@@ -10,6 +10,7 @@
   - At Peachtree Institute (Georgia Tech) an edge of the aquarium wall stood in front of the sign. Any building the sight line crosses for more than 3 m now cuts away, and so does anything blocking the sign above a door.
   - Resident name plates keep clear of hiring boards as well as venue signs.
   - At Olympic Rings Park the street camera looked through the SkyView wheel, so spokes crossed the sign and the player. The wheel now has a collision box, so walkers go round it and the camera finds a clear view.
+  - On the East River Bridge (Brooklyn Bridge) deck the suspension cables crossed the venue sign. The cables are too thin for the probe rays to hit, so bridges now always open a cut-out the width of the sign. The deck below the player stays solid.
 - Fixed in loop round 5:
   - Pier 39's door is surveyed out over the water, so the server found nowhere to stand and every trip there failed with "This entrance is busy". A booked trip then kept failing on the server and the player stayed on "Heading to Sealion Pier". People now arrive at a door that has no surveyed ground nearby and can walk the few metres back to shore. The door moved onto the pier deck in front of its sign. Crowded doors on land still say the entrance is busy.
   - Signs, boards and buildings that hide the player no longer fade in a dotted pattern, which showed as dotted lines at the Ferry Building and the Bay airport. Thin signs drop out whole while they are in the way, and anything bigger gets a clean cut-out around the player.

@@ -542,6 +542,7 @@ function LegacyBlenderLandmark({
     const root = scene.clone(true);
     root.name = id;
     root.userData.cameraOccluder = !["centennial", "piedmont"].includes(id);
+    root.userData.cameraCutAlways = ["brooklynBridge", "goldenGate"].includes(id);
     root.traverse((o) => {
       if (o instanceof THREE.Mesh) {
         const water = /lake|jets/.test(o.name);
