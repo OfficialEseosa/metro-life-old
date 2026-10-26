@@ -4,6 +4,10 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 2:
+  - Where the street camera arrives beside a door (High Museum, Tech Village, Capitol, Grady), the venue sign and the hiring board stood edge-on between it and the player. They now fade like buildings when they hide the player. Seen from the front they stay solid.
+  - Hiring boards stand outside the venue sign posts, not inside the entrance.
+  - The live event chip drops the word "moments" so the venue name fits. The progress bar still shows the count.
 - Fixed in loop round 1:
   - Residents give up a seat to a player when they hold every matching one. Before, a Co-work at Tech Village could fail with "The furniture is in use" and the story never started.
   - Story cards are compact on short screens, so every choice fits at 667x375. A story choice shows its outcome as a toast.
