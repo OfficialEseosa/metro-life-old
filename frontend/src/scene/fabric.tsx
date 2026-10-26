@@ -103,7 +103,8 @@ function fabricData() {
       r = Math.sqrt(rand()),
       x = Math.cos(a) * 110 * r,
       z = Math.sin(a) * 115 * r;
-    if (clear(x, z, 0) && Math.abs(x) > 3) {
+    // A wide clearing keeps trees out of the arrival plazas the camera looks across.
+    if (clear(x, z, 8) && Math.abs(x) > 3) {
       const k = 0.7 + rand() * 0.9;
       trees.push(p(x, z, k, k, k));
     }
