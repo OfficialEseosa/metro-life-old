@@ -4,7 +4,11 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
-- Fixed in loop round 2:
+- Fixed in loop round 3:
+  - Once a tall building swung the street camera side-on, it stayed there. It now returns behind the player when that view is clear. Where a building blocks it, the camera first moves closer and higher from the front, and only swings to the side if that is blocked too. High Museum now gets a front view. The Ferry Building, Georgia Tech and a few New York and Bay doors still have no clear front view, so the camera there stays side-on.
+  - Resident name plates keep clear of venue signs, so they no longer cover the name of the place.
+  - Hiring boards stand on whichever side of the sign has open pavement. At Tech Village the board had been hidden behind the building next door.
+  - Checked New York (Times Square, Crown Tower, Central Park, Brooklyn Bridge) and the Bay (airport kerb, Golden Gate, Ferry Building, Painted Ladies) on laptop.
   - Where the street camera arrives beside a door (High Museum, Tech Village, Capitol, Grady), the venue sign and the hiring board stood edge-on between it and the player. They now fade like buildings when they hide the player. Seen from the front they stay solid.
   - Hiring boards stand outside the venue sign posts, not inside the entrance.
   - The live event chip drops the word "moments" so the venue name fits. The progress bar still shows the count.

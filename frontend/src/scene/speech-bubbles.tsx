@@ -298,6 +298,50 @@ function clip(text: string, max: number) {
 }
 
 /** One screen-space budget serves staff and street NPCs, with real players taking priority. */
+/** Venue signs register here so plates never cover the name of the place being entered. */
+export const plateObstacles = new Set<THREE.Mesh>();
+const obstacleBox = new THREE.Box3(),
+  obstacleCorner = new THREE.Vector3();
+function obstacleRect(
+  mesh: THREE.Mesh,
+  camera: THREE.Camera,
+  size: { width: number; height: number },
+) {
+  for (let p: THREE.Object3D | null = mesh; p; p = p.parent)
+    if (!p.visible) return null;
+  const geometry = mesh.geometry;
+  if (!geometry.boundingBox) geometry.computeBoundingBox();
+  obstacleBox.copy(geometry.boundingBox!).applyMatrix4(mesh.matrixWorld);
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
+  for (let i = 0; i < 8; i++) {
+    obstacleCorner
+      .set(
+        i & 1 ? obstacleBox.max.x : obstacleBox.min.x,
+        i & 2 ? obstacleBox.max.y : obstacleBox.min.y,
+        i & 4 ? obstacleBox.max.z : obstacleBox.min.z,
+      )
+      .project(camera);
+    if (obstacleCorner.z < -1 || obstacleCorner.z > 1) return null;
+    const x = ((obstacleCorner.x + 1) * size.width) / 2,
+      y = ((1 - obstacleCorner.y) * size.height) / 2;
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  }
+  if (maxX < 0 || minX > size.width || maxY < 0 || minY > size.height)
+    return null;
+  return {
+    x: (minX + maxX) / 2,
+    y: (minY + maxY) / 2,
+    w: maxX - minX,
+    h: maxY - minY,
+  };
+}
+
 /** Screen boxes of the walking controls, read a few times a second so plates never sit under them. */
 const controlBoxes: Box[] = [];
 let controlBoxesAt = -Infinity;
@@ -403,7 +447,12 @@ function layoutLabels(state: RootState) {
     controlBoxesAt = clock.elapsedTime;
     readControlBoxes(state.gl.domElement);
   }
-  for (const r of [...reactionBoxes.values(), ...controlBoxes]) {
+  const signs: Box[] = [];
+  for (const mesh of plateObstacles) {
+    const rect = obstacleRect(mesh, camera, size);
+    if (rect) signs.push(rect);
+  }
+  for (const r of [...reactionBoxes.values(), ...controlBoxes, ...signs]) {
     const box = boxPool[boxes] ?? (boxPool[boxes] = { x: 0, y: 0, w: 0, h: 0 });
     box.x = r.x;
     box.y = r.y;

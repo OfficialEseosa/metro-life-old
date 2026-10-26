@@ -53,6 +53,8 @@ export function Walking({
     lastContext = useRef(0),
     lastPosition = useRef(""),
     cameraAngle = useRef(0),
+    // Pulls the street camera in and up when a tall building blocks the usual view.
+    cameraNear = useRef(1),
     lastHeading = useRef(0),
     lastTarget = useRef(0),
     groundY = useRef(0),
@@ -143,6 +145,7 @@ export function Walking({
       motion.follow = true;
       motion.camera = null;
       cameraAngle.current = current.position.room ? 0.45 : 0;
+      cameraNear.current = 1;
       if (camera instanceof THREE.PerspectiveCamera) {
         camera.fov = current.position.room ? 32 : 38;
         camera.updateProjectionMatrix();
@@ -581,8 +584,9 @@ export function Walking({
     }
     if (!at.room && motion.follow && controls.current) {
       const frame = streetView(size.width),
-        distance = motion.camera?.distance ?? frame.distance,
-        height = motion.camera?.height ?? frame.height,
+        near = motion.camera ? 1 : cameraNear.current,
+        distance = motion.camera?.distance ?? frame.distance * near,
+        height = motion.camera?.height ?? frame.height * (2 - near),
         angle = motion.camera?.angle ?? cameraAngle.current,
         // Look a little ahead of a walking player so the street they head into stays in view.
         ahead = moving ? frame.lookAhead : 0,
@@ -612,19 +616,47 @@ export function Walking({
           }
           return true;
         });
+      // Swing back behind the street once the obstruction that turned the camera is gone.
+      if (!motion.camera && (cameraAngle.current !== 0 || near !== 1)) {
+        const home = target
+          .clone()
+          .add(new THREE.Vector3(0, frame.height, frame.distance));
+        if (clear(home)) {
+          cameraAngle.current = 0;
+          cameraNear.current = 1;
+          eye = home;
+        }
+      }
       if (!motion.camera && !clear(eye)) {
-        for (const angle of [0, 0.7, -0.7, 1.4, -1.4, Math.PI, 2.1, -2.1]) {
+        // Prefer looking down over the player's shoulder from closer in to swinging side-on.
+        for (const [angle, pull] of [
+          [0, 1],
+          [0.7, 1],
+          [-0.7, 1],
+          [0, 0.65],
+          [0.35, 0.65],
+          [-0.35, 0.65],
+          [0.7, 0.65],
+          [-0.7, 0.65],
+          [0, 0.5],
+          [1.4, 1],
+          [-1.4, 1],
+          [Math.PI, 1],
+          [2.1, 1],
+          [-2.1, 1],
+        ]) {
           const next = target
             .clone()
             .add(
               new THREE.Vector3(
-                Math.sin(angle) * distance,
-                height,
-                Math.cos(angle) * distance,
+                Math.sin(angle) * frame.distance * pull,
+                frame.height * (2 - pull),
+                Math.cos(angle) * frame.distance * pull,
               ),
             );
           if (clear(next)) {
             cameraAngle.current = angle;
+            cameraNear.current = pull;
             eye = next;
             camera.position.copy(eye);
             break;

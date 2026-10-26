@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
@@ -7,6 +7,7 @@ import { navigation } from "../navigation";
 import { venueName } from "../content-names";
 import { groundHeight } from "./ground";
 import { WorldText } from "./world-text";
+import { plateObstacles } from "./speech-bubbles";
 import { sitesFor } from "./cities";
 import type { CityId } from "../api/types";
 
@@ -58,7 +59,16 @@ function Fascia({
     scene = useThree((s) => s.scene),
     size = useThree((s) => s.size),
     signPoint = useMemo(() => new THREE.Vector3(), []),
+    fascia = useRef<THREE.Mesh>(null),
     title = name.trim();
+  useEffect(() => {
+    const mesh = fascia.current;
+    if (!mesh) return;
+    plateObstacles.add(mesh);
+    return () => {
+      plateObstacles.delete(mesh);
+    };
+  }, [title]);
   useFrame(({ camera }) => {
     if (!ref.current) return;
     if (!placed.current && scene.getObjectByName("terrain")) {
@@ -78,6 +88,7 @@ function Fascia({
       position={[door.x, 0, door.z + 0.4]}
     >
       <mesh
+        ref={fascia}
         position={[0, 3.15, 0]}
         geometry={fasciaGeometry}
         raycast={() => {}}
