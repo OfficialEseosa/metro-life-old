@@ -82,4 +82,4 @@ Tap **Play** to start in seconds, or make every detail of your character yoursel
 - [docs/](docs/): design notes, HUD direction, rendering, landmarks, first-day economy and asset credits.
 - [CONTRIBUTING.md](CONTRIBUTING.md): how to work on the project.
 
-Assets keep their own licences; see [docs/credits.md](docs/credits.md). Map data (c) [OpenStreetMap contributors](https://www.openstreetmap.org/copyright).
+Metro Life is released under the [MIT License](LICENSE). Assets keep their own licences; see [docs/credits.md](docs/credits.md). Map data (c) [OpenStreetMap contributors](https://www.openstreetmap.org/copyright).
