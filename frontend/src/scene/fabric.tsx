@@ -251,7 +251,7 @@ export function kitFabric() {
     }
   const fitted = fitMetricGroups("atl", groups),
     doors = Object.values(navigation.atl.doors),
-    // The street camera sits behind the player at a door, so no tree stands in that view.
+    // The street camera sits behind the player at a door, so no tree or parked car stands in that view.
     inDoorView = (p: Placement) =>
       doors.some(
         (d) => Math.abs(p.x - d.x) < 5.5 && p.z - d.z > -1 && p.z - d.z < 17,
@@ -262,7 +262,7 @@ export function kitFabric() {
       placements.filter(
         (p) =>
           outsideAtlantaTowers(p.x, p.z, Math.hypot(p.sx, p.sz) / 2 + 0.5) &&
-          !(url.includes("tree-") && inDoorView(p)),
+          !(/tree-|car_/.test(url) && inDoorView(p)),
       ),
     ]),
   );

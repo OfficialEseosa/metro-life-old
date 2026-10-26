@@ -545,6 +545,8 @@ export function landmarkGeometry(id: string) {
       ];
       for (let tier = 0; tier < 4; tier++)
         for (let i = 1; i < edge.length; i++) {
+          // The stands open behind home plate, where the gate is.
+          if (i === 3 || i === 4) continue;
           const outer = 1 + tier * 0.09,
             inner = outer - 0.08,
             a = edge[i - 1],

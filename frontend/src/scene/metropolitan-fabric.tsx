@@ -460,7 +460,7 @@ export function dataFor(city: "nyc" | "bay") {
     brownstones: selectedBrownstones,
     victorianRows,
     trees,
-    cars,
+    cars: cars.filter((c) => !inDoorView(c.x, c.z, 3.5, 14, c.sx, c.sz)),
     roads: connectedRoads,
   };
 }

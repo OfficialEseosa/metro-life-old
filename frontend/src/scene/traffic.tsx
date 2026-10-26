@@ -7,6 +7,7 @@ import { timeOfDay } from "../lighting";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import type { CityId } from "../api/types";
 import { streets } from "../street-network";
+import { navigation } from "../navigation";
 
 export function Traffic({ city }: { city: CityId }) {
   return (
@@ -60,16 +61,39 @@ function StreetCars({ city }: { city: CityId }) {
       return { geometry, material };
     });
   }, [scene]);
+  // Cars keep off the streets just outside doors, where the camera looks.
+  const nearDoor = useMemo(() => {
+    const doors = Object.values(navigation[city].doors);
+    return graph.nodes.map((n) =>
+      doors.some((d) => Math.hypot(n[0] - d.x, n[2] - d.z) < 7),
+    );
+  }, [city, graph]);
+  // Each door's access spur runs back to a junction; cars stay on the roads beyond it.
+  const road = useMemo(() => {
+    const keep = graph.links.map((l) => l.length > 1);
+    for (const { node } of Object.values(graph.access)) {
+      let prev = -1,
+        cur = node;
+      while (graph.links[cur].length <= 2) {
+        keep[cur] = false;
+        const next = graph.links[cur].find((n) => n !== prev);
+        if (next === undefined) break;
+        prev = cur;
+        cur = next;
+      }
+    }
+    return keep;
+  }, [graph]);
   const cars = useMemo(() => {
-    const candidates = graph.links.flatMap((links, i) =>
-      links.length ? [i] : [],
+    const candidates = graph.links.flatMap((_, i) =>
+      road[i] && !nearDoor[i] ? [i] : [],
     );
     return Array.from({ length: Math.min(8, candidates.length) }, (_, i) => {
       const from = candidates[Math.floor((i * candidates.length) / 8)],
-        to = graph.links[from][0];
+        to = graph.links[from].find((n) => road[n]) ?? graph.links[from][0];
       return { from, to, previous: -1, t: i / 11, yaw: 0, turn: i };
     });
-  }, [graph]);
+  }, [graph, nearDoor, road]);
   useEffect(
     () => () =>
       batches.forEach((b) => {
@@ -94,7 +118,15 @@ function StreetCars({ city }: { city: CityId }) {
         car.previous = car.from;
         car.from = car.to;
         const options = graph.links[car.from].filter((n) => n !== car.previous),
-          choices = options.length ? options : graph.links[car.from];
+          through = options.filter((n) => road[n]),
+          away = through.filter((n) => !nearDoor[n]),
+          choices = away.length
+            ? away
+            : through.length
+              ? through
+              : car.previous >= 0
+                ? [car.previous]
+                : graph.links[car.from];
         car.to = choices[(++car.turn + i) % choices.length];
         car.t -= 1;
         a = graph.nodes[car.from];

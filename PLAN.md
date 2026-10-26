@@ -4,6 +4,10 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 15:
+  - At Riverside Ballpark (Truist Park) the stands ran out past the gate, so their railings crossed the player and the sign. The stands now open behind home plate, where the gate is.
+  - Parked cars are no longer placed in a door's camera view, in Atlanta's street kit as well as the other cities. Passing cars stay on the through roads: they never turn into the street that leads to a door's forecourt, and avoid the road within 7 m of a door where they can. One car used to shuttle up and down the Riverside Ballpark forecourt, right in front of the camera.
+  - A full sweep of all 68 doors at both sizes found no other blocked signs or hidden players. Still angled but readable: Downtown University, Westhaven Park, Heron Lake and Golden Lantern Quarter. In each, a landmark (the Capitol, UCSF, Oakland Fox, City Hall) stands where the camera would be.
 - Fixed in loop round 14:
   - At Heritage Reflection Park (MLK) the reflecting pool ran past the gate, so arrivals stood on the monument's plinth. The pool now sits behind the gate.
   - Peachtree General (Grady) stood in Heritage Reflection Park's camera view, so the camera looked side-on and the hospital wall covered the start of the sign. Grady moved 2 m west, and its walkway and resident routes moved with it. Both now show from the front.
