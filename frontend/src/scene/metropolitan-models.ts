@@ -679,9 +679,10 @@ export function nycGeometry(id: string) {
       break;
     }
     case "yankee":
-      ballpark(b, 20);
-      for (let x = -9; x < 10; x += 0.7)
-        b.box(x, 4.4, 10, 0.4, 0.7, 0.2, white);
+      // Sized to its walls so the gate stands outside the stands.
+      ballpark(b, 15);
+      for (let x = -7; x < 7.5; x += 0.7)
+        b.box(x, 4.4, 7.5, 0.4, 0.7, 0.2, white);
       break;
     case "coney": {
       b.box(0, 0.05, 0, 25, 0.1, 12, "#d5c49f")

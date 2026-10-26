@@ -23,7 +23,7 @@ export const nycSites: Record<string, Site> = {
   liberty: { x: -51, z: 79, size: 17, height: 23 },
   yankee: { x: 9, z: -85, size: 23, height: 7 },
   coney: { x: 73, z: 78, size: 28, height: 12 },
-  presbyterian: { x: 5, z: -64, size: 12, height: 17 },
+  presbyterian: { x: 3.5, z: -64, size: 12, height: 17 },
   nycAirport: { x: 92, z: 32, size: 37, height: 9 },
 };
 export const nycLand = [
