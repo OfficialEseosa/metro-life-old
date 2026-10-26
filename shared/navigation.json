@@ -703,8 +703,8 @@
         },
         {
           "id": "gatech",
-          "x": -24,
-          "z": -26,
+          "x": -39,
+          "z": -24,
           "w": 9,
           "d": 7.800000000000001,
           "h": 10,
@@ -916,7 +916,7 @@
           "name": "Centennial Olympic Park"
         },
         "piedmont": {
-          "x": 11,
+          "x": 16,
           "z": -26.5,
           "name": "Piedmont Park"
         },
@@ -946,8 +946,8 @@
           "name": "High Museum of Art"
         },
         "gatech": {
-          "x": -24,
-          "z": -21,
+          "x": -39,
+          "z": -19,
           "name": "Georgia Tech"
         },
         "gsu": {

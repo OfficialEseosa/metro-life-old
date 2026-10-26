@@ -34,7 +34,7 @@ const lake=[[1,-12],[-2,-11],[-4,-8],[-3,-5],[-1,-3],[-1,0],[0,3],[2,6],[4,5],[4
 for(let i=0;i<lake.length;i++)for(let j=0;j<5;j++){const t=j/5,p0=lake[(i+lake.length-1)%lake.length],p1=lake[i],p2=lake[(i+1)%lake.length],p3=lake[(i+2)%lake.length];smooth.push([0,1].map(k=>.5*(2*p1[k]+(-p0[k]+p2[k])*t+(2*p0[k]-5*p1[k]+4*p2[k]-p3[k])*t*t+(-p0[k]+3*p1[k]-3*p2[k]+p3[k])*t*t*t)))}
 if(city==='atl')out.cities[city].water=[smooth.map(([x,y])=>[22+x,-38-y])];
 if(city==='nyc')out.cities[city].water=[ellipse(-18,-54,5,6),ellipse(-22,-41,4,3)];if(city==='bay')out.cities[city].water.push(ellipse(-71,1,3,3));
-if(city==='atl')out.cities[city].doors.piedmont={x:11,z:-26.5,name:doors.piedmont.name};
+if(city==='atl')out.cities[city].doors.piedmont={x:16,z:-26.5,name:doors.piedmont.name};
 if(city==='nyc')out.cities[city].doors.centralPark={x:-27,z:-40,name:doors.centralPark.name};
  const n=out.cities[city],inside=(x,z,poly)=>{let yes=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])yes=!yes}return yes},box=(x,z,b,pad=.35)=>{const dx=x-b.x,dz=z-b.z,c=Math.cos(b.a),s=Math.sin(b.a);return Math.abs(dx*c-dz*s)<b.w/2+pad&&Math.abs(dx*s+dz*c)<b.d/2+pad},clear=(x,z)=>(n.land.some(p=>inside(x,z,p))||n.bridges.some(b=>box(x,z,b,-.4)))&&!n.water.some(p=>inside(x,z,p))&&!boxes.some(b=>box(x,z,b));
  const roads=Object.entries(groups).filter(([url])=>/road_/.test(url)).flatMap(([,p])=>p).filter(p=>clear(Math.round(p.x),Math.round(p.z))),paths=[];

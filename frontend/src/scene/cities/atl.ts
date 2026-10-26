@@ -17,7 +17,7 @@ export const atlSites: Record<string, Site> = {
   krog: { x: 35, z: 13, size: 12, height: 3 },
   fox: { x: 1, z: -24, size: 16, height: 9 },
   high: { x: -8, z: -44, size: 22, height: 6.4 },
-  gatech: { x: -24, z: -26, size: 12, height: 10 },
+  gatech: { x: -39, z: -24, size: 12, height: 10 },
   gsu: { x: 8, z: 24, size: 12, height: 9 },
   techVillage: { x: 4, z: -62, size: 12, height: 7 },
   lenox: { x: 23, z: -62, size: 16, height: 4 },

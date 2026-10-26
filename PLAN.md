@@ -4,6 +4,10 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 9:
+  - At Peachtree Institute (Georgia Tech) the door stood 0.2 m from the aquarium's back wall, so the camera only saw the sign edge-on and phones lost the player. The campus now stands on open ground west of the aquarium, and the sign reads from the front.
+  - At Midtown Green (Piedmont Park) the Peachtree Crown tower stood 3 m in front of the gate, so the camera looked down from above and phones could not read the sign. The gate is now 5 m east, clear of the tower, and the sign reads from the front.
+  - At the Deepwater Aquarium a low park wall hid the player's legs, because the cut-out only checked the chest and the sign. It now checks the feet too.
 - Fixed in loop round 8:
   - At Chase Center (Baylight Arena) the camera only had a side-on view. The Bay airport's collision box stood 10 m tall over the whole apron, though the terminal is low. It is now split into the terminal hall and a low apron strip, so the camera looks at the arena from the front.
   - At Oracle Park (Waterfront Ballpark) the ballpark's rear wall was drawn past its collision box and over the door. A parked plane and a filler building with no collision also filled the edge of the view. The ballpark now stays inside its box. The Bay airport has no east piers or planes facing the two arenas, and no filler building stands in any door's camera view.

@@ -268,10 +268,14 @@ export function CameraOcclusion() {
         // calls Three's geometry raycast directly without changing input behavior.
         THREE.Mesh.prototype.raycast.call(object, raycaster, hits);
         // Keep the venue sign above the door readable too.
-        for (const [side, lift] of [
-          [0, 2.3],
-          [-1.6, 2.3],
-          [1.6, 2.3],
+        // A low wall can hide the legs while the chest line stays clear.
+        for (const [side, lift, margin] of [
+          [0, 2.3, 1.2],
+          [-1.6, 2.3, 1.2],
+          [1.6, 2.3, 1.2],
+          [0, -0.7, 0.5],
+          [-0.3, -0.7, 0.5],
+          [0.3, -0.7, 0.5],
         ]) {
           if (hits.length) break;
           probe
@@ -282,7 +286,7 @@ export function CameraOcclusion() {
           probe.y += lift;
           const reach = probe.distanceTo(origin);
           raycaster.set(origin, probe.sub(origin).divideScalar(reach));
-          raycaster.far = Math.max(0, reach - 1.2);
+          raycaster.far = Math.max(0, reach - margin);
           THREE.Mesh.prototype.raycast.call(object, raycaster, hits);
         }
         raycaster.set(origin, direction);
