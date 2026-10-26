@@ -33,6 +33,20 @@ export default defineConfig(({ mode }) => {
   const target = (env.METRO_API_PROXY || 'http://localhost:8080').replace(/\/+$/, '')
   return {
     plugins: [react(), sharedData()],
+    build: {
+      rolldownOptions: {
+        output: {
+          // Vendor code in its own long-lived chunks, fetched and compiled in parallel with the app.
+          codeSplitting: {
+            groups: [
+              { name: 'react', test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/, priority: 30 },
+              { name: 'three', test: /[\\/]node_modules[\\/]three[\\/]build[\\/]/, priority: 30 },
+              { name: 'icons', test: /[\\/]node_modules[\\/]@phosphor-icons[\\/]/, priority: 30 },
+            ],
+          },
+        },
+      },
+    },
     server: {
       port: 5173,
       proxy: {
