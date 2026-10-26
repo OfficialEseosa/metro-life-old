@@ -7,7 +7,7 @@
   "fares": { "atl:nyc": 120, "atl:bay": 160, "nyc:bay": 170 },
   "cities": {
     "atl": {
-      "bus": { "id": "atlBus", "name": "Five Points Bus Station", "x": 0, "z": 34.2, "site": { "x": 0, "z": 31, "size": 10, "height": 3.8 } },
+      "bus": { "id": "atlBus", "name": "Five Points Bus Station", "x": -15, "z": 41.2, "site": { "x": -15, "z": 38, "size": 10, "height": 3.8 } },
       "airport": "atlAirport"
     },
     "nyc": {

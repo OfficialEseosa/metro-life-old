@@ -991,8 +991,8 @@
           "name": "Grady Memorial Hospital"
         },
         "atlBus": {
-          "x": 0,
-          "z": 34.2,
+          "x": -15,
+          "z": 41.2,
           "name": "Five Points Bus Station"
         },
         "atlAirport": {

@@ -8,6 +8,7 @@
   - At Magnolia Square (Lenox) the south edge of the Piedmont Park model reached the shops' plaza, so a cluster of park trees stood between the camera and the sign and door. Park trees and props in any door's camera view are now left out of the park model, and the park's own gate path is clear too.
   - On phones, more than one passer-by's name plate could fill the screen next to a venue sign. Short screens now show one at most. Plates also keep clear of the first-day cue.
   - The Midtown Green walkway still led to the old gate position. It now leads to the moved gate.
+  - The Five Points bus station stood 1.6 m in front of the Capitol's back wall, so the camera only saw it side-on along the canopy. The station now stands on open ground west of the Capitol, beside the downtown street, with its walkway and resident routes moved too. Its sign and the player show from the front on laptop and phone.
 - Fixed in loop round 9:
   - At Peachtree Institute (Georgia Tech) the door stood 0.2 m from the aquarium's back wall, so the camera only saw the sign edge-on and phones lost the player. The campus now stands on open ground west of the aquarium, and the sign reads from the front.
   - At Midtown Green (Piedmont Park) the Peachtree Crown tower stood 3 m in front of the gate, so the camera looked down from above and phones could not read the sign. The gate is now 5 m east, clear of the tower, and the sign reads from the front.
