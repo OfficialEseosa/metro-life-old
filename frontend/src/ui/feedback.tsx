@@ -517,6 +517,19 @@ function placeStack(stack: HTMLElement | null) {
   return Math.max(0, Math.min(normal, Math.floor((room + 6) / TOAST_STEP)));
 }
 
+/** Lowest start for a floating label at x: it rises 46px above its point and must never cross the vitals plate. */
+function floatFloor(x: number) {
+  const vitals = document.querySelector(".vitals")?.getBoundingClientRect();
+  if (
+    !vitals ||
+    !vitals.height ||
+    x < vitals.left - 80 ||
+    x > vitals.right + 80
+  )
+    return 70;
+  return Math.max(70, vitals.bottom + 90);
+}
+
 // ---- the layer ---------------------------------------------------------------
 
 /**
@@ -634,7 +647,7 @@ export function FeedbackLayer() {
       el.dataset.tone = tone;
       el.getAnimations().forEach((a) => a.cancel());
       const x = Math.max(40, Math.min(innerWidth - 40, at.x)),
-        y = Math.max(70, Math.min(innerHeight - 60, at.y));
+        y = Math.max(floatFloor(x), Math.min(innerHeight - 60, at.y));
       el.animate(
         reducedMotion()
           ? [
