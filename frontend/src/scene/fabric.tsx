@@ -11,6 +11,7 @@ import { fitMetricGroups } from "./metric-layout";
 import { outsidePlots, outsideBoards } from "./economy-sites";
 import { outsideAtlantaTowers } from "./atlanta-models";
 import { Trees } from "./trees";
+import { navigation } from "../navigation";
 import { useEffectiveQuality } from "./render-quality";
 
 export type Placement = {
@@ -248,12 +249,20 @@ export function kitFabric() {
           });
       }
     }
-  const fitted = fitMetricGroups("atl", groups);
+  const fitted = fitMetricGroups("atl", groups),
+    doors = Object.values(navigation.atl.doors),
+    // The street camera sits behind the player at a door, so no tree stands in that view.
+    inDoorView = (p: Placement) =>
+      doors.some(
+        (d) => Math.abs(p.x - d.x) < 5.5 && p.z - d.z > -1 && p.z - d.z < 17,
+      );
   return Object.fromEntries(
     Object.entries(fitted).map(([url, placements]) => [
       url,
-      placements.filter((p) =>
-        outsideAtlantaTowers(p.x, p.z, Math.hypot(p.sx, p.sz) / 2 + 0.5),
+      placements.filter(
+        (p) =>
+          outsideAtlantaTowers(p.x, p.z, Math.hypot(p.sx, p.sz) / 2 + 0.5) &&
+          !(url.includes("tree-") && inDoorView(p)),
       ),
     ]),
   );

@@ -13,6 +13,7 @@ import type { Placement } from "./fabric";
 import { ATLANTA_BLENDER_LANDMARKS, ATLANTA_TOWERS } from "./atlanta-models";
 import { atlSites } from "./cities/atl";
 import { lightUniforms } from "../lighting";
+import { navigation } from "../navigation";
 import { shadowFocus } from "./world-lighting";
 
 export type DriveRoute = {
@@ -517,6 +518,87 @@ function panelWhiteFacade(mesh: THREE.Mesh) {
 }
 
 /** Original authored scene-unit assets for the remaining cities and park sites. */
+// The park reaches the plaza of the shops next door, and its trees there and along its own
+// gate path would stand in the street-camera view, between the lens and the sign and visitor.
+function clearDoorViews(mesh: THREE.Mesh, own: string) {
+  const source = mesh.geometry.index
+    ? mesh.geometry.toNonIndexed()
+    : mesh.geometry.clone();
+  const position = source.getAttribute("position"),
+    triangles = position.count / 3,
+    parent = Int32Array.from({ length: triangles }, (_, i) => i),
+    find = (i: number) => {
+      while (parent[i] !== i) i = parent[i] = parent[parent[i]];
+      return i;
+    },
+    owner = new Map<string, number>();
+  for (let v = 0; v < position.count; v++) {
+    const key = `${position.getX(v).toFixed(3)},${position.getY(v).toFixed(3)},${position.getZ(v).toFixed(3)}`,
+      other = owner.get(key);
+    if (other === undefined) owner.set(key, Math.floor(v / 3));
+    else parent[find(Math.floor(v / 3))] = find(other);
+  }
+  const bounds = new Map<number, THREE.Box3>(),
+    point = new THREE.Vector3();
+  for (let v = 0; v < position.count; v++) {
+    const piece = find(Math.floor(v / 3));
+    if (!bounds.has(piece)) bounds.set(piece, new THREE.Box3());
+    bounds
+      .get(piece)!
+      .expandByPoint(
+        point.fromBufferAttribute(position, v).applyMatrix4(mesh.matrixWorld),
+      );
+  }
+  const doors = Object.entries(navigation.atl.doors).map(([id, door]) => ({
+      ...door,
+      // The park's own gate keeps its lawn trees beside the path.
+      side: id === own ? 3.2 : 5.5,
+    })),
+    size = new THREE.Vector3(),
+    dropped = new Set<number>();
+  for (const [piece, box] of bounds) {
+    box.getSize(size);
+    if (Math.max(size.x, size.z) > 8 || size.y < 0.5) continue;
+    box.getCenter(point);
+    if (
+      doors.some(
+        (d) =>
+          Math.abs(point.x - d.x) < d.side &&
+          point.z - d.z > -1 &&
+          point.z - d.z < 17,
+      )
+    )
+      dropped.add(piece);
+  }
+  if (!dropped.size || source.groups.length) {
+    source.dispose();
+    return;
+  }
+  const kept: number[] = [];
+  for (let t = 0; t < triangles; t++) if (!dropped.has(find(t))) kept.push(t);
+  const geometry = new THREE.BufferGeometry();
+  for (const [name, attribute] of Object.entries(source.attributes)) {
+    const size = attribute.itemSize,
+      from = attribute.array,
+      array = new (from.constructor as new (n: number) => typeof from)(
+        kept.length * 3 * size,
+      );
+    kept.forEach((t, i) => {
+      for (let k = 0; k < 3 * size; k++)
+        array[i * 3 * size + k] = from[t * 3 * size + k];
+    });
+    geometry.setAttribute(
+      name,
+      new THREE.BufferAttribute(array, size, attribute.normalized),
+    );
+  }
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  source.dispose();
+  mesh.geometry = geometry;
+  mesh.userData.ownsGeometry = true;
+}
+
 function LegacyBlenderLandmark({
   id,
   x,
@@ -542,13 +624,18 @@ function LegacyBlenderLandmark({
     const root = scene.clone(true);
     root.name = id;
     root.userData.cameraOccluder = !["centennial", "piedmont"].includes(id);
-    root.userData.cameraCutAlways = ["brooklynBridge", "goldenGate"].includes(id);
+    root.userData.cameraCutAlways = ["brooklynBridge", "goldenGate"].includes(
+      id,
+    );
     root.traverse((o) => {
       if (o instanceof THREE.Mesh) {
         const water = /lake|jets/.test(o.name);
-        // The park's pavilions can stand between the camera and the aquarium door.
-        if (o.name === "centennial-landscape")
-          Object.assign(o.userData, { cameraOccluder: true, cameraCutOnly: true });
+        // Park pavilions and trees can stand between the camera and a nearby door.
+        if (/^(centennial|piedmont)-landscape$/.test(o.name))
+          Object.assign(o.userData, {
+            cameraOccluder: true,
+            cameraCutOnly: true,
+          });
         if (id === "centennial" && /jets/.test(o.name)) {
           const material = (o.material as THREE.MeshStandardMaterial).clone();
           material.transparent = true;
@@ -571,7 +658,14 @@ function LegacyBlenderLandmark({
         // Glass faces of authored buildings light up after dark, like the kit windows.
         if (
           !water &&
-          !["centennial", "piedmont", "brooklynBridge", "goldenGate", "liberty", "alcatraz"].includes(id) &&
+          ![
+            "centennial",
+            "piedmont",
+            "brooklynBridge",
+            "goldenGate",
+            "liberty",
+            "alcatraz",
+          ].includes(id) &&
           o.geometry.getAttribute("color")
         ) {
           const material = (o.material as THREE.MeshStandardMaterial).clone();
@@ -590,6 +684,13 @@ function LegacyBlenderLandmark({
     root.rotation.y = angle;
     root.updateMatrix();
     root.matrixAutoUpdate = false;
+    if (id === "piedmont") {
+      root.updateMatrixWorld(true);
+      root.traverse((o) => {
+        if (o instanceof THREE.Mesh && o.name === "piedmont-landscape")
+          clearDoorViews(o, id);
+      });
+    }
     return root;
   }, [scene, id, x, z, angle, fountainTime]);
   useEffect(
@@ -602,6 +703,10 @@ function LegacyBlenderLandmark({
       model.traverse((o) => {
         if (o instanceof THREE.Mesh && o.userData.ownsMaterial)
           (o.material as THREE.Material).dispose();
+      });
+      model.traverse((o) => {
+        if (o instanceof THREE.Mesh && o.userData.ownsGeometry)
+          o.geometry.dispose();
       });
       // The museum's recoloured geometry is a private copy.
       if (id === "high")

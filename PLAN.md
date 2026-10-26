@@ -4,6 +4,10 @@
 
 - Playable: quick start or full creator, arrival, walking, jobs and shifts, needs, meals and groceries, furnishing, stories, aspirations, elections, plots and billboards, travel between three cities, shared presence, chat, emotes and city events.
 - Verified on this build: the seven Playwright journeys (first start with the bed, resume after reload, two players, outage and reconnect after the API restarts, paid shift, two-way social visit, flight) pass at 1366x768 and at 667x375 with touch. The frontend builds and lints with no errors, and the backend packages as an API-only JAR. Played in the browser at both sizes: a meal at the Ponce market, a story beat at Tech Village (Co-work, the choice card, then play resumes), and a plot purchase (all six first-day goals, then a 2×2 plot booked for $140).
+- Fixed in loop round 10:
+  - At Magnolia Square (Lenox) the south edge of the Piedmont Park model reached the shops' plaza, so a cluster of park trees stood between the camera and the sign and door. Park trees and props in any door's camera view are now left out of the park model, and the park's own gate path is clear too.
+  - On phones, more than one passer-by's name plate could fill the screen next to a venue sign. Short screens now show one at most. Plates also keep clear of the first-day cue.
+  - The Midtown Green walkway still led to the old gate position. It now leads to the moved gate.
 - Fixed in loop round 9:
   - At Peachtree Institute (Georgia Tech) the door stood 0.2 m from the aquarium's back wall, so the camera only saw the sign edge-on and phones lost the player. The campus now stands on open ground west of the aquarium, and the sign reads from the front.
   - At Midtown Green (Piedmont Park) the Peachtree Crown tower stood 3 m in front of the gate, so the camera looked down from above and phones could not read the sign. The gate is now 5 m east, clear of the tower, and the sign reads from the front.

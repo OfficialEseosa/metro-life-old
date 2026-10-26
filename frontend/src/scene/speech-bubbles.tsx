@@ -349,7 +349,7 @@ function readControlBoxes(canvas: HTMLCanvasElement) {
   const frame = canvas.getBoundingClientRect();
   controlBoxes.length = 0;
   for (const el of document.querySelectorAll(
-    ".walk-more, .walk-social, .walk-interact",
+    ".walk-more, .walk-social, .walk-interact, .hud-cues > *, .first-day-cue",
   )) {
     const b = el.getBoundingClientRect();
     if (!b.width || !b.height) continue;
@@ -412,7 +412,9 @@ function layoutLabels(state: RootState) {
       projected.z > 1 ||
       Math.abs(projected.x) > 1.15 ||
       Math.abs(projected.y) > 1.15 ||
-      (!real && !focused && distance > 6)
+      (!real && !focused && distance > 6) ||
+      // Someone right beside the lens would fill the screen with their plate.
+      (!focused && candidate.anchor.distanceTo(camera.position) < 7)
     )
       continue;
     candidate.entry = entry;
@@ -463,7 +465,8 @@ function layoutLabels(state: RootState) {
   for (const candidate of candidates) {
     const { entry, anchor, projected, focused, priority } = candidate,
       root = entry.root!;
-    if (priority === 3 && ordinary >= 3) continue;
+    // A short screen has room for one passer-by's plate beside the venue sign.
+    if (priority === 3 && ordinary >= (size.height <= 520 ? 1 : 3)) continue;
     const height =
         ((entry.speaking ? 1.35 : entry.label.trim() ? 0.85 : 0.5) * width) /
         3.9,
