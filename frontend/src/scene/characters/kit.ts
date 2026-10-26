@@ -353,6 +353,9 @@ export function mergePieces(
     normal = new Float32Array(vertices * 3),
     skinIndex = new Uint16Array(vertices * 4),
     skinWeight = new Float32Array(vertices * 4),
+    clothBand = parts.length && parts.every(({ geometry }) => geometry.getAttribute("clothBand"))
+      ? new Float32Array(vertices * 2)
+      : undefined,
     tag = new Float32Array(vertices),
     index = new Uint32Array(indices);
   let v = 0,
@@ -364,6 +367,8 @@ export function mergePieces(
     normal.set(g.getAttribute("normal").array as Float32Array, v * 3);
     skinIndex.set(g.getAttribute("skinIndex").array as Uint16Array, v * 4);
     skinWeight.set(g.getAttribute("skinWeight").array as Float32Array, v * 4);
+    if (clothBand)
+      clothBand.set(g.getAttribute("clothBand").array as Float32Array, v * 2);
     tag.fill(part.tag, v, v + count);
     const source = g.index!;
     for (let i = 0; i < source.count; i++) index[k + i] = source.getX(i) + v;
@@ -376,6 +381,8 @@ export function mergePieces(
   geometry.setAttribute("skinIndex", new THREE.BufferAttribute(skinIndex, 4));
   geometry.setAttribute("skinWeight", new THREE.BufferAttribute(skinWeight, 4));
   geometry.setAttribute(tagName, new THREE.BufferAttribute(tag, 1));
+  if (clothBand)
+    geometry.setAttribute("clothBand", new THREE.BufferAttribute(clothBand, 2));
   geometry.setIndex(new THREE.BufferAttribute(index, 1));
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();

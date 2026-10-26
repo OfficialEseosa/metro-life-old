@@ -5,7 +5,7 @@
  */
 import * as THREE from "three";
 import type { DonorKit } from "./kit";
-import { IRISES, hashString, pickWeighted, seeded } from "./palettes";
+import { IRISES, hashString, luminance, pickWeighted, seeded } from "./palettes";
 
 export type FaceStyle = "soft" | "bright" | "angular" | "freckled";
 export type FacePaint = {
@@ -45,11 +45,24 @@ function paintTile(
       : "soft") as FaceStyle,
     random = seeded(look.seed ^ 0x9e3779b9),
     iris = pickWeighted(IRISES, random()),
-    brow = shade(look.hairColor, 0.62),
+    hairBrow = shade(look.hairColor, 0.55),
+    skinLight = luminance(look.skin),
+    browLight = luminance(hairBrow),
+    brow =
+      Math.abs(skinLight - browLight) >= 0.16
+        ? hairBrow
+        : "#" +
+          new THREE.Color(look.skin)
+            .multiplyScalar(skinLight > 0.5 ? 0.42 : 1)
+            .lerp(
+              new THREE.Color(skinLight > 0.5 ? "#000000" : "#f2d8b4"),
+              skinLight > 0.5 ? 0.2 : 0.72,
+            )
+            .getHexString(),
     lash = "#1d1410",
     eyeW =
-      T * (style === "bright" ? 0.092 : style === "angular" ? 0.08 : 0.086),
-    eyeH = eyeW * (style === "bright" ? 0.78 : style === "angular" ? 0.58 : 0.68),
+      T * (style === "bright" ? 0.112 : style === "angular" ? 0.098 : 0.104),
+    eyeH = eyeW * (style === "bright" ? 0.78 : style === "angular" ? 0.64 : 0.72),
     browTilt = (style === "angular" ? 0.2 : style === "bright" ? -0.05 : 0.06) +
       (random() - 0.5) * 0.08,
     browLift = style === "bright" ? 1.2 : 1;
@@ -69,7 +82,7 @@ function paintTile(
       x.fill();
       x.save();
       x.clip();
-      const r = eyeH * 0.98,
+      const r = eyeH * 0.78,
         g = x.createRadialGradient(-r * 0.15, -r * 0.1, r * 0.1, 0, r * 0.05, r);
       g.addColorStop(0, shade(iris, 1.6));
       g.addColorStop(0.55, iris);
@@ -96,6 +109,11 @@ function paintTile(
       x.beginPath();
       x.ellipse(0, eyeH * 0.12, eyeW * 1.04, eyeH * 1.1, 0, Math.PI * 1.06, Math.PI * 1.96);
       x.stroke();
+      x.lineWidth = T * (look.sex === "f" ? 0.026 : 0.022);
+      x.beginPath();
+      x.moveTo(-eyeW * 1.04, eyeH * 0.02);
+      x.quadraticCurveTo(-eyeW * 0.12, -eyeH * 1.12, eyeW * 1.04, -eyeH * 0.02);
+      x.stroke();
       if (look.sex === "f") {
         x.lineWidth = T * 0.011;
         x.beginPath();
@@ -118,14 +136,14 @@ function paintTile(
       x.stroke();
     }
     // Brow in the hair colour.
-    const by = -eyeH - T * 0.045 * browLift;
+    const by = -eyeH - T * 0.06 * browLift;
     x.fillStyle = brow;
     x.beginPath();
     x.save();
     x.translate(0, by);
     x.rotate(-browTilt);
-    const bw = eyeW * 1.25,
-      bh = T * (look.sex === "f" ? 0.016 : 0.024);
+    const bw = eyeW * 1.55,
+      bh = T * (look.sex === "f" ? 0.022 : 0.03);
     x.moveTo(-bw, bh * 0.4);
     x.quadraticCurveTo(-bw * 0.1, -bh * 1.5, bw, -bh * 0.1);
     x.quadraticCurveTo(-bw * 0.1, bh * 0.6, -bw, bh * 0.4);
