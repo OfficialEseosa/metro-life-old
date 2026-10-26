@@ -1,6 +1,6 @@
 # Design notes
 
-Metro Life borrows mechanics, not content, from the life-sim genre and from captured reference material in `reference/`. No source dialogue, names, advertisements, icons, emoji or place content are reused. The decisions below are what the game deliberately does.
+Metro Life borrows mechanics, not content, from the life-sim genre. No source dialogue, names, advertisements, icons, emoji or place content are reused. The decisions below are what the game deliberately does.
 
 ## Simulation and actions
 

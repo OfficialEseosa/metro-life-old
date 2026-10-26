@@ -19,7 +19,6 @@ Stack: **Spring Boot 3 / Java 21 backend on :8080**, **React 19 + Vite + react-t
                                  neighborhoods, plots grid size, billboard slot count
   shared/*.json                  navigation, interiors, venues, transit, furniture and naming data read by
                                  both the backend and the frontend
-  reference/                     captured reference material — inspiration only (mechanics, API shapes)
   backend/                       Spring Boot API and WebSocket server
   frontend/
     public/models/kaykit/*.gltf  KayKit City Builder Bits (CC0)   public/models/world/**  Kenney kit pieces
