@@ -54,7 +54,8 @@ const LOOK_WITHIN = 4.5;
 /**
  * The far-crowd figure, built in metres with feet at the origin and the face toward +Z. Every part
  * is rounded with enough segments that the head stays a head at mid distance, and carries a part
- * index (skin, hair, top, bottom, shoe, eye) and an arm flag the crowd shader poses by.
+ * index (skin, hair, top, bottom, shoe, dark detail, eye white, trim), an arm flag and a long-hair
+ * flag the crowd shader poses by.
  */
 function crowdFigure() {
   const parts: THREE.BufferGeometry[] = [];
@@ -65,25 +66,55 @@ function crowdFigure() {
     at: [number, number, number],
     scale: [number, number, number] = [1, 1, 1],
     tilt = 0,
+    longHairPiece = false,
   ) => {
     g.scale(...scale);
     if (tilt) g.rotateZ(tilt);
     g.translate(...at);
     const n = g.attributes.position.count;
-    // Part and arm flag share one attribute (part + 8 for arms) to stay within 16 attributes.
+    // Part, arm and long-hair flags share one attribute to stay within 16 attributes.
     g.setAttribute(
       "crowdPart",
-      new THREE.Float32BufferAttribute(new Float32Array(n).fill(part + limb * 8), 1),
+      new THREE.Float32BufferAttribute(
+        new Float32Array(n).fill(part + limb * 8 + (longHairPiece ? 16 : 0)),
+        1,
+      ),
     );
     g.deleteAttribute("uv");
     parts.push(g);
   };
   add(new THREE.SphereGeometry(0.112, 12, 8), 0, 0, [0, 1.62, 0.005], [0.94, 1.1, 1]);
-  const hair = new THREE.SphereGeometry(0.122, 12, 4, 0, Math.PI * 2, 0, Math.PI * 0.56);
+  const hair = new THREE.SphereGeometry(0.122, 12, 4, 0, Math.PI * 2, 0, Math.PI * 0.64);
   hair.rotateX(-0.42);
   add(hair, 1, 0, [0, 1.64, -0.012], [0.96, 1.08, 1.04]);
+  add(new THREE.SphereGeometry(1, 6, 3), 1, 0, [0, 1.704, 0.085], [0.058, 0.018, 0.022]);
+  add(new THREE.SphereGeometry(1, 6, 3), 6, 0, [-0.04, 1.625, 0.091], [0.026, 0.022, 0.009]);
+  add(new THREE.SphereGeometry(1, 6, 3), 6, 0, [0.04, 1.625, 0.091], [0.026, 0.022, 0.009]);
+  add(new THREE.SphereGeometry(1, 6, 3), 5, 0, [-0.04, 1.625, 0.108], [0.014, 0.016, 0.012]);
+  add(new THREE.SphereGeometry(1, 6, 3), 5, 0, [0.04, 1.625, 0.108], [0.014, 0.016, 0.012]);
+  for (const side of [-1, 1])
+    add(
+      new THREE.BoxGeometry(0.05, 0.008, 0.009),
+      5,
+      0,
+      [side * 0.04, 1.663, 0.09],
+      [1, 1, 1],
+      side * 0.08,
+    );
+  const longHair = new THREE.CapsuleGeometry(0.031, 0.25, 1, 4);
+  add(longHair.clone(), 1, 0, [-0.078, 1.51, -0.075], [1, 1, 0.85], 0, true);
+  add(longHair, 1, 0, [0.078, 1.51, -0.075], [1, 1, 0.85], 0, true);
   add(new THREE.CylinderGeometry(0.046, 0.052, 0.12, 8, 1, true), 0, 0, [0, 1.48, 0]);
+  const collar = new THREE.TorusGeometry(0.061, 0.008, 3, 6);
+  collar.rotateX(Math.PI / 2);
+  add(collar, 7, 0, [0, 1.45, 0]);
   add(new THREE.CapsuleGeometry(0.145, 0.26, 2, 8), 2, 0, [0, 1.21, 0], [1, 1, 0.68]);
+  add(
+    new THREE.CylinderGeometry(0.145, 0.145, 0.015, 6, 1, true),
+    7,
+    0,
+    [0, 1.02, 0],
+  );
   add(new THREE.CapsuleGeometry(0.135, 0.06, 1, 8), 3, 0, [0, 0.96, 0], [1, 1, 0.72]);
   for (const side of [-1, 1]) {
     add(new THREE.CapsuleGeometry(0.064, 0.74, 1, 6), 3, 0, [side * 0.082, 0.5, 0]);
@@ -224,25 +255,20 @@ export function Residents() {
     lodAt = useRef(0);
   const model = useMemo(() => {
     const geometry = crowdFigure();
-    const conditions = new THREE.InstancedBufferAttribute(
-        new Float32Array(48),
-        1,
-      ),
-      poses = new THREE.InstancedBufferAttribute(new Float32Array(48), 1),
+    const states = new THREE.InstancedBufferAttribute(new Float32Array(48), 1),
       phases = new THREE.InstancedBufferAttribute(new Float32Array(48), 1),
       shirts = new THREE.InstancedBufferAttribute(new Float32Array(48 * 3), 3),
       skins = new THREE.InstancedBufferAttribute(new Float32Array(48 * 3), 3),
       hairs = new THREE.InstancedBufferAttribute(new Float32Array(48 * 3), 3),
       bottoms = new THREE.InstancedBufferAttribute(new Float32Array(48 * 3), 3),
-      near = new THREE.InstancedBufferAttribute(new Float32Array(48), 1);
-    geometry.setAttribute("crowdPose", poses);
-    geometry.setAttribute("crowdCondition", conditions);
+      shoes = new THREE.InstancedBufferAttribute(new Float32Array(48 * 3), 3);
+    geometry.setAttribute("crowdState", states);
     geometry.setAttribute("crowdPhase", phases);
     geometry.setAttribute("shirtColor", shirts);
     geometry.setAttribute("skinColor", skins);
     geometry.setAttribute("hairColor", hairs);
     geometry.setAttribute("bottomColor", bottoms);
-    geometry.setAttribute("crowdNear", near);
+    geometry.setAttribute("shoeColor", shoes);
     const time = { value: 0 },
       material = new THREE.MeshStandardMaterial({
         roughness: 0.85,
@@ -250,16 +276,22 @@ export function Residents() {
     material.onBeforeCompile = (shader) => {
       shader.uniforms.crowdTime = time;
       shader.vertexShader =
-        "uniform float crowdTime;attribute float crowdPose;attribute float crowdCondition;attribute float crowdPhase;attribute vec3 shirtColor;attribute vec3 skinColor;attribute vec3 hairColor;attribute vec3 bottomColor;attribute float crowdNear;attribute float crowdPart;varying vec3 vCrowd;\n" +
+        "uniform float crowdTime;attribute float crowdState;attribute float crowdPhase;attribute vec3 shirtColor;attribute vec3 skinColor;attribute vec3 hairColor;attribute vec3 bottomColor;attribute vec3 shoeColor;attribute float crowdPart;varying vec3 vCrowd;\n" +
         shader.vertexShader;
       shader.vertexShader = shader.vertexShader.replace(
         "#include <color_vertex>",
-        "#include <color_vertex>\nfloat part=mod(crowdPart,8.);vCrowd=part<.5?skinColor:part<1.5?hairColor:part<2.5?shirtColor:part<3.5?bottomColor:part<4.5?bottomColor*.45+.05:vec3(.06,.04,.04);",
+        "#include <color_vertex>\nfloat partColor=mod(crowdPart,8.);vCrowd=partColor<.5?skinColor:partColor<1.5?hairColor:partColor<2.5?shirtColor:partColor<3.5?bottomColor:partColor<4.5?shoeColor:partColor<5.5?vec3(.06,.04,.04):partColor<6.5?vec3(.94):shirtColor*.62+.02;",
       );
       shader.vertexShader = shader.vertexShader.replace(
         "#include <begin_vertex>",
         `#include <begin_vertex>
- bool arm=crowdPart>7.5;
+ float crowdPose=mod(crowdState,16.);
+ float crowdCondition=mod(floor(crowdState/16.),4.);
+ float crowdNear=mod(floor(crowdState/64.),2.);
+ float hairKind=floor(crowdState/128.);
+ float part=mod(crowdPart,8.);
+ bool arm=mod(crowdPart,16.)>7.5;
+ bool longPiece=crowdPart>15.5;
  float phase=crowdTime*(crowdPose==2.?10.:7.)+crowdPhase;
  if(crowdPose==1.||crowdPose==2.){if(position.y<1.)transformed.z+=sin(phase+step(0.,position.x)*3.14159)*(crowdPose==2.?.43:.24)*(1.-position.y);if(arm)transformed.z+=sin(phase+step(0.,position.x)*3.14159)*.13;transformed.y+=sin(phase*2.)*(crowdPose==2.?.07:.025);if(crowdPose==2.)transformed.z+=max(0.,position.y-1.)*.18;}
  if(crowdPose==3.||crowdPose==4.||crowdPose==7.){if(position.y<1.){transformed.z+=.42*(1.-position.y);transformed.y*=.58;}else transformed.y-=.42;}
@@ -274,8 +306,10 @@ export function Residents() {
  if(crowdPose==12.&&arm){transformed.z+=.3;transformed.y+=sin(phase+position.x*3.)*.08;}
  if(mod(crowdCondition,2.)>.5&&crowdPose!=8.){transformed.z+=max(0.,position.y-.8)*.22;transformed.y-=max(0.,position.y-1.)*.08;}
  if(crowdCondition>=2.&&arm&&position.x<0.&&crowdPose<3.){transformed.x+=.2;transformed.z+=.3;}
+ if(part>.5&&part<1.5&&hairKind>1.5)transformed*=0.;
+ if(longPiece&&hairKind!=1.)transformed*=0.;
  transformed*=1.-step(.5,crowdNear);
- `,
+`,
       );
       // Colours ride a varying rather than vertex colours: software WebGL allows only 16 attributes.
       shader.fragmentShader =
@@ -286,18 +320,17 @@ export function Residents() {
         );
     };
     material.userData.crowdTime = time;
-    material.customProgramCacheKey = () => "metro-crowd-life-v6";
+    material.customProgramCacheKey = () => "metro-crowd-life-v7";
     return {
       geometry,
       material,
-      conditions,
-      poses,
+      states,
       phases,
       shirts,
       skins,
       hairs,
       bottoms,
-      near,
+      shoes,
       time,
     };
   }, []);
@@ -314,21 +347,30 @@ export function Residents() {
             (p.position.room ?? null) === (room ?? null),
         )
         .slice(0, 48)
-        .map((p) => ({
-          id: p.id,
-          target: crowdTarget(p),
-          face: p.activitySlot?.face ?? p.position!.face,
-          person: p,
-          look: lookOf(p),
-          options: optionsOf(p),
-          activity: lifePose(p).toLowerCase(),
-          crowdPose: crowdPose(lifePose(p)),
-          seatedSlot: !!p.activitySlot && SEATED_SLOTS.has(p.activitySlot.pose),
-          label: lifeLabel(p),
-          topic: lifeTopic(p),
-          condition: bodyCondition(p),
-          color: new THREE.Color(lookOf(p).top),
-        })),
+        .map((p) => {
+          const look = lookOf(p);
+          return {
+            id: p.id,
+            target: crowdTarget(p),
+            face: p.activitySlot?.face ?? p.position!.face,
+            person: p,
+            look,
+            options: optionsOf(p),
+            activity: lifePose(p).toLowerCase(),
+            crowdPose: crowdPose(lifePose(p)),
+            hairKind:
+              look.hair === "bald"
+                ? 2
+                : ["long", "bob", "ponytail", "braids"].includes(look.hair)
+                  ? 1
+                  : 0,
+            seatedSlot: !!p.activitySlot && SEATED_SLOTS.has(p.activitySlot.pose),
+            label: lifeLabel(p),
+            topic: lifeTopic(p),
+            condition: bodyCondition(p),
+            color: new THREE.Color(look.top),
+          };
+        }),
     [players, city, self, room],
   );
   useLayoutEffect(() => {
@@ -339,9 +381,15 @@ export function Residents() {
       const p = crowd[i];
       if (!positions.current.has(p.id))
         positions.current.set(p.id, p.target.clone());
-      model.conditions.setX(
+      const condition =
+        (p.condition.tired ? 1 : 0) + (p.condition.hungry ? 2 : 0);
+      model.states.setX(
         i,
-        (p.condition.tired ? 1 : 0) + (p.condition.hungry ? 2 : 0),
+        p.crowdPose +
+          16 * condition +
+          64 *
+            (nearSet.current.has(p.id) && ready.current.has(p.id) ? 1 : 0) +
+          128 * p.hairKind,
       );
       model.phases.setX(
         i,
@@ -352,17 +400,19 @@ export function Residents() {
         [model.skins, p.look.skin],
         [model.hairs, p.look.hairColor],
         [model.bottoms, p.look.bottom],
+        [model.shoes, p.look.shoeColor],
       ] as const) {
         const c = new THREE.Color(colour);
         attribute.setXYZ(i, c.r, c.g, c.b);
       }
     }
-    model.conditions.needsUpdate =
+    model.states.needsUpdate =
       model.phases.needsUpdate =
       model.shirts.needsUpdate =
       model.skins.needsUpdate =
       model.hairs.needsUpdate =
       model.bottoms.needsUpdate =
+      model.shoes.needsUpdate =
         true;
     const ids = new Set(crowd.map((p) => p.id));
     for (const id of positions.current.keys())
@@ -486,13 +536,16 @@ export function Residents() {
           ? person.person.activitySlot.y - dummy.position.y
           : undefined;
       rendered.current.set(person.id, state.position);
-      model.poses.setX(
+      const pose =
+          speed > 0.08 ? (state.pose === "Run" ? 2 : 1) : person.crowdPose,
+        condition =
+          (person.condition.tired ? 1 : 0) +
+          (person.condition.hungry ? 2 : 0),
+        near =
+          nearSet.current.has(person.id) && ready.current.has(person.id) ? 1 : 0;
+      model.states.setX(
         i,
-        speed > 0.08 ? (state.pose === "Run" ? 2 : 1) : person.crowdPose,
-      );
-      model.near.setX(
-        i,
-        nearSet.current.has(person.id) && ready.current.has(person.id) ? 1 : 0,
+        pose + 16 * condition + 64 * near + 128 * person.hairKind,
       );
       dummy.scale.setScalar(clip ? 0 : 1);
       dummy.rotation.y = yaw;
@@ -568,8 +621,7 @@ export function Residents() {
       lastCamera.current.copy(camera.matrixWorld);
       lastHeight.current = size.height;
       mesh.instanceMatrix.needsUpdate =
-        model.poses.needsUpdate =
-        model.near.needsUpdate =
+        model.states.needsUpdate =
           true;
       mesh.computeBoundingSphere();
     }
