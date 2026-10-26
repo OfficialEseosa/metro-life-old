@@ -279,6 +279,31 @@
   }
 }
 
+/* Phones in landscape: the stack sits just above the dock, under the player. One kicker line and
+   one title line keep a card below the player's feet; errors and messages keep their sentence. */
+@media (max-height: 520px) {
+  /* The strip between the joystick and the action stack is narrow: the tone colour carries the
+     kind, so the icon steps aside and the kicker and title each get one whole line. */
+  .feedback-toast,
+  .tone-big {
+    min-height: 52px;
+    padding-left: 12px;
+  }
+  .feedback-toast .feedback-icon {
+    display: none;
+  }
+  .feedback-text small {
+    letter-spacing: 0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .feedback-toast:not(:is([data-kind="error"], [data-kind="chat"], [data-kind="socialReceived"]))
+    .feedback-detail {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .feedback-toast,
   .feedback-toast.is-leaving,
