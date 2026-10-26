@@ -146,8 +146,9 @@ export function ConnectionGate() {
           <p>{loadError}</p>
         ) : (
           <p>
-            We cannot reach the Metro Life server right now. Your life is saved
-            {retryAt ? " and we will keep trying to reconnect" : ""}.
+            We cannot reach the Metro Life server right now
+            {retryAt ? ", and we will keep trying to reconnect" : ""}. Nothing is
+            lost while you wait.
           </p>
         )}
         {retryAt ? (
