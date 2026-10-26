@@ -1,5 +1,5 @@
 {
-  "about": "Atlanta hero landmarks made in Blender, each checked against real photographs. Units are real metres (glTF +Y up). Origin is the centre of the footprint at ground level. The main entrance or signature face points to local -Z in glTF (-Y in Blender). Each file has a daytime mesh plus a glow mesh to make emissive at night. Vertex colours, no textures. These replace the existing ids listed in 'replaces'. Scale them with the city's building scales (the Atlanta research suggests 0.40 footprint and 0.45 height); do not stretch non-uniformly by more than that.",
+  "about": "Atlanta hero landmarks made in Blender, each checked against real photographs. Units are real metres (glTF +Y up). Origin is the centre of the footprint at ground level. The main entrance or signature face points to local -Z in glTF (-Y in Blender). Each file has a daytime mesh plus a glow mesh to make emissive at night. Vertex colours, no textures. These replace the existing ids listed in 'replaces'. Scale them with the city's building scales (0.40 footprint and 0.45 height suit them); do not stretch non-uniformly by more than that.",
   "landmarks": [
     {
       "file": "atl-mercedes-benz-stadium.glb",

@@ -1,0 +1,7 @@
+The four Atlanta landmark models in this folder (Mercedes-Benz Stadium, State Farm Arena, Georgia Aquarium and Fox Theatre) were created by Raphael Omorose for Metro Life.
+
+Copyright (c) 2026 Raphael Omorose
+
+They are released under the MIT License of the Metro Life repository; the full
+text is in the LICENSE file at the repository root. Real building names are
+used as labels only; no photographs, logos or external textures are included.

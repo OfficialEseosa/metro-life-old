@@ -1,5 +1,5 @@
 {
-  "about": "Atlanta skyline towers made in Blender. Units are real metres (glTF +Y up). Origin is the centre of the footprint at ground level. Each file has one daytime mesh plus a *-glow mesh meant to be emissive at night (warm white or orange). Vertex colours, no textures. Real-world positions are offsets from Five Points (33.7545, -84.3898) with x = east and n = north; in the scene use z = -n. Apply the city's own map projection and building scales; the research note research/metro/03-atlanta-map-and-assets.md section 1.7 suggests a 0.30 map scale with 0.40 footprint and 0.45 height scales.",
+  "about": "Atlanta skyline towers made in Blender. Units are real metres (glTF +Y up). Origin is the centre of the footprint at ground level. Each file has one daytime mesh plus a *-glow mesh meant to be emissive at night (warm white or orange). Vertex colours, no textures. Real-world positions are offsets from Five Points (33.7545, -84.3898) with x = east and n = north; in the scene use z = -n. Apply the city's own map projection and building scales; a 0.30 map scale with 0.40 footprint and 0.45 height scales suits them.",
   "towers": [
     {
       "file": "atl-bofa-plaza.glb",

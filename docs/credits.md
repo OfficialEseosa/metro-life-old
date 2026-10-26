@@ -4,7 +4,7 @@ Every shipped model/texture is inventoried below, including retained assets not 
 
 CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/. KayKit’s original licence remains beside the models; Quaternius and Kenney source notices are now retained too. Runtime recolours, uniform scaling, baked crowds and authoring transformations do not change the upstream licence.
 
-Metro Life’s newly authored models/geometry, model textures and procedural effects are dedicated to CC0 by this project. Scripts remain repository code. Landmarks were built from geometric forms using photographic references as information; the reference images themselves are not shipped as game assets. Recognition limits are in `landmarks.md`.
+Metro Life’s newly authored models/geometry, model textures and procedural effects are dedicated to CC0 by this project. The exception is the landmark and skyline models in `landmarks/`, `landmarks-blender/` and `skyline/`, which Raphael Omorose created for Metro Life and releases under the repository’s MIT licence (`LICENSE` at the root, with a `LICENSE.txt` in each of those folders). Scripts remain repository code. Landmarks were built from geometric forms using photographic references as information; the reference images themselves are not shipped as game assets. Recognition limits are in `landmarks.md`.
 
 Fonts/code are separate from the 3D art: Fredoka and Nunito (SIL OFL 1.1, see the Fonts section below) retain their own notices; Three.js, React and the other libraries retain their own permissive software licences. Map data (c) OpenStreetMap contributors, ODbL, https://www.openstreetmap.org/copyright. These are not CC0 model packs.
 
@@ -54,28 +54,28 @@ Fonts/code are separate from the 3D art: Fredoka and Nunito (SIL OFL 1.1, see th
 | `kaykit/road_straight.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
 | `kaykit/streetlight.bin` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
 | `kaykit/streetlight.gltf` | [Kay Lousberg](https://kaylousberg.itch.io/city-builder-bits) | CC0 1.0 |
-| `landmarks/alcatraz.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/aquarium.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/arena.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/benz.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/brooklynBridge.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/capitol.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/centennial.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/empire.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/ferryBuilding.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/fox.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/goldenGate.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/grandCentral.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/high.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/liberty.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/met.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/oneWtc.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/painted-row-lod.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/paintedLadies.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/piedmont.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/ponce.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/salesforce.glb` | Metro Life — authored in this repository | CC0 1.0 |
-| `landmarks/sfCityHall.glb` | Metro Life — authored in this repository | CC0 1.0 |
+| `landmarks/alcatraz.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/aquarium.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/arena.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/benz.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/brooklynBridge.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/capitol.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/centennial.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/empire.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/ferryBuilding.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/fox.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/goldenGate.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/grandCentral.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/high.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/liberty.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/met.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/oneWtc.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/painted-row-lod.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/paintedLadies.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/piedmont.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/ponce.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/salesforce.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
+| `landmarks/sfCityHall.glb` | Raphael Omorose for Metro Life | MIT (`landmarks/LICENSE.txt`) |
 | `world/car/delivery.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
 | `world/car/sedan.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
 | `world/car/suv.glb` | [Kenney](https://kenney.nl/assets/car-kit) | CC0 1.0 |
@@ -117,9 +117,21 @@ Fonts/code are separate from the 3D art: Fredoka and Nunito (SIL OFL 1.1, see th
 
 N8AO 2.0.1: CC0 1.0 per its shipped LICENSE ([upstream](https://github.com/N8python/n8ao); package metadata says ISC). postprocessing 6.39.5: Zlib ([upstream](https://github.com/pmndrs/postprocessing)). Three addons/RoomEnvironment: MIT, existing Three dependency. three-mesh-bvh 0.8.3: MIT ([upstream](https://github.com/gkjohnson/three-mesh-bvh)). Contact bakes, light pools and light faces are generated here; no new external art assets.
 
-## Supplied Atlanta Blender models
+## Atlanta Blender models
 
-The five skyline towers in `models/skyline/` (Bank of America Plaza, Truist Plaza, Westin Peachtree Plaza, 191 Peachtree Tower and One Atlantic Center) and the four hero landmarks in `models/landmarks-blender/` (Mercedes-Benz Stadium, State Farm Arena, Georgia Aquarium and Fox Theatre) were **made in Blender for Metro Life**. These original vertex-colour models are supplied with the project; their manifests record authoring units, real-world placement information, triangle counts and named night-light meshes. No photographs or external textures are shipped with them. Metro Life authored art is dedicated to CC0 as stated above.
+The five skyline towers in `models/skyline/` and the four hero landmarks in `models/landmarks-blender/` were modelled in Blender by Raphael Omorose for Metro Life. They are vertex-coloured, with no photographs or external textures; their manifests record units, real-world placement, triangle counts and the named night-light meshes. They are released under the repository’s MIT licence, with a `LICENSE.txt` in each folder.
+
+| Local file (under frontend/public/models) | Building | Author | Licence |
+|---|---|---|---|
+| `skyline/atl-bofa-plaza.glb` | Bank of America Plaza | Raphael Omorose for Metro Life | MIT (`skyline/LICENSE.txt`) |
+| `skyline/atl-truist-plaza.glb` | Truist Plaza | Raphael Omorose for Metro Life | MIT (`skyline/LICENSE.txt`) |
+| `skyline/atl-westin-peachtree.glb` | Westin Peachtree Plaza | Raphael Omorose for Metro Life | MIT (`skyline/LICENSE.txt`) |
+| `skyline/atl-191-peachtree.glb` | 191 Peachtree Tower | Raphael Omorose for Metro Life | MIT (`skyline/LICENSE.txt`) |
+| `skyline/atl-one-atlantic-center.glb` | One Atlantic Center | Raphael Omorose for Metro Life | MIT (`skyline/LICENSE.txt`) |
+| `landmarks-blender/atl-mercedes-benz-stadium.glb` | Mercedes-Benz Stadium | Raphael Omorose for Metro Life | MIT (`landmarks-blender/LICENSE.txt`) |
+| `landmarks-blender/atl-state-farm-arena.glb` | State Farm Arena | Raphael Omorose for Metro Life | MIT (`landmarks-blender/LICENSE.txt`) |
+| `landmarks-blender/atl-georgia-aquarium.glb` | Georgia Aquarium | Raphael Omorose for Metro Life | MIT (`landmarks-blender/LICENSE.txt`) |
+| `landmarks-blender/atl-fox-theatre.glb` | Fox Theatre | Raphael Omorose for Metro Life | MIT (`landmarks-blender/LICENSE.txt`) |
 
 ## Fonts
 
