@@ -860,6 +860,7 @@ public class GameService {
       "job",
       "visited",
       "actionsCount",
+      "pantry",
       "pendingBeat",
       "aspiration",
       "_metrics",
