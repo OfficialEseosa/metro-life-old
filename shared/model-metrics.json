@@ -348,24 +348,6 @@
       "CharacterArmature|Wave"
     ]
   },
-  "kaykit/base.gltf": {
-    "sha256": "ac49eb9d300587172c416f73c7fd709403dc34f432f02ab3e3c9590adc63c21c",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      0.09999998658895493,
-      2
-    ],
-    "triangles": 60,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
   "kaykit/bench.gltf": {
     "sha256": "f3b731470c30ed21d7e03f15d28f1937b3e4881efcca57a48e4c82ae582e51e1",
     "min": [
@@ -379,60 +361,6 @@
       0.15000005066394806
     ],
     "triangles": 44,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/box_A.gltf": {
-    "sha256": "fe1fa867aa6aa2933bbe3d232c8dcedffc68d484019f71544ce191e2c8ddc16c",
-    "min": [
-      -0.10000002384185791,
-      -2.2351741790771484e-8,
-      -0.10000002384185791
-    ],
-    "size": [
-      0.20000004768371582,
-      0.17640116065740585,
-      0.2030770182609558
-    ],
-    "triangles": 32,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/box_B.gltf": {
-    "sha256": "6ad0554fedbc3ad3079cac62668455912bbe59be3b796de3356f2cc4e726e690",
-    "min": [
-      -0.07602937519550323,
-      -1.6993885409988252e-8,
-      -0.07602937519550323
-    ],
-    "size": [
-      0.15205875039100647,
-      0.1696322581237606,
-      0.15439815819263458
-    ],
-    "triangles": 20,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/building_A.gltf": {
-    "sha256": "d9d21afb847de1c67a643cc34738f0b71d71f6a8926e8fa7f248bb6a434a22ba",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      1.6499998569488525,
-      2
-    ],
-    "triangles": 828,
     "materials": [
       "citybits_texture"
     ],
@@ -456,24 +384,6 @@
     ],
     "clips": []
   },
-  "kaykit/building_B.gltf": {
-    "sha256": "d026df95a16e31d1d50827375db7978099af35eefbb255bf6674855d303fb390",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      1.6499998569488525,
-      2
-    ],
-    "triangles": 1082,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
   "kaykit/building_B_withoutBase.gltf": {
     "sha256": "69b1e3d91479c8fe3134e385fef567603cecd2423a032f2a11b9f2deb7046458",
     "min": [
@@ -487,24 +397,6 @@
       1.2999999523162842
     ],
     "triangles": 586,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/building_C.gltf": {
-    "sha256": "d2477afdb8a68507ab862ede37f47a2a7b74df369290bc57712239214c6ae2c8",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      2.976620674133301,
-      2
-    ],
-    "triangles": 1020,
     "materials": [
       "citybits_texture"
     ],
@@ -528,24 +420,6 @@
     ],
     "clips": []
   },
-  "kaykit/building_D.gltf": {
-    "sha256": "1484455bd37ce136e1defb1639f68cf82b7b00f977856b1d9483de9c02760ba3",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      2.9700002670288086,
-      2.020421028137207
-    ],
-    "triangles": 1118,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
   "kaykit/building_D_withoutBase.gltf": {
     "sha256": "40c07bd5026825a8cf95bf202b702fdb4858ae8a4f2236aa41a9db7a4fdd19ca",
     "min": [
@@ -559,24 +433,6 @@
       1.2999999523162842
     ],
     "triangles": 848,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/building_E.gltf": {
-    "sha256": "42905f3038030e27126da1454aaf1e1bff1ad66de34d9c94a9599c709ae5e97d",
-    "min": [
-      -1.0033698081970215,
-      0,
-      -1
-    ],
-    "size": [
-      2.006739616394043,
-      2.3499999046325684,
-      2
-    ],
-    "triangles": 1356,
     "materials": [
       "citybits_texture"
     ],
@@ -600,24 +456,6 @@
     ],
     "clips": []
   },
-  "kaykit/building_F.gltf": {
-    "sha256": "cebfc6df11af7caf712a3f3e0d2c033554355ff7bf7a8b332eb21ebdaaba2aa1",
-    "min": [
-      -1.0033698081970215,
-      0,
-      -1
-    ],
-    "size": [
-      2.006739616394043,
-      2.3499999046325684,
-      2
-    ],
-    "triangles": 1389,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
   "kaykit/building_F_withoutBase.gltf": {
     "sha256": "7fe97913eb97fe868b440ac4f13ca60f4d36262624526bbcafcef94566016343",
     "min": [
@@ -631,60 +469,6 @@
       1.2999999523162842
     ],
     "triangles": 1097,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/building_G.gltf": {
-    "sha256": "314dad28b2ef5fdd370534ded457e0381410fe8051687517552b8f1ac43fac11",
-    "min": [
-      -1.0033698081970215,
-      0,
-      -1
-    ],
-    "size": [
-      2.006739616394043,
-      2.9763526916503906,
-      2
-    ],
-    "triangles": 1711,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/building_G_withoutBase.gltf": {
-    "sha256": "2a2dc998168a01bd34390d6fbb2a273e191c8b6e3258f4f3df09a37465ebf0e1",
-    "min": [
-      -1.0033698081970215,
-      0.09993039071559906,
-      -0.6499999761581421
-    ],
-    "size": [
-      2.006739616394043,
-      2.2500695139169693,
-      1.4500000476837158
-    ],
-    "triangles": 1053,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/building_H.gltf": {
-    "sha256": "319d8392ba3b1662ca8506cfda7dbecc694a7d60268e20a136cdeecbe472d6d2",
-    "min": [
-      -1.0033698081970215,
-      0,
-      -1
-    ],
-    "size": [
-      2.006739616394043,
-      3.049999952316284,
-      2
-    ],
-    "triangles": 1885,
     "materials": [
       "citybits_texture"
     ],
@@ -744,24 +528,6 @@
     ],
     "clips": []
   },
-  "kaykit/car_police.gltf": {
-    "sha256": "c6f1f85c2a8f56ec0abb76deac13486d42399c6d23868e5e524a090fce652d12",
-    "min": [
-      -0.20947551727294922,
-      -0.0610429048538208,
-      -0.47233495116233826
-    ],
-    "size": [
-      0.41896088421344757,
-      0.41263529658317566,
-      0.9380729794502258
-    ],
-    "triangles": 1316,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
   "kaykit/car_sedan.gltf": {
     "sha256": "96c9d38e682bc2c77470af09d1a7450208559ca652bf2cf6fd2bc20b8646ef59",
     "min": [
@@ -780,60 +546,6 @@
     ],
     "clips": []
   },
-  "kaykit/car_stationwagon.gltf": {
-    "sha256": "49f7e2bdb70183214a3e8d8576e420ebb69520b21db81dddfc6a04e1ed8994fd",
-    "min": [
-      -0.20947551727294922,
-      -0.0610429048538208,
-      -0.47233495116233826
-    ],
-    "size": [
-      0.41896088421344757,
-      0.3687642216682434,
-      0.9380729794502258
-    ],
-    "triangles": 1234,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/car_taxi.gltf": {
-    "sha256": "781b3265473dab6f7e054f06c23abeba9b811516b19b61a7a88b0aa8d33e1323",
-    "min": [
-      -0.20947551727294922,
-      -0.0610429048538208,
-      -0.47233495116233826
-    ],
-    "size": [
-      0.41896088421344757,
-      0.4344717860221863,
-      0.9380729794502258
-    ],
-    "triangles": 1256,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/dumpster.gltf": {
-    "sha256": "56353a02aa70f61ea0f94f5806c66f489b2949b64db0611b5ccf2b500c815cb9",
-    "min": [
-      -0.2829735279083252,
-      0,
-      -0.17639896273612976
-    ],
-    "size": [
-      0.5659470558166504,
-      0.317278653383255,
-      0.3527979254722595
-    ],
-    "triangles": 126,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
   "kaykit/firehydrant.gltf": {
     "sha256": "0a3f9fb95e8b4805602ad26050ee552408553682b41f3e54981a69dfa92a7f3b",
     "min": [
@@ -847,42 +559,6 @@
       0.13132071495056152
     ],
     "triangles": 180,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/road_corner.gltf": {
-    "sha256": "592dadb7a6e81e2c5c2415d5e3872eaccece0c71ff1e34bb3ced06ceed4ce149",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      0.09999997913837433,
-      2
-    ],
-    "triangles": 152,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/road_corner_curved.gltf": {
-    "sha256": "92a3a77292b6f2cc75accd7b0340d98805377925cd0c9593661bcbf541913e88",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      0.09999997913837433,
-      2
-    ],
-    "triangles": 172,
     "materials": [
       "citybits_texture"
     ],
@@ -924,42 +600,6 @@
     ],
     "clips": []
   },
-  "kaykit/road_straight_crossing.gltf": {
-    "sha256": "7df128514884a9356404fa3b42b10816a6dec8a211bc22233372cdbb7e1e71a9",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      0.09999999403953552,
-      2
-    ],
-    "triangles": 64,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/road_tsplit.gltf": {
-    "sha256": "dcdf1facedbd82419b9d0533f327bcf0b66ad74ced86c63d5151244a9cec812f",
-    "min": [
-      -1,
-      0,
-      -1
-    ],
-    "size": [
-      2,
-      0.09999997913837433,
-      2
-    ],
-    "triangles": 138,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
   "kaykit/streetlight.gltf": {
     "sha256": "4399e9023844319e0f74311779a2c0ebecacec16f5dfd8123b6141a3af903c6a",
     "min": [
@@ -973,114 +613,6 @@
       0.06902249157428741
     ],
     "triangles": 176,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/trafficlight_A.gltf": {
-    "sha256": "4a22f6fc11fcafd61b2272e675a20437d3c69003ae63002980a903a215941b15",
-    "min": [
-      -0.13457560539245605,
-      0.000009156763553619385,
-      -0.03985767439007759
-    ],
-    "size": [
-      0.17443180084228516,
-      0.7294858917593956,
-      0.1505678854882717
-    ],
-    "triangles": 508,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/trafficlight_B.gltf": {
-    "sha256": "a7b9369e3cad7b58a0914a885a14d477c402295fc7d89b26280b4f77b742e28b",
-    "min": [
-      -0.2392103672027588,
-      0.000009156763553619385,
-      -0.03985767439007759
-    ],
-    "size": [
-      0.2790665626525879,
-      0.9599148258566856,
-      0.1505678854882717
-    ],
-    "triangles": 636,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/trafficlight_C.gltf": {
-    "sha256": "1453697f533323bcf661d59842850a3054ac0bee3d3e7cd8e1ea5e2d627de226",
-    "min": [
-      -0.7640303373336792,
-      0.000009156763553619385,
-      -0.1370096057653427
-    ],
-    "size": [
-      0.797736644744873,
-      0.9694854244589806,
-      0.271585613489151
-    ],
-    "triangles": 444,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/trash_A.gltf": {
-    "sha256": "dcd3a27821a9d8a781a40a393e167d51c1cdb743edf95edc59236fe32238b464",
-    "min": [
-      -0.060088641941547394,
-      0,
-      -0.0666484460234642
-    ],
-    "size": [
-      0.12677377462387085,
-      0.052376944571733475,
-      0.1332968920469284
-    ],
-    "triangles": 18,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/trash_B.gltf": {
-    "sha256": "6b549af074a24a1d2dd916af53d33d71d251b9e7e004de67294da02d336754e3",
-    "min": [
-      -0.026508506387472153,
-      0,
-      -0.032371584326028824
-    ],
-    "size": [
-      0.06806180998682976,
-      0.04039031267166138,
-      0.07084156945347786
-    ],
-    "triangles": 18,
-    "materials": [
-      "citybits_texture"
-    ],
-    "clips": []
-  },
-  "kaykit/watertower.gltf": {
-    "sha256": "55ae59f2a21ad38c64312a4c00d6808dc486bf4a8e8a8c969bc9e26cdc84d8f3",
-    "min": [
-      -0.24944308400154114,
-      -9.387731552124023e-7,
-      -0.24944308400154114
-    ],
-    "size": [
-      0.4988861531019211,
-      0.6700010150671005,
-      0.4988861531019211
-    ],
-    "triangles": 146,
     "materials": [
       "citybits_texture"
     ],
