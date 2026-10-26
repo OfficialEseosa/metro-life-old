@@ -808,6 +808,14 @@ export function StoryPanel({ beat }: { beat: StoryBeat }) {
                 setOutcome(r.outcome.text);
                 state().setSim(r.sim);
                 state().setLastResult({
+                  activity: {
+                    id: beat.id,
+                    label: beat.title,
+                    cost: 0,
+                    pay: 0,
+                    dailyCash: 0,
+                    bonusCash: 0,
+                  },
                   text: r.outcome.text,
                   deltas: r.outcome.deltas,
                   busyUntil: null,

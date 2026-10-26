@@ -34,6 +34,20 @@ final class ResidentMotion {
     );
   }
 
+  /** A player takes this resident's seat: they get up and walk back out along their room path. */
+  void yieldSlot(ObjectNode n) {
+    String room = n.path("position").path("room").asText();
+    int colon = room.indexOf(':');
+    JsonNode path = g.navigation
+      .layout(n.path("city").asText(), colon < 0 ? room : room.substring(0, colon))
+      .path("paths")
+      .path(n.path("_roomStation").asText());
+    int from = n.path("_phase").asText().equals("dwell") ? path.size() - 1 : n.path("_roomPoint").asInt() - 1;
+    n.put("_phase", "leave").put("activity", "walk").put("_roomPoint", from);
+    n.putNull("activitySlot");
+    n.remove("_roomSlot");
+  }
+
   void start(ObjectNode n) {
     n.putNull("activitySlot");
     n.remove("_roomStation");

@@ -1034,13 +1034,20 @@
        where neither the cue column, the queue pill nor the event chip can reach them. */
     --feedback-top: auto;
     --feedback-bottom: calc(var(--hud-bottom) + var(--s-2));
-    /* centred between the joystick (left 120px) and the action stack (right 200px) */
-    --feedback-left: calc(50vw - 40px);
+    /* centred between the joystick (left 120px) and the action stack, whose social row
+       reaches 235px in from the right edge */
+    --feedback-left: calc(50vw - 54px);
     --feedback-shift: -50%;
-    --feedback-max-width: min(380px, calc(100vw - 330px));
+    --feedback-max-width: min(380px, calc(100vw - 374px));
   }
   .metro-hud:has(.walk-help) {
     --feedback-bottom: calc(var(--hud-bottom) + var(--s-2) + 68px);
+  }
+  /* a side sheet covers the right half; notices use the free strip on the left */
+  .metro-hud.is-panel-open {
+    --feedback-left: var(--s-2);
+    --feedback-shift: 0;
+    --feedback-max-width: calc(100vw - min(392px, 58vw) - 24px);
   }
   .cash-detail {
     max-height: calc(100dvh - 84px);
@@ -1131,9 +1138,10 @@
   .hud-toast strong {
     font-size: var(--t-lead);
   }
+  /* one line of detail keeps two cards below the first-day cue */
   .hud-toast p {
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -1242,11 +1250,15 @@
   .hud-action-stack.is-open .walk-more {
     display: none;
   }
+  /* Wave, Hang out and Gift stay on one line each; the row reaches past the
+     narrow stack, which is clear of the dock at this height. */
   .walk-social {
     gap: var(--s-1);
+    margin-left: -44px;
   }
   .walk-social button {
     padding: 0 var(--s-1);
+    white-space: nowrap;
   }
   .walk-interact {
     min-height: 56px;

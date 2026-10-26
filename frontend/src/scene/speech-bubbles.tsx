@@ -289,7 +289,35 @@ function plateHeight(entry: LabelEntry) {
   return base + (entry.speaking ? 0.2 : 0);
 }
 
+/** Shortens text to whole words that fit, so a plate never ends mid-word. */
+function clip(text: string, max: number) {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1),
+    space = cut.lastIndexOf(" ");
+  return `${(space > max / 2 ? cut.slice(0, space) : cut).replace(/[\s·,]+$/, "")}…`;
+}
+
 /** One screen-space budget serves staff and street NPCs, with real players taking priority. */
+/** Screen boxes of the walking controls, read a few times a second so plates never sit under them. */
+const controlBoxes: Box[] = [];
+let controlBoxesAt = -Infinity;
+function readControlBoxes(canvas: HTMLCanvasElement) {
+  const frame = canvas.getBoundingClientRect();
+  controlBoxes.length = 0;
+  for (const el of document.querySelectorAll(
+    ".walk-more, .walk-social, .walk-interact",
+  )) {
+    const b = el.getBoundingClientRect();
+    if (!b.width || !b.height) continue;
+    controlBoxes.push({
+      x: b.left - frame.left + b.width / 2,
+      y: b.top - frame.top + b.height / 2,
+      w: b.width,
+      h: b.height,
+    });
+  }
+}
+
 function layoutLabels(state: RootState) {
   const { camera, size, clock } = state;
   if (layoutFrames.get(camera) === clock.elapsedTime) return;
@@ -303,7 +331,8 @@ function layoutLabels(state: RootState) {
     // Wide enough that the name and role lines render at 16 px or more.
     width = 256,
     halfWidth = width / 2,
-    top = 64,
+    // below the vitals, cue and event chip rows
+    top = size.height <= 520 ? 124 : 88,
     bottom = size.height - (size.width < 600 ? 150 : 105);
   candidates.length = 0;
   for (const entry of labels) {
@@ -369,6 +398,18 @@ function layoutLabels(state: RootState) {
       box.h = feetY - headY;
       boxes = 1;
     }
+  }
+  if (Math.abs(clock.elapsedTime - controlBoxesAt) > 0.4) {
+    controlBoxesAt = clock.elapsedTime;
+    readControlBoxes(state.gl.domElement);
+  }
+  for (const r of [...reactionBoxes.values(), ...controlBoxes]) {
+    const box = boxPool[boxes] ?? (boxPool[boxes] = { x: 0, y: 0, w: 0, h: 0 });
+    box.x = r.x;
+    box.y = r.y;
+    box.w = r.w;
+    box.h = r.h;
+    boxes++;
   }
   for (const candidate of candidates) {
     const { entry, anchor, projected, focused, priority } = candidate,
@@ -518,7 +559,7 @@ export function LifeBubble({
           depthTest={false}
           renderOrder={32}
         >
-          {cleanName.slice(0, 24)}
+          {clip(cleanName, 24)}
         </WorldText>
         {cleanLabel && (
           <WorldText
@@ -531,7 +572,7 @@ export function LifeBubble({
             depthTest={false}
             renderOrder={32}
           >
-            {cleanLabel.slice(0, 28)}
+            {clip(cleanLabel, 34)}
           </WorldText>
         )}
         {speaking && (
@@ -630,6 +671,11 @@ const REACTION_TOPICS: Record<SocialKind, string> = {
 };
 const REACTION_MS = 2800,
   REACTION_WIDTH = 2.7;
+/** Screen boxes of the social reactions on show, so name plates step around them. */
+const reactionBoxes = new Map<
+  number,
+  { x: number; y: number; w: number; h: number }
+>();
 const lineGeometry = new THREE.PlaneGeometry(2.1, 0.525),
   lineMaterials = new Map<SocialKind, THREE.MeshBasicMaterial>();
 /** The answer is painted once per kind in the interface's display face, so it reads at any size. */
@@ -733,6 +779,10 @@ function ReactionBubble({
     probe = useMemo(() => new THREE.Vector3(), []),
     { scene, invalidate } = useThree(),
     finished = useRef(false);
+  useEffect(
+    () => () => void reactionBoxes.delete(reaction.key),
+    [reaction.key],
+  );
   useFrame(({ camera, size }) => {
     const group = ref.current;
     if (!group || finished.current) return;
@@ -742,6 +792,7 @@ function ReactionBubble({
     if (t >= 1) {
       finished.current = true;
       group.visible = false;
+      reactionBoxes.delete(reaction.key);
       onDone(reaction.key);
       return;
     }
@@ -753,6 +804,7 @@ function ReactionBubble({
       at.set(reaction.anchor.x, reaction.anchor.y ?? 0, reaction.anchor.z);
     else {
       group.visible = false;
+      reactionBoxes.delete(reaction.key);
       invalidate();
       return;
     }
@@ -766,7 +818,6 @@ function ReactionBubble({
               : 1,
       bob = Math.sin(t * Math.PI * 6) * 0.04 * (1 - t);
     at.y += 3.3 + t * 0.3 + bob;
-    group.position.copy(group.parent ? group.parent.worldToLocal(at) : at);
     const depth = Math.abs(
         probe.copy(at).applyMatrix4(camera.matrixWorldInverse).z,
       ),
@@ -778,9 +829,24 @@ function ReactionBubble({
             ? (camera.top - camera.bottom) / camera.zoom / size.height
             : 0.015,
       pixels = size.width < 700 ? 170 : 210;
+    // Keep the bubble below the HUD's top rows, sliding it down at the same depth.
+    probe.copy(at).project(camera);
+    const minY = (size.height <= 520 ? 124 : 88) + pixels * 0.17;
+    if (((1 - probe.y) * size.height) / 2 < minY) {
+      probe.y = 1 - (minY / size.height) * 2;
+      at.copy(probe.unproject(camera));
+    }
+    group.position.copy(group.parent ? group.parent.worldToLocal(at) : at);
     group.scale.setScalar(
       Math.max(0.0001, (perPixel * pixels * pop) / REACTION_WIDTH),
     );
+    probe.copy(at).project(camera);
+    reactionBoxes.set(reaction.key, {
+      x: ((probe.x + 1) * size.width) / 2,
+      y: ((1 - probe.y) * size.height) / 2 + pixels * 0.06,
+      w: pixels,
+      h: pixels * 0.45,
+    });
     group.visible = true;
     invalidate();
   });

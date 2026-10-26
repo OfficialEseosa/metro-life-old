@@ -774,6 +774,24 @@ blockquote {
   display: grid;
   gap: var(--s-3);
 }
+/* Short screens: the heading already carries the icon, so every choice fits without scrolling. */
+@media (max-height: 520px) {
+  .story-icon {
+    display: none;
+  }
+  .story-body {
+    margin-bottom: var(--s-3);
+    font-size: var(--t-body);
+    line-height: 1.45;
+  }
+  .story-choices {
+    gap: var(--s-2);
+  }
+  .story-choices .mode-card {
+    min-height: 56px;
+    padding: var(--s-2) var(--s-3);
+  }
+}
 .mode-card {
   display: flex;
   align-items: center;

@@ -362,8 +362,9 @@ final class Navigation {
     JsonNode use = activityUse(city, type, action);
     String pose = use.path("pose").asText(),
       station = use.path("station").asText();
-    JsonNode winner = null;
-    double nearest = Double.MAX_VALUE;
+    JsonNode winner = null, yielding = null;
+    List<ObjectNode> yieldFrom = List.of();
+    double nearest = Double.MAX_VALUE, yieldNearest = Double.MAX_VALUE;
     JsonNode at = position(s);
     for (JsonNode slot : layoutFor(s, type).path("slots")) {
       if (!slotId.isEmpty() && !slot.path("id").asText().equals(slotId)) continue;
@@ -382,7 +383,19 @@ final class Navigation {
       if (!occupied && distance < nearest) {
         winner = slot;
         nearest = distance;
+      } else if (occupied && distance < yieldNearest && !s.path("npc").asBoolean()) {
+        List<ObjectNode> held = residentsOn(s, slot, at.path("room").asText());
+        if (held != null && !held.isEmpty()) {
+          yielding = slot;
+          yieldFrom = held;
+          yieldNearest = distance;
+        }
       }
+    }
+    // Residents make room for players: when every matching seat is theirs, the nearest one gets up.
+    if (winner == null && yielding != null) {
+      yieldFrom.forEach(g.residentMotion::yieldSlot);
+      winner = yielding;
     }
     GameService.require(winner != null, 409, "The furniture is in use. Wait for a free place.");
     s.set("activitySlot", winner.deepCopy());
@@ -434,8 +447,27 @@ final class Navigation {
     List<JsonNode> people = new ArrayList<>();
     g.table("sims").forEach(people::add);
     g.community.residents().path(wid).forEach(people::add);
+    for (JsonNode other : people) if (holds(s, other, slot, room, wid)) return true;
+    return false;
+  }
+
+  /** The residents in or heading for this slot, or null when a player holds it. */
+  List<ObjectNode> residentsOn(ObjectNode s, JsonNode slot, String room) {
+    String wid = s.path("worldId").asText();
+    List<JsonNode> people = new ArrayList<>();
+    g.table("sims").forEach(people::add);
+    g.community.residents().path(wid).forEach(people::add);
+    List<ObjectNode> out = new ArrayList<>();
     for (JsonNode other : people)
-      if (
+      if (holds(s, other, slot, room, wid)) {
+        if (!other.path("npc").asBoolean() || !(other instanceof ObjectNode n)) return null;
+        out.add(n);
+      }
+    return out;
+  }
+
+  private boolean holds(ObjectNode s, JsonNode other, JsonNode slot, String room, String wid) {
+    return (
         !other.path("userId").equals(s.path("userId")) &&
         other.path("worldId").asText().equals(wid) &&
         other.path("city").equals(s.path("city")) &&
@@ -447,8 +479,7 @@ final class Navigation {
         (other.path("busyUntil").asLong() > g.now() ||
           (other.path("npc").asBoolean() &&
             (other.path("_phase").asText().equals("dwell") || other.path("_phase").asText().equals("approach"))))
-      ) return true;
-    return false;
+    );
   }
 
   void resumePosture(ObjectNode s) {

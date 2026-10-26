@@ -15,15 +15,15 @@ function staffWork(name: string): {
   topic: string;
 } {
   if (/cook|chef|barista|bartend|vendor|stall|kitchen|food/i.test(name))
-    return { pose: "Cook", label: "Preparing an order", topic: "food" };
+    return { pose: "Cook", label: "Preparing orders", topic: "food" };
   if (/music|perform|stage/i.test(name))
-    return { pose: "Play", label: "Playing for the room", topic: "music" };
+    return { pose: "Play", label: "Playing music", topic: "music" };
   if (/curator|gallery|guide/i.test(name))
-    return { pose: "Browse", label: "Showing the collection", topic: "chat" };
+    return { pose: "Browse", label: "Showing pieces", topic: "chat" };
   if (/nurse|doctor|health/i.test(name))
     return { pose: "Interact", label: "Getting care ready", topic: "work" };
   // Standing behind a counter, so a talking idle rather than the seated typing pose.
-  return { pose: "Talk", label: "Helping the next visitor", topic: "work" };
+  return { pose: "Talk", label: "Helping visitors", topic: "work" };
 }
 
 /** Named staff use the same skinned body and purposeful activity loops as every resident. */
