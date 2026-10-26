@@ -414,7 +414,11 @@ export function openObjectMenu(target: PickTarget) {
               );
       add(
         action.id,
-        action.label,
+        action.cost > 0
+          ? `${action.label} · $${action.cost}`
+          : action.pay > 0
+            ? `${action.label} · earn $${action.pay}`
+            : action.label,
         action.icon,
         {
           ...base,
