@@ -1,8 +1,8 @@
 # Beginning a life
 
-This server has one public world. Opening it automatically creates or restores a guest identity through an HttpOnly, SameSite=Lax cookie. There are no login, signup, password or room endpoints. Each person has a private home; streets, public rooms, residents, elections, bookings and city chat are shared.
+This server has one public world. Opening it automatically creates or restores a guest identity through an HttpOnly session cookie (SameSite=Lax on the same site, SameSite=None; Secure; Partitioned when the frontend is hosted on another site). There are no login, signup, password or room endpoints. Each person has a private home; streets, public rooms, residents, elections, bookings and city chat are shared.
 
-The creator accepts a 2–20-character name made from letters, spaces, hyphens and apostrophes, plus she/he/they, either base body, eight skin tones, six hair colours and casual/street clothes. The preview and portrait use the same rigged model and material colours as the controlled player. Visible portraits share a queued renderer instead of creating one WebGL context per resident row.
+The creator accepts a 2–20-character name made from letters, spaces, hyphens and apostrophes, plus she/he/they, either base body, eight skin tones, six hair colours and a starting outfit (casual or street; work, smart and party outfits unlock later). The preview and portrait use the same rigged model and material colours as the controlled player. Visible portraits share a queued renderer instead of creating one WebGL context per resident row.
 
 Four arrival cards lead from the chosen city to the home door. Turning the key enters a 7 x 6 metre studio containing a bed, two-ring stove, shower and one chair. Starting cash is $150; the shared world clock continues while personal Day 1 starts on arrival.
 

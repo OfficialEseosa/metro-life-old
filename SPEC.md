@@ -5,8 +5,8 @@ A life-sim in the spirit of The Sims, set in the USA:
 and other players who open this server address. You build a life: keep your needs up,
 learn skills, get a job, earn money, pursue an aspiration, run for mayor, buy plots and billboards.
 
-Design pillars: no emojis anywhere (SVG icons only), strong typography, better 3D models
-than the original, and smooth rendering.
+Design pillars: no emojis anywhere (SVG icons only), strong typography, stylized 3D models
+and smooth rendering.
 
 Stack: **Spring Boot 3 / Java 21 backend on :8080**, **React 19 + Vite + react-three-fiber frontend on :5173**
 (in development Vite proxies `/api` and `/ws` to :8080; in production the frontend calls the API origin set by `VITE_API_URL`).
@@ -158,7 +158,7 @@ a visible saving/sending explanation. Homes display resident counts and missing 
 ## API (JSON; cookie session `ml_session`; errors `{ "error": "message" }` with 4xx)
 
 A missing or expired required session returns 401 with `Your life could not be found. Reload to start again.`
-The client creates or resumes the browser guest automatically. The cookie is HttpOnly, SameSite=Lax,
+The client creates or resumes the browser guest automatically. The cookie is HttpOnly, SameSite=Lax (SameSite=None; Secure; Partitioned when the frontend is on another site),
 scoped to `/`, valid for 30 days, and Secure when the request uses HTTPS.
 
 Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl`).
@@ -173,9 +173,16 @@ Reads accept `?city=atl|nyc|bay` where noted (default: the sim's city, else `atl
 | POST | `/api/auth/guest` | `{ username? }` → `{ user }` (name applies to a new guest; an existing valid session is returned unchanged) |
 | POST | `/api/life/new` | `{ confirm: true }` → `{ user }` (replaces the browser life and issues a new session cookie) |
 | POST | `/api/sim/setup` | `{ username, pronouns, city, neighborhood, aspiration, look? }` → `{ sim }` (creates the sim once in the shared world; existing sim returns 409, later home/aspiration changes use their dedicated endpoints) |
+| POST | `/api/sim/outfit` | `{ style: "casual"\|"street"\|"smart"\|"work"\|"party", confirm? }` → `{ sim, clock }` (changes the worn outfit; casual and street are free, smart and party are bought once for $120 and $90 and need `confirm`, work needs a job; 409 mid-activity, 402 without cash) |
+| POST | `/api/intro/complete` | no body → `{ sim, clock }` (marks the opening walk-through done and steps the player through the home door; safe to repeat) |
+| POST | `/api/first-day/complete` | no body → `{ sim, clock }` (records that the first-day closing card was seen; 409 until all six first-day goals are complete) |
+| POST | `/api/home/rent` | no body → `{ sim, clock }` (pays the first rent from home, which covers the next midnight and completes that first-day goal; 409 if already paid, outside the home or mid-activity, 402 without cash) |
 | GET | `/api/sim` | `{ sim, clock }` (applies decay up to now) |
 | POST | `/api/act` | `{ city, loc, action, slotId? }` → `{ sim, result: ActResult }` |
 | POST | `/api/action/cancel` | no body → `{ sim, clock }` |
+| POST | `/api/posture` | `{ bench: string\|null }` → `{ sim, clock }` (`bench` is a park bench id such as `parkId:2`: sit on it when within 2 units and it is free, 409 otherwise; `null` stands the sim up again) |
+| POST | `/api/shift/timing` | no body → `{ sim, clock }` (one well-timed tap of a running shift's timing game; up to three taps, 400 ms apart, raise the shift's bonus pay by up to 25 %; 409 when no shift is running or the taps are used) |
+| POST | `/api/transit/chat` | `{ text }` (1–240 characters) → `{ message, trip, clock }` (posts to the chat of the player's current trip cohort; 429 if sent within 1.5 s of the last message) |
 | POST | `/api/story/choose` | `{ beatId, choice }` → `{ sim, outcome: StoryOutcome }` |
 | POST | `/api/home/move` | `{ city, neighborhood }` → `{ sim }` |
 | GET | `/api/jobs?city` | `{ jobs: Job[] }` |

@@ -56,14 +56,14 @@ Run exactly one API instance: the save file has a single writer and sessions liv
 
 ## Deploy
 
-- Frontend: Vercel project `metro-life`, Root Directory `frontend`, connected to this repository's `main` branch. Set `VITE_API_URL` once an API is running.
+- Frontend: a Vercel project with Root Directory `frontend`. It is not connected yet; creating the project and linking the repository is a manual step described in [docs/deploy.md](docs/deploy.md). Set `VITE_API_URL` once an API is running.
 - API: the `backend/Dockerfile` image on one instance with a persistent volume at `/data` (Render, Fly.io or Koyeb), with `METRO_ORIGINS` set to the Vercel URL.
 
 Step by step in [docs/deploy.md](docs/deploy.md).
 
 ## End-to-end journeys
 
-`e2e/` holds seven Playwright journeys that play the real game: first start, resuming after a reload, two players meeting online, a server outage with recovery, a work shift with pay, a two-way social visit (wave, hang out, gift), and a flight to another city, at 1366x768 and at 667x375 with touch. They start the API on :8090 and the Vite dev server on :5190 by themselves (or reuse running ones). On a machine without a GPU the whole run takes about ten minutes per viewport.
+`e2e/` holds seven Playwright journeys that play the real game: first start, resuming after a reload, two players meeting online, a server outage with recovery, a work shift with pay, a two-way social visit (wave, hang out, gift), and a flight to another city, at 1366x768 and at 667x375 with touch. They start the API on :8090 and the Vite dev server on :5190 by themselves (or reuse running ones). On a machine without a GPU the run is slow, so allow plenty of time per viewport.
 
 ```sh
 (cd backend && mvn -q package) && (cd frontend && npm ci)

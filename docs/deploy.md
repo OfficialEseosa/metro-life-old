@@ -7,9 +7,9 @@ Metro Life is two pieces:
 
 ## What is still manual
 
-Nothing is hosted yet. These steps need a dashboard login and are not scripted:
+The repository does not deploy itself. These steps need a dashboard login and are not scripted:
 
-1. Create the Vercel project `metro-life` with the settings under [Frontend on Vercel](#frontend-on-vercel). Nobody has created it yet.
+1. Create a Vercel project with the settings under [Frontend on Vercel](#frontend-on-vercel).
 2. Run one API container with a volume at `/data` on one of the [free API hosts](#free-api-hosts), and set its `METRO_ORIGINS` to the Vercel URL.
 3. Set `VITE_API_URL` on the Vercel project to the API origin and redeploy.
 
@@ -29,6 +29,7 @@ docker run -p 8080:8080 -v metro-data:/data \
 | `PORT` | `8080` | Port to listen on. Most hosts set it for you. |
 | `METRO_DATA` | `/data/metro-life.json` in the image | The save file. Put it on a persistent volume. |
 | `METRO_ORIGINS` | `http://localhost:[*],http://127.0.0.1:[*]` | Comma-separated browser origins allowed to call the API and open the socket. Exact origins or patterns, for example `https://metro-life.vercel.app,https://metro-life-*-team.vercel.app`. |
+| `METRO_STATIC_LOCATIONS` | none | Optional Spring resource location of a built frontend (for example `file:../frontend/dist/`), so the API also serves the game from one address. Leave unset when the frontend is on Vercel. |
 
 Rules that matter on every host:
 
@@ -58,11 +59,11 @@ Create a service from the Git repository with the Dockerfile builder, Dockerfile
 
 ## Frontend on Vercel
 
-Project settings (team "Raphael Omorose's projects", project name `metro-life`):
+Project settings (your Vercel team, any project name):
 
 | Setting | Value |
 |---|---|
-| Git repository | `OfficialEseosa/metro-life`, production branch `main` (every push deploys) |
+| Git repository | `<github-owner>/<repository>`, production branch `main` (every push deploys) |
 | Root Directory | `frontend` |
 | Framework preset | Vite |
 | Install / build / output | `npm ci` / `npm run build` / `dist` (also set in `frontend/vercel.json`) |
@@ -72,10 +73,10 @@ Project settings (team "Raphael Omorose's projects", project name `metro-life`):
 
 Steps:
 
-1. Vercel dashboard, Add New, Project, import `OfficialEseosa/metro-life` (install the Vercel GitHub app for the repository if asked), then set the values above. The quickest link is https://vercel.com/new/import?s=https://github.com/OfficialEseosa/metro-life .
+1. Vercel dashboard, Add New, Project, import `<github-owner>/<repository>` (install the Vercel GitHub app for the repository if asked), then set the values above.
 2. Keep **Include files outside the root directory** on: `npm run build` first copies `../shared/*.json` into `src/shared-data` and stops with a clear message if `../shared` is missing.
 3. Once an API is running, add `VITE_API_URL` (Production and Preview) and redeploy: the value is read at build time.
-4. Put the Vercel production URL, and a preview pattern if you want previews to reach the API (for example `https://metro-life-*-raphael-omoroses-projects.vercel.app`), into the API's `METRO_ORIGINS`.
+4. Put the Vercel production URL, and a preview pattern if you want previews to reach the API (for example `https://<project>-*-<team>.vercel.app`), into the API's `METRO_ORIGINS`.
 
 Without `VITE_API_URL` the page calls `/api` on its own origin, which Vercel answers with 404, so players see the "server unreachable" card instead of a blank page.
 
